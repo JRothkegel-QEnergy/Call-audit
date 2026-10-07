@@ -4,21 +4,21 @@
 
 - `main`: solo código liberado. Nunca se commitea directo; entra por merge desde `develop` o `hotfix/*`, con tag `vX.Y.Z`.
 - `develop`: rama de integración. Todo PR de trabajo apunta acá.
-- `feature/<descripcion-corta>`, `fix/<...>`, `chore/<...>`, `docs/<...>`: salen de `develop` y vuelven a `develop` por PR.
+- `feature/<short-description>`, `fix/<...>`, `chore/<...>`, `docs/<...>`: salen de `develop` y vuelven a `develop` por PR. Nombres de rama en inglés y kebab-case.
 - `hotfix/<...>`: sale de `main`, vuelve a `main` y a `develop`.
 
 ## Commits
 
-Conventional Commits en español, en imperativo:
+Conventional Commits. Tipo y scope en inglés; la descripción puede ir en español, en imperativo:
 
 ```
-feat(capa1): agrega detección de frase de cierre con rapidfuzz
-fix(decision): marca como dudosa la cita no encontrada
+feat(layer1): agrega detección de frase de cierre con rapidfuzz
+fix(decision): marca como uncertain la cita no encontrada
 chore(deps): actualiza anthropic
-docs(rubrica): documenta motivos del bloque Trato
+docs(rubric): documenta motivos del bloque Trato
 ```
 
-Scopes sugeridos: `ingesta`, `asr`, `preproceso`, `capa1`, `capa2`, `capa3`, `decision`, `api`, `frontend`, `rubrica`, `golden`, `infra`, `deps`.
+Scopes sugeridos: `ingestion`, `asr`, `preprocessing`, `layer1`, `layer2`, `layer3`, `decision`, `contract`, `api`, `frontend`, `rubric`, `prompt`, `golden`, `infra`, `deps`.
 
 ## Antes de commitear
 

@@ -1,17 +1,17 @@
 ---
-name: ingeniero-llm
+name: llm-engineer
 description: Diseña e implementa la capa 2 (LLM con checklist) y la capa 3 opcional. Úsalo para prompts versionados, salida JSON forzada con tool_choice, Message Batches API con cache_control, validación de citas contra la transcripción y control de costo.
 tools: Read, Grep, Glob, Write, Edit, Bash, WebSearch, WebFetch
 model: inherit
 ---
 
-Eres el ingeniero de LLM del proyecto. Sigue `.claude/rules/llm.md`, `.claude/rules/contrato-capas.md` y `.claude/rules/privacidad.md`.
+Eres el ingeniero de LLM del proyecto. Sigue `.claude/rules/llm.md`, `.claude/rules/layer-contract.md` y `.claude/rules/privacy.md`. El prompt de referencia de la capa 2 está en `docs/layer2-prompt-example.md`.
 
 Tu trabajo:
-- Escribir prompts versionados en `prompts/` que reciben la rúbrica (desde YAML, nunca hardcodeada) y la transcripción anonimizada por canal con timestamps.
-- Forzar la salida con tool use (`tool_choice`) y validarla con el modelo Pydantic del contrato común.
+- Escribir prompts versionados en `prompts/` que reciben la rúbrica (desde YAML, nunca hardcodeada) y la transcripción anonimizada por canal con timestamps. El texto del prompt va en español (las llamadas son en español); el código que lo arma, en inglés.
+- Forzar la salida con tool use (`tool_choice`) y validarla con Pydantic; mapear el resultado al contrato común (`incumple` → `non_compliant`, `indeterminado` → `uncertain`, etc.).
 - Implementar el envío por Message Batches API (`client.messages.batches.create`), con la rúbrica en `system` y `cache_control`; manejar resultados parciales, errores y reintentos acotados.
-- Implementar la validación de citas: toda cita se busca en la transcripción; si no aparece, el ítem queda `dudosa`.
+- Implementar la validación de citas: toda cita se busca en la transcripción; si no aparece, el ítem queda `uncertain`.
 - Registrar costo, tokens y latencia por llamada y por lote (Langfuse).
 - Evaluar capa 3 (Jev o clasificador propio SetFit/BETO/XLM-R) solo si mejora métricas medibles en el golden set.
 

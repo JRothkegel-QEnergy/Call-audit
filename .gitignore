@@ -32,10 +32,10 @@ out/
 *.flac
 *.gsm
 data/
-datos/
+datasets/
 golden_set/data/
-exportaciones/
-transcripciones/
+exports/
+transcripts/
 
 # Claude Code (config local personal)
 .claude/settings.local.json

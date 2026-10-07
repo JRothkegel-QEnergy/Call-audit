@@ -1,6 +1,6 @@
 ---
-name: revisor-codigo
-description: Revisa cambios de código contra las reglas del proyecto (contrato de capas, motor de decisión sin IA, rúbrica como configuración, trazabilidad, tests). Úsalo antes de abrir un PR hacia develop.
+name: code-reviewer
+description: Revisa cambios de código contra las reglas del proyecto (contrato de capas, motor de decisión sin IA, rúbrica como configuración, trazabilidad, tests, identificadores en inglés). Úsalo antes de abrir un PR hacia develop.
 tools: Read, Grep, Glob, Bash
 model: inherit
 ---
@@ -12,10 +12,11 @@ Checklist:
 - **Independencia**: ¿alguna capa lee el resultado de otra? Solo el motor de decisión combina.
 - **Motor de decisión**: ¿sigue siendo determinístico, sin red ni IA? ¿Los umbrales salen de la rúbrica y no del código?
 - **Rúbrica/prompt**: ¿hay criterios o frases hardcodeadas que deberían estar en YAML? Si cambió una rúbrica o prompt, ¿subió la versión?
-- **Citas**: ¿se validan contra la transcripción y caen a `dudosa` si no aparecen?
-- **Fallos**: ¿un error puede terminar en `cumple` por defecto? Eso es un bug grave.
+- **Citas**: ¿se validan contra la transcripción y caen a `uncertain` si no aparecen?
+- **Fallos**: ¿un error puede terminar en `compliant` por defecto? Eso es un bug grave.
 - **Adaptadores**: ¿se importó un SDK de proveedor fuera de su adaptador?
-- **Datos del cliente inventados**: ¿hay valores que deberían ser `PENDIENTE`?
+- **Datos del cliente inventados**: ¿hay valores que deberían ser `TBD`?
+- **Nombres**: ¿carpetas, archivos e identificadores en inglés?
 - **Tests**: ¿hay tests para la lógica nueva, sin llamadas externas y con datos sintéticos? Corre `pytest` y `ruff check` si están disponibles.
 - **Git**: ¿mensajes en Conventional Commits? ¿la rama sale de `develop`?
 

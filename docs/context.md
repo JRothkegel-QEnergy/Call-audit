@@ -34,8 +34,8 @@ Hoy un equipo de personas escucha las llamadas a mano y solo alcanza a auditar u
 - **Trazabilidad completa:** cada decisión guarda el modelo, el prompt, la rúbrica y las versiones de cada capa.
 - **Monitoreo continuo:** muestreo humano permanente de las llamadas "cumple", más alertas de drift y de costo.
 - **La IA genera hallazgos; un humano decide las consecuencias.** El sistema nunca aplica sanciones.
-- **Adaptadores intercambiables:** transcripción y LLM van detrás de interfaces (`Transcriptor`, `Capa`), así que cambiar de proveedor es un cambio de configuración.
-- **Toda cita del LLM se valida contra la transcripción.** Si la cita no aparece, el ítem pasa a "dudoso".
+- **Adaptadores intercambiables:** transcripción y LLM van detrás de interfaces (`Transcriber`, `Layer`), así que cambiar de proveedor es un cambio de configuración.
+- **Toda cita del LLM se valida contra la transcripción.** Si la cita no aparece, el ítem pasa a "dudoso" (`uncertain`).
 
 ## Stack y opciones elegidas para empezar
 
@@ -103,4 +103,4 @@ Hoy un equipo de personas escucha las llamadas a mano y solo alcanza a auditar u
 - Diagrama de flujo en FigJam.
 - Excel de costos con escenarios A, B, C y D (solo con IA).
 - PDF con los servicios y sus opciones.
-- Prompt de ejemplo para la capa 2 con la pauta de retención.
+- Prompt de ejemplo para la capa 2 con la pauta de retención (`docs/layer2-prompt-example.md`).
