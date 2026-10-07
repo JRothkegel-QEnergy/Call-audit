@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Node / frontend
+node_modules/
+.next/
+out/
+
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Datos del cliente: NUNCA al repo
+*.wav
+*.mp3
+*.m4a
+*.ogg
+*.flac
+*.gsm
+data/
+datos/
+golden_set/data/
+exportaciones/
+transcripciones/
+
+# Claude Code (config local personal)
+.claude/settings.local.json
+
+# SO / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
