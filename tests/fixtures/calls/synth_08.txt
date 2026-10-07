@@ -1,0 +1,21 @@
+# synth-08 · Inducción a la renuncia y negación de devolución de prima
+
+El cliente llama a consultar por un cobro de Sale Seguro. El ejecutivo le sugiere renunciar sin que lo haya pedido y le niega la devolución de la prima, que en este caso sí corresponde (supuesto sintético del fixture).
+
+[00:01] AGENTE : BancoEstado Corredores de Seguros, buenas tardes, le atiende Sebastián Lagos.
+[00:05] CLIENTE: Hola, buenas tardes, habla Valentina Reyes.
+[00:08] AGENTE : Señora Valentina, ¿me indica su RUT, nombre completo y fecha de nacimiento?
+[00:13] CLIENTE: Dieciocho millones ochocientos ochenta y ocho mil ochocientos ochenta y ocho guion ocho. Valentina Paz Reyes Ortiz, cinco de diciembre del noventa y cinco.
+[00:24] AGENTE : ¿Su correo y teléfono?
+[00:26] CLIENTE: valentina punto reyes arroba correo ejemplo punto cl, nueve dos dos dos tres tres tres cuatro cuatro.
+[00:33] AGENTE : Gracias, datos validados. ¿En qué la ayudo?
+[00:37] CLIENTE: Me apareció un cobro en la cuenta que dice Sale Seguro y no me acuerdo bien qué es. Quería saber qué cubre.
+[00:46] AGENTE : Ah, sí, es un seguro que se contrató con su crédito. La verdad, si no se acuerda de él, seguramente no lo usa. Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?
+[01:01] CLIENTE: Eh... bueno, ya, si usted dice.
+[01:04] AGENTE : Perfecto, procedo.
+[01:06] CLIENTE: Y lo que ya me cobraron, ¿me lo devuelven?
+[01:11] AGENTE : No, eso no se devuelve. Lo pagado, pagado.
+[01:15] CLIENTE: Ah, ya. Bueno.
+[01:17] AGENTE : Listo, señora Valentina. Quedó ingresada la renuncia de su Sale Seguro, póliza número SALE-0008, con cargo a su cuenta RUT. ¿Está de acuerdo?
+[01:26] CLIENTE: Sí.
+[01:28] AGENTE : Que tenga buena tarde.

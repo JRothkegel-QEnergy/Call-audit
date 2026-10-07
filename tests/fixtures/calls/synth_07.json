@@ -1,0 +1,237 @@
+{
+  "call_id": "synth-07",
+  "synthetic": true,
+  "title": "Llamada larga con esperas excesivas y descalificación de la competencia",
+  "description": "El cliente tiene una mejor oferta en otra compañía. El ejecutivo lo deja dos veces en espera (45 s y 210 s) y descalifica a la competencia. El cliente termina renunciando.",
+  "metadata": {
+    "date": "2026-09-09",
+    "agent_id": "EJ-0107",
+    "duration_sec": 443,
+    "holds_sec": [
+      45,
+      210
+    ],
+    "policies": [
+      {
+        "name": "Seguro de Salud Incapacidad MYPE",
+        "policy_number": "MYPE-0007",
+        "retainable": true,
+        "cancellable_in_channel": true
+      }
+    ],
+    "typification": [
+      {
+        "policy_number": "MYPE-0007",
+        "outcome": "RENUNCIA",
+        "reason": "Cliente posee otros Seguros"
+      }
+    ]
+  },
+  "transcript": [
+    {
+      "channel": "agent",
+      "start_ms": 1000,
+      "end_ms": 7153,
+      "text": "Buenas tardes, le saluda Daniela Espinoza de BancoEstado Corredores de Seguros. ¿Con quién tengo el gusto?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 7953,
+      "end_ms": 9876,
+      "text": "Buenas tardes, habla Cristián Molina."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 10476,
+      "end_ms": 14707,
+      "text": "Don Cristián, para validar su identidad, ¿me puede indicar su RUT?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 15607,
+      "end_ms": 20607,
+      "text": "Diecisiete millones setecientos setenta y siete mil setecientos setenta y siete guion siete."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 21107,
+      "end_ms": 22307,
+      "text": "¿Nombre completo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 23507,
+      "end_ms": 25046,
+      "text": "Cristián Felipe Molina Araya."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 25746,
+      "end_ms": 26946,
+      "text": "¿Fecha de nacimiento?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 27946,
+      "end_ms": 30638,
+      "text": "Veintiocho de febrero del ochenta y uno."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 31438,
+      "end_ms": 33746,
+      "text": "¿Me confirma su correo y teléfono?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 34346,
+      "end_ms": 41653,
+      "text": "cristian punto molina arroba correo ejemplo punto cl, y el nueve siete siete siete uno uno uno dos dos."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 42553,
+      "end_ms": 46400,
+      "text": "Gracias, don Cristián, quedó validado. ¿En qué lo puedo ayudar?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 46900,
+      "end_ms": 59976,
+      "text": "Mire, tengo una ferretería chica y tengo el seguro de salud incapacidad MYPE con ustedes. Me ofrecieron uno en otra compañía que cubre más y es más barato, así que quiero renunciar a este."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 61176,
+      "end_ms": 67330,
+      "text": "Entiendo, don Cristián. Permítame revisar el detalle de su póliza. Lo dejo un momento en espera."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 113030,
+      "end_ms": 123415,
+      "text": "Gracias por esperar. Veo su seguro Salud Incapacidad MYPE, con prima mensual cargada a su cuenta corriente. ¿Me puede contar qué le ofrecieron en la otra compañía?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 124215,
+      "end_ms": 131523,
+      "text": "Una renta diaria más alta por incapacidad y además cubre hospitalización. Y sale como cuatro lucas menos al mes."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 132123,
+      "end_ms": 143661,
+      "text": "Mire, don Cristián, le soy honesta: esa otra compañía es una estafa. Siempre ponen letra chica y después no pagan nada. Los que se cambian a ellos después vuelven llorando."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 144561,
+      "end_ms": 148407,
+      "text": "Bueno, pero yo leí las condiciones y me parecen bien."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 148907,
+      "end_ms": 160061,
+      "text": "Nuestro seguro tiene el respaldo de BancoEstado. Si usted queda incapacitado, le pagamos la renta diaria sin tantos trámites, y el cargo es automático, no se tiene que preocupar."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 161261,
+      "end_ms": 166646,
+      "text": "Ya, pero el otro igual cubre más, la verdad. Yo creo que me cambio."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 167346,
+      "end_ms": 173500,
+      "text": "Déjeme consultar con mi supervisor si hay alguna alternativa para usted. Lo dejo en espera nuevamente."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 384500,
+      "end_ms": 392576,
+      "text": "Disculpe la demora, don Cristián. Mi supervisor me indica que no tenemos un plan alternativo con más cobertura en este momento."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 393176,
+      "end_ms": 398176,
+      "text": "Oiga, me tuvo harto rato esperando. Ya, entonces hágame la renuncia, por favor."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 399076,
+      "end_ms": 402923,
+      "text": "Le pido disculpas por la espera. Procedo con la renuncia."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 403423,
+      "end_ms": 407269,
+      "text": "Y una consulta, ¿me van a cobrar este mes igual?"
+    },
+    {
+      "channel": "agent",
+      "start_ms": 408469,
+      "end_ms": 418084,
+      "text": "Si la renuncia queda ingresada hoy, el cargo de este mes ya no se debería realizar. Si llegara a verlo, nos llama y lo revisamos."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 418784,
+      "end_ms": 419984,
+      "text": "Ya, perfecto."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 420984,
+      "end_ms": 434061,
+      "text": "Le resumo la gestión, don Cristián: se ingresó la renuncia de su seguro Salud Incapacidad MYPE, póliza número MYPE-0007, que se cargaba mensualmente a su cuenta corriente. ¿Está de acuerdo con la gestión realizada?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 434861,
+      "end_ms": 436061,
+      "text": "Sí, de acuerdo."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 436661,
+      "end_ms": 440123,
+      "text": "Muchas gracias por su paciencia. Que tenga buena tarde."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 441023,
+      "end_ms": 442223,
+      "text": "Igualmente, chao."
+    }
+  ],
+  "expected": {
+    "call_verdict": "non_compliant",
+    "cancellation_intent": true,
+    "outcomes": [
+      {
+        "policy_number": "MYPE-0007",
+        "outcome": "RENUNCIA",
+        "cancellation_reason": "Cliente posee otros Seguros",
+        "objections": 2
+      }
+    ],
+    "findings": [
+      {
+        "criterion_id": 11,
+        "status": "non_compliant",
+        "note": "'Esa otra compañía es una estafa': descalifica a la competencia."
+      },
+      {
+        "criterion_id": 1,
+        "status": "depends_on_threshold",
+        "note": "Esperas de 45 s y 210 s. El umbral es TBD con el cliente; con un umbral de ejemplo de 120 s, la segunda espera incumple."
+      }
+    ],
+    "notes": "Llamada más larga del set; útil para probar esperas y costo por llamada."
+  }
+}

@@ -1,0 +1,199 @@
+{
+  "call_id": "synth-01",
+  "synthetic": true,
+  "title": "Retención exitosa, llamada modelo",
+  "description": "El cliente quiere renunciar al seguro de desempleo por problemas económicos. Acreditación completa, 2 objeciones, responde sobre la permanencia y el cliente decide mantenerlo. Cierre completo con N° de póliza y medio de pago.",
+  "metadata": {
+    "date": "2026-09-01",
+    "agent_id": "EJ-0101",
+    "duration_sec": 179,
+    "holds_sec": [],
+    "policies": [
+      {
+        "name": "Seguro de Desempleo - Créditos de consumo",
+        "policy_number": "DES-CONS-0001",
+        "retainable": true,
+        "cancellable_in_channel": true
+      }
+    ],
+    "typification": [
+      {
+        "policy_number": "DES-CONS-0001",
+        "outcome": "RETENCION",
+        "reason": "Problemas Económicos"
+      }
+    ]
+  },
+  "transcript": [
+    {
+      "channel": "agent",
+      "start_ms": 1000,
+      "end_ms": 7153,
+      "text": "Buenas tardes, le saluda Camila Rojas de BancoEstado Corredores de Seguros. ¿Con quién tengo el gusto?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 7753,
+      "end_ms": 10061,
+      "text": "Hola, buenas tardes, habla Pedro Soto."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 10961,
+      "end_ms": 16730,
+      "text": "Don Pedro, para resguardar su información necesito validar algunos datos. ¿Me puede indicar su RUT?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 17230,
+      "end_ms": 21076,
+      "text": "Sí, once millones ciento once mil ciento once guion uno."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 22276,
+      "end_ms": 24584,
+      "text": "Gracias. ¿Me indica su nombre completo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 25284,
+      "end_ms": 26823,
+      "text": "Pedro Andrés Soto Muñoz."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 27823,
+      "end_ms": 29746,
+      "text": "¿Y su fecha de nacimiento?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 30546,
+      "end_ms": 33623,
+      "text": "El catorce de marzo del ochenta y cinco."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 34223,
+      "end_ms": 38453,
+      "text": "Perfecto. ¿Me confirma su correo electrónico y un teléfono de contacto?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 39353,
+      "end_ms": 47815,
+      "text": "pedro punto soto arroba correo ejemplo punto cl, y el teléfono es el nueve uno dos tres cuatro cinco seis siete ocho."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 48315,
+      "end_ms": 53315,
+      "text": "Muchas gracias, don Pedro, sus datos están validados. ¿En qué lo puedo ayudar?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 54515,
+      "end_ms": 63746,
+      "text": "Mire, quiero dar de baja el seguro de desempleo que tengo con el crédito de consumo. La verdad ando medio apretado con las lucas."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 64446,
+      "end_ms": 74061,
+      "text": "Entiendo, don Pedro. Veo que tiene el seguro de desempleo asociado a su crédito de consumo. Antes de gestionarlo, ¿me permite contarle brevemente qué cubre?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 75061,
+      "end_ms": 76261,
+      "text": "Ya, dale."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 77061,
+      "end_ms": 101676,
+      "text": "Este seguro es de prima única, o sea, se pagó una sola vez por todo el período del crédito; no le genera un cobro mensual. Si queda desempleado por necesidades de la empresa o por mutuo acuerdo con indemnización, le paga hasta cinco cuotas de su crédito: dos de una vez contra el finiquito y tres más después de acreditar sesenta días de desempleo."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 102276,
+      "end_ms": 106507,
+      "text": "Ah, pero yo pensé que me lo cobraban todos los meses."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 107407,
+      "end_ms": 112407,
+      "text": "No, don Pedro, es prima única, ya está pagado junto con su crédito."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 112907,
+      "end_ms": 116369,
+      "text": "Mmm, igual prefiero no tener nada extra, la verdad."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 117569,
+      "end_ms": 129876,
+      "text": "Lo entiendo. Considere que si su situación laboral se complica, son hasta cinco cuotas que no tendría que pagar usted. Justo cuando me cuenta que está apretado, es cuando más le sirve."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 130576,
+      "end_ms": 134423,
+      "text": "Ya, pero si lo dejo, ¿después lo puedo sacar igual?"
+    },
+    {
+      "channel": "agent",
+      "start_ms": 135423,
+      "end_ms": 141192,
+      "text": "Sí, don Pedro. La permanencia en el seguro la decide usted; puede renunciar cuando quiera."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 141992,
+      "end_ms": 147761,
+      "text": "Ah, ya. Entonces lo mantengo no más po, si no me están cobrando nada aparte."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 148361,
+      "end_ms": 168361,
+      "text": "Perfecto. Le resumo la gestión: hoy mantenemos vigente su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0001. La prima fue pagada en forma única junto con su crédito de consumo, así que no tiene cargos mensuales en su cuenta. No se realiza ninguna renuncia. ¿Está conforme con la gestión realizada?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 169261,
+      "end_ms": 170461,
+      "text": "Sí, conforme."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 170961,
+      "end_ms": 175576,
+      "text": "Muchas gracias por su tiempo, don Pedro. Que tenga muy buena tarde."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 176776,
+      "end_ms": 177976,
+      "text": "Gracias, igualmente. Chao."
+    }
+  ],
+  "expected": {
+    "call_verdict": "compliant",
+    "cancellation_intent": true,
+    "outcomes": [
+      {
+        "policy_number": "DES-CONS-0001",
+        "outcome": "RETENCION",
+        "cancellation_reason": "Problemas Económicos",
+        "objections": 2
+      }
+    ],
+    "findings": [],
+    "notes": "Llamada de referencia: todos los motivos cumplen o no aplican."
+  }
+}

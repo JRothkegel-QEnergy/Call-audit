@@ -1,0 +1,26 @@
+# synth-04 · Información errónea del producto y tipificación incorrecta
+
+El ejecutivo dice que el seguro paga tres cuotas (la ficha dice hasta cinco). El cliente renuncia por problemas económicos, pero el ejecutivo tipifica 'Cambio de situación laboral'.
+
+[00:01] AGENTE : Buenas tardes, BancoEstado Corredores de Seguros, le atiende Matías Herrera. ¿Con quién hablo?
+[00:07] CLIENTE: Hola, habla Andrea Núñez.
+[00:09] AGENTE : Señora Andrea, para comenzar necesito validar su identidad. ¿Me indica su RUT?
+[00:15] CLIENTE: Catorce millones cuatrocientos cuarenta y cuatro mil cuatrocientos cuarenta y cuatro guion cuatro.
+[00:20] AGENTE : ¿Su nombre completo y fecha de nacimiento?
+[00:24] CLIENTE: Andrea Soledad Núñez Pizarro, veinte de octubre del ochenta y ocho.
+[00:29] AGENTE : ¿Y su correo y teléfono de contacto?
+[00:32] CLIENTE: andrea punto nunez arroba correo ejemplo punto cl, nueve cinco cinco cinco uno dos tres cuatro cinco.
+[00:40] AGENTE : Muchas gracias, quedó validada. ¿En qué la ayudo?
+[00:43] CLIENTE: Quiero sacar el seguro de desempleo del crédito. Es que ahora no me alcanza, ando corta de plata con todo lo que está subiendo.
+[00:54] AGENTE : Entiendo. ¿Sigue trabajando en el mismo lugar?
+[00:57] CLIENTE: Sí, sigo en la misma pega, no es eso. Es que los gastos me tienen ahogada.
+[01:04] AGENTE : Le cuento que este seguro le sirve justamente si pierde la pega: le paga tres cuotas de su crédito.
+[01:12] CLIENTE: ¿Solo tres? Pucha, no es tanto.
+[01:15] AGENTE : Sí, tres cuotas, y se pagan apenas presenta el finiquito.
+[01:20] CLIENTE: No, igual prefiero sacarlo.
+[01:22] AGENTE : Piense que la prima ya está pagada, no es un cobro mensual.
+[01:28] CLIENTE: Ya, pero lo quiero sacar igual. Quiero tener menos cosas.
+[01:33] AGENTE : Bueno, señora Andrea, procedo con la renuncia.
+[01:36] AGENTE : Le resumo: se ingresó la renuncia de su seguro de desempleo, póliza número DES-CONS-0004, asociado a su crédito de consumo con cargo único en el crédito. ¿Está de acuerdo?
+[01:48] CLIENTE: Sí, de acuerdo.
+[01:50] AGENTE : Muchas gracias, que tenga buena tarde.

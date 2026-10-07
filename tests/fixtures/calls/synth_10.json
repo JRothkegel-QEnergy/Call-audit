@@ -1,0 +1,135 @@
+{
+  "call_id": "synth-10",
+  "synthetic": true,
+  "title": "Renuncia de un seguro irrenunciable en el canal",
+  "description": "El seguro de Incapacidad Temporal no se puede renunciar por este canal (debe derivarse). El ejecutivo igual ingresa la renuncia.",
+  "metadata": {
+    "date": "2026-09-12",
+    "agent_id": "EJ-0110",
+    "duration_sec": 71,
+    "holds_sec": [],
+    "policies": [
+      {
+        "name": "Seguro de Incapacidad Temporal - Créditos de consumo",
+        "policy_number": "INC-TMP-0010",
+        "retainable": false,
+        "cancellable_in_channel": false
+      }
+    ],
+    "typification": [
+      {
+        "policy_number": "INC-TMP-0010",
+        "outcome": "RENUNCIA",
+        "reason": "Desconoce contratación del seguro"
+      }
+    ]
+  },
+  "transcript": [
+    {
+      "channel": "agent",
+      "start_ms": 1000,
+      "end_ms": 6000,
+      "text": "Buenas tardes, BancoEstado Corredores de Seguros, le habla Tomás Silva. ¿Con quién hablo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 6500,
+      "end_ms": 8038,
+      "text": "Hola, con Gloria Fernández."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 9238,
+      "end_ms": 13853,
+      "text": "Señora Gloria, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 14553,
+      "end_ms": 21476,
+      "text": "Diez millones cien mil cien guion cero. Gloria Inés Fernández Soto, treinta de septiembre del sesenta y cinco."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 22476,
+      "end_ms": 24400,
+      "text": "¿Y su correo y teléfono?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 25200,
+      "end_ms": 31738,
+      "text": "gloria punto fernandez arroba correo ejemplo punto cl, nueve uno uno uno dos dos dos tres tres."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 32338,
+      "end_ms": 35030,
+      "text": "Gracias, quedó validada. ¿En qué la ayudo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 35930,
+      "end_ms": 44007,
+      "text": "Me sale un seguro de incapacidad temporal en el crédito y yo no me acuerdo de haberlo contratado. Lo quiero sacar."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 44507,
+      "end_ms": 52200,
+      "text": "Entiendo, señora Gloria. Es el seguro de Incapacidad Temporal asociado a su crédito de consumo. Se lo doy de baja."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 53400,
+      "end_ms": 54600,
+      "text": "Ya, gracias."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 55300,
+      "end_ms": 65300,
+      "text": "Listo. Quedó ingresada la renuncia de su seguro de Incapacidad Temporal, póliza número INC-TMP-0010, con prima única cargada en su crédito de consumo. ¿Está de acuerdo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 66300,
+      "end_ms": 67500,
+      "text": "Sí, de acuerdo."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 68300,
+      "end_ms": 69838,
+      "text": "Que tenga buena tarde."
+    }
+  ],
+  "expected": {
+    "call_verdict": "non_compliant",
+    "cancellation_intent": true,
+    "outcomes": [
+      {
+        "policy_number": "INC-TMP-0010",
+        "outcome": "RENUNCIA",
+        "cancellation_reason": "Desconoce contratación del seguro",
+        "objections": 0
+      }
+    ],
+    "findings": [
+      {
+        "criterion_id": 9,
+        "status": "non_compliant",
+        "note": "Renuncia un seguro marcado como irrenunciable en este canal (metadato cancellable_in_channel=false)."
+      },
+      {
+        "criterion_id": 7,
+        "status": "non_compliant",
+        "note": "Debió derivar la solicitud al área correspondiente."
+      }
+    ],
+    "notes": "Seguro no retenible: el motivo 14 no aplica."
+  },
+  "fixture_assumptions": {
+    "cancellable_in_channel_note": "Supuesto sintético: el cliente aún no define qué seguros son irrenunciables por canal."
+  }
+}

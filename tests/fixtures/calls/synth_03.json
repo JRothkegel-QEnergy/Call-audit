@@ -1,0 +1,124 @@
+{
+  "call_id": "synth-03",
+  "synthetic": true,
+  "title": "Llamada corta sin intento de retención",
+  "description": "El cliente vendió su departamento y quiere renunciar al seguro Incendio Hogar, que es retenible. El ejecutivo no intenta retener y tampoco valida correo ni teléfono.",
+  "metadata": {
+    "date": "2026-09-03",
+    "agent_id": "EJ-0103",
+    "duration_sec": 58,
+    "holds_sec": [],
+    "policies": [
+      {
+        "name": "Seguro Incendio Hogar",
+        "policy_number": "INC-HOG-0003",
+        "retainable": true,
+        "cancellable_in_channel": true
+      }
+    ],
+    "typification": [
+      {
+        "policy_number": "INC-HOG-0003",
+        "outcome": "RENUNCIA",
+        "reason": "Cambio de Domicilio o Venta de Propiedad"
+      }
+    ]
+  },
+  "transcript": [
+    {
+      "channel": "agent",
+      "start_ms": 1000,
+      "end_ms": 4461,
+      "text": "BancoEstado Corredores de Seguros, buenas tardes, habla Javiera Morales."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 4961,
+      "end_ms": 6884,
+      "text": "Hola, buenas, habla Luis Contreras."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 8084,
+      "end_ms": 12700,
+      "text": "Don Luis, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 13399,
+      "end_ms": 22630,
+      "text": "Trece millones trescientos treinta y tres mil trescientos treinta y tres guion tres. Luis Alberto Contreras Vega, nueve de enero del setenta y ocho."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 23630,
+      "end_ms": 24830,
+      "text": "Gracias. ¿Qué necesita?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 25630,
+      "end_ms": 32169,
+      "text": "Vendí el departamento y quiero dar de baja el seguro de incendio, porque ya no tiene sentido."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 32769,
+      "end_ms": 36230,
+      "text": "Ya, perfecto, se lo doy de baja al tiro."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 37130,
+      "end_ms": 38330,
+      "text": "Ya, gracias."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 38830,
+      "end_ms": 51523,
+      "text": "Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, póliza número INC-HOG-0003, que se cargaba mensualmente a su cuenta corriente terminada en cuatro cinco. ¿Está de acuerdo con la gestión?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 52723,
+      "end_ms": 53923,
+      "text": "Sí, de acuerdo."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 54623,
+      "end_ms": 56930,
+      "text": "Gracias por llamar, que esté bien."
+    }
+  ],
+  "expected": {
+    "call_verdict": "non_compliant",
+    "cancellation_intent": true,
+    "outcomes": [
+      {
+        "policy_number": "INC-HOG-0003",
+        "outcome": "RENUNCIA",
+        "cancellation_reason": "Cambio de Domicilio o Venta de Propiedad",
+        "objections": 0
+      }
+    ],
+    "findings": [
+      {
+        "criterion_id": 14,
+        "status": "non_compliant",
+        "note": "Seguro retenible y no hay ningún intento de retención."
+      },
+      {
+        "criterion_id": 33,
+        "status": "non_compliant",
+        "note": "No valida correo ni teléfono."
+      },
+      {
+        "criterion_id": 4,
+        "status": "non_compliant",
+        "note": "No indica ninguna característica del seguro a renunciar."
+      }
+    ]
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "call_id": "synth-08",
+  "synthetic": true,
+  "title": "Inducción a la renuncia y negación de devolución de prima",
+  "description": "El cliente llama a consultar por un cobro de Sale Seguro. El ejecutivo le sugiere renunciar sin que lo haya pedido y le niega la devolución de la prima, que en este caso sí corresponde (supuesto sintético del fixture).",
+  "metadata": {
+    "date": "2026-09-10",
+    "agent_id": "EJ-0108",
+    "duration_sec": 91,
+    "holds_sec": [],
+    "policies": [
+      {
+        "name": "Sale Seguro",
+        "policy_number": "SALE-0008",
+        "retainable": true,
+        "cancellable_in_channel": true
+      }
+    ],
+    "typification": [
+      {
+        "policy_number": "SALE-0008",
+        "outcome": "RENUNCIA",
+        "reason": "No informado"
+      }
+    ]
+  },
+  "transcript": [
+    {
+      "channel": "agent",
+      "start_ms": 1000,
+      "end_ms": 4846,
+      "text": "BancoEstado Corredores de Seguros, buenas tardes, le atiende Sebastián Lagos."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 5446,
+      "end_ms": 7753,
+      "text": "Hola, buenas tardes, habla Valentina Reyes."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 8653,
+      "end_ms": 13269,
+      "text": "Señora Valentina, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 13769,
+      "end_ms": 23000,
+      "text": "Dieciocho millones ochocientos ochenta y ocho mil ochocientos ochenta y ocho guion ocho. Valentina Paz Reyes Ortiz, cinco de diciembre del noventa y cinco."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 24199,
+      "end_ms": 25738,
+      "text": "¿Su correo y teléfono?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 26438,
+      "end_ms": 32976,
+      "text": "valentina punto reyes arroba correo ejemplo punto cl, nueve dos dos dos tres tres tres cuatro cuatro."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 33976,
+      "end_ms": 36669,
+      "text": "Gracias, datos validados. ¿En qué la ayudo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 37469,
+      "end_ms": 45930,
+      "text": "Me apareció un cobro en la cuenta que dice Sale Seguro y no me acuerdo bien qué es. Quería saber qué cubre."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 46530,
+      "end_ms": 60761,
+      "text": "Ah, sí, es un seguro que se contrató con su crédito. La verdad, si no se acuerda de él, seguramente no lo usa. Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 61661,
+      "end_ms": 63969,
+      "text": "Eh... bueno, ya, si usted dice."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 64469,
+      "end_ms": 65669,
+      "text": "Perfecto, procedo."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 66869,
+      "end_ms": 70330,
+      "text": "Y lo que ya me cobraron, ¿me lo devuelven?"
+    },
+    {
+      "channel": "agent",
+      "start_ms": 71030,
+      "end_ms": 74107,
+      "text": "No, eso no se devuelve. Lo pagado, pagado."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 75107,
+      "end_ms": 76307,
+      "text": "Ah, ya. Bueno."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 77107,
+      "end_ms": 85953,
+      "text": "Listo, señora Valentina. Quedó ingresada la renuncia de su Sale Seguro, póliza número SALE-0008, con cargo a su cuenta RUT. ¿Está de acuerdo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 86553,
+      "end_ms": 87753,
+      "text": "Sí."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 88653,
+      "end_ms": 90192,
+      "text": "Que tenga buena tarde."
+    }
+  ],
+  "expected": {
+    "call_verdict": "non_compliant",
+    "cancellation_intent": false,
+    "outcomes": [
+      {
+        "policy_number": "SALE-0008",
+        "outcome": "RENUNCIA",
+        "cancellation_reason": "No informado",
+        "objections": 0
+      }
+    ],
+    "findings": [
+      {
+        "criterion_id": 12,
+        "status": "non_compliant",
+        "note": "La clienta solo consulta qué cubre; el ejecutivo le sugiere renunciar."
+      },
+      {
+        "criterion_id": 28,
+        "status": "non_compliant",
+        "note": "Niega la devolución de prima; en este fixture se asume que corresponde (premium_refund_applies)."
+      },
+      {
+        "criterion_id": 6,
+        "status": "non_compliant",
+        "note": "No explica qué cubre el seguro ante la consulta directa."
+      }
+    ],
+    "notes": "La regla real de devolución de primas es TBD con el cliente; el supuesto vive solo en este fixture."
+  },
+  "fixture_assumptions": {
+    "premium_refund_applies": true
+  }
+}

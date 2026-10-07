@@ -1,0 +1,30 @@
+# synth-01 · Retención exitosa, llamada modelo
+
+El cliente quiere renunciar al seguro de desempleo por problemas económicos. Acreditación completa, 2 objeciones, responde sobre la permanencia y el cliente decide mantenerlo. Cierre completo con N° de póliza y medio de pago.
+
+[00:01] AGENTE : Buenas tardes, le saluda Camila Rojas de BancoEstado Corredores de Seguros. ¿Con quién tengo el gusto?
+[00:07] CLIENTE: Hola, buenas tardes, habla Pedro Soto.
+[00:10] AGENTE : Don Pedro, para resguardar su información necesito validar algunos datos. ¿Me puede indicar su RUT?
+[00:17] CLIENTE: Sí, once millones ciento once mil ciento once guion uno.
+[00:22] AGENTE : Gracias. ¿Me indica su nombre completo?
+[00:25] CLIENTE: Pedro Andrés Soto Muñoz.
+[00:27] AGENTE : ¿Y su fecha de nacimiento?
+[00:30] CLIENTE: El catorce de marzo del ochenta y cinco.
+[00:34] AGENTE : Perfecto. ¿Me confirma su correo electrónico y un teléfono de contacto?
+[00:39] CLIENTE: pedro punto soto arroba correo ejemplo punto cl, y el teléfono es el nueve uno dos tres cuatro cinco seis siete ocho.
+[00:48] AGENTE : Muchas gracias, don Pedro, sus datos están validados. ¿En qué lo puedo ayudar?
+[00:54] CLIENTE: Mire, quiero dar de baja el seguro de desempleo que tengo con el crédito de consumo. La verdad ando medio apretado con las lucas.
+[01:04] AGENTE : Entiendo, don Pedro. Veo que tiene el seguro de desempleo asociado a su crédito de consumo. Antes de gestionarlo, ¿me permite contarle brevemente qué cubre?
+[01:15] CLIENTE: Ya, dale.
+[01:17] AGENTE : Este seguro es de prima única, o sea, se pagó una sola vez por todo el período del crédito; no le genera un cobro mensual. Si queda desempleado por necesidades de la empresa o por mutuo acuerdo con indemnización, le paga hasta cinco cuotas de su crédito: dos de una vez contra el finiquito y tres más después de acreditar sesenta días de desempleo.
+[01:42] CLIENTE: Ah, pero yo pensé que me lo cobraban todos los meses.
+[01:47] AGENTE : No, don Pedro, es prima única, ya está pagado junto con su crédito.
+[01:52] CLIENTE: Mmm, igual prefiero no tener nada extra, la verdad.
+[01:57] AGENTE : Lo entiendo. Considere que si su situación laboral se complica, son hasta cinco cuotas que no tendría que pagar usted. Justo cuando me cuenta que está apretado, es cuando más le sirve.
+[02:10] CLIENTE: Ya, pero si lo dejo, ¿después lo puedo sacar igual?
+[02:15] AGENTE : Sí, don Pedro. La permanencia en el seguro la decide usted; puede renunciar cuando quiera.
+[02:21] CLIENTE: Ah, ya. Entonces lo mantengo no más po, si no me están cobrando nada aparte.
+[02:28] AGENTE : Perfecto. Le resumo la gestión: hoy mantenemos vigente su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0001. La prima fue pagada en forma única junto con su crédito de consumo, así que no tiene cargos mensuales en su cuenta. No se realiza ninguna renuncia. ¿Está conforme con la gestión realizada?
+[02:49] CLIENTE: Sí, conforme.
+[02:50] AGENTE : Muchas gracias por su tiempo, don Pedro. Que tenga muy buena tarde.
+[02:56] CLIENTE: Gracias, igualmente. Chao.

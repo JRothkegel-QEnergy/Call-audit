@@ -1,0 +1,132 @@
+{
+  "call_id": "synth-11",
+  "synthetic": true,
+  "title": "Llamada cortada con audio ininteligible",
+  "description": "Acreditación y un intento de retención; luego el audio se vuelve ininteligible y la llamada se corta antes del cierre. Caso para probar el estado uncertain.",
+  "metadata": {
+    "date": "2026-09-15",
+    "agent_id": "EJ-0111",
+    "duration_sec": 63,
+    "holds_sec": [],
+    "policies": [
+      {
+        "name": "Seguro de Desempleo - Créditos de consumo",
+        "policy_number": "DES-CONS-0011",
+        "retainable": true,
+        "cancellable_in_channel": true
+      }
+    ],
+    "typification": [
+      {
+        "policy_number": "DES-CONS-0011",
+        "outcome": "RENUNCIA",
+        "reason": "No desea contraer más obligaciones"
+      }
+    ]
+  },
+  "transcript": [
+    {
+      "channel": "agent",
+      "start_ms": 1000,
+      "end_ms": 6000,
+      "text": "Buenas tardes, BancoEstado Corredores de Seguros, le habla Paula Rivas. ¿Con quién hablo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 7200,
+      "end_ms": 8738,
+      "text": "Hola, habla Manuel Torres."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 9438,
+      "end_ms": 14053,
+      "text": "Don Manuel, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 15053,
+      "end_ms": 22746,
+      "text": "Doce millones doscientos doce mil doscientos doce guion k. Manuel Antonio Torres Díaz, primero de abril del setenta y nueve."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 23546,
+      "end_ms": 25084,
+      "text": "¿Su correo y teléfono?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 25684,
+      "end_ms": 32223,
+      "text": "manuel punto torres arroba correo ejemplo punto cl, nueve cero cero cero uno uno uno dos dos."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 33123,
+      "end_ms": 35815,
+      "text": "Gracias, don Manuel. ¿En qué lo ayudo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 36315,
+      "end_ms": 40930,
+      "text": "Quiero dar de baja el seguro de desempleo, no quiero más compromisos."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 42130,
+      "end_ms": 50592,
+      "text": "Entiendo. Le cuento que este seguro le cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la..."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 51292,
+      "end_ms": 53984,
+      "text": "[inaudible] ...no, si igual... [inaudible] ...el otro..."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 54984,
+      "end_ms": 58061,
+      "text": "¿Aló? Don Manuel, se está cortando. ¿Me escucha?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 58861,
+      "end_ms": 60061,
+      "text": "[inaudible] ...renuncia... [ruido]"
+    },
+    {
+      "channel": "agent",
+      "start_ms": 60661,
+      "end_ms": 61861,
+      "text": "¿Aló? Don Manuel..."
+    }
+  ],
+  "expected": {
+    "call_verdict": "uncertain",
+    "cancellation_intent": true,
+    "outcomes": [
+      {
+        "policy_number": "DES-CONS-0011",
+        "outcome": "SIN_GESTION",
+        "cancellation_reason": "No desea contraer más obligaciones",
+        "objections": 1
+      }
+    ],
+    "findings": [
+      {
+        "criterion_id": 29,
+        "status": "uncertain",
+        "note": "La llamada se corta antes del cierre; no se puede evaluar el protocolo de cierre."
+      },
+      {
+        "criterion_id": 24,
+        "status": "uncertain",
+        "note": "Se tipifica RENUNCIA pero la grabación no muestra la gestión terminada."
+      }
+    ],
+    "notes": "Debe ir a revisión humana, no marcarse como cumple ni como no cumple."
+  }
+}

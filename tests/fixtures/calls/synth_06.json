@@ -1,0 +1,155 @@
+{
+  "call_id": "synth-06",
+  "synthetic": true,
+  "title": "Retención sin intención de renuncia y pregunta predispuesta",
+  "description": "El cliente solo consulta cómo usar su seguro Protección Global. El ejecutivo igual hace un discurso de retención y le pide un 'sí' condicionado.",
+  "metadata": {
+    "date": "2026-09-08",
+    "agent_id": "EJ-0106",
+    "duration_sec": 113,
+    "holds_sec": [],
+    "policies": [
+      {
+        "name": "Protección Global",
+        "policy_number": "PROT-GLB-0006",
+        "retainable": true,
+        "cancellable_in_channel": true
+      }
+    ],
+    "typification": []
+  },
+  "transcript": [
+    {
+      "channel": "agent",
+      "start_ms": 1000,
+      "end_ms": 6000,
+      "text": "Buenos días, BancoEstado Corredores de Seguros, le habla Ignacio Vargas. ¿Con quién hablo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 7000,
+      "end_ms": 9307,
+      "text": "Hola, buenos días, con Sofía Tapia."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 10107,
+      "end_ms": 14723,
+      "text": "Señora Sofía, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 15323,
+      "end_ms": 24553,
+      "text": "Dieciséis millones seiscientos sesenta y seis mil seiscientos sesenta y seis guion seis. Sofía Ignacia Tapia Rojas, once de agosto del noventa y dos."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 25453,
+      "end_ms": 28146,
+      "text": "¿Su correo y un teléfono de contacto?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 28646,
+      "end_ms": 35184,
+      "text": "sofia punto tapia arroba correo ejemplo punto cl, nueve tres tres tres dos dos dos uno uno."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 36384,
+      "end_ms": 39461,
+      "text": "Gracias, quedó validada. ¿En qué la puedo ayudar?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 40161,
+      "end_ms": 49776,
+      "text": "Tengo el seguro Protección Global y me robaron la billetera el fin de semana. Quería saber si eso lo cubre y cómo hago el reclamo."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 50776,
+      "end_ms": 64623,
+      "text": "Señora Sofía, antes de eso le quiero recordar lo importante que es mantener este seguro. Mucha gente lo da de baja y después se arrepiente, porque es una protección muy completa para usted y su familia."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 65423,
+      "end_ms": 70807,
+      "text": "Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 71407,
+      "end_ms": 77176,
+      "text": "Sí, claro, pero es importante que lo mantenga. Usted está de acuerdo en mantenerlo, ¿cierto?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 78076,
+      "end_ms": 81923,
+      "text": "Eh... sí, supongo. Pero ¿me cubre el robo o no?"
+    },
+    {
+      "channel": "agent",
+      "start_ms": 82423,
+      "end_ms": 96653,
+      "text": "Perfecto, entonces queda vigente. Para el robo de la billetera, la cobertura depende de las condiciones de su póliza; tiene que hacer la denuncia en Carabineros y llamar al número de siniestros que le voy a dar."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 97853,
+      "end_ms": 99776,
+      "text": "Ya, ¿cuál es el número?"
+    },
+    {
+      "channel": "agent",
+      "start_ms": 100476,
+      "end_ms": 106630,
+      "text": "Es el seiscientos, cero, cero, cero, cero, cero, cero. Ahí le van a pedir la denuncia."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 107630,
+      "end_ms": 108830,
+      "text": "Ya, gracias."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 109630,
+      "end_ms": 111938,
+      "text": "Que tenga buen día, señora Sofía."
+    }
+  ],
+  "expected": {
+    "call_verdict": "non_compliant",
+    "cancellation_intent": false,
+    "outcomes": [
+      {
+        "policy_number": "PROT-GLB-0006",
+        "outcome": "SIN_GESTION",
+        "cancellation_reason": "No informado",
+        "objections": 0
+      }
+    ],
+    "findings": [
+      {
+        "criterion_id": 16,
+        "status": "non_compliant",
+        "note": "Argumenta para retener sin que la clienta haya expresado intención de renuncia."
+      },
+      {
+        "criterion_id": 32,
+        "status": "non_compliant",
+        "note": "'Usted está de acuerdo en mantenerlo, ¿cierto?': condiciona la respuesta a un sí."
+      },
+      {
+        "criterion_id": 8,
+        "status": "non_compliant",
+        "note": "Elude la pregunta sobre la cobertura de robo para insistir en la retención."
+      }
+    ],
+    "notes": "No hay tipificación porque no hubo gestión de renuncia ni de retención solicitada por la clienta."
+  }
+}

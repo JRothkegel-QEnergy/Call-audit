@@ -1,0 +1,185 @@
+{
+  "call_id": "synth-04",
+  "synthetic": true,
+  "title": "Información errónea del producto y tipificación incorrecta",
+  "description": "El ejecutivo dice que el seguro paga tres cuotas (la ficha dice hasta cinco). El cliente renuncia por problemas económicos, pero el ejecutivo tipifica 'Cambio de situación laboral'.",
+  "metadata": {
+    "date": "2026-09-04",
+    "agent_id": "EJ-0104",
+    "duration_sec": 114,
+    "holds_sec": [],
+    "policies": [
+      {
+        "name": "Seguro de Desempleo - Créditos de consumo",
+        "policy_number": "DES-CONS-0004",
+        "retainable": true,
+        "cancellable_in_channel": true
+      }
+    ],
+    "typification": [
+      {
+        "policy_number": "DES-CONS-0004",
+        "outcome": "RENUNCIA",
+        "reason": "Cambio de situación laboral"
+      }
+    ]
+  },
+  "transcript": [
+    {
+      "channel": "agent",
+      "start_ms": 1000,
+      "end_ms": 6000,
+      "text": "Buenas tardes, BancoEstado Corredores de Seguros, le atiende Matías Herrera. ¿Con quién hablo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 7200,
+      "end_ms": 8738,
+      "text": "Hola, habla Andrea Núñez."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 9438,
+      "end_ms": 14053,
+      "text": "Señora Andrea, para comenzar necesito validar su identidad. ¿Me indica su RUT?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 15053,
+      "end_ms": 20053,
+      "text": "Catorce millones cuatrocientos cuarenta y cuatro mil cuatrocientos cuarenta y cuatro guion cuatro."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 20853,
+      "end_ms": 23546,
+      "text": "¿Su nombre completo y fecha de nacimiento?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 24146,
+      "end_ms": 28376,
+      "text": "Andrea Soledad Núñez Pizarro, veinte de octubre del ochenta y ocho."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 29276,
+      "end_ms": 31969,
+      "text": "¿Y su correo y teléfono de contacto?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 32469,
+      "end_ms": 39007,
+      "text": "andrea punto nunez arroba correo ejemplo punto cl, nueve cinco cinco cinco uno dos tres cuatro cinco."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 40207,
+      "end_ms": 43284,
+      "text": "Muchas gracias, quedó validada. ¿En qué la ayudo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 43984,
+      "end_ms": 53215,
+      "text": "Quiero sacar el seguro de desempleo del crédito. Es que ahora no me alcanza, ando corta de plata con todo lo que está subiendo."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 54215,
+      "end_ms": 56907,
+      "text": "Entiendo. ¿Sigue trabajando en el mismo lugar?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 57707,
+      "end_ms": 63861,
+      "text": "Sí, sigo en la misma pega, no es eso. Es que los gastos me tienen ahogada."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 64461,
+      "end_ms": 71769,
+      "text": "Le cuento que este seguro le sirve justamente si pierde la pega: le paga tres cuotas de su crédito."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 72669,
+      "end_ms": 74976,
+      "text": "¿Solo tres? Pucha, no es tanto."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 75476,
+      "end_ms": 79323,
+      "text": "Sí, tres cuotas, y se pagan apenas presenta el finiquito."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 80523,
+      "end_ms": 82061,
+      "text": "No, igual prefiero sacarlo."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 82761,
+      "end_ms": 87376,
+      "text": "Piense que la prima ya está pagada, no es un cobro mensual."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 88376,
+      "end_ms": 92223,
+      "text": "Ya, pero lo quiero sacar igual. Quiero tener menos cosas."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 93023,
+      "end_ms": 95715,
+      "text": "Bueno, señora Andrea, procedo con la renuncia."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 96315,
+      "end_ms": 107469,
+      "text": "Le resumo: se ingresó la renuncia de su seguro de desempleo, póliza número DES-CONS-0004, asociado a su crédito de consumo con cargo único en el crédito. ¿Está de acuerdo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 108369,
+      "end_ms": 109569,
+      "text": "Sí, de acuerdo."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 110069,
+      "end_ms": 112376,
+      "text": "Muchas gracias, que tenga buena tarde."
+    }
+  ],
+  "expected": {
+    "call_verdict": "non_compliant",
+    "cancellation_intent": true,
+    "outcomes": [
+      {
+        "policy_number": "DES-CONS-0004",
+        "outcome": "RENUNCIA",
+        "cancellation_reason": "Problemas Económicos",
+        "objections": 2
+      }
+    ],
+    "findings": [
+      {
+        "criterion_id": 6,
+        "status": "non_compliant",
+        "note": "Dice que paga tres cuotas y que se pagan contra finiquito; la ficha indica hasta cinco cuotas (dos contra finiquito y tres tras 60 días)."
+      },
+      {
+        "criterion_id": 18,
+        "status": "non_compliant",
+        "note": "Tipificado 'Cambio de situación laboral'; la clienta dice que sigue en el mismo trabajo y que no le alcanza: Problemas Económicos. Lo detecta el motor de decisión."
+      }
+    ]
+  }
+}
