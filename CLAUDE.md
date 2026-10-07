@@ -62,3 +62,4 @@ Ramas `main` (producción) y `develop` (integración). Trabajo en `feature/*`, `
 - `golden-set-evaluator`: métricas de FP/FN contra llamadas ya auditadas.
 - `privacy-reviewer`: PII, anonimización, Ley 21.719.
 - `code-reviewer`: revisión de cambios contra las reglas del proyecto.
+- `test-writer`: escribe y mantiene los tests unitarios con pytest.
