@@ -1,0 +1,286 @@
+{
+  "name": "registrar_auditoria",
+  "arguments": {
+    "audit_result": {
+      "resumen": "El cliente solicita dar de baja el Seguro de Desempleo - Créditos de consumo porque no desea más compromisos. El ejecutivo valida datos, entrega un argumento de retención y la llamada se corta antes de un cierre. No se realiza protocolo de cierre, ni se informan el número de seguro y el medio de pago.",
+      "intencion_renuncia": {
+       "expresada": true,
+       "cita": "Quiero dar de baja el seguro de desempleo, no quiero más compromisos.",
+       "timestamp": "00:36"
+      },
+      "gestiones": [
+       {
+       "n_poliza": "DES-CONS-0011",
+       "resultado_grabacion": "RENUNCIA",
+       "motivo_renuncia": "No desea contraer más obligaciones",
+       "n_objeciones": 2,
+       "evidencia": "Cliente solicita baja en 00:36 y 01:03; ejecutivo da argumento de retención en 00:42 y 01:09; la llamada finaliza sin cierre."
+       }
+      ],
+      "criterios": [
+       {
+       "id": 1,
+       "comentario": "No se registran esperas en los metadatos (esperas_seg=[]), por lo que no ocurrió una espera excesiva.",
+       "estado": "no_aplica",
+       "confianza": 0.95,
+       "evidencia": []
+       },
+       {
+       "id": 2,
+       "comentario": "La descripción entregada (cubre hasta 5 cuotas por desempleo) coincide con la ficha del Seguro de Desempleo - Créditos de consumo.",
+       "estado": "cumple",
+       "confianza": 0.9,
+       "evidencia": [
+       {"t": "00:42", "hablante": "AGENTE", "cita": "Le cuento que este seguro le cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la..."}
+       ]
+       },
+       {
+       "id": 3,
+       "comentario": "Se identifican dos argumentos de retención (00:42 y 01:09) tras la solicitud de baja; no se excede el máximo de 3.",
+       "estado": "cumple",
+       "confianza": 0.8,
+       "evidencia": [
+       {"t": "00:42", "hablante": "AGENTE", "cita": "Le cuento que este seguro le cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la..."},
+       {"t": "01:09", "hablante": "AGENTE", "cita": "Le cuento que este seguro le cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la..."}
+       ]
+       },
+       {
+       "id": 4,
+       "comentario": "El ejecutivo sí indica una característica del seguro: cobertura hasta 5 cuotas.",
+       "estado": "cumple",
+       "confianza": 0.95,
+       "evidencia": [
+       {"t": "00:42", "hablante": "AGENTE", "cita": "Le cuento que este seguro le cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la..."}
+       ]
+       },
+       {
+       "id": 5,
+       "comentario": "No hubo consulta directa sobre permanencia manejada por el cliente; el cliente solo pidió baja.",
+       "estado": "no_aplica",
+       "confianza": 0.85,
+       "evidencia": []
+       },
+       {
+       "id": 6,
+       "comentario": "No se evidencian errores o falta de respuesta sobre producto; la información mencionada es consistente con la ficha.",
+       "estado": "cumple",
+       "confianza": 0.85,
+       "evidencia": []
+       },
+       {
+       "id": 7,
+       "comentario": "No correspondía derivación a otra área/canal: el seguro es renunciable en este canal.",
+       "estado": "no_aplica",
+       "confianza": 0.9,
+       "evidencia": []
+       },
+       {
+       "id": 8,
+       "comentario": "El ejecutivo responde directamente a la solicitud con información del seguro; no elude preguntas.",
+       "estado": "cumple",
+       "confianza": 0.85,
+       "evidencia": []
+       },
+       {
+       "id": 9,
+       "comentario": "El metadato indica renunciable_en_canal=sí, por tanto no se renuncia un seguro irrenunciable en este canal.",
+       "estado": "no_aplica",
+       "confianza": 0.95,
+       "evidencia": []
+       },
+       {
+       "id": 10,
+       "comentario": "No se observa una conducta adicional fuera de los motivos específicos; las fallas de cierre se tipifican en 29/13/15.",
+       "estado": "cumple",
+       "confianza": 0.7,
+       "evidencia": []
+       },
+       {
+       "id": 11,
+       "comentario": "No hay descalificación a pares, BancoEstado o competencia.",
+       "estado": "cumple",
+       "confianza": 0.95,
+       "evidencia": []
+       },
+       {
+       "id": 12,
+       "comentario": "La renuncia es solicitada por el cliente; el ejecutivo no sugiere ni propone dar de baja.",
+       "estado": "cumple",
+       "confianza": 0.9,
+       "evidencia": [
+       {"t": "00:36", "hablante": "CLIENTE", "cita": "Quiero dar de baja el seguro de desempleo, no quiero más compromisos."}
+       ]
+       },
+       {
+       "id": 13,
+       "comentario": "No se menciona el número de póliza en un protocolo de cierre. Cierre revisado 00:36-01:30: no se indica DES-CONS-0011.",
+       "estado": "incumple",
+       "confianza": 0.95,
+       "evidencia": [
+       {"t": "01:28", "hablante": "AGENTE", "cita": "¿Aló? Don Manuel..."}
+       ]
+       },
+       {
+       "id": 14,
+       "comentario": "El seguro es retenible y el ejecutivo realiza intento de retención al informar cobertura.",
+       "estado": "cumple",
+       "confianza": 0.95,
+       "evidencia": [
+       {"t": "00:42", "hablante": "AGENTE", "cita": "Le cuento que este seguro le cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la..."}
+       ]
+       },
+       {
+       "id": 15,
+       "comentario": "No se informa medio de pago en protocolo de cierre. Cierre revisado 00:36-01:30: no se menciona cómo se cobra o cobraba el seguro.",
+       "estado": "incumple",
+       "confianza": 0.95,
+       "evidencia": [
+       {"t": "01:28", "hablante": "AGENTE", "cita": "¿Aló? Don Manuel..."}
+       ]
+       },
+       {
+       "id": 16,
+       "comentario": "Hubo intención de renuncia explícita antes del intento de retención.",
+       "estado": "no_aplica",
+       "confianza": 0.95,
+       "evidencia": [
+       {"t": "00:36", "hablante": "CLIENTE", "cita": "Quiero dar de baja el seguro de desempleo, no quiero más compromisos."}
+       ]
+       },
+       {
+       "id": 17,
+       "comentario": "El seguro es retenible, por tanto no se retiene un seguro no retenible.",
+       "estado": "no_aplica",
+       "confianza": 0.95,
+       "evidencia": []
+       },
+       {
+       "id": 18,
+       "comentario": "El motivo tipificado No desea contraer más obligaciones coincide con no quiero más compromisos.",
+       "estado": "cumple",
+       "confianza": 0.9,
+       "evidencia": [
+       {"t": "00:36", "hablante": "CLIENTE", "cita": "Quiero dar de baja el seguro de desempleo, no quiero más compromisos."}
+       ]
+       },
+       {
+       "id": 19,
+       "comentario": "La tipificación es renuncia y, según la grabación, el cliente mantiene la solicitud de baja sin evidencia de aceptación de retención.",
+       "estado": "cumple",
+       "confianza": 0.75,
+       "evidencia": [
+       {"t": "01:26", "hablante": "CLIENTE", "cita": "[inaudible] ... renuncia... [ruido]"}
+       ]
+       },
+       {
+       "id": 20,
+       "comentario": "El seguro tipificado como renuncia sí fue mencionado en la llamada.",
+       "estado": "no_aplica",
+       "confianza": 0.9,
+       "evidencia": []
+       },
+       {
+       "id": 21,
+       "comentario": "La renuncia tipificada corresponde al Seguro de Desempleo - Créditos de consumo, no a otro seguro.",
+       "estado": "no_aplica",
+       "confianza": 0.9,
+       "evidencia": []
+       },
+       {
+       "id": 22,
+       "comentario": "No se tipificó retención, por tanto no aplica retención de seguro no mencionado.",
+       "estado": "no_aplica",
+       "confianza": 0.95,
+       "evidencia": []
+       },
+       {
+       "id": 23,
+       "comentario": "No se tipificó retención, por tanto no aplica retención que corresponde a otro seguro.",
+       "estado": "no_aplica",
+       "confianza": 0.95,
+       "evidencia": []
+       },
+       {
+       "id": 24,
+       "comentario": "La tipificación registrada es renuncia, no retención.",
+       "estado": "no_aplica",
+       "confianza": 0.95,
+       "evidencia": []
+       },
+       {
+       "id": 25,
+       "comentario": "Existe una sola gestión solicitada y aparece tipificada en los metadatos como RENUNCIA para DES-CONS-0011.",
+       "estado": "cumple",
+       "confianza": 0.75,
+       "evidencia": []
+       },
+       {
+       "id": 26,
+       "comentario": "No se puede verificar si la gestión de baja fue impactada/registrada en el sistema; la llamada se corta sin cierre y no hay metadato de impacto.",
+       "estado": "indeterminado",
+       "confianza": 0.45,
+       "evidencia": [
+       {"t": "01:28", "hablante": "AGENTE", "cita": "¿Aló? Don Manuel..."}
+       ]
+       },
+       {
+       "id": 27,
+       "comentario": "No participa tercero en la llamada; se habla con el titular identificado.",
+       "estado": "no_aplica",
+       "confianza": 0.95,
+       "evidencia": []
+       },
+       {
+       "id": 28,
+       "comentario": "El campo devolucion_prima está sin dato y la transcripción no permite confirmar si se negó devolución.",
+       "estado": "indeterminado",
+       "confianza": 0.5,
+       "evidencia": []
+       },
+       {
+       "id": 29,
+       "comentario": "No se realiza protocolo de cierre: no hay resumen final de gestión, ni confirmación, ni cierre tras el corte.",
+       "estado": "incumple",
+       "confianza": 0.95,
+       "evidencia": [
+       {"t": "01:28", "hablante": "AGENTE", "cita": "¿Aló? Don Manuel..."}
+       ]
+       },
+       {
+       "id": 30,
+       "comentario": "No hubo protocolo de cierre, por tanto no aplica reiteración ante respuesta no permitida.",
+       "estado": "no_aplica",
+       "confianza": 0.9,
+       "evidencia": []
+       },
+       {
+       "id": 31,
+       "comentario": "El ejecutivo solicita y el cliente entrega RUT, nombre completo y fecha de nacimiento; no se evidencia falla en la acreditación de estos datos.",
+       "estado": "cumple",
+       "confianza": 0.7,
+       "evidencia": [
+       {"t": "00:09", "hablante": "AGENTE", "cita": "¿me indica su RUT, nombre completo y fecha de nacimiento?"},
+       {"t": "00:15", "hablante": "CLIENTE", "cita": "Doce millones doscientos doce mil doscientos doce guion k. Manuel Antonio Torres Díaz, primero de abril del setenta y nueve."}
+       ]
+       },
+       {
+       "id": 32,
+       "comentario": "No se condiciona la respuesta a un sí ni se predispone al cliente para aceptar el seguro; se entrega información de cobertura.",
+       "estado": "cumple",
+       "confianza": 0.85,
+       "evidencia": []
+       },
+       {
+       "id": 33,
+       "comentario": "El ejecutivo solicita y el cliente entrega email y teléfono; no se evidencia falla en la acreditación de estos datos.",
+       "estado": "cumple",
+       "confianza": 0.7,
+       "evidencia": [
+       {"t": "00:23", "hablante": "AGENTE", "cita": "¿Su correo y teléfono?"},
+       {"t": "00:25", "hablante": "CLIENTE", "cita": "manuel punto torres arroba correo ejemplo punto cl, nueve cero cero cero uno uno uno dos dos."}
+       ]
+       }
+      ]
+    }
+  }
+}

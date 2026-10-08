@@ -1,0 +1,312 @@
+{
+  "resumen": "La cliente llamó para consultar si el robo de su billetera estaba cubierto y cómo reclamar; aclaró expresamente que no quería dar de baja el seguro. El ejecutivo intentó persuadirla para mantenerlo y obtuvo un asentimiento dubitativo, tras lo cual indicó que quedaba vigente, pero no realizó el protocolo de cierre ni registró tipificación.",
+  "intencion_renuncia": {
+    "expresada": false,
+    "cita": "Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo.",
+    "timestamp": "01:05"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "PROT-GLB-0006",
+      "resultado_grabacion": "RETENCION",
+      "motivo_renuncia": "No aplica",
+      "n_objeciones": 0,
+      "evidencia": "La cliente dijo que no quería dar de baja el seguro y el ejecutivo concluyó: «Perfecto, entonces queda vigente» (01:05 y 01:22). No hubo intención de renuncia; por definición, n_objeciones es 0."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hubo esperas registradas en los metadatos y la transcripción no muestra una puesta en espera.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 2,
+      "comentario": "No se describió el seguro como parte de una gestión de renuncia y la ficha de producto no está disponible para contrastar una descripción.",
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 3,
+      "comentario": "La cliente no expresó intención de renuncia, por lo que no hubo objeciones que contar ni posibilidad de exceder el máximo.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 4,
+      "comentario": "No se dio una situación de renuncia que exigiera indicar características del seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 5,
+      "comentario": "La cliente no preguntó quién maneja la permanencia del seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 6,
+      "comentario": "Ante la pregunta directa sobre si el robo estaba cubierto, el ejecutivo respondió de forma vaga y no aclaró si la cobertura aplicaba. La ficha está pendiente, pero el criterio contempla expresamente la vaguedad o falta de respuesta frente a preguntas sobre coberturas.",
+      "evidencia": [
+        {
+          "t": "01:22",
+          "hablante": "AGENTE",
+          "cita": "Para el robo de la billetera, la cobertura depende de las condiciones de su póliza"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.89
+    },
+    {
+      "id": 7,
+      "comentario": "No hubo una solicitud que requiriera derivación a otra área o canal; el ejecutivo indicó cómo iniciar el reclamo por siniestro.",
+      "estado": "no_aplica",
+      "confianza": 0.94
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo respondió con instrucciones para reclamar: indicó denunciar en Carabineros y contactar al número de siniestros, que luego entregó. La falta de precisión sobre la cobertura se evalúa específicamente en el motivo 6.",
+      "estado": "cumple",
+      "confianza": 0.82
+    },
+    {
+      "id": 9,
+      "comentario": "No hubo renuncia de un seguro irrenunciable en este canal.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 10,
+      "comentario": "No se identifica una conducta de política no cubierta por los motivos específicos aplicables.",
+      "estado": "cumple",
+      "confianza": 0.88
+    },
+    {
+      "id": 11,
+      "comentario": "No se descalificó a pares, a BancoEstado ni a la competencia.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 12,
+      "comentario": "El ejecutivo no sugirió que la cliente renunciara al seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 13,
+      "comentario": "Hubo una gestión de retención, pero en el tramo final no se informa el número de seguro.",
+      "evidencia": [
+        {
+          "t": "01:22–01:49",
+          "hablante": "AGENTE",
+          "cita": "Cierre revisado: «Perfecto, entonces queda vigente» y despedida. No menciona el número de seguro."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.94
+    },
+    {
+      "id": 14,
+      "comentario": "No hubo una renuncia solicitada de un seguro retenible que exigiera realizar un intento de retención; la cliente expresó que no quería darlo de baja.",
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 15,
+      "comentario": "Hubo una gestión de retención, pero en el tramo final no se informa el medio de pago asociado al seguro.",
+      "evidencia": [
+        {
+          "t": "01:22–01:49",
+          "hablante": "AGENTE",
+          "cita": "Cierre revisado: el ejecutivo indica que el seguro queda vigente y se despide; no informa el medio de pago."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.94
+    },
+    {
+      "id": 16,
+      "comentario": "El ejecutivo realizó argumentos para mantener el seguro antes de que la cliente expresara cualquier intención de renuncia; además, ella aclaró que solo consultaba por el robo.",
+      "evidencia": [
+        {
+          "t": "00:50",
+          "hablante": "AGENTE",
+          "cita": "Antes de eso le quiero recordar lo importante que es mantener este seguro. Mucha gente lo da de baja y después se arrepiente, porque es una protección muy completa para usted y su familia."
+        },
+        {
+          "t": "01:05",
+          "hablante": "CLIENTE",
+          "cita": "Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro indicado en los metadatos es retenible; no se retuvo un seguro no retenible.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 18,
+      "comentario": "No hay tipificación registrada que pueda compararse con el motivo expresado por la cliente.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 19,
+      "comentario": "No hay una tipificación de renuncia registrada; la gestión observada fue de retención.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 20,
+      "comentario": "No se registró una tipificación de renuncia de un seguro no mencionado.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 21,
+      "comentario": "No se registró una tipificación de renuncia que corresponda a otro seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 22,
+      "comentario": "No hay tipificación registrada de retención de un seguro no mencionado.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 23,
+      "comentario": "No hay tipificación registrada de retención que corresponda a otro seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 24,
+      "comentario": "No se registró una renuncia cuando la grabación muestra retención; no existe tipificación registrada que pueda compararse.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 25,
+      "comentario": "La grabación muestra que el ejecutivo dejó el seguro vigente tras una gestión de retención, pero los metadatos indican que no hay tipificación registrada.",
+      "evidencia": [
+        {
+          "t": "01:22",
+          "hablante": "AGENTE",
+          "cita": "Perfecto, entonces queda vigente."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.93
+    },
+    {
+      "id": 26,
+      "comentario": "La cliente solicitó orientación sobre cobertura y reclamo. El ejecutivo entregó instrucciones para iniciar el reclamo; no hay evidencia de que dejara sin impacto otra gestión solicitada.",
+      "estado": "cumple",
+      "confianza": 0.82
+    },
+    {
+      "id": 27,
+      "comentario": "La llamada fue con la titular y no intervino un tercero.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 28,
+      "comentario": "No se conversó sobre devolución de primas y el metadato de devolución indica «sin dato»; por ese dato no es posible determinar si una eventual respuesta habría sido correcta.",
+      "estado": "indeterminado",
+      "confianza": 0.99
+    },
+    {
+      "id": 29,
+      "comentario": "Tras la gestión de retención, el tramo final no contiene un resumen completo de la gestión ni el protocolo de cierre.",
+      "evidencia": [
+        {
+          "t": "01:22–01:49",
+          "hablante": "AGENTE",
+          "cita": "Cierre revisado: el ejecutivo dice que el seguro queda vigente y luego se despide, sin resumir la gestión."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 30,
+      "comentario": "La respuesta de la cliente fue dubitativa, no una aceptación clara, y el ejecutivo no reiteró la confirmación antes de dar por vigente el seguro.",
+      "evidencia": [
+        {
+          "t": "01:18",
+          "hablante": "CLIENTE",
+          "cita": "Eh... sí, supongo."
+        },
+        {
+          "t": "01:22",
+          "hablante": "AGENTE",
+          "cita": "Perfecto, entonces queda vigente."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.96
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo solicitó RUT, nombre completo y fecha de nacimiento; la cliente entregó esos datos y el ejecutivo indicó que quedó validada.",
+      "evidencia": [
+        {
+          "t": "00:10",
+          "hablante": "AGENTE",
+          "cita": "Señora Sofía, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:36",
+          "hablante": "AGENTE",
+          "cita": "Gracias, quedó validada."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 32,
+      "comentario": "El ejecutivo condicionó la respuesta a un sí al formular una pregunta que presupone el acuerdo de mantener el seguro.",
+      "evidencia": [
+        {
+          "t": "01:11",
+          "hablante": "AGENTE",
+          "cita": "Usted está de acuerdo en mantenerlo, ¿cierto?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo solicitó correo y teléfono, la cliente entregó ambos datos y el ejecutivo confirmó la validación.",
+      "evidencia": [
+        {
+          "t": "00:25",
+          "hablante": "AGENTE",
+          "cita": "¿Su correo y un teléfono de contacto?"
+        },
+        {
+          "t": "00:28",
+          "hablante": "CLIENTE",
+          "cita": "sofia punto tapia arroba correo ejemplo punto cl, nueve tres tres tres dos dos dos uno uno."
+        },
+        {
+          "t": "00:36",
+          "hablante": "AGENTE",
+          "cita": "Gracias, quedó validada."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.96
+    }
+  ]
+}

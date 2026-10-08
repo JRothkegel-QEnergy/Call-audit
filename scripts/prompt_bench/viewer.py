@@ -12,6 +12,8 @@ import re
 import sys
 from pathlib import Path
 
+from run import extract_audit
+
 ROOT = Path(__file__).resolve().parents[2]
 CALLS_DIR = ROOT / "tests" / "fixtures" / "calls"
 RESULTS_DIR = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parent / "results"
@@ -56,10 +58,8 @@ CRITERIA = {
 
 def parse_response(text: str) -> dict | None:
     try:
-        text = re.sub(r"```(?:json)?", "", text)
-        data = json.loads(text[text.find("{") : text.rfind("}") + 1])
-        return data.get("input", data)
-    except (ValueError, json.JSONDecodeError):
+        return extract_audit(text)
+    except ValueError:
         return None
 
 
@@ -76,7 +76,7 @@ def collect() -> dict:
                 raw = base.with_suffix(".json").read_text(encoding="utf-8")
                 entry["response"] = parse_response(raw)
                 if entry["response"] is None:
-                    entry["error"] = "JSON inválido"
+                    entry["error"] = "Respuesta inválida: no trae una auditoría (¿devolvió el esquema?)"
                     entry["raw"] = raw[:4000]
             elif Path(f"{base}.error.txt").exists():
                 entry["error"] = Path(f"{base}.error.txt").read_text(encoding="utf-8")[:500]

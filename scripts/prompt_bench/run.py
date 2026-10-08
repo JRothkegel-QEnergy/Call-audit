@@ -43,6 +43,29 @@ CACHE_WRITE_MULT = 1.25
 CACHE_READ_MULT = 0.10
 
 
+def extract_audit(text: str) -> dict:
+    """Saca la auditoría de la respuesta de una IA. Tolera bloques ```json, texto alrededor y modelos que
+    repiten el esquema antes de responder: devuelve el primer objeto JSON que trae "criterios" como lista."""
+    import re
+
+    text = re.sub(r"```(?:json)?", "", text)
+    decoder = json.JSONDecoder()
+    candidates, pos = [], text.find("{")
+    while pos != -1:
+        try:
+            obj, end = decoder.raw_decode(text, pos)
+        except json.JSONDecodeError:
+            pos = text.find("{", pos + 1)
+            continue
+        if isinstance(obj, dict):
+            candidates.append(obj.get("input", obj))
+        pos = text.find("{", end)
+    for obj in candidates:
+        if isinstance(obj.get("criterios"), list):
+            return obj
+    raise ValueError("la respuesta no trae una auditoría con 'criterios' (¿devolvió el esquema?)")
+
+
 def load_dotenv(path: Path) -> None:
     if not path.exists():
         return

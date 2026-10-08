@@ -1,0 +1,39 @@
+{
+  "resumen": "Llamada de renuncia al Seguro de Desempleo – Créditos de consumo. El cliente expresa de forma explícita su intención de renunciar por problemas económicos y el ejecutivo realiza varios intentos de retención, excediendo el máximo permitido. La renuncia queda gestionada y el cierre incluye el número de póliza y el medio de pago asociado.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar al seguro de desempleo. Es que no me alcanza, tengo muchas deudas y no quiero nada más.",
+    "timestamp": "00:44"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "DES-CONS-0002",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "Problemas Económicos",
+      "n_objeciones": 4,
+      "evidencia": "El cliente solicita renuncia en 00:44 y la insiste en 01:03, 01:14, 01:25 y 01:38. El ejecutivo realiza objeciones en 00:53, 01:07, 01:18 y 01:29, y finalmente confirma la renuncia en el cierre."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 31,
+      "comentario": "El ejecutivo solicita y recibe RUT, nombre completo y fecha de nacimiento, validando los datos antes de continuar.",
+      "estado": "cumple",
+      "confianza": 0.95,
+      "evidencia": [
+       {
+       "id": 31,
+       "comentario": "El ejecutivo solicita y recibe RUT, nombre completo y fecha de nacimiento, validando los datos antes de continuar.",
+       "estado": "cumple",
+       "confianza": 0.95,
+       "evidencia": [
+       {"t": "00:10", "hablante": "AGENTE", "cita": "Señora Carolina, para validar su identidad, ¿me indica su RUT, por favor?"},
+       {"t": "00:20", "hablante": "AGENTE", "cita": "¿Su nombre completo y fecha de nacimiento?"},
+       {"t": "00:23", "hablante": "CLIENTE", "cita": "Carolina Andrea Paredes Lagos, nacida el dos de julio del noventa."}
+       ]
+      }
+    ]
+  },
+  "confianza_global"
+    ]
+  }

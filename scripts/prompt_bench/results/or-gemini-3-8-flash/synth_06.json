@@ -1,0 +1,306 @@
+{
+  "resumen": "La cliente se comunica para consultar sobre la cobertura del seguro Protección Global tras el robo de su billetera y los pasos para denunciar el siniestro. El ejecutivo intenta realizar una retención forzada sin que la titular haya manifestado intención de renuncia, condicionando además su respuesta para que confirme la mantención del seguro. Finalmente, le entrega el número telefónico para la denuncia del siniestro.",
+  "intencion_renuncia": {
+    "expresada": false,
+    "cita": "Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo.",
+    "timestamp": "01:05"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "PROT-GLB-0006",
+      "resultado_grabacion": "SIN_GESTION",
+      "motivo_renuncia": "No informado",
+      "n_objeciones": 0,
+      "evidencia": "[01:05] CLIENTE: 'Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo.'"
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No se registraron tiempos de espera en la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "comentario": "No se dispone de la ficha de producto de Protección Global en los metadatos para contrastar la descripción entregada por el ejecutivo.",
+      "evidencia": [],
+      "estado": "indeterminado",
+      "confianza": 0.8
+    },
+    {
+      "id": 3,
+      "comentario": "La cliente no presentó intención de renuncia, por lo que no aplican objeciones de retención (n_objeciones = 0).",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "comentario": "No se tramitó la renuncia de ningún seguro durante la llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "comentario": "La cliente no realizó consultas directas sobre la permanencia del seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "comentario": "La cliente consultó si el seguro cubría el robo de su billetera y el ejecutivo indicó que dependía de las condiciones de la póliza y la derivó al área de siniestros; no es posible evaluar la precisión técnica al no disponer de la ficha del producto.",
+      "evidencia": [],
+      "estado": "indeterminado",
+      "confianza": 0.8
+    },
+    {
+      "id": 7,
+      "comentario": "El ejecutivo orienta y deriva correctamente a la cliente al canal de siniestros correspondiente para el denuncio de su caso.",
+      "evidencia": [
+        {
+          "t": "01:22",
+          "hablante": "AGENTE",
+          "cita": "tiene que hacer la denuncia en Carabineros y llamar al número de siniestros que le voy a dar."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 8,
+      "comentario": "Aunque el ejecutivo interpuso una retención antes de responder la duda de la cliente, posteriormente respondió directamente sobre el procedimiento de siniestro en 01:22.",
+      "evidencia": [
+        {
+          "t": "01:22",
+          "hablante": "AGENTE",
+          "cita": "Para el robo de la billetera, la cobertura depende de las condiciones de su póliza; tiene que hacer la denuncia en Carabineros y llamar al número de siniestros que le voy a dar."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 9,
+      "comentario": "No se gestionó renuncia en la llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "comentario": "Las desviaciones de la llamada se encuentran tipificadas en los motivos específicos 16 y 32, por lo que no procede aplicar el criterio residual.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 11,
+      "comentario": "El ejecutivo mantiene un trato respetuoso y no descalifica a pares, a la institución ni a competidores.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "comentario": "El ejecutivo no induce a la renuncia del seguro; por el contrario, insiste en que lo mantenga.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "comentario": "No aplica protocolo de cierre de renuncia o retención, ya que no hubo solicitud de baja ni gestión válida de retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "comentario": "No aplica, dado que no hubo renuncia de ningún seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "comentario": "No aplica protocolo de cierre al tratarse de una consulta informativa de siniestro sin renuncia ni retención formal.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "comentario": "La cliente llamó exclusivamente para consultar sobre la cobertura de un robo y cómo hacer el reclamo, aclarando incluso que no quería dar de baja el seguro. Pese a esto, el ejecutivo inició un discurso de retención para convencerla de mantenerlo.",
+      "evidencia": [
+        {
+          "t": "00:50",
+          "hablante": "AGENTE",
+          "cita": "Señora Sofía, antes de eso le quiero recordar lo importante que es mantener este seguro. Mucha gente lo da de baja y después se arrepiente, porque es una protección muy completa para usted y su familia."
+        },
+        {
+          "t": "01:05",
+          "hablante": "CLIENTE",
+          "cita": "Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo."
+        },
+        {
+          "t": "01:11",
+          "hablante": "AGENTE",
+          "cita": "Sí, claro, pero es importante que lo mantenga."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro es retenible según metadatos y además no existió intención de renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "comentario": "No se registró tipificación en metadatos ni hubo renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "comentario": "No se tipificó renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "comentario": "No se tipificó renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "comentario": "No se tipificó renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "comentario": "No se registró tipificación en los metadatos.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "comentario": "No se registró tipificación en los metadatos.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "comentario": "No se tipificó retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "comentario": "En la llamada no se generó ninguna gestión contractual de retención o renuncia que debiera ser procesada bajo dicha pauta.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 26,
+      "comentario": "La cliente solicitó información sobre cobertura y procedimiento de denuncia, la cual le fue proporcionada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 27,
+      "comentario": "No participó ningún tercero en la comunicación; se atendió directamente a la titular.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "comentario": "No se discutió ni solicitó devolución de primas.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "comentario": "El protocolo de cierre aplica ante gestiones de renuncia o retención. Al ser una llamada puramente informativa sin intención de renuncia, no corresponde protocolo de cierre.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 30,
+      "comentario": "No aplica reiteración de protocolo de cierre por no corresponder dicho protocolo en esta interacción.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida correctamente el RUT, nombre completo y fecha de nacimiento de la cliente.",
+      "evidencia": [
+        {
+          "t": "00:10",
+          "hablante": "AGENTE",
+          "cita": "Señora Sofía, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:15",
+          "hablante": "CLIENTE",
+          "cita": "Dieciséis millones seiscientos sesenta y seis mil seiscientos sesenta y seis guion seis. Sofía Ignacia Tapia Rojas, once de agosto del noventa y dos."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "comentario": "El ejecutivo condiciona expresamente la respuesta de la cliente a una afirmación ('¿cierto?'), predisponiéndola a aceptar la mantención del seguro.",
+      "evidencia": [
+        {
+          "t": "01:11",
+          "hablante": "AGENTE",
+          "cita": "Usted está de acuerdo en mantenerlo, ¿cierto?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo solicita y valida correctamente el correo electrónico y teléfono de contacto.",
+      "evidencia": [
+        {
+          "t": "00:25",
+          "hablante": "AGENTE",
+          "cita": "¿Su correo y un teléfono de contacto?"
+        },
+        {
+          "t": "00:28",
+          "hablante": "CLIENTE",
+          "cita": "sofia punto tapia arroba correo ejemplo punto cl, nueve tres tres tres dos dos dos uno uno."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    }
+  ]
+}

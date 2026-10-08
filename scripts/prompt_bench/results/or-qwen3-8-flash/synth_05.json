@@ -1,0 +1,254 @@
+{
+  "resumen": "Jorge Ramírez, titular validado, expresa intención de renunciar al Seguro de Salud Incapacidad MYPE y luego pasa la llamada con Marcela, su señora. El ejecutivo entrega información del seguro a Marcela, explica la cobertura, realiza un intento de retención y confirma la renuncia con ella. La gestión coincide con la tipificación de renuncia, pero hubo entrega de información y cierre con tercero sin retomar el protocolo con el titular.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar al seguro de salud de la pyme, no quiero más compromisos.",
+    "timestamp": "00:41"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "MYPE-0005",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "No desea contraer más obligaciones",
+      "n_objeciones": 1,
+      "evidencia": "El titular solicita renuncia en 00:41; tras la pregunta de Marcela, el ejecutivo explica cobertura y agrega 'Es una buena protección para un emprendedor' en 01:19; luego confirma la renuncia en 01:35."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No se registran esperas en metadatos y en la transcripción no se observa que el ejecutivo deje en espera al cliente.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo describe el producto gestionado como Seguro de Salud Incapacidad MYPE, pero la ficha de producto no está disponible, por lo que no es posible contrastar con certeza si la descripción corresponde a otro seguro.",
+      "estado": "indeterminado",
+      "confianza": 0.65
+    },
+    {
+      "id": 3,
+      "comentario": "Tras la intención de renuncia, se identifica un argumento de retención en 01:19 ('Es una buena protección para un emprendedor'). No se excede el máximo de 3 objeciones.",
+      "estado": "cumple",
+      "confianza": 0.75
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo indica características del seguro: nombre, prima mensual, medio de pago, vigencia y cobertura de incapacidad con renta diaria.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 5,
+      "comentario": "No hay consulta directa del cliente sobre quién maneja la permanencia del seguro, por lo que no aplica el motivo.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 6,
+      "comentario": "El ejecutivo responde preguntas del producto y de la cobertura, pero la ficha de producto no está disponible, por lo que no es posible verificar si la información entregada es correcta o si hay errores/vaguedad frente a la ficha.",
+      "estado": "indeterminado",
+      "confianza": 0.6
+    },
+    {
+      "id": 7,
+      "comentario": "La solicitud corresponde a un seguro renunciable en este canal; no se evidencia que debiera derivarse a otra área o canal.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde de forma directa las preguntas sobre valor, vigencia, consecuencias de la renuncia y cobertura.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 9,
+      "comentario": "Los metadatos indican que el seguro es renunciable en este canal, por lo que no aplica el motivo de renuncia de seguro irrenunciable en canal.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 10,
+      "comentario": "No se detecta una conducta adicional que vulnere la política y que no esté cubierta por otros motivos; el problema de atención a tercero se tipifica específicamente en el motivo 27.",
+      "estado": "cumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 11,
+      "comentario": "No hay descalificación de pares, BancoEstado ni competencia en la transcripción.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 12,
+      "comentario": "La renuncia es solicitada por el titular en 00:41; el ejecutivo no sugiere ni propone renunciar antes de esa solicitud.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 13,
+      "comentario": "En el protocolo de cierre el ejecutivo indica el número de póliza: 'póliza número MYPE-0005'.",
+      "estado": "cumple",
+      "confianza": 0.95,
+      "evidencia": [
+       {
+       }]
+    },
+    {
+      "id": 14,
+      "comentario": "El seguro es retenible y, tras la intención de renuncia, el ejecutivo entrega un argumento de beneficio/cobertura: 'Es una buena protección para un emprendedor'. Por tanto, realiza al menos un intento de retención.",
+      "estado": "cumple",
+      "confianza": 0.75,
+      "evidencia": [
+       {
+       }]
+    },
+    {
+      "id": 15,
+      "comentario": "En el cierre informa el medio de pago asociado: 'con cargo a la cuenta vista de don Jorge'.",
+      "estado": "cumple",
+      "confianza": 0.95,
+      "evidencia": [
+       {
+       }]
+    },
+    {
+      "id": 16,
+      "comentario": "El cliente titular expresó intención de renuncia en 00:41, por lo que no aplica el motivo de retención sin intención de renuncia.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 17,
+      "comentario": "Los metadatos indican que el seguro es retenible, por lo que no aplica el motivo de retención de seguro no retenible.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 18,
+      "comentario": "La tipificación 'No desea contraer más obligaciones' es coherente con lo dicho por el cliente: 'no quiero más compromisos' y 'ya tenemos muchas cuentas'.",
+      "estado": "cumple",
+      "confianza": 0.9,
+      "evidencia": [
+       {
+       },
+       {
+       }]
+    },
+    {
+      "id": 19,
+      "comentario": "El ejecutivo tipifica renuncia y, según la grabación, la gestión efectivamente es una renuncia confirmada.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 20,
+      "comentario": "La tipificación corresponde al seguro MYPE-0005, que sí es mencionado y gestionado en la llamada.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 21,
+      "comentario": "No hay evidencia de que la renuncia tipificada corresponda a un seguro distinto del gestionado en la llamada.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 22,
+      "comentario": "El ejecutivo no tipifica retención, por lo que no aplica el motivo de retención de seguro no mencionado.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 23,
+      "comentario": "El ejecutivo no tipifica retención, por lo que no aplica el motivo de retención que corresponde a otro seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 24,
+      "comentario": "El ejecutivo no tipifica retención; la grabación muestra renuncia, por lo que no aplica el motivo de tipificar retención cuando por grabación es renuncia.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 25,
+      "comentario": "Solo hay un seguro gestionado en la llamada y aparece tipificado en los metadatos, por lo que se tipificó la gestión solicitada.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 26,
+      "comentario": "La única gestión solicitada por el titular fue la renuncia del seguro MYPE-0005, la cual fue ingresada/confirmada por el ejecutivo.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 27,
+      "comentario": "Jorge, titular validado, expresa la renuncia y luego pasa la llamada con Marcela. El ejecutivo entrega información del seguro a Marcela y realiza el cierre con ella, sin retomar el protocolo de cierre con el titular.",
+      "estado": "incumple",
+      "confianza": 0.95,
+      "evidencia": [
+       {
+       },
+       {
+       },
+       {
+       }]
+    },
+    {
+      "id": 28,
+      "comentario": "El campo devolucion_prima está 'sin dato', por lo que no se puede determinar si el ejecutivo debió informar devolución de primas o si la negó indebidamente.",
+      "estado": "indeterminado",
+      "confianza": 0.7
+    },
+    {
+      "id": 29,
+      "comentario": "El ejecutivo realiza un cierre con resumen de gestión, número de póliza y medio de pago. La infracción por hacerlo con tercero sin retomar al titular se evalúa específicamente en el motivo 27.",
+      "estado": "cumple",
+      "confianza": 0.85,
+      "evidencia": [
+       {
+       }]
+    },
+    {
+      "id": 30,
+      "comentario": "El cierre fue aceptado expresamente con 'Sí, de acuerdo', por lo que no hubo respuesta no permitida que obligara a reiterar el protocolo.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo solicita RUT, nombre completo y fecha de nacimiento al titular, y el cliente los entrega; luego indica que quedó validado.",
+      "estado": "cumple",
+      "confianza": 0.9,
+      "evidencia": [
+       {
+       },
+       {
+       }]
+    },
+    {
+      "id": 32,
+      "comentario": "La pregunta de cierre '¿Están de acuerdo?' es una confirmación neutral de la gestión de renuncia, no una predisposición a aceptar el seguro condicionada a un sí.",
+      "estado": "cumple",
+      "confianza": 0.9,
+      "evidencia": [
+       {
+       }]
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo solicita correo y teléfono al titular, y el cliente los entrega; luego indica validación.",
+      "estado": "cumple",
+      "confianza": 0.9,
+      "evidencia": [
+       {
+       },
+       {
+       }]
+    }
+  ]
+}

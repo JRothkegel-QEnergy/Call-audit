@@ -1,0 +1,241 @@
+{
+  "resumen": "La cliente solicita renunciar a un seguro de Incapacidad Temporal asociado a su crédito de consumo. El ejecutivo valida datos, acepta e ingresa la renuncia, y realiza cierre informando la póliza y el medio de pago. Se incumple porque el seguro no era renunciable en este canal y correspondía derivación.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Me sale un seguro de incapacidad temporal en el crédito y yo no me acuerdo de haberlo contratado. Lo quiero sacar.",
+    "timestamp": "00:35"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "INC-TMP-0010",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "Desconoce contratación del seguro",
+      "n_objeciones": 0,
+      "evidencia": "00:35 CLIENTE solicita sacar el seguro; 00:44 AGENTE dice 'Se lo doy de baja'; 00:55 AGENTE informa 'Quedó ingresada la renuncia'."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No se registran esperas en los metadatos; no hay un tiempo de espera que evaluar contra el umbral.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo describe el seguro como 'Seguro de Incapacidad Temporal asociado a su crédito de consumo', lo que coincide con el seguro consultado en los metadatos. Aunque la ficha está pendiente, no hay evidencia de que describa otro seguro.",
+      "estado": "cumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 3,
+      "comentario": "No hubo intento de retención ni objeciones; por tanto no se excede el máximo de 3 objeciones.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo sí indica una característica del seguro a renunciar: lo identifica como seguro de Incapacidad Temporal asociado al crédito de consumo.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 5,
+      "comentario": "No hubo consulta directa del cliente sobre quién maneja la permanencia, por lo que no aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 6,
+      "comentario": "El cliente no formuló preguntas sobre coberturas ni información del producto; no se pone a prueba el manejo del producto en la transcripción.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 7,
+      "comentario": "Según los metadatos, el seguro no es renunciable en este canal, por lo que correspondía derivar la solicitud al área o canal pertinente. El ejecutivo no deriva y gestiona la baja. Se marca como incumple de derivación, distinto de la acción de renunciar evaluada en el motivo 9.",
+      "evidencia": [
+       {
+"t": "00:44",
+"hablante": "AGENTE",
+"cita": "Entiendo, señora Gloria. Es el seguro de Incapacidad Temporal asociado a su crédito de consumo. Se lo doy de baja."
+},
+       {
+"t": "00:55",
+"hablante": "AGENTE",
+"cita": "Listo. Quedó ingresada la renuncia de su seguro de Incapacidad Temporal, póliza número INC-TMP-0010, con prima única cargada en su crédito de consumo. ¿Está de acuerdo?"
+}
+      ],
+      "estado": "incumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde de forma directa a la solicitud de la cliente y no elude preguntas.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 9,
+      "comentario": "Los metadatos indican que el seguro no es renunciable en este canal. El ejecutivo acepta y registra la renuncia, incumpliendo la restricción de canal.",
+      "evidencia": [
+       {
+"t": "00:44",
+"hablante": "AGENTE",
+"cita": "Entiendo, señora Gloria. Es el seguro de Incapacidad Temporal asociado a su crédito de consumo. Se lo doy de baja."
+},
+       {
+"t": "00:55",
+"hablante": "AGENTE",
+"cita": "Listo. Quedó ingresada la renuncia de su seguro de Incapacidad Temporal, póliza número INC-TMP-0010, con prima única cargada en su crédito de consumo. ¿Está de acuerdo?"
+}
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 10,
+      "comentario": "La conducta de no derivar y renunciar un seguro no renunciable en canal está cubierta por los motivos 7 y 9, por lo que no se usa el motivo residual.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 11,
+      "comentario": "No hay evidencia de descalificación a pares, BancoEstado o competencia.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 12,
+      "comentario": "La intención de renuncia la expresa primero la cliente; el ejecutivo no sugiere ni induce la renuncia antes de la solicitud.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 13,
+      "comentario": "En el cierre el ejecutivo indica el número de seguro gestionado: 'póliza número INC-TMP-0010'.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 14,
+      "comentario": "El seguro consultado no es retenible según metadatos, por lo que no aplica la obligación de realizar intento de retención.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 15,
+      "comentario": "En el cierre informa el medio de pago asociado: 'prima única cargada en su crédito de consumo'.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 16,
+      "comentario": "Hubo intención de renuncia expresa y el ejecutivo no realizó retención; no aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 17,
+      "comentario": "El ejecutivo no retuvo el seguro no retenible; gestionó una renuncia. Por tanto no se configura la conducta de retener un seguro no retenible.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 18,
+      "comentario": "La tipificación del motivo de renuncia fue 'Desconoce contratación del seguro', coherente con que la cliente dice no acordarse de haberlo contratado.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 19,
+      "comentario": "El ejecutivo tipificó renuncia y la grabación muestra una renuncia, no una retención.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 20,
+      "comentario": "La renuncia tipificada corresponde a un seguro mencionado en la llamada: INC-TMP-0010.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 21,
+      "comentario": "La renuncia tipificada corresponde al mismo seguro descrito y gestionado, no a otro seguro.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 22,
+      "comentario": "No se tipificó una retención, por lo que no aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 23,
+      "comentario": "No se tipificó una retención, por lo que no aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 24,
+      "comentario": "No se tipificó retención; la gestión registrada fue renuncia y la grabación muestra renuncia.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 25,
+      "comentario": "Hubo una sola gestión solicitada y una sola tipificación registrada para el seguro INC-TMP-0010.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 26,
+      "comentario": "La única gestión solicitada fue la renuncia del seguro y el ejecutivo la impactó en el cierre: 'Quedó ingresada la renuncia'.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 27,
+      "comentario": "No participó un tercero en la llamada; la acreditación y el cierre se realizan con la titular.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 28,
+      "comentario": "Los metadatos indican 'devolucion_prima: sin dato', por lo que no es posible determinar si correspondía devolución y si el ejecutivo la negó o no.",
+      "estado": "indeterminado",
+      "confianza": 0.9
+    },
+    {
+      "id": 29,
+      "comentario": "El ejecutivo realiza protocolo de cierre: informa la gestión realizada, la póliza gestionada, el medio de pago y solicita acuerdo.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 30,
+      "comentario": "La cliente responde con aceptación clara: 'Sí, de acuerdo'. No hubo respuesta no permitida que obligara a reiterar el cierre.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo solicita y valida RUT, nombre completo y fecha de nacimiento antes de atender la solicitud.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 32,
+      "comentario": "La pregunta '¿Está de acuerdo?' es una confirmación neutra de cierre, no condiciona a mantener el seguro ni predispone a aceptar una retención.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo solicita y valida correo electrónico y teléfono, y luego indica que quedó validada la titularidad.",
+      "estado": "cumple",
+      "confianza": 0.95
+    }
+  ]
+}

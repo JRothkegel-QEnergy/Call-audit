@@ -1,0 +1,17 @@
+{
+  "name": "or-mistral-small-2603",
+  "provider": "openrouter",
+  "requested_model": "mistralai/mistral-small-2603",
+  "returned_model": "mistralai/mistral-small-2603",
+  "settings": {
+    "temperature": 0,
+    "max_tokens": 16000
+  },
+  "usage": {
+    "input_tokens": 3656,
+    "output_tokens": 3161
+  },
+  "cost_usd": 0.002445,
+  "latency_ms": 19173,
+  "run_at": "2026-10-08T22:04:16+00:00"
+}

@@ -14,7 +14,7 @@ import sys
 import tomllib
 from pathlib import Path
 
-from run import cost_usd
+from run import cost_usd, extract_audit
 
 ROOT = Path(__file__).resolve().parents[2]
 CALLS_DIR = ROOT / "tests" / "fixtures" / "calls"
@@ -28,15 +28,14 @@ STATUS_MAP = {"incumple": "non_compliant", "cumple": "compliant", "no_aplica": "
 
 
 def parse_response(text: str) -> dict:
-    text = re.sub(r"```(?:json)?", "", text)
-    start, end = text.find("{"), text.rfind("}")
-    data = json.loads(text[start : end + 1])
-    return data.get("input", data)
+    return extract_audit(text)
 
 
 def predicted(resp: dict) -> tuple[set[int], set[int]]:
     non_compliant, uncertain = set(), set()
     for c in resp.get("criterios", []):
+        if not isinstance(c, dict) or not str(c.get("id", "")).isdigit():
+            continue
         status = STATUS_MAP.get(str(c.get("estado", "")).lower())
         if status == "non_compliant":
             non_compliant.add(int(c["id"]))
@@ -169,7 +168,7 @@ def main() -> None:
             try:
                 resp = parse_response(path.read_text(encoding="utf-8"))
             except (ValueError, json.JSONDecodeError) as exc:
-                grid[stem][model] = f"JSON inválido: {exc}"
+                grid[stem][model] = f"respuesta inválida: {exc}"
                 continue
             answered += 1
             meta_path = model_dir / f"{stem}.meta.json"

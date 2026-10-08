@@ -94,12 +94,79 @@ temperature = 0
 max_tokens = 16000
 tool_mode = true   # en modo JSON intenta llamar a registrar_auditoria igual; se le da la herramienta real
 
+# OpenRouter: precios tomados de su API de modelos el 2026-10-08.
+# Los modelos de OpenAI no llevan temperature (los de razonamiento la rechazan).
+
 [[models]]
-name = "open-model-openrouter"
+name = "or-gpt-6-luna"
 provider = "openrouter"
-model = ""   # ej. un Llama, Qwen o Mistral de --list-models openrouter
-enabled = false
+model = "openai/gpt-6-luna"
+enabled = true
+max_tokens = 16000
+price_input_per_mtok = 0.10
+price_output_per_mtok = 0.50
+
+[[models]]
+name = "or-gpt-5-4-mini"
+provider = "openrouter"
+model = "openai/gpt-5.4-mini"
+enabled = true
+tool_mode = true   # en modo JSON a veces devuelve el esquema en vez de la respuesta
+max_tokens = 16000
+price_input_per_mtok = 0.75
+price_output_per_mtok = 4.50
+
+[[models]]
+name = "or-gemini-3-8-flash"
+provider = "openrouter"
+model = "google/gemini-3.8-flash"
+enabled = true
 temperature = 0
+max_tokens = 16000
+price_input_per_mtok = 0.75
+price_output_per_mtok = 3.75
+
+[[models]]
+name = "or-deepseek-v4-1-flash"
+provider = "openrouter"
+model = "deepseek/deepseek-v4.1-flash"
+enabled = true
+temperature = 0
+max_tokens = 32000   # con 16.000 el razonamiento cortaba la respuesta
+price_input_per_mtok = 0.30
+price_output_per_mtok = 1.20
+
+[[models]]
+name = "or-llama-4-maverick"
+provider = "openrouter"
+model = "meta-llama/llama-4-maverick"
+enabled = true
+tool_mode = true   # en modo JSON a veces devuelve el esquema en vez de la respuesta
+temperature = 0
+max_tokens = 16000
+price_input_per_mtok = 0.19
+price_output_per_mtok = 0.65
+
+[[models]]
+name = "or-qwen3-8-flash"
+provider = "openrouter"
+model = "qwen/qwen3.8-flash"
+enabled = true
+tool_mode = true   # en modo JSON a veces devuelve el esquema en vez de la respuesta
+temperature = 0
+max_tokens = 32000   # con 16.000 el razonamiento cortaba la respuesta
+price_input_per_mtok = 0.15
+price_output_per_mtok = 0.47
+
+[[models]]
+name = "or-mistral-small-2603"
+provider = "openrouter"
+model = "mistralai/mistral-small-2603"
+enabled = true
+temperature = 0
+max_tokens = 16000
+price_input_per_mtok = 0.15
+price_output_per_mtok = 0.60
 
 [[models]]
 name = "local-ollama"

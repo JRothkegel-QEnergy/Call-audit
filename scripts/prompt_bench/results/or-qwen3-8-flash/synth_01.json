@@ -1,0 +1,217 @@
+{
+  "resumen": "El cliente llama para dar de baja un seguro de desempleo asociado a un crédito de consumo por problemas económicos. El ejecutivo valida al titular, explica el producto, gestiona la retención y cierra informando la gestión, el número de póliza y el medio de pago. El resultado según la grabación es retención y la tipificación coincide.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Mire, quiero dar de baja el seguro de desempleo que tengo con el crédito de consumo. La verdad ando medio apretado con las lucas.",
+    "timestamp": "00:54"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "DES-CONS-0001",
+      "resultado_grabacion": "RETENCION",
+      "motivo_renuncia": "Problemas Económicos",
+      "n_objeciones": 2,
+      "evidencia": "El cliente solicita baja por apretado con las lucas; tras explicación de cobertura y argumento de beneficio, manifiesta: Entonces lo mantengo no más po, si no me están cobrando nada aparte."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "Los metadatos indican esperas_seg vacío y no hay registro de esperas en la transcripción; por tanto, no se dio la situación de espera excesiva.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 2,
+      "comentario": "La descripción entregada coincide con la ficha: prima única, cobertura por desempleo, pago de hasta 5 cuotas, 2 contra finiquito y 3 tras acreditar 60 días. No corresponde a otro seguro.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 3,
+      "comentario": "Se identifican dos intentos de retención: la explicación de beneficios/cobertura y el argumento posterior sobre las 5 cuotas. No se excede el máximo de 3 objeciones.",
+      "estado": "cumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo indica características del seguro: prima única, coberturas y cantidad de cuotas pagadas.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 5,
+      "comentario": "Ante la consulta directa del cliente sobre si después lo puede sacar, el ejecutivo informa que la permanencia la decide el cliente y que puede renunciar cuando quiera.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 6,
+      "comentario": "El ejecutivo maneja información del producto y responde correctamente a la duda sobre el cobro mensual. No se evidencian errores o vaguedades frente a preguntas del cliente.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 7,
+      "comentario": "No se da una solicitud que corresponda a otra área o canal; la gestión fue de retención de un seguro renunciable en el canal.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde directamente a las preguntas del cliente sobre cobro mensual y permanencia, sin eludir.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro es renunciable en este canal y no se renuncia ningún seguro irrenunciable.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 10,
+      "comentario": "No se detecta una conducta que vulnere la política de BancoEstado y que no esté cubierta por otro motivo; la atención cumple protocolo y gestión.",
+      "estado": "cumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 11,
+      "comentario": "No hay descalificación a pares, BancoEstado o competencia.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 12,
+      "comentario": "La intención de renuncia la expresa el cliente; el ejecutivo no sugiere ni propone renunciar.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 13,
+      "comentario": "En el cierre el ejecutivo indica el número de seguro: póliza número DES-CONS-0001.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 14,
+      "comentario": "El seguro es retenible y el ejecutivo realiza intento de retención mediante explicación de cobertura y beneficio.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 15,
+      "comentario": "En el cierre informa el medio de pago asociado: cargo único hecho en el crédito de consumo, sin cargos mensuales en cuenta.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 16,
+      "comentario": "No aplica, porque el cliente sí expresó intención de renuncia antes de la gestión de retención.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 17,
+      "comentario": "No aplica, porque el seguro gestionado es retenible según metadatos.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 18,
+      "comentario": "La tipificación de motivo Problemas Económicos coincide con la expresión del cliente: ando medio apretado con las lucas.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 19,
+      "comentario": "No aplica, porque la tipificación registrada es retención, no renuncia.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 20,
+      "comentario": "No aplica, porque no se tipificó renuncia.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 21,
+      "comentario": "No aplica, porque no se tipificó renuncia.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 22,
+      "comentario": "Se tipificó retención del seguro DES-CONS-0001, que sí fue mencionado y gestionado en la llamada.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 23,
+      "comentario": "La retención tipificada corresponde al seguro de desempleo de crédito de consumo mencionado en la llamada, no a otro seguro.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 24,
+      "comentario": "Se tipificó retención y el resultado por grabación también es retención, porque el cliente decide mantener el seguro.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 25,
+      "comentario": "La única gestión realizada en la llamada fue tipificada: retención del seguro DES-CONS-0001.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 26,
+      "comentario": "La solicitud del cliente fue atendida y resuelta mediante retención aceptada por él; no quedan gestiones solicitadas sin impactar.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 27,
+      "comentario": "No participa tercero en la llamada; la atención es con el titular validado.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 28,
+      "comentario": "El ejecutivo no niega devolución de primas en la transcripción, pero los metadatos indican devolucion_prima sin dato, por lo que no es posible contrastar si correspondía o no.",
+      "estado": "indeterminado",
+      "confianza": 0.85
+    },
+    {
+      "id": 29,
+      "comentario": "El ejecutivo realiza protocolo de cierre: resume la gestión, indica número de póliza y medio de pago.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 30,
+      "comentario": "No aplica, porque no se registra una respuesta del cliente posterior al cierre que no sea una aceptación clara.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida RUT, nombre completo y fecha de nacimiento antes de gestionar la información.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 32,
+      "comentario": "No se condiciona la respuesta del cliente a un sí para aceptar el seguro; las preguntas son neutras o informativas.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo valida correo electrónico y teléfono de contacto antes de informar datos de la gestión.",
+      "estado": "cumple",
+      "confianza": 0.95
+    }
+  ]
+}

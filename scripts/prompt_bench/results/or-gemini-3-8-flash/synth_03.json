@@ -1,0 +1,308 @@
+{
+  "resumen": "El cliente llama para solicitar la renuncia de su seguro de Incendio Hogar debido a la venta de su propiedad. La ejecutiva valida parcialmente la identidad (sin solicitar email ni fono), no realiza ningún intento de retención a pesar de ser un seguro retenible y procede directamente con la renuncia, realizando un cierre conforme a protocolo.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Vendí el departamento y quiero dar de baja el seguro de incendio, porque ya no tiene sentido.",
+    "timestamp": "00:25"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "INC-HOG-0003",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "Cambio de Domicilio o Venta de Propiedad",
+      "n_objeciones": 0,
+      "evidencia": "[00:25] CLIENTE: Vendí el departamento y quiero dar de baja el seguro de incendio, porque ya no tiene sentido. / [00:38] AGENTE: Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, póliza número INC-HOG-0003..."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hubo tiempos de espera durante la llamada; el campo esperas_seg está vacío.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "comentario": "La ejecutiva no realiza descripción errónea ni confunde el producto con otro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "comentario": "La ejecutiva no presentó objeciones de retención (n_objeciones = 0), por lo que no supera el máximo de 3.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "comentario": "Entre 00:25 y 00:38, tras la solicitud de renuncia del cliente, la ejecutiva procede directamente con la baja sin mencionar ninguna cobertura o característica del seguro a renunciar.",
+      "evidencia": [
+        {
+          "t": "00:32",
+          "hablante": "AGENTE",
+          "cita": "Ya, perfecto, se lo doy de baja al tiro."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 5,
+      "comentario": "El cliente no realizó consultas directas sobre la permanencia del seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "comentario": "El cliente no formuló preguntas sobre coberturas o condiciones que la ejecutiva debiera responder.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 7,
+      "comentario": "El seguro es gestionable y renunciable en este canal, por lo que no correspondía realizar derivación.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "comentario": "La ejecutiva responde de forma directa y clara a la solicitud del cliente.",
+      "evidencia": [
+        {
+          "t": "00:32",
+          "hablante": "AGENTE",
+          "cita": "Ya, perfecto, se lo doy de baja al tiro."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro INC-HOG-0003 es renunciable en este canal según los metadatos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "comentario": "No se observan conductas atípicas adicionales fuera de los motivos específicos ya contemplados en la pauta.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "comentario": "La ejecutiva mantiene un trato respetuoso y no descalifica a pares, BancoEstado ni a la competencia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "comentario": "La renuncia fue solicitada expresamente por el cliente en 00:25, la ejecutiva no la indujo.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "comentario": "En el protocolo de cierre en 00:38, la ejecutiva menciona expresamente el número de póliza INC-HOG-0003.",
+      "evidencia": [
+        {
+          "t": "00:38",
+          "hablante": "AGENTE",
+          "cita": "Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, póliza número INC-HOG-0003..."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "comentario": "El seguro INC-HOG-0003 está catalogado como retenible en los metadatos. Tras manifestar el cliente su intención de renuncia en 00:25, la ejecutiva acepta de inmediato y no realiza ningún intento de retención.",
+      "evidencia": [
+        {
+          "t": "00:25",
+          "hablante": "CLIENTE",
+          "cita": "Vendí el departamento y quiero dar de baja el seguro de incendio, porque ya no tiene sentido."
+        },
+        {
+          "t": "00:32",
+          "hablante": "AGENTE",
+          "cita": "Ya, perfecto, se lo doy de baja al tiro."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "comentario": "La ejecutiva informa claramente el medio de pago en el protocolo de cierre.",
+      "evidencia": [
+        {
+          "t": "00:38",
+          "hablante": "AGENTE",
+          "cita": "...que se cargaba mensualmente a su cuenta corriente terminada en cuatro cinco."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "comentario": "No hubo retención sin intención; el cliente expresó explícitamente su intención de renuncia y no se realizó retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "comentario": "No se retuvo ningún seguro no retenible (la gestión final fue renuncia y el seguro era retenible).",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "comentario": "El cliente indicó que vendió el departamento y la ejecutiva tipificó 'Cambio de Domicilio o Venta de Propiedad', lo cual es plenamente coincidente y correcto.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "comentario": "La ejecutiva tipificó renuncia y por grabación efectivamente se gestionó la renuncia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "comentario": "Se tipificó la renuncia del seguro consultado y mencionado en la llamada (INC-HOG-0003).",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "comentario": "La renuncia tipificada corresponde exactamente al seguro gestionado en la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "comentario": "No se tipificó retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "comentario": "No se tipificó retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "comentario": "No se tipificó retención; se tipificó renuncia acorde a la grabación.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "comentario": "Se tipificó la única gestión solicitada y realizada en la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "comentario": "La única gestión solicitada por el cliente fue la baja del seguro, la cual fue ingresada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "comentario": "No intervino ningún tercero en la comunicación; se atendió directamente al titular.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "comentario": "El cliente no consultó sobre devolución de primas y la ejecutiva no la negó.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "comentario": "La ejecutiva realiza el protocolo de cierre informando la renuncia ingresada, el nombre del seguro, la póliza, el medio de pago y solicitando la conformidad.",
+      "evidencia": [
+        {
+          "t": "00:38",
+          "hablante": "AGENTE",
+          "cita": "Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, póliza número INC-HOG-0003, que se cargaba mensualmente a su cuenta corriente terminada en cuatro cinco. ¿Está de acuerdo con la gestión?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 30,
+      "comentario": "El cliente respondió de forma afirmativa y clara ('Sí, de acuerdo'), no habiendo respuesta no permitida.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "comentario": "La ejecutiva solicitó y validó adecuadamente RUT, nombre completo y fecha de nacimiento al inicio de la llamada.",
+      "evidencia": [
+        {
+          "t": "00:08",
+          "hablante": "AGENTE",
+          "cita": "Don Luis, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:13",
+          "hablante": "CLIENTE",
+          "cita": "Trece millones trescientos treinta y tres mil trescientos treinta y tres guion tres. Luis Alberto Contreras Vega, nueve de enero del setenta y ocho."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "comentario": "La pregunta de cierre ('¿Está de acuerdo con la gestión?') es una consulta neutra para validar la aceptación del trámite.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "comentario": "En el tramo de acreditación 00:08–00:25, la ejecutiva omite validar los datos de contacto del cliente (email y teléfono), pasando directamente a consultar el motivo del llamado.",
+      "evidencia": [
+        {
+          "t": "00:23",
+          "hablante": "AGENTE",
+          "cita": "Gracias. ¿Qué necesita?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    }
+  ]
+}

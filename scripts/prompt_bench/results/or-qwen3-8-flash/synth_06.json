@@ -1,0 +1,289 @@
+{
+  "resumen": "La cliente consulta cobertura por robo de billetera en Protección Global. El ejecutivo la acredita, pero realiza retención sin intención de renuncia, condiciona una aceptación y cierra sin protocolo de cierre (sin número de póliza ni medio de pago). No hay tipificación registrada.",
+  "intencion_renuncia": {
+    "expresada": false,
+    "cita": "Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo.",
+    "timestamp": "01:05"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "PROT-GLB-0006",
+      "resultado_grabacion": "RETENCION",
+      "motivo_renuncia": "No informado",
+      "n_objeciones": 0,
+      "evidencia": "00:50 el ejecutivo intenta retener; 01:05 cliente aclara que no quiere dar de baja; 01:22 declara 'queda vigente'. n_objeciones=0 porque no hubo intención de renuncia."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No se registraron esperas y la transcripción no muestra tiempos de espera. La situación del motivo no se dio.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo identifica Protección Global y da una descripción genérica de protección completa, pero la ficha de producto está no disponible, por lo que no se puede contrastar si corresponde a otro seguro.",
+      "estado": "indeterminado",
+      "confianza": 0.6
+    },
+    {
+      "id": 3,
+      "comentario": "La cliente no expresó intención de renuncia; según la definición, n_objeciones=0 y la conducta se evalúa en motivo 16. No se excede el máximo.",
+      "estado": "no_aplica",
+      "confianza": 0.85
+    },
+    {
+      "id": 4,
+      "comentario": "No hubo un seguro a renunciar; el cliente pidió información de cobertura. Aunque el ejecutivo menciona 'protección muy completa', el motivo no aplica por ausencia de renuncia.",
+      "estado": "no_aplica",
+      "confianza": 0.8
+    },
+    {
+      "id": 5,
+      "comentario": "No se consulta directamente por la permanencia del seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 6,
+      "comentario": "El ejecutivo responde de forma genérica que la cobertura depende de condiciones y entrega proceso de denuncia, pero no se puede verificar el manejo de coberturas porque la ficha de producto está pendiente. La falta de respuesta directa se evalúa en motivo 8.",
+      "estado": "indeterminado",
+      "confianza": 0.65
+    },
+    {
+      "id": 7,
+      "comentario": "No hay evidencia de una solicitud que exija derivación a otra área/canal; el ejecutivo entrega número de siniestros. La situación no se dio.",
+      "estado": "no_aplica",
+      "confianza": 0.75
+    },
+    {
+      "id": 8,
+      "comentario": "Ante la pregunta directa '¿me cubre el robo o no?', el ejecutivo no responde sí/no y remite a condiciones de póliza y proceso de siniestros, eludiendo la respuesta directa.",
+      "evidencia": [
+       {
+       "id": 1,
+       "type": "object",
+       "required": ["id", "comentario", "estado", "confianza"],
+       "properties": {"id": {"type": "integer", "minimum": 1, "maximum": 33}, "comentario": {"type": "string", "description": "Análisis del motivo. Se escribe ANTES de decidir el estado."}, "evidencia": {"type": "array", "items": {"type": "object", "properties": {"t": {"type": "string"}, "hablante": {"enum": ["AGENTE", "CLIENTE"]}, "cita": {"type": "string"}}}}, "estado": {"enum": ["cumple", "incumple", "no_aplica", "indeterminado"]}, "confianza": {"type": "number"}}
+      }
+      ],
+      "estado": "incumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 9,
+      "comentario": "No hubo renuncia y el seguro está marcado renunciable en este canal.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 10,
+      "comentario": "Motivo residual. Las conductas observadas (retención sin intención, predisposición, falta de protocolo y respuesta indirecta) ya se tipifican en motivos específicos.",
+      "estado": "no_aplica",
+      "confianza": 0.8
+    },
+    {
+      "id": 11,
+      "comentario": "No se descalifica a pares, BancoEstado ni competencia.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 12,
+      "comentario": "El ejecutivo no sugiere ni propone renunciar; por el contrario, intenta mantener el seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 13,
+      "comentario": "Hubo gestión de retención, por lo que aplica protocolo de cierre. En el tramo de cierre 01:22-01:49 no se menciona el número de seguro PROT-GLB-0006.",
+      "evidencia": [
+       {
+       "id": 1,
+       "type": "object",
+       "required": ["id", "comentario", "estado", "confianza"],
+       "properties": {"id": {"type": "integer", "minimum": 1, "maximum": 33}, "comentario": {"type": "string", "description": "Análisis del motivo. Se escribe ANTES de decidir el estado."}, "evidencia": {"type": "array", "items": {"type": "object", "properties": {"t": {"type": "string"}, "hablante": {"enum": ["AGENTE", "CLIENTE"]}, "cita": {"type": "string"}}}}, "estado": {"enum": ["cumple", "incumple", "no_aplica", "indeterminado"]}, "confianza": {"type": "number"}}
+      }
+      ],
+      "estado": "incumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 14,
+      "comentario": "El motivo aplica a seguros retenibles que se renuncian en la llamada. Aquí no hubo renuncia; el ejecutivo sí hizo un intento de retención, evaluado en motivo 16.",
+      "estado": "no_aplica",
+      "confianza": 0.85
+    },
+    {
+      "id": 15,
+      "comentario": "Hubo gestión de retención, por lo que aplica protocolo de cierre. En el tramo 01:22-01:49 no se informa el medio de pago asociado al seguro.",
+      "evidencia": [
+       {
+       "id": 1,
+       "type": "object",
+       "required": ["id", "comentario", "estado", "confianza"],
+       "properties": {"id": {"type": "integer", "minimum": 1, "maximum": 33}, "comentario": {"type": "string", "description": "Análisis del motivo. Se escribe ANTES de decidir el estado."}, "evidencia": {"type": "array", "items": {"type": "object", "properties": {"t": {"type": "string"}, "hablante": {"enum": ["AGENTE", "CLIENTE"]}, "cita": {"type": "string"}}}}, "estado": {"enum": ["cumple", "incumple", "no_aplica", "indeterminado"]}, "confianza": {"type": "number"}}
+      }
+      ],
+      "estado": "incumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 16,
+      "comentario": "La cliente nunca pidió renunciar; al contrario, aclara que no quiere dar de baja. El ejecutivo realiza retención y declara vigente el seguro.",
+      "evidencia": [
+       {
+       "id": 1,
+       "type": "object",
+       "required": ["id", "comentario", "estado", "confianza"],
+       "properties": {"id": {"type": "integer", "minimum": 1, "maximum": 33}, "comentario": {"type": "string", "description": "Análisis del motivo. Se escribe ANTES de decidir el estado."}, "evidencia": {"type": "array", "items": {"type": "object", "properties": {"t": {"type": "string"}, "hablante": {"enum": ["AGENTE", "CLIENTE"]}, "cita": {"type": "string"}}}}, "estado": {"enum": ["cumple", "incumple", "no_aplica", "indeterminado"]}, "confianza": {"type": "number"}}
+      }
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro está marcado como retenible y no se renuncia; no se retiene un seguro no retenible.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 18,
+      "comentario": "No hay tipificación registrada y tampoco renuncia expresada, por lo que no puede determinarse un motivo de renuncia tipificado incorrecto.",
+      "estado": "no_aplica",
+      "confianza": 0.8
+    },
+    {
+      "id": 19,
+      "comentario": "No hay tipificación registrada.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 20,
+      "comentario": "No hay tipificación de renuncia registrada.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 21,
+      "comentario": "No hay tipificación de renuncia registrada.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 22,
+      "comentario": "No hay tipificación de retención registrada.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 23,
+      "comentario": "No hay tipificación de retención registrada.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 24,
+      "comentario": "No hay tipificación de retención registrada.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 25,
+      "comentario": "La grabación muestra una gestión de retención sobre Protección Global, pero los metadatos indican 'sin tipificación registrada'. Por tanto, no se tipificó la gestión realizada.",
+      "evidencia": [
+       {
+       "id": 1,
+       "type": "object",
+       "required": ["id", "comentario", "estado", "confianza"],
+       "properties": {"id": {"type": "integer", "minimum": 1, "maximum": 33}, "comentario": {"type": "string", "description": "Análisis del motivo. Se escribe ANTES de decidir el estado."}, "evidencia": {"type": "array", "items": {"type": "object", "properties": {"t": {"type": "string"}, "hablante": {"enum": ["AGENTE", "CLIENTE"]}, "cita": {"type": "string"}}}}, "estado": {"enum": ["cumple", "incumple", "no_aplica", "indeterminado"]}, "confianza": {"type": "number"}}
+      }
+      ],
+      "estado": "incumple",
+      "confianza": 0.75
+    },
+    {
+      "id": 26,
+      "comentario": "No se evidencia que quedaran gestiones múltiples sin impactar; la consulta de cobertura/claim se aborda parcialmente, pero la falta de respuesta directa se evalúa en motivo 8.",
+      "estado": "no_aplica",
+      "confianza": 0.7
+    },
+    {
+      "id": 27,
+      "comentario": "No participó un tercero; la titular habla con el ejecutivo.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 28,
+      "comentario": "El campo devolucion_prima está 'sin dato' y el ejecutivo no menciona devolución de primas. No se puede determinar si corresponde o no.",
+      "estado": "indeterminado",
+      "confianza": 0.7
+    },
+    {
+      "id": 29,
+      "comentario": "Hubo retención, por lo que aplica protocolo de cierre. En el cierre 01:22-01:49 no se hace resumen de la gestión realizada, ni se informa número de seguro, ni medio de pago.",
+      "evidencia": [
+       {
+       "id": 1,
+       "type": "object",
+       "required": ["id", "comentario", "estado", "confianza"],
+       "properties": {"id": {"type": "integer", "minimum": 1, "maximum": 33}, "comentario": {"type": "string", "description": "Análisis del motivo. Se escribe ANTES de decidir el estado."}, "evidencia": {"type": "array", "items": {"type": "object", "properties": {"t": {"type": "string"}, "hablante": {"enum": ["AGENTE", "CLIENTE"]}, "cita": {"type": "string"}}}}, "estado": {"enum": ["cumple", "incumple", "no_aplica", "indeterminado"]}, "confianza": {"type": "number"}}
+      }
+      ],
+      "estado": "incumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 30,
+      "comentario": "No se realizó protocolo de cierre, por lo que no hay un cierre que reiterar ante respuesta no permitida. La ausencia de protocolo se evalúa en motivo 29.",
+      "estado": "no_aplica",
+      "confianza": 0.8
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo solicita y la cliente entrega RUT, nombre completo y fecha de nacimiento; el ejecutivo indica que quedó validada.",
+      "evidencia": [
+       {
+       "id": 1,
+       "type": "object",
+       "required": ["id", "comentario", "estado", "confianza"],
+       "properties": {"id": {"type": "integer", "minimum": 1, "maximum": 33}, "comentario": {"type": "string", "description": "Análisis del motivo. Se escribe ANTES de decidir el estado."}, "evidencia": {"type": "array", "items": {"type": "object", "properties": {"t": {"type": "string"}, "hablante": {"enum": ["AGENTE", "CLIENTE"]}, "cita": {"type": "string"}}}}, "estado": {"enum": ["cumple", "incumple", "no_aplica", "indeterminado"]}, "confianza": {"type": "number"}}
+      }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 32,
+      "comentario": "El ejecutivo condiciona la respuesta a un sí para aceptar el seguro, con una pregunta dirigida tras la aclaración de la cliente.",
+      "evidencia": [
+       {
+       "id": 1,
+       "type": "object",
+       "required": ["id", "comentario", "estado", "confianza"],
+       "properties": {"id": {"type": "integer", "minimum": 1, "maximum": 33}, "comentario": {"type": "string", "description": "Análisis del motivo. Se escribe ANTES de decidir el estado."}, "evidencia": {"type": "array", "items": {"type": "object", "properties": {"t": {"type": "string"}, "hablante": {"enum": ["AGENTE", "CLIENTE"]}, "cita": {"type": "string"}}}}, "estado": {"enum": ["cumple", "incumple", "no_aplica", "indeterminado"]}, "confianza": {"type": "number"}}
+      }
+      ],
+      "estado": "incumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo solicita correo y teléfono; la cliente los entrega y el ejecutivo valida.",
+      "evidencia": [
+       {
+       "id": 1,
+       "type": "object",
+       "required": ["id", "comentario", "estado", "confianza"],
+       "properties": {"id": {"type": "integer", "minimum": 1, "maximum": 33}, "comentario": {"type": "string", "description": "Análisis del motivo. Se escribe ANTES de decidir el estado."}, "evidencia": {"type": "array", "items": {"type": "object", "properties": {"t": {"type": "string"}, "hablante": {"enum": ["AGENTE", "CLIENTE"]}, "cita": {"type": "string"}}}}, "estado": {"enum": ["cumple", "incumple", "no_aplica", "indeterminado"]}, "confianza": {"type": "number"}}
+      }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    }
+  ]
+}

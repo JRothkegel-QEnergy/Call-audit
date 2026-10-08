@@ -1,0 +1,241 @@
+{
+  "resumen": "El cliente solicita dar de baja el Seguro de Desempleo porque no quiere más compromisos. La ejecutiva presenta un argumento de retención sobre la cobertura de cuotas, pero la llamada se corta o queda ininteligible antes de que pueda determinarse el resultado de la gestión y el cierre.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero dar de baja el seguro de desempleo, no quiero más compromisos.",
+    "timestamp": "00:36"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "DES-CONS-0011",
+      "resultado_grabacion": "SIN_GESTION",
+      "motivo_renuncia": "No desea contraer más obligaciones",
+      "n_objeciones": 1,
+      "evidencia": "Cliente: «Quiero dar de baja el seguro de desempleo, no quiero más compromisos» (00:36). La ejecutiva argumenta que cubre hasta cinco cuotas del crédito (00:42); la respuesta posterior del cliente es inaudible y no se confirma una renuncia ni una retención."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "Los metadatos indican que no hubo esperas, por lo que no se observa una espera excesiva.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 2,
+      "comentario": "La ejecutiva describe cobertura de cuotas del crédito por desempleo, correspondiente al seguro consultado según la ficha entregada.",
+      "estado": "cumple",
+      "confianza": 0.96
+    },
+    {
+      "id": 3,
+      "comentario": "Se observa un argumento de retención después de la solicitud de renuncia, y no hay evidencia de más de tres objeciones.",
+      "estado": "cumple",
+      "confianza": 0.96
+    },
+    {
+      "id": 4,
+      "comentario": "La ejecutiva menciona una característica del seguro: la cobertura de hasta cinco cuotas del crédito ante desempleo.",
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 5,
+      "comentario": "El cliente no consulta quién maneja la permanencia del seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 6,
+      "comentario": "La ejecutiva proporciona información sobre la cobertura y no se observa una pregunta del cliente sobre el producto que quede sin responder. La frase queda truncada, pero no hay evidencia de información incorrecta.",
+      "estado": "cumple",
+      "confianza": 0.82
+    },
+    {
+      "id": 7,
+      "comentario": "El seguro es renunciable en este canal según los metadatos, por lo que no se requería derivación.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 8,
+      "comentario": "No se observa que la ejecutiva eluda una pregunta del cliente; responde a la solicitud con información de cobertura.",
+      "estado": "cumple",
+      "confianza": 0.91
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro es renunciable en este canal según los metadatos.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 10,
+      "comentario": "No se identifica una conducta contraria a la política que no esté cubierta por otro motivo de la pauta.",
+      "estado": "cumple",
+      "confianza": 0.8
+    },
+    {
+      "id": 11,
+      "comentario": "No se observa que la ejecutiva descalifique a pares, al banco o a la competencia.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 12,
+      "comentario": "La intención de renuncia fue expresada primero por el cliente; no se observa que la ejecutiva la sugiera o proponga.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 13,
+      "comentario": "El tramo final está incompleto e ininteligible, por lo que no puede determinarse si hubo un cierre ni si se informó el número de seguro en ese cierre.",
+      "estado": "indeterminado",
+      "confianza": 0.98
+    },
+    {
+      "id": 14,
+      "comentario": "El seguro es retenible y la ejecutiva realiza un argumento para que el cliente lo mantenga, informando una cobertura.",
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 15,
+      "comentario": "El tramo final está incompleto y no permite determinar si hubo un protocolo de cierre ni si se informó el medio de pago.",
+      "estado": "indeterminado",
+      "confianza": 0.98
+    },
+    {
+      "id": 16,
+      "comentario": "El cliente expresó explícitamente su intención de renunciar antes de que la ejecutiva presentara el argumento de retención.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro figura como retenible en los metadatos; además, no se confirma una retención en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 18,
+      "comentario": "La tipificación registrada usa «No desea contraer más obligaciones», que coincide con el motivo expresado por el cliente. El resultado de la gestión no queda confirmado en la transcripción.",
+      "estado": "cumple",
+      "confianza": 0.94
+    },
+    {
+      "id": 19,
+      "comentario": "La tipificación indica renuncia, pero la transcripción incompleta no permite concluir que la gestión haya sido retención.",
+      "estado": "no_aplica",
+      "confianza": 0.91
+    },
+    {
+      "id": 20,
+      "comentario": "La tipificación corresponde al único seguro mencionado en la llamada; no hay evidencia de una renuncia tipificada para otro seguro.",
+      "estado": "cumple",
+      "confianza": 0.96
+    },
+    {
+      "id": 21,
+      "comentario": "El seguro tipificado es el Seguro de Desempleo de créditos de consumo, que coincide con el seguro cuya baja solicita el cliente.",
+      "estado": "cumple",
+      "confianza": 0.96
+    },
+    {
+      "id": 22,
+      "comentario": "No se tipificó una retención de un seguro no mencionado.",
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 23,
+      "comentario": "No se tipificó una retención para un seguro distinto del consultado.",
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 24,
+      "comentario": "La tipificación registrada es RENUNCIA, no RETENCIÓN.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 25,
+      "comentario": "Solo se identifica un seguro solicitado por el cliente y ese seguro aparece en la tipificación. No hay evidencia de otras gestiones que debieran tipificarse.",
+      "estado": "cumple",
+      "confianza": 0.91
+    },
+    {
+      "id": 26,
+      "comentario": "No se puede determinar si la solicitud de renuncia fue impactada: la respuesta del cliente queda inaudible y la llamada termina sin que conste el resultado de la gestión.",
+      "estado": "indeterminado",
+      "confianza": 0.98
+    },
+    {
+      "id": 27,
+      "comentario": "No se observa participación de un tercero en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 28,
+      "comentario": "El metadato devolucion_prima indica «sin dato», por lo que no se puede evaluar si correspondía devolución ni si la ejecutiva la negó.",
+      "estado": "indeterminado",
+      "confianza": 1
+    },
+    {
+      "id": 29,
+      "comentario": "La llamada queda incompleta, con respuestas inaudibles y sin un tramo de cierre identificable; no es posible determinar si se realizó el protocolo.",
+      "estado": "indeterminado",
+      "confianza": 0.98
+    },
+    {
+      "id": 30,
+      "comentario": "No consta que el ejecutivo haya solicitado confirmación de cierre ni que el cliente haya respondido a esa confirmación.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 31,
+      "comentario": "La ejecutiva solicita RUT, nombre completo y fecha de nacimiento, y el cliente entrega esos datos.",
+      "evidencia": [
+        {
+          "t": "00:09",
+          "hablante": "AGENTE",
+          "cita": "Don Manuel, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:15",
+          "hablante": "CLIENTE",
+          "cita": "Doce millones doscientos doce mil doscientos doce guion k. Manuel Antonio Torres Díaz, primero de abril del setenta y nueve."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.96
+    },
+    {
+      "id": 32,
+      "comentario": "El argumento de retención no condiciona la respuesta del cliente a un «sí» ni predispone su aceptación.",
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 33,
+      "comentario": "La ejecutiva solicita correo y teléfono, y el cliente proporciona ambos datos.",
+      "evidencia": [
+        {
+          "t": "00:23",
+          "hablante": "AGENTE",
+          "cita": "¿Su correo y teléfono?"
+        },
+        {
+          "t": "00:25",
+          "hablante": "CLIENTE",
+          "cita": "manuel punto torres arroba correo ejemplo punto cl, nueve cero cero uno uno uno dos dos."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.94
+    }
+  ]
+}

@@ -1,0 +1,290 @@
+{
+  "resumen": "El cliente se comunica para renunciar a dos seguros (desempleo e incendio hogar) debido a que quedó cesante y pasará a trabajar como independiente. El ejecutivo realiza la acreditación correctamente, argumenta retención en ambos seguros (1 objeción para desempleo y 2 para incendio) y finalmente tramita ambas renuncias. Sin embargo, en el cierre omite el número de póliza y medio de pago del seguro de incendio, y no tipifica la gestión de este último.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar a dos seguros: el de desempleo del crédito y el de incendio de la casa.",
+    "timestamp": "00:44"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "DES-CONS-0009",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "Cambio de situación laboral",
+      "n_objeciones": 1,
+      "evidencia": "[01:13] AGENTE: Claro. Le comento que este seguro le cubriría si a futuro vuelve a tener contrato y lo despiden por necesidades de la empresa. Como la prima ya está pagada, no le cuesta nada mantenerlo."
+    },
+    {
+      "n_poliza": "INC-HOG-0009",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "Cambio de situación laboral",
+      "n_objeciones": 2,
+      "evidencia": "[01:40] AGENTE: Sobre el de Incendio Hogar, don Felipe: ese seguro protege su vivienda y sus contenidos ante incendio y otros eventos de la naturaleza... [02:04] AGENTE: Entiendo. Mientras se acomoda con su nuevo trabajo, ¿no prefiere mantenerlo un tiempo más?"
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hubo tiempos de espera durante la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "comentario": "Las coberturas y características descritas para el seguro de desempleo e incendio coinciden con la naturaleza de dichos seguros.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "comentario": "El ejecutivo presentó 1 objeción para el seguro de desempleo y 2 para el de incendio, sin superar el límite de 3 objeciones por producto.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo mencionó coberturas de ambos productos: despido por necesidades de la empresa y prima pagada para desempleo (01:13), y protección de vivienda y contenidos ante incendio y eventos de la naturaleza para incendio (01:40).",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "comentario": "El cliente no realizó consultas directas sobre quién maneja la permanencia del seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "comentario": "El ejecutivo manejó correctamente la información de las coberturas y condiciones de los seguros consultados.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 7,
+      "comentario": "Ambos seguros eran renunciables en este canal, por lo que no correspondía realizar derivación a otra área.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo respondió de forma directa y clara a cada planteamiento del cliente.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 9,
+      "comentario": "Ambos seguros gestionados estaban autorizados para renuncia en este canal según los metadatos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "comentario": "La atención se mantuvo profesional y adecuada a las políticas de BancoEstado.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "comentario": "No hubo expresiones de descalificación hacia BancoEstado, pares o competencia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "comentario": "El ejecutivo no indujo la renuncia; la solicitud provino explícitamente del cliente desde el inicio de la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "comentario": "En el protocolo de cierre (02:31–02:50), el ejecutivo informó el número de póliza del seguro de desempleo (DES-CONS-0009), pero omitió indicar el número de póliza del seguro de incendio hogar (INC-HOG-0009).",
+      "evidencia": [
+        {
+          "t": "02:46",
+          "hablante": "CLIENTE",
+          "cita": "¿Y el de incendio quedó listo también?"
+        },
+        {
+          "t": "02:50",
+          "hablante": "AGENTE",
+          "cita": "Sí, don Felipe, quedó todo listo."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 14,
+      "comentario": "El ejecutivo realizó intentos de retención en ambos seguros retenibles antes de cursar la renuncia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "comentario": "En el protocolo de cierre (02:31–02:50), el ejecutivo mencionó el medio de pago del seguro de desempleo ('cargo único en su crédito de consumo'), pero no informó el medio de pago del seguro de incendio hogar.",
+      "evidencia": [
+        {
+          "t": "02:46",
+          "hablante": "CLIENTE",
+          "cita": "¿Y el de incendio quedó listo también?"
+        },
+        {
+          "t": "02:50",
+          "hablante": "AGENTE",
+          "cita": "Sí, don Felipe, quedó todo listo."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 16,
+      "comentario": "El cliente expresó explícitamente su intención de renunciar a ambos productos desde el minuto 00:44, por lo que la retención fue debidamente justificada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "comentario": "No se retuvo ningún seguro no retenible; ambos productos eran retenibles según los metadatos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "comentario": "El ejecutivo tipificó como motivo 'Cambio de situación laboral', lo cual es totalmente concordante con lo expresado por el cliente en [00:44] ('me quedé sin pega hace un mes, me voy a trabajar independiente').",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "comentario": "El resultado por grabación fue renuncia y la tipificación registrada fue renuncia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "comentario": "No se tipificó la renuncia de ningún seguro ajeno a la conversación.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "comentario": "La renuncia tipificada correspondió al seguro de desempleo mencionado por el cliente.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "comentario": "No se tipificó retención.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "comentario": "No se tipificó retención en la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "comentario": "No se tipificó retención para seguros cuya gestión real fue renuncia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "comentario": "El cliente solicitó y el ejecutivo gestionó verbalmente la renuncia de dos seguros (DES-CONS-0009 e INC-HOG-0009); no obstante, en los metadatos solo consta la tipificación del seguro de desempleo, omitiéndose por completo la tipificación del Seguro Incendio Hogar.",
+      "evidencia": [
+        {
+          "t": "02:46",
+          "hablante": "CLIENTE",
+          "cita": "¿Y el de incendio quedó listo también?"
+        },
+        {
+          "t": "02:50",
+          "hablante": "AGENTE",
+          "cita": "Sí, don Felipe, quedó todo listo."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "comentario": "El ejecutivo atendió y gestionó las solicitudes de renuncia manifestadas por el cliente durante la conversación telefónica.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 27,
+      "comentario": "No intervino ningún tercero en la llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "comentario": "No se discutió ni solicitó devolución de primas durante la llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "comentario": "El ejecutivo ejecutó un protocolo de cierre resumiendo la renuncia e indagando conformidad; las omisiones específicas de datos se evalúan en los motivos 13 y 15.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 30,
+      "comentario": "El cliente respondió afirmativamente a la confirmación de la gestión ('Sí', 02:46), no registrándose respuestas no permitidas.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo validó correctamente el RUT, Nombre completo y Fecha de Nacimiento entre 00:10 y 00:24.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "comentario": "El ejecutivo no predispuso la respuesta del cliente con preguntas dirigidas o condicionadas a un 'sí'.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo validó adecuadamente el correo electrónico y teléfono de contacto entre 00:29 y 00:32.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    }
+  ]
+}

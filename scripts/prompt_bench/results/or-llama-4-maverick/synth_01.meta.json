@@ -1,0 +1,18 @@
+{
+  "name": "or-llama-4-maverick",
+  "provider": "openrouter",
+  "requested_model": "meta-llama/llama-4-maverick",
+  "returned_model": "meta-llama/llama-4-maverick",
+  "settings": {
+    "temperature": 0,
+    "tool_mode": true,
+    "max_tokens": 16000
+  },
+  "usage": {
+    "input_tokens": 4257,
+    "output_tokens": 1746
+  },
+  "cost_usd": 0.001944,
+  "latency_ms": 217508,
+  "run_at": "2026-10-08T20:58:04+00:00"
+}
