@@ -62,8 +62,8 @@ def main() -> None:
         "",
         "## Resumen por IA",
         "",
-        "| IA | Llamadas respondidas | Precisión motivos | Recall motivos | FP llamadas | FN llamadas | Gestiones correctas | Objeciones correctas |",
-        "|---|---|---|---|---|---|---|---|",
+        "| IA | Modelo (según API) | Llamadas respondidas | Precisión motivos | Recall motivos | FP llamadas | FN llamadas | Gestiones correctas | Objeciones correctas | Costo total USD | Latencia prom. |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     grid: dict[str, dict[str, str]] = {stem: {} for stem in calls}
     for model_dir in models:
@@ -71,6 +71,7 @@ def main() -> None:
         tp = fp = fn = answered = 0
         call_fp = call_fn = call_neg = call_pos = 0
         outcome_ok = outcome_total = obj_ok = obj_total = 0
+        returned_models, costs, latencies = set(), [], []
         for stem, call in calls.items():
             path = model_dir / f"{stem}.json"
             if not path.exists():
@@ -82,6 +83,13 @@ def main() -> None:
                 grid[stem][model] = f"JSON inválido: {exc}"
                 continue
             answered += 1
+            meta_path = model_dir / f"{stem}.meta.json"
+            if meta_path.exists():
+                meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                returned_models.add(meta.get("returned_model") or "?")
+                if meta.get("cost_usd") is not None:
+                    costs.append(meta["cost_usd"])
+                latencies.append(meta.get("latency_ms", 0))
             pred_nc, pred_unc = predicted(resp)
             exp_nc, exp_soft = expected(call)
             tp += len(pred_nc & exp_nc)
@@ -110,9 +118,12 @@ def main() -> None:
 
         precision = f"{tp / (tp + fp):.0%}" if tp + fp else "—"
         recall = f"{tp / (tp + fn):.0%}" if tp + fn else "—"
+        model_cell = ", ".join(sorted(returned_models)) or "(manual)"
+        cost_cell = f"{sum(costs):.4f}" if costs else "—"
+        latency_cell = f"{sum(latencies) / len(latencies) / 1000:.1f} s" if latencies else "—"
         lines.append(
-            f"| {model} | {answered}/{len(calls)} | {precision} | {recall} | {call_fp}/{call_neg} | {call_fn}/{call_pos} "
-            f"| {outcome_ok}/{outcome_total} | {obj_ok}/{obj_total} |"
+            f"| {model} | {model_cell} | {answered}/{len(calls)} | {precision} | {recall} | {call_fp}/{call_neg} | {call_fn}/{call_pos} "
+            f"| {outcome_ok}/{outcome_total} | {obj_ok}/{obj_total} | {cost_cell} | {latency_cell} |"
         )
 
     lines += ["", "## Detalle por llamada", "", "| Llamada | Esperado | " + " | ".join(m.name for m in models) + " |"]

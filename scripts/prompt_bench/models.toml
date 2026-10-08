@@ -1,0 +1,73 @@
+# Modelos a comparar con run.py.
+#
+# name      nombre de la carpeta en results/ (y de la columna en el reporte)
+# provider  anthropic | openai | gemini | groq | openrouter | ollama
+# model     ID exacto del modelo. Para verlos: python scripts/prompt_bench/run.py --list-models <provider>
+# enabled   false = no corre salvo que lo pidas con --models
+# Opcionales: temperature, effort (solo Anthropic), json_mode (default true en no-Anthropic),
+#             max_tokens (solo Anthropic), price_input_per_mtok / price_output_per_mtok (USD por millón de tokens).
+#
+# Precios de Anthropic verificados el 2026-10-08. Los demás: revísalos en la consola de cada proveedor.
+# Ojo: los modelos 5.5 de Claude no aceptan temperature (dan error 400); se controlan con effort.
+
+[[models]]
+name = "claude-haiku-4-5"
+provider = "anthropic"
+model = "claude-haiku-4-5"
+enabled = true
+temperature = 0
+price_input_per_mtok = 1.00
+price_output_per_mtok = 5.00
+
+[[models]]
+name = "claude-haiku-5-5"
+provider = "anthropic"
+model = "claude-haiku-5-5"
+enabled = true
+effort = "medium"
+price_input_per_mtok = 0.10
+price_output_per_mtok = 0.50
+
+[[models]]
+name = "claude-sonnet-5-5"
+provider = "anthropic"
+model = "claude-sonnet-5-5"
+enabled = true
+effort = "medium"
+price_input_per_mtok = 2.00
+price_output_per_mtok = 10.00
+
+[[models]]
+name = "gemini-flash-lite"
+provider = "gemini"
+model = ""   # completar, ej. con lo que muestre --list-models gemini
+enabled = true
+temperature = 0
+
+[[models]]
+name = "openai-mini"
+provider = "openai"
+model = ""   # completar con --list-models openai
+enabled = true
+temperature = 0   # si el modelo es de razonamiento y da error, borra esta línea
+
+[[models]]
+name = "open-model-openrouter"
+provider = "openrouter"
+model = ""   # ej. un Llama, Qwen o Mistral de --list-models openrouter
+enabled = true
+temperature = 0
+
+[[models]]
+name = "open-model-groq"
+provider = "groq"
+model = ""   # alternativa a OpenRouter; con una de las dos basta
+enabled = false
+temperature = 0
+
+[[models]]
+name = "local-ollama"
+provider = "ollama"
+model = ""   # el nombre que usaste en "ollama pull", ej. el que muestre "ollama list"
+enabled = false
+temperature = 0

@@ -14,7 +14,19 @@ En `prompts/` quedan:
 - `synth_NN.txt`: el mensaje de usuario de cada llamada.
 - `synth_NN_full.txt`: los dos juntos, para chats que no tienen campo de system prompt.
 
-## 2. Correr cada IA
+## 2. Correr las IA
+
+### Automático (recomendado): `run.py`
+
+1. Instala los SDKs: `pip install -r scripts/prompt_bench/requirements.txt`
+2. Completa las keys en `.env` (ver `.env.example`). Los proveedores sin key se saltan.
+3. Completa el `model` de cada proveedor en `models.toml`. Para ver los IDs disponibles:
+   `python scripts/prompt_bench/run.py --list-models gemini` (o `openai`, `openrouter`, `groq`, `ollama`, `anthropic`).
+4. Corre: `python scripts/prompt_bench/run.py`. Opciones: `--models a,b`, `--calls synth_01,synth_02`, `--force`.
+
+Junto a cada respuesta guarda `synth_NN.meta.json` con el **modelo que devolvió la API** (no el que dice la IA), tokens, costo y latencia. Si algo falla queda `synth_NN.error.txt` y sigue con lo demás.
+
+### Manual (chats)
 
 - **Con API o playground** (Anthropic Console, OpenAI Playground, Google AI Studio): `system.txt` en el system prompt y `synth_NN.txt` como mensaje.
 - **En un chat normal** (ChatGPT, Gemini, Claude.ai): pega `synth_NN_full.txt` en una **conversación nueva por llamada**, para que no se contaminen entre sí.
