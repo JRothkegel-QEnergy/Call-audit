@@ -1,0 +1,51 @@
+## Metadatos
+llamada_id: synth-02
+fecha: 2026-09-02
+ejecutivo: EJ-0102
+duracion_seg: 135
+esperas_seg: []
+umbral_espera_seg: 120
+
+## Seguros del cliente consultados en la llamada
+- nombre: Seguro de Desempleo - Créditos de consumo | n_poliza: DES-CONS-0002 | retenible: si | renunciable_en_canal: si
+
+## Tipificación registrada por el ejecutivo
+- seguro: DES-CONS-0002 | gestion: RENUNCIA | motivo: Problemas Económicos
+
+## Ficha de producto (del seguro gestionado)
+Seguro de Desempleo – Créditos de consumo (trabajador dependiente)
+- Prima única: se paga una sola vez por todo el período del crédito.
+- Prima = tasa tramificada por plazo × monto del crédito.
+- Cubre: desempleo según Código del Trabajo, Art. 159 N°1 (mutuo acuerdo/con indemnización),
+  Art. 159 N°6 (caso fortuito o fuerza mayor), Art. 161 (necesidades de la empresa),
+  Art. 163 (procedimiento concursal de liquidación).
+- Paga hasta 5 cuotas del crédito (103,5 %): 2 cuotas de una vez (contra finiquito)
+  y 3 cuotas después de acreditar 60 días de desempleo.
+- Sin tope de cuota. Carencia: 90 días.
+- Debe permanecer 6 meses en el nuevo trabajo para volver a cobrar.
+
+## Transcripción (canal separado, timestamps mm:ss)
+[00:01] AGENTE: Buenos días, mi nombre es Rodrigo Fuentes, de BancoEstado Corredores de Seguros. ¿Con quién hablo?
+[00:07] CLIENTE: Buenos días, con Carolina Paredes.
+[00:10] AGENTE: Señora Carolina, para validar su identidad, ¿me indica su RUT, por favor?
+[00:15] CLIENTE: Veintidós millones doscientos veintidós mil doscientos veintidós guion dos.
+[00:20] AGENTE: ¿Su nombre completo y fecha de nacimiento?
+[00:23] CLIENTE: Carolina Andrea Paredes Lagos, nacida el dos de julio del noventa.
+[00:28] AGENTE: Gracias. ¿Me confirma su correo y teléfono registrados?
+[00:32] CLIENTE: carolina punto paredes arroba correo ejemplo punto cl, y el nueve ocho siete seis cinco cuatro tres dos uno.
+[00:40] AGENTE: Perfecto, datos validados. Cuénteme, ¿en qué la puedo ayudar?
+[00:44] CLIENTE: Quiero renunciar al seguro de desempleo. Es que no me alcanza, tengo muchas deudas y no quiero nada más.
+[00:53] AGENTE: Entiendo, señora Carolina. Le comento que este seguro le cubre hasta cinco cuotas de su crédito si queda cesante por necesidades de la empresa.
+[01:03] CLIENTE: Sí, sé lo que cubre, pero igual no lo quiero.
+[01:07] AGENTE: Pero piense que le cubre hasta cinco cuotas. Hoy el trabajo está difícil, nunca se sabe.
+[01:14] CLIENTE: No, de verdad, quiero darlo de baja.
+[01:18] AGENTE: Mire, la prima ya está pagada, no le cobran todos los meses. Mantenerlo no le cuesta nada extra.
+[01:25] CLIENTE: Ya le dije que no. Quiero renunciarlo.
+[01:29] AGENTE: Le entiendo, pero imagínese si la despiden el próximo mes. Son cinco cuotas que no va a tener que pagar.
+[01:38] CLIENTE: Oiga, ya le dije tres veces que no.
+[01:41] AGENTE: ¿Y si lo mantiene un mes más y después lo vemos? Así no queda desprotegida.
+[01:48] CLIENTE: No, por favor, hágame la renuncia no más.
+[01:52] AGENTE: Está bien, señora Carolina, procedo con la renuncia.
+[01:56] AGENTE: Listo. Le confirmo que quedó ingresada la renuncia de su seguro de desempleo. El cargo se hacía a su crédito de consumo, así que no tendrá más movimientos asociados. ¿Está de acuerdo?
+[02:09] CLIENTE: Sí, de acuerdo, gracias.
+[02:11] AGENTE: Que tenga un buen día.

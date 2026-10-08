@@ -1,0 +1,40 @@
+## Metadatos
+llamada_id: synth-11
+fecha: 2026-09-15
+ejecutivo: EJ-0111
+duracion_seg: 63
+esperas_seg: []
+umbral_espera_seg: 120
+
+## Seguros del cliente consultados en la llamada
+- nombre: Seguro de Desempleo - Créditos de consumo | n_poliza: DES-CONS-0011 | retenible: si | renunciable_en_canal: si
+
+## Tipificación registrada por el ejecutivo
+- seguro: DES-CONS-0011 | gestion: RENUNCIA | motivo: No desea contraer más obligaciones
+
+## Ficha de producto (del seguro gestionado)
+Seguro de Desempleo – Créditos de consumo (trabajador dependiente)
+- Prima única: se paga una sola vez por todo el período del crédito.
+- Prima = tasa tramificada por plazo × monto del crédito.
+- Cubre: desempleo según Código del Trabajo, Art. 159 N°1 (mutuo acuerdo/con indemnización),
+  Art. 159 N°6 (caso fortuito o fuerza mayor), Art. 161 (necesidades de la empresa),
+  Art. 163 (procedimiento concursal de liquidación).
+- Paga hasta 5 cuotas del crédito (103,5 %): 2 cuotas de una vez (contra finiquito)
+  y 3 cuotas después de acreditar 60 días de desempleo.
+- Sin tope de cuota. Carencia: 90 días.
+- Debe permanecer 6 meses en el nuevo trabajo para volver a cobrar.
+
+## Transcripción (canal separado, timestamps mm:ss)
+[00:01] AGENTE: Buenas tardes, BancoEstado Corredores de Seguros, le habla Paula Rivas. ¿Con quién hablo?
+[00:07] CLIENTE: Hola, habla Manuel Torres.
+[00:09] AGENTE: Don Manuel, ¿me indica su RUT, nombre completo y fecha de nacimiento?
+[00:15] CLIENTE: Doce millones doscientos doce mil doscientos doce guion k. Manuel Antonio Torres Díaz, primero de abril del setenta y nueve.
+[00:23] AGENTE: ¿Su correo y teléfono?
+[00:25] CLIENTE: manuel punto torres arroba correo ejemplo punto cl, nueve cero cero cero uno uno uno dos dos.
+[00:33] AGENTE: Gracias, don Manuel. ¿En qué lo ayudo?
+[00:36] CLIENTE: Quiero dar de baja el seguro de desempleo, no quiero más compromisos.
+[00:42] AGENTE: Entiendo. Le cuento que este seguro le cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la...
+[00:51] CLIENTE: [inaudible] ...no, si igual... [inaudible] ...el otro...
+[00:54] AGENTE: ¿Aló? Don Manuel, se está cortando. ¿Me escucha?
+[00:58] CLIENTE: [inaudible] ...renuncia... [ruido]
+[01:00] AGENTE: ¿Aló? Don Manuel...

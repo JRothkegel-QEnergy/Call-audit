@@ -1,0 +1,34 @@
+## Metadatos
+llamada_id: synth-05
+fecha: 2026-09-05
+ejecutivo: EJ-0105
+duracion_seg: 113
+esperas_seg: []
+umbral_espera_seg: 120
+
+## Seguros del cliente consultados en la llamada
+- nombre: Seguro de Salud Incapacidad MYPE | n_poliza: MYPE-0005 | retenible: si | renunciable_en_canal: si
+
+## Tipificación registrada por el ejecutivo
+- seguro: MYPE-0005 | gestion: RENUNCIA | motivo: No desea contraer más obligaciones
+
+## Ficha de producto (del seguro gestionado)
+Seguro de Salud Incapacidad MYPE: No disponible (ficha pendiente con el cliente). Evalúa los motivos 2 y 6 como 'indeterminado' si dependen de la ficha.
+
+## Transcripción (canal separado, timestamps mm:ss)
+[00:01] AGENTE: Buenas tardes, le habla Fernanda Castro de BancoEstado Corredores de Seguros. ¿Con quién tengo el gusto?
+[00:07] CLIENTE: Sí, buenas, habla Jorge Ramírez.
+[00:10] AGENTE: Don Jorge, ¿me indica su RUT, nombre completo y fecha de nacimiento para validar?
+[00:16] CLIENTE: Quince millones quinientos cincuenta y cinco mil quinientos cincuenta y cinco guion cinco. Jorge Esteban Ramírez Silva, tres de mayo del setenta y dos.
+[00:26] AGENTE: ¿Y su correo y teléfono?
+[00:29] CLIENTE: jorge punto ramirez arroba correo ejemplo punto cl, nueve cuatro cuatro cuatro cuatro cinco cinco cinco cinco.
+[00:36] AGENTE: Gracias, don Jorge, quedó validado. ¿En qué lo ayudo?
+[00:41] CLIENTE: Quiero renunciar al seguro de salud de la pyme, no quiero más compromisos. Pero mire, mi señora es la que ve estas cosas, le paso con ella.
+[00:52] CLIENTE: Hola, buenas, habla Marcela, la señora de Jorge. ¿Cuánto es lo que estamos pagando por ese seguro y desde cuándo?
+[01:01] AGENTE: Hola, señora Marcela. El seguro de Salud Incapacidad MYPE tiene una prima mensual que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado.
+[01:13] CLIENTE: Ya, ¿y qué pasa si lo sacamos? ¿Pierde algo?
+[01:17] AGENTE: Perdería la cobertura de incapacidad para su negocio: si don Jorge queda incapacitado temporalmente, el seguro le paga una renta diaria. Es una buena protección para un emprendedor.
+[01:29] CLIENTE: No, igual lo queremos sacar. Ya tenemos muchas cuentas.
+[01:33] AGENTE: Perfecto, señora Marcela. Entonces le confirmo: queda ingresada la renuncia del seguro Salud Incapacidad MYPE, póliza número MYPE-0005, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?
+[01:46] CLIENTE: Sí, de acuerdo. Gracias, señorita.
+[01:48] AGENTE: A usted, que tengan buena tarde.

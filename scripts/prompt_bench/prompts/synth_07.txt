@@ -1,0 +1,48 @@
+## Metadatos
+llamada_id: synth-07
+fecha: 2026-09-09
+ejecutivo: EJ-0107
+duracion_seg: 443
+esperas_seg: [45, 210]
+umbral_espera_seg: 120
+
+## Seguros del cliente consultados en la llamada
+- nombre: Seguro de Salud Incapacidad MYPE | n_poliza: MYPE-0007 | retenible: si | renunciable_en_canal: si
+
+## Tipificación registrada por el ejecutivo
+- seguro: MYPE-0007 | gestion: RENUNCIA | motivo: Cliente posee otros Seguros
+
+## Ficha de producto (del seguro gestionado)
+Seguro de Salud Incapacidad MYPE: No disponible (ficha pendiente con el cliente). Evalúa los motivos 2 y 6 como 'indeterminado' si dependen de la ficha.
+
+## Transcripción (canal separado, timestamps mm:ss)
+[00:01] AGENTE: Buenas tardes, le saluda Daniela Espinoza de BancoEstado Corredores de Seguros. ¿Con quién tengo el gusto?
+[00:07] CLIENTE: Buenas tardes, habla Cristián Molina.
+[00:10] AGENTE: Don Cristián, para validar su identidad, ¿me puede indicar su RUT?
+[00:15] CLIENTE: Diecisiete millones setecientos setenta y siete mil setecientos setenta y siete guion siete.
+[00:21] AGENTE: ¿Nombre completo?
+[00:23] CLIENTE: Cristián Felipe Molina Araya.
+[00:25] AGENTE: ¿Fecha de nacimiento?
+[00:27] CLIENTE: Veintiocho de febrero del ochenta y uno.
+[00:31] AGENTE: ¿Me confirma su correo y teléfono?
+[00:34] CLIENTE: cristian punto molina arroba correo ejemplo punto cl, y el nueve siete siete siete uno uno uno dos dos.
+[00:42] AGENTE: Gracias, don Cristián, quedó validado. ¿En qué lo puedo ayudar?
+[00:46] CLIENTE: Mire, tengo una ferretería chica y tengo el seguro de salud incapacidad MYPE con ustedes. Me ofrecieron uno en otra compañía que cubre más y es más barato, así que quiero renunciar a este.
+[01:01] AGENTE: Entiendo, don Cristián. Permítame revisar el detalle de su póliza. Lo dejo un momento en espera.
+[01:53] AGENTE: Gracias por esperar. Veo su seguro Salud Incapacidad MYPE, con prima mensual cargada a su cuenta corriente. ¿Me puede contar qué le ofrecieron en la otra compañía?
+[02:04] CLIENTE: Una renta diaria más alta por incapacidad y además cubre hospitalización. Y sale como cuatro lucas menos al mes.
+[02:12] AGENTE: Mire, don Cristián, le soy honesta: esa otra compañía es una estafa. Siempre ponen letra chica y después no pagan nada. Los que se cambian a ellos después vuelven llorando.
+[02:24] CLIENTE: Bueno, pero yo leí las condiciones y me parecen bien.
+[02:28] AGENTE: Nuestro seguro tiene el respaldo de BancoEstado. Si usted queda incapacitado, le pagamos la renta diaria sin tantos trámites, y el cargo es automático, no se tiene que preocupar.
+[02:41] CLIENTE: Ya, pero el otro igual cubre más, la verdad. Yo creo que me cambio.
+[02:47] AGENTE: Déjeme consultar con mi supervisor si hay alguna alternativa para usted. Lo dejo en espera nuevamente.
+[06:24] AGENTE: Disculpe la demora, don Cristián. Mi supervisor me indica que no tenemos un plan alternativo con más cobertura en este momento.
+[06:33] CLIENTE: Oiga, me tuvo harto rato esperando. Ya, entonces hágame la renuncia, por favor.
+[06:39] AGENTE: Le pido disculpas por la espera. Procedo con la renuncia.
+[06:43] CLIENTE: Y una consulta, ¿me van a cobrar este mes igual?
+[06:48] AGENTE: Si la renuncia queda ingresada hoy, el cargo de este mes ya no se debería realizar. Si llegara a verlo, nos llama y lo revisamos.
+[06:58] CLIENTE: Ya, perfecto.
+[07:00] AGENTE: Le resumo la gestión, don Cristián: se ingresó la renuncia de su seguro Salud Incapacidad MYPE, póliza número MYPE-0007, que se cargaba mensualmente a su cuenta corriente. ¿Está de acuerdo con la gestión realizada?
+[07:14] CLIENTE: Sí, de acuerdo.
+[07:16] AGENTE: Muchas gracias por su paciencia. Que tenga buena tarde.
+[07:21] CLIENTE: Igualmente, chao.

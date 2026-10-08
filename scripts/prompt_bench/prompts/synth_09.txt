@@ -1,0 +1,58 @@
+## Metadatos
+llamada_id: synth-09
+fecha: 2026-09-11
+ejecutivo: EJ-0109
+duracion_seg: 180
+esperas_seg: []
+umbral_espera_seg: 120
+
+## Seguros del cliente consultados en la llamada
+- nombre: Seguro de Desempleo - Créditos de consumo | n_poliza: DES-CONS-0009 | retenible: si | renunciable_en_canal: si
+- nombre: Seguro Incendio Hogar | n_poliza: INC-HOG-0009 | retenible: si | renunciable_en_canal: si
+
+## Tipificación registrada por el ejecutivo
+- seguro: DES-CONS-0009 | gestion: RENUNCIA | motivo: Cambio de situación laboral
+
+## Ficha de producto (del seguro gestionado)
+Seguro de Desempleo – Créditos de consumo (trabajador dependiente)
+- Prima única: se paga una sola vez por todo el período del crédito.
+- Prima = tasa tramificada por plazo × monto del crédito.
+- Cubre: desempleo según Código del Trabajo, Art. 159 N°1 (mutuo acuerdo/con indemnización),
+  Art. 159 N°6 (caso fortuito o fuerza mayor), Art. 161 (necesidades de la empresa),
+  Art. 163 (procedimiento concursal de liquidación).
+- Paga hasta 5 cuotas del crédito (103,5 %): 2 cuotas de una vez (contra finiquito)
+  y 3 cuotas después de acreditar 60 días de desempleo.
+- Sin tope de cuota. Carencia: 90 días.
+- Debe permanecer 6 meses en el nuevo trabajo para volver a cobrar.
+Seguro Incendio Hogar: No disponible (ficha pendiente con el cliente). Evalúa los motivos 2 y 6 como 'indeterminado' si dependen de la ficha.
+
+## Transcripción (canal separado, timestamps mm:ss)
+[00:01] AGENTE: Buenos días, le saluda Constanza Muñoz de BancoEstado Corredores de Seguros. ¿Con quién tengo el gusto?
+[00:08] CLIENTE: Buenos días, habla Felipe Gutiérrez.
+[00:10] AGENTE: Don Felipe, para validar su identidad, ¿me indica su RUT?
+[00:15] CLIENTE: Diecinueve millones novecientos noventa y nueve mil novecientos noventa y nueve guion nueve.
+[00:21] AGENTE: ¿Nombre completo y fecha de nacimiento?
+[00:24] CLIENTE: Felipe Ignacio Gutiérrez Bravo, diecisiete de junio del ochenta y siete.
+[00:29] AGENTE: ¿Su correo y teléfono de contacto?
+[00:32] CLIENTE: felipe punto gutierrez arroba correo ejemplo punto cl, nueve seis seis seis siete siete siete ocho ocho.
+[00:39] AGENTE: Gracias, don Felipe, datos validados. ¿En qué lo ayudo hoy?
+[00:44] CLIENTE: Mire, me quedé sin pega hace un mes, me voy a trabajar independiente, y quiero ordenar mis gastos. Quiero renunciar a dos seguros: el de desempleo del crédito y el de incendio de la casa.
+[00:58] AGENTE: Entiendo, don Felipe. Partamos por el de desempleo. ¿Usted ya cobró el seguro por su despido?
+[01:05] CLIENTE: No, si me fui yo, renuncié. Por eso no lo puedo cobrar, cachai, entonces no me sirve.
+[01:13] AGENTE: Claro. Le comento que este seguro le cubriría si a futuro vuelve a tener contrato y lo despiden por necesidades de la empresa. Como la prima ya está pagada, no le cuesta nada mantenerlo.
+[01:27] CLIENTE: Sí, pero voy a ser independiente, entonces no me va a cubrir. Lo quiero sacar.
+[01:33] AGENTE: Perfecto, entonces gestiono la renuncia del seguro de desempleo.
+[01:37] CLIENTE: Ya. Y el de incendio también.
+[01:40] AGENTE: Sobre el de Incendio Hogar, don Felipe: ese seguro protege su vivienda y sus contenidos ante incendio y otros eventos de la naturaleza. Ahora que va a trabajar desde la casa, puede ser todavía más importante tenerlo.
+[01:56] CLIENTE: Mmm, puede ser, pero la verdad es un gasto mensual que ahora no puedo tener. Lo quiero sacar igual.
+[02:04] AGENTE: Entiendo. Mientras se acomoda con su nuevo trabajo, ¿no prefiere mantenerlo un tiempo más?
+[02:10] CLIENTE: No, no. Los dos, por favor. Quiero ordenarme.
+[02:14] AGENTE: Muy bien. Deme un segundo que estoy ingresando la gestión.
+[02:18] CLIENTE: Ya, dale.
+[02:20] AGENTE: Mientras carga el sistema, don Felipe, ¿quiere que le actualice su dirección o algún dato de contacto?
+[02:28] CLIENTE: No, está todo bien, gracias.
+[02:31] AGENTE: Perfecto. Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009, cuya prima fue pagada en forma única con su crédito. ¿Está de acuerdo con la gestión?
+[02:45] CLIENTE: Sí. ¿Y el de incendio quedó listo también?
+[02:49] AGENTE: Sí, don Felipe, quedó todo listo.
+[02:52] CLIENTE: Ya, perfecto. Muchas gracias.
+[02:54] AGENTE: A usted, que le vaya muy bien con su nuevo trabajo.
