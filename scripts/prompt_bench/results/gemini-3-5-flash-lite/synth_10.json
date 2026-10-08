@@ -1,0 +1,276 @@
+{
+  "resumen": "La cliente Gloria Fernández llama para renunciar a su seguro de incapacidad temporal porque desconoce su contratación. El agente Tomás valida correctamente sus datos, procesa la renuncia sin realizar retención ya que el seguro no es retenible ni renunciable en este canal, y efectúa el cierre informando la póliza y los detalles.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Lo quiero sacar.",
+    "timestamp": "00:35"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "INC-TMP-0010",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "Desconoce contratación del seguro",
+      "n_objeciones": 0,
+      "evidencia": "La cliente solicita la baja y el agente procede directamente a ingresarla."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hubo esperas en la llamada, por lo que no se supera el umbral establecido.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "comentario": "El agente no describe de manera incorrecta el seguro.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "comentario": "El agente no realizó intentos de retención, por lo que no se excede de cero objeciones.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "comentario": "El seguro no fue retenido y la solicitud fue de renuncia directa según las políticas para este tipo de producto.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "comentario": "La cliente no consultó si la permanencia la maneja directamente el cliente.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "comentario": "No hubo preguntas complejas sobre el producto por parte de la cliente.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 7,
+      "comentario": "El seguro no es retenible en este canal y la renuncia fue procesada correctamente por el ejecutivo sin requerir derivación especial según la pauta de este tipo de pólizas en la plataforma.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "comentario": "El agente responde de manera directa a la solicitud de la cliente.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro es renunciable mediante la gestión realizada en la llamada.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "comentario": "La atención se ajusta a las políticas de BancoEstado Corredores de Seguros.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "comentario": "El agente no descalifica a pares, BancoEstado ni a la competencia.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "comentario": "El agente no induce a la renuncia; la cliente lo solicita explícitamente.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "comentario": "El agente indica explícitamente el número de seguro en el cierre.",
+      "evidencia": [
+        {
+          "t": "00:55",
+          "hablante": "AGENTE",
+          "cita": "póliza número INC-TMP-0010"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "comentario": "Dado que el seguro es no retenible, no correspondía realizar intento de retención.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "comentario": "El agente informa el medio asociado de cobro en el protocolo de cierre.",
+      "evidencia": [
+        {
+          "t": "00:55",
+          "hablante": "AGENTE",
+          "cita": "con prima única cargada en su crédito de consumo"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "comentario": "La cliente expresó claramente su intención de renuncia, por lo que no aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro no es retenible y no se intentó retener.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "comentario": "La tipificación registrada coincide con el motivo expresado por la cliente (Desconoce contratación del seguro).",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "comentario": "La gestión fue de renuncia y se tipificó como renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "comentario": "Se tipificó el seguro correcto que fue mencionado en la llamada.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "comentario": "La renuncia corresponde al seguro tratado en la llamada.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "comentario": "No aplica por tratarse de una renuncia y no una retención.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "comentario": "No aplica por tratarse de una renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "comentario": "La gestión grabada fue renuncia y se tipificó como renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "comentario": "Se tipificó correctamente la única gestión solicitada.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "comentario": "Se impactó la única gestión solicitada por la cliente.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "comentario": "No participaron terceros en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "comentario": "El campo devolucion_prima en los metadatos figura como 'sin dato', por lo que no es posible evaluar si se negó indebidamente.",
+      "estado": "indeterminado",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "comentario": "El agente realiza el protocolo de cierre informando la gestión, póliza y medio de pago.",
+      "evidencia": [
+        {
+          "t": "00:55",
+          "hablante": "AGENTE",
+          "cita": "Listo. Quedó ingresada la renuncia de su seguro..."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 30,
+      "comentario": "La cliente aceptó el cierre de manera clara y directa, por lo que no hubo respuesta no permitida.",
+      "evidencia": [
+        {
+          "t": "01:06",
+          "hablante": "CLIENTE",
+          "cita": "Sí, de acuerdo."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "comentario": "El agente solicita y valida correctamente el RUT, nombre completo y fecha de nacimiento.",
+      "evidencia": [
+        {
+          "t": "00:09",
+          "hablante": "AGENTE",
+          "cita": "¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:14",
+          "hablante": "CLIENTE",
+          "cita": "Diez millones cien mil cien guion cero. Gloria Inés Fernández Soto, treinta de septiembre del sesenta y cinco."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "comentario": "La pregunta de cierre es adecuada y confirma la gestión realizada sin predisponer indebidamente una respuesta coaccionada.",
+      "evidencia": [
+        {
+          "t": "00:55",
+          "hablante": "AGENTE",
+          "cita": "¿Está de acuerdo?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "comentario": "El agente solicita y valida correctamente el correo electrónico y teléfono de la cliente.",
+      "evidencia": [
+        {
+          "t": "00:22",
+          "hablante": "AGENTE",
+          "cita": "¿Y su correo y teléfono?"
+        },
+        {
+          "t": "00:25",
+          "hablante": "CLIENTE",
+          "cita": "gloria punto fernandez arroba correo ejemplo punto cl, nueve uno uno uno dos dos dos tres tres."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    }
+  ]
+}

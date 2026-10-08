@@ -1,0 +1,18 @@
+{
+  "name": "groq-gpt-oss-120b",
+  "provider": "groq",
+  "requested_model": "openai/gpt-oss-120b",
+  "returned_model": "openai/gpt-oss-120b",
+  "settings": {
+    "temperature": 0,
+    "tool_mode": true,
+    "max_tokens": 16000
+  },
+  "usage": {
+    "input_tokens": 3868,
+    "output_tokens": 4883
+  },
+  "cost_usd": null,
+  "latency_ms": 13479,
+  "run_at": "2026-10-08T18:59:09+00:00"
+}

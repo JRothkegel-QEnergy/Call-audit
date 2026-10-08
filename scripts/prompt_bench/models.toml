@@ -37,31 +37,67 @@ effort = "medium"
 price_input_per_mtok = 2.00
 price_output_per_mtok = 10.00
 
-[[models]]
-name = "gemini-flash-lite"
-provider = "gemini"
-model = ""   # completar, ej. con lo que muestre --list-models gemini
-enabled = true
-temperature = 0
+# IDs de Gemini, OpenAI y Groq tomados de --list-models el 2026-10-08.
+# Precios de Gemini, OpenAI y Groq: agregadores de precios al 2026-10-08 (no la página oficial); confirmar antes de presupuestar.
+# Gemini 3.8 Flash: precio introductorio hasta el 2026-12-31; desde 2027 sube a 1,50 / 7,50.
 
 [[models]]
-name = "openai-mini"
-provider = "openai"
-model = ""   # completar con --list-models openai
+name = "gemini-3-5-flash-lite"
+provider = "gemini"
+model = "gemini-3.5-flash-lite"
 enabled = true
-temperature = 0   # si el modelo es de razonamiento y da error, borra esta línea
+temperature = 0
+price_input_per_mtok = 0.30
+price_output_per_mtok = 2.50
+
+[[models]]
+name = "gemini-3-8-flash"
+provider = "gemini"
+model = "gemini-3.8-flash"
+enabled = true
+temperature = 0
+price_input_per_mtok = 0.75
+price_output_per_mtok = 3.75
+
+[[models]]
+name = "gpt-6-luna"
+provider = "openai"
+model = "gpt-6-luna"
+enabled = true
+price_input_per_mtok = 0.10
+price_output_per_mtok = 0.50
+
+[[models]]
+name = "gpt-5-4-mini"
+provider = "openai"
+model = "gpt-5.4-mini"
+enabled = true
+price_input_per_mtok = 0.75
+price_output_per_mtok = 4.50
+
+[[models]]
+name = "groq-qwen3-8-27b"
+provider = "groq"
+model = "qwen/qwen3.8-27b"
+enabled = false   # plan gratuito de Groq: 1.000 tokens de salida/min, no alcanza para una auditoría
+temperature = 0
+max_tokens = 16000   # el default de Groq corta la respuesta
+
+[[models]]
+name = "groq-gpt-oss-120b"
+provider = "groq"
+model = "openai/gpt-oss-120b"
+enabled = true
+price_input_per_mtok = 0.15
+price_output_per_mtok = 0.60
+temperature = 0
+max_tokens = 16000
+tool_mode = true   # en modo JSON intenta llamar a registrar_auditoria igual; se le da la herramienta real
 
 [[models]]
 name = "open-model-openrouter"
 provider = "openrouter"
 model = ""   # ej. un Llama, Qwen o Mistral de --list-models openrouter
-enabled = true
-temperature = 0
-
-[[models]]
-name = "open-model-groq"
-provider = "groq"
-model = ""   # alternativa a OpenRouter; con una de las dos basta
 enabled = false
 temperature = 0
 

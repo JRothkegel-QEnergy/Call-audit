@@ -1,0 +1,16 @@
+{
+  "name": "gemini-3-8-flash",
+  "provider": "gemini",
+  "requested_model": "gemini-3.8-flash",
+  "returned_model": "gemini-3.8-flash",
+  "settings": {
+    "temperature": 0
+  },
+  "usage": {
+    "input_tokens": 3704,
+    "output_tokens": 3759
+  },
+  "cost_usd": null,
+  "latency_ms": 39905,
+  "run_at": "2026-10-08T18:40:08+00:00"
+}

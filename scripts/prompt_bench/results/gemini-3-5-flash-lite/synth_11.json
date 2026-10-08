@@ -1,0 +1,262 @@
+{
+  "resumen": "El cliente Manuel Torres llama para renunciar a su Seguro de Desempleo (DES-CONS-0011). El ejecutivo valida correctamente su identidad, pero la llamada se corta e ininterrumpe durante la gestión de retención, sin lograr completar el protocolo de cierre ni la gestión definitiva.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero dar de baja el seguro de desempleo, no quiero más compromisos.",
+    "timestamp": "00:36"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "DES-CONS-0011",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "No desea contraer más obligaciones",
+      "n_objeciones": 1,
+      "evidencia": "El cliente manifiesta explícitamente su intención de renuncia y la llamada se interrumpe por problemas de audio."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No se registraron tiempos de espera en los metadatos y la duración de la llamada es corta.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo describe el seguro correcto de desempleo acorde a la ficha de producto.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "comentario": "El ejecutivo solo alcanza a realizar un argumento de retención antes de que la llamada presente problemas de audio y se corte.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo sí indica características del seguro al intentar retener.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "comentario": "No hubo consulta sobre permanencia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "comentario": "El ejecutivo maneja la información básica del producto al mencionar la cobertura de cuotas de crédito.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 7,
+      "comentario": "La derivación no era aplicable dado que el canal era el correcto para la gestión.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde de forma directa a lo solicitado por el cliente.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro es renunciable en este canal según los metadatos.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "comentario": "La atención se ajusta a las políticas generales de BancoEstado.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "comentario": "El ejecutivo no descalifica a pares, BancoEstado ni a la competencia.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "comentario": "El cliente solicitó explícitamente la renuncia; el ejecutivo no indujo la solicitud.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "comentario": "La llamada se cortó antes de poder realizar el protocolo de cierre, por lo que no se indicó el número de seguro en dicho protocolo.",
+      "evidencia": [
+        {
+          "t": "00:54-01:00",
+          "hablante": "AGENTE",
+          "cita": "¿Aló? Don Manuel, se está cortando. ¿Me escucha?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "comentario": "El ejecutivo realiza un intento de retención informando sobre la cobertura del seguro.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "comentario": "La llamada se cortó antes de realizar el protocolo de cierre, por lo que no se informó el medio de pago.",
+      "evidencia": [
+        {
+          "t": "00:54-01:00",
+          "hablante": "AGENTE",
+          "cita": "¿Aló? Don Manuel, se está cortando. ¿Me escucha?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "comentario": "El cliente expresó claramente su intención de renuncia antes de la gestión.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro es retenible según los metadatos.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "comentario": "El motivo tipificado coincide exactamente con lo expresado por el cliente en la grabación (\"no quiero más compromisos\").",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "comentario": "La tipificación de renuncia coincide con la grabación.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "comentario": "El seguro tipificado corresponde al mencionado en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "comentario": "El seguro tipificado es el correcto.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "comentario": "No aplica tipificación de retención errónea.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "comentario": "No aplica tipificación de retención a otro seguro.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "comentario": "La tipificación registrada es RENUNCIA y la grabación muestra intención de renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "comentario": "Se tipificó la gestión del único seguro consultado.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "comentario": "La gestión no se completó por corte de llamada, pero se intentó abordar la solicitud del cliente.",
+      "estado": "cumple",
+      "confianza": 0.8
+    },
+    {
+      "id": 27,
+      "comentario": "No participó ningún tercero en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "comentario": "El campo devolucion_prima está marcado como \"sin dato\" en los metadatos, por lo que no se puede evaluar con certeza.",
+      "estado": "indeterminado",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "comentario": "La llamada se cortó abruptamente antes de que pudiera efectuarse el protocolo de cierre.",
+      "evidencia": [
+        {
+          "t": "00:54-01:00",
+          "hablante": "AGENTE",
+          "cita": "¿Aló? Don Manuel, se está cortando. ¿Me escucha?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 30,
+      "comentario": "No se alcanzó a ejecutar el protocolo de cierre debido al corte de la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo solicita y valida correctamente el RUT, nombre completo y fecha de nacimiento.",
+      "evidencia": [
+        {
+          "t": "00:09",
+          "hablante": "AGENTE",
+          "cita": "Don Manuel, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:15",
+          "hablante": "CLIENTE",
+          "cita": "Doce millones doscientos doce mil doscientos doce guion k. Manuel Antonio Torres Díaz, primero de abril del setenta y nueve."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "comentario": "El ejecutivo no predispone al cliente ni condiciona su respuesta de forma indebida.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo solicita y valida correctamente el correo electrónico y teléfono del cliente.",
+      "evidencia": [
+        {
+          "t": "00:23",
+          "hablante": "AGENTE",
+          "cita": "¿Su correo y teléfono?"
+        },
+        {
+          "t": "00:25",
+          "hablante": "CLIENTE",
+          "cita": "manuel punto torres arroba correo ejemplo punto cl, nueve cero cero cero uno uno uno dos dos."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    }
+  ]
+}

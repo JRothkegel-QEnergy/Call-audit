@@ -27,6 +27,7 @@ BENCH_DIR = Path(__file__).resolve().parent
 PROMPTS_DIR = BENCH_DIR / "prompts"
 RESULTS_DIR = BENCH_DIR / "results"
 CONFIG = BENCH_DIR / "models.toml"
+PROMPT_DOC = ROOT / "docs" / "layer2-prompt-example.md"
 
 # Proveedores con API compatible con OpenAI. La key se lee de la variable indicada en .env.
 OPENAI_COMPATIBLE = {
@@ -105,6 +106,17 @@ def openai_client(provider: str):
     return OpenAI(api_key=api_key_for(provider), base_url=OPENAI_COMPATIBLE[provider]["base_url"])
 
 
+def audit_tool() -> dict:
+    """La herramienta registrar_auditoria del doc del prompt, en formato de function calling."""
+    from render import read_code_blocks
+
+    schema = json.loads(read_code_blocks(PROMPT_DOC)[3])
+    return {
+        "type": "function",
+        "function": {"name": schema["name"], "description": "Registra la auditoría de la llamada.", "parameters": schema["input_schema"]},
+    }
+
+
 def call_openai_compatible(cfg: dict, system: str, user: str) -> tuple[str, str, dict]:
     client = openai_client(cfg["provider"])
     params = {
@@ -113,17 +125,44 @@ def call_openai_compatible(cfg: dict, system: str, user: str) -> tuple[str, str,
     }
     if "temperature" in cfg:
         params["temperature"] = cfg["temperature"]
-    if cfg.get("json_mode", True):
+    if "max_tokens" in cfg:
+        params["max_tokens"] = cfg["max_tokens"]
+    if cfg.get("tool_mode"):
+        # Se entrega registrar_auditoria como herramienta real y se obliga a usarla.
+        tool = audit_tool()
+        params["tools"] = [tool]
+        params["tool_choice"] = {"type": "function", "function": {"name": tool["function"]["name"]}}
+    elif cfg.get("json_mode", True):
         params["response_format"] = {"type": "json_object"}
     response = client.chat.completions.create(**params)
     choice = response.choices[0]
     if choice.finish_reason == "length":
         raise RuntimeError("finish_reason=length (respuesta cortada)")
+    if cfg.get("tool_mode"):
+        if not choice.message.tool_calls:
+            raise RuntimeError("tool_mode: el modelo no llamó a la herramienta")
+        text = choice.message.tool_calls[0].function.arguments
+    else:
+        text = choice.message.content or ""
     usage = {
         "input_tokens": response.usage.prompt_tokens if response.usage else 0,
         "output_tokens": response.usage.completion_tokens if response.usage else 0,
     }
-    return choice.message.content or "", response.model, usage
+    return text, response.model, usage
+
+
+MAX_RETRIES = 3
+RETRY_WAIT_SEC = 60
+
+
+def is_transient(exc: Exception) -> bool:
+    """Errores que vale la pena reintentar: alta demanda, límite por minuto, JSON inválido de la herramienta.
+    No se reintenta si se acabó la cuota o el crédito: eso no se arregla esperando un minuto."""
+    message = str(exc).lower()
+    if "quota" in message or "credits" in message:
+        return False
+    status = getattr(exc, "status_code", None)
+    return status in (413, 429, 500, 502, 503, 529) or "tool call validation failed" in message
 
 
 def run_one(cfg: dict, stem: str, system: str, force: bool) -> str:
@@ -134,12 +173,21 @@ def run_one(cfg: dict, stem: str, system: str, force: bool) -> str:
         return "ya existe"
     user = (PROMPTS_DIR / f"{stem}.txt").read_text(encoding="utf-8")
     call = call_anthropic if cfg["provider"] == "anthropic" else call_openai_compatible
-    started = time.perf_counter()
-    try:
-        text, returned_model, usage = call(cfg, system, user)
-    except Exception as exc:  # noqa: BLE001 - se registra cualquier error del proveedor y se sigue
-        error_path.write_text(f"{type(exc).__name__}: {exc}\n", encoding="utf-8")
-        return f"ERROR {type(exc).__name__}: {str(exc)[:150]}"
+    attempt = 0
+    while True:
+        started = time.perf_counter()
+        try:
+            text, returned_model, usage = call(cfg, system, user)
+            break
+        except Exception as exc:  # noqa: BLE001 - se registra cualquier error del proveedor y se sigue
+            attempt += 1
+            if attempt <= MAX_RETRIES and is_transient(exc):
+                wait = RETRY_WAIT_SEC * attempt
+                print(f"   {stem}: {type(exc).__name__} transitorio, reintento {attempt}/{MAX_RETRIES} en {wait} s")
+                time.sleep(wait)
+                continue
+            error_path.write_text(f"{type(exc).__name__}: {exc}\n", encoding="utf-8")
+            return f"ERROR {type(exc).__name__}: {str(exc)[:150]}"
     latency_ms = int((time.perf_counter() - started) * 1000)
     error_path.unlink(missing_ok=True)
     result.write_text(text, encoding="utf-8")
@@ -148,7 +196,7 @@ def run_one(cfg: dict, stem: str, system: str, force: bool) -> str:
         "provider": cfg["provider"],
         "requested_model": cfg["model"],
         "returned_model": returned_model,
-        "settings": {k: cfg[k] for k in ("temperature", "effort", "json_mode") if k in cfg},
+        "settings": {k: cfg[k] for k in ("temperature", "effort", "json_mode", "tool_mode", "max_tokens") if k in cfg},
         "usage": usage,
         "cost_usd": cost_usd(cfg, usage),
         "latency_ms": latency_ms,
