@@ -18,7 +18,7 @@
 
 ## Costos por IA
 
-Calculado con los tokens reales de cada respuesta y los precios de `models.toml`. La proyección usa 100.000 llamadas al mes y el costo promedio por llamada de estas pruebas (las llamadas sintéticas son más cortas que las reales, de ~4 min).
+Calculado con los tokens reales de cada respuesta y los precios de `models.toml`. La proyección usa 100.000 llamadas al mes y el costo promedio por llamada de estas pruebas. Ojo: estas llamadas duran ~2 min y las reales más de 10 (ver Notas).
 
 | IA | Precio input / output (USD por M tokens) | Tokens prom. por llamada (in / out) | Costo por llamada USD | Costo de las 11 pruebas USD | Mensual USD | Mensual con batch (-50 %) USD |
 |---|---|---|---|---|---|---|
@@ -59,7 +59,12 @@ de la cuenta: no se arregla reintentando (hay que esperar que se renueve o pasar
 o un 413/429 por tokens por minuto son temporales: `run.py` los reintenta solo y basta con volver a correrlo.
 
 **Cómo leer los costos.**
-- Las llamadas sintéticas duran 1 a 3 minutos y las reales ~4: el input real va a ser mayor.
+- **Duración de las llamadas:** las sintéticas duran en promedio ~2 minutos (entre 1 y 7), mientras que las reales
+  duran más de 10. La transcripción real es unas 5 veces más larga, así que el input por llamada va a ser bastante
+  mayor (el system prompt, de ~3.500 tokens, es fijo) y el output probablemente también, por las citas y comentarios.
+  Los costos de esta tabla subestiman el costo por llamada real.
+- **Volumen:** la proyección usa 100.000 llamadas al mes, que sale de ~400.000 minutos con llamadas de ~4 min. Si las
+  llamadas duran más de 10 minutos, esos mismos minutos son ~40.000 llamadas: menos llamadas, pero más caras cada una.
 - En producción el system prompt se cachea (en Claude, la lectura de caché cuesta el 10 % del input), lo que baja el costo.
 - Los modelos con razonamiento (Haiku 5.5, Gemini 3.8 Flash, gpt-oss) cobran el razonamiento como output. Bajar el
   esfuerzo (`effort`) o pedir comentario solo para los motivos que incumplen o quedan dudosos reduce el output.
