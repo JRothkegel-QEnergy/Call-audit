@@ -14,7 +14,7 @@
 | claude-sonnet-5-5 | claude-sonnet-5-5 | 11/11 | 92% | 92% | 0/1 | 0/9 | 12/12 | 10/12 | 17.6 s |
 | gemini-3-5-flash-lite | gemini-3.5-flash-lite | 11/11 | 88% | 62% | 0/1 | 2/9 | 10/12 | 8/12 | 34.1 s |
 | gemini-3-8-flash | gemini-3.8-flash | 1/11 | 100% | 100% | 0/0 | 0/1 | 1/1 | 1/1 | 39.9 s |
-| groq-gpt-oss-120b | openai/gpt-oss-120b | 6/11 | 89% | 89% | 0/1 | 0/5 | 6/6 | 6/6 | 31.5 s |
+| groq-gpt-oss-120b | openai/gpt-oss-120b | 10/11 | 83% | 71% | 0/1 | 0/8 | 11/11 | 8/11 | 33.2 s |
 
 ## Costos por IA
 
@@ -27,13 +27,12 @@ Calculado con los tokens reales de cada respuesta y los precios de `models.toml`
 | claude-sonnet-5-5 | 2,00 / 10,00 | 5.585 / 3.228 | 0,0368 | 0,405 | 3.680 | 1.840 |
 | gemini-3-5-flash-lite | 0,30 / 2,50 | 3.509 / 2.744 | 0,0079 | 0,087 | 791 | 396 |
 | gemini-3-8-flash | 0,75 / 3,75 | 3.704 / 3.759 | 0,0169 | 0,186 | 1.687 | 844 |
-| groq-gpt-oss-120b | 0,15 / 0,60 | 3.691 / 4.442 | 0,0032 | 0,035 | 322 | 161 |
+| groq-gpt-oss-120b | 0,15 / 0,60 | 3.647 / 4.387 | 0,0032 | 0,035 | 318 | 159 |
 
 ## Llamadas con error
 
 - **gemini-3-8-flash**: 429 cuota del plan agotada (no se arregla reintentando) en 10 llamada(s): synth_01, synth_03, synth_04, synth_05, synth_06, synth_07, synth_08, synth_09, synth_10, synth_11
 - **groq-gpt-oss-120b**: JSON que no cumple el esquema en 1 llamada(s): synth_06
-- **groq-gpt-oss-120b**: 413 excede el límite de tokens por minuto del plan (temporal) en 4 llamada(s): synth_08, synth_09, synth_10, synth_11
 
 ## Detalle por llamada
 
@@ -46,10 +45,10 @@ Calculado con los tokens reales de cada respuesta y los precios de `models.toml`
 | synth-05 · Información entregada a un tercero | incumple: 27 | incumple: — | incumple: 27 · indet.: 2, 28 | incumple: 27 · indet.: 2, 28 | incumple: — · indet.: 28 | (sin respuesta) | incumple: 27 · indet.: 2, 28 |
 | synth-06 · Retención sin intención de renuncia y pregunta predispuesta | incumple: 8, 16, 32 · inciertos: 13, 15, 25, 29 | incumple: 13, 15, 16, 29, 32 | incumple: 6, 13, 15, 16, 29, 30, 32 · indet.: 2, 25 | incumple: 6, 8, 16, 32 · indet.: 2, 25, 29 | incumple: 16, 25, 32 | (sin respuesta) | (sin respuesta) |
 | synth-07 · Llamada larga con esperas excesivas y descalificación de la competencia | incumple: 11 · inciertos: 1 | incumple: 1, 11 | incumple: 1, 11 · indet.: 2, 28 | incumple: 1, 11 · indet.: 2 | incumple: 1, 11 · indet.: 28 | (sin respuesta) | incumple: 1, 10, 11 · indet.: 28 |
-| synth-08 · Inducción a la renuncia y negación de devolución de prima | incumple: 4, 6, 8, 12, 14, 28 | incumple: 4, 5, 6, 8, 12, 18, 26, 28 · indet.: 2 | incumple: 6, 12, 14, 28 | incumple: 4, 6, 12, 14, 28 · indet.: 2, 18 | incumple: 4, 6, 12, 14, 16, 28 · indet.: 2 | (sin respuesta) | (sin respuesta) |
-| synth-09 · Dos seguros: gestiona y tipifica solo uno | incumple: 13, 25, 26 | incumple: 13, 15, 22, 25, 29, 30 · indet.: 2 | incumple: 13, 15, 25, 32 · indet.: 2, 26, 28 | incumple: 25, 26, 29 · indet.: 28 | incumple: 13, 15, 25 | (sin respuesta) | (sin respuesta) |
-| synth-10 · Renuncia de un seguro irrenunciable en el canal | incumple: 4, 7, 9 | incumple: 7, 9 · indet.: 2 | incumple: 9 · indet.: 2, 28 | incumple: 4, 7, 9 · indet.: 2, 28 | incumple: — · indet.: 28 | (sin respuesta) | (sin respuesta) |
-| synth-11 · Llamada cortada con audio ininteligible | incumple: — · inciertos: 13, 15, 26, 29 | incumple: 13, 15, 19, 24, 29 · indet.: 28 | incumple: 13, 15, 29 · indet.: 6, 26, 28 | incumple: — · indet.: 19, 26, 28, 29 | incumple: 13, 15, 29 · indet.: 28 | (sin respuesta) | (sin respuesta) |
+| synth-08 · Inducción a la renuncia y negación de devolución de prima | incumple: 4, 6, 8, 12, 14, 28 | incumple: 4, 5, 6, 8, 12, 18, 26, 28 · indet.: 2 | incumple: 6, 12, 14, 28 | incumple: 4, 6, 12, 14, 28 · indet.: 2, 18 | incumple: 4, 6, 12, 14, 16, 28 · indet.: 2 | (sin respuesta) | incumple: 4, 8, 12, 14, 26, 28 |
+| synth-09 · Dos seguros: gestiona y tipifica solo uno | incumple: 13, 25, 26 | incumple: 13, 15, 22, 25, 29, 30 · indet.: 2 | incumple: 13, 15, 25, 32 · indet.: 2, 26, 28 | incumple: 25, 26, 29 · indet.: 28 | incumple: 13, 15, 25 | (sin respuesta) | incumple: 25 · indet.: 28 |
+| synth-10 · Renuncia de un seguro irrenunciable en el canal | incumple: 4, 7, 9 | incumple: 7, 9 · indet.: 2 | incumple: 9 · indet.: 2, 28 | incumple: 4, 7, 9 · indet.: 2, 28 | incumple: — · indet.: 28 | (sin respuesta) | incumple: 9 · indet.: 28 |
+| synth-11 · Llamada cortada con audio ininteligible | incumple: — · inciertos: 13, 15, 26, 29 | incumple: 13, 15, 19, 24, 29 · indet.: 28 | incumple: 13, 15, 29 · indet.: 6, 26, 28 | incumple: — · indet.: 19, 26, 28, 29 | incumple: 13, 15, 29 · indet.: 28 | (sin respuesta) | incumple: 13, 14, 15, 26, 29 · indet.: 28 |
 
 Ojo: los esperados los definimos nosotros, no auditores del cliente. Esto mide consistencia entre IA, no precisión real.
 
