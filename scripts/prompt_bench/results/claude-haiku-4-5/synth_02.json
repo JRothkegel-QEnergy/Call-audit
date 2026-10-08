@@ -1,0 +1,288 @@
+```json
+{
+  "resumen": "Llamada de retención de seguro de desempleo. Cliente expresa intención clara de renuncia por problemas económicos. Ejecutivo realiza 4 intentos de retención (excede el máximo de 3 objeciones). Se procesa la renuncia y se informa el cierre, pero no se menciona el número de póliza ni se valida correctamente el medio de pago.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar al seguro de desempleo. Es que no me alcanza, tengo muchas deudas y no quiero nada más.",
+    "timestamp": "00:44"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "DES-CONS-0002",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "Problemas Económicos",
+      "n_objeciones": 4,
+      "evidencia": "Cliente expresa renuncia en 00:44. Ejecutivo realiza 4 intentos de retención: (1) 00:53 'cubre hasta cinco cuotas'; (2) 01:07 'Pero piense que le cubre hasta cinco cuotas'; (3) 01:18 'la prima ya está pagada'; (4) 01:29 'imagínese si la despiden'; (5) 01:41 '¿Y si lo mantiene un mes más?'. Renuncia procesada en 01:52."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "No hay esperas registradas en metadatos (esperas_seg: []). Llamada fluida sin pausas excesivas."
+    },
+    {
+      "id": 2,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Descripción del seguro coincide con ficha: 'cubre hasta cinco cuotas de su crédito si queda cesante por necesidades de la empresa' (00:53) alineado con cobertura Art. 161."
+    },
+    {
+      "id": 3,
+      "estado": "incumple",
+      "confianza": 0.95,
+      "evidencia": [
+        {
+          "t": "00:53",
+          "hablante": "AGENTE",
+          "cita": "Le comento que este seguro le cubre hasta cinco cuotas de su crédito si queda cesante por necesidades de la empresa."
+        },
+        {
+          "t": "01:07",
+          "hablante": "AGENTE",
+          "cita": "Pero piense que le cubre hasta cinco cuotas. Hoy el trabajo está difícil, nunca se sabe."
+        },
+        {
+          "t": "01:18",
+          "hablante": "AGENTE",
+          "cita": "Mire, la prima ya está pagada, no le cobran todos los meses. Mantenerlo no le cuesta nada extra."
+        },
+        {
+          "t": "01:29",
+          "hablante": "AGENTE",
+          "cita": "Le entiendo, pero imagínese si la despiden el próximo mes. Son cinco cuotas que no va a tener que pagar."
+        },
+        {
+          "t": "01:41",
+          "hablante": "AGENTE",
+          "cita": "¿Y si lo mantiene un mes más y después lo vemos? Así no queda desprotegida."
+        }
+      ],
+      "comentario": "Se cuentan 5 intentos de retención (objeciones): (1) 00:53, (2) 01:07, (3) 01:18, (4) 01:29, (5) 01:41. Máximo permitido es 3. Excede en 2 objeciones."
+    },
+    {
+      "id": 4,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "evidencia": [
+        {
+          "t": "00:53",
+          "hablante": "AGENTE",
+          "cita": "Le comento que este seguro le cubre hasta cinco cuotas de su crédito si queda cesante por necesidades de la empresa."
+        }
+      ],
+      "comentario": "Ejecutivo indica características del seguro (cobertura de 5 cuotas, condición de desempleo)."
+    },
+    {
+      "id": 5,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "No aplica: cliente no consulta sobre permanencia. Ejecutivo no necesita informar que la permanencia la maneja el cliente."
+    },
+    {
+      "id": 6,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Información del producto es correcta y consistente con la ficha. No hay errores ni vaguedad en las coberturas mencionadas."
+    },
+    {
+      "id": 7,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "No hay derivación requerida. Solicitud de renuncia se gestiona en el mismo canal sin necesidad de derivar."
+    },
+    {
+      "id": 8,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Ejecutivo responde de forma directa a las preguntas y solicitudes del cliente. No elude preguntas."
+    },
+    {
+      "id": 9,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Seguro DES-CONS-0002 es renunciable en canal (metadatos: renunciable_en_canal: si). Renuncia es válida."
+    },
+    {
+      "id": 10,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Atención se ajusta a política de BancoEstado: validación de identidad, gestión de renuncia, cierre informativo."
+    },
+    {
+      "id": 11,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "No hay descalificaciones a pares, BancoEstado o competencia."
+    },
+    {
+      "id": 12,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Ejecutivo no induce la renuncia. Cliente expresa intención clara desde el inicio (00:44)."
+    },
+    {
+      "id": 13,
+      "estado": "incumple",
+      "confianza": 0.95,
+      "evidencia": [
+        {
+          "t": "01:56–02:09",
+          "hablante": "AGENTE",
+          "cita": "Listo. Le confirmo que quedó ingresada la renuncia de su seguro de desempleo. El cargo se hacía a su crédito de consumo, así que no tendrá más movimientos asociados. ¿Está de acuerdo?"
+        }
+      ],
+      "comentario": "En el protocolo de cierre (01:56–02:09), ejecutivo no menciona el número de póliza DES-CONS-0002. Solo dice 'seguro de desempleo' sin especificar el número."
+    },
+    {
+      "id": 14,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Seguro es retenible (metadatos: retenible: si). Ejecutivo realiza intentos de retención (aunque excesivos)."
+    },
+    {
+      "id": 15,
+      "estado": "incumple",
+      "confianza": 0.90,
+      "evidencia": [
+        {
+          "t": "01:56–02:09",
+          "hablante": "AGENTE",
+          "cita": "Listo. Le confirmo que quedó ingresada la renuncia de su seguro de desempleo. El cargo se hacía a su crédito de consumo, así que no tendrá más movimientos asociados. ¿Está de acuerdo?"
+        }
+      ],
+      "comentario": "Ejecutivo menciona que 'el cargo se hacía a su crédito de consumo' (medio de pago pasado), pero no confirma explícitamente el medio de pago actual o futuro asociado a la renuncia. Información incompleta."
+    },
+    {
+      "id": 16,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Retención se realiza solo después de que cliente expresa intención clara de renuncia (00:44). No hay retención sin intención previa."
+    },
+    {
+      "id": 17,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Seguro DES-CONS-0002 es retenible (metadatos: retenible: si). Retención es válida."
+    },
+    {
+      "id": 18,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Tipificación registrada: 'Problemas Económicos'. Cliente dice 'no me alcanza, tengo muchas deudas' (00:44). Motivo coincide correctamente."
+    },
+    {
+      "id": 19,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Tipificación registrada: RENUNCIA. Grabación confirma RENUNCIA (cliente expresa intención clara, ejecutivo procesa renuncia en 01:52). Tipificación correcta."
+    },
+    {
+      "id": 20,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Tipificación de renuncia corresponde a seguro mencionado: DES-CONS-0002 (Seguro de Desempleo). Cliente menciona explícitamente este seguro."
+    },
+    {
+      "id": 21,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Renuncia tipificada corresponde al seguro correcto (DES-CONS-0002). No hay confusión con otro seguro."
+    },
+    {
+      "id": 22,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "No hay tipificación de retención. No aplica este motivo."
+    },
+    {
+      "id": 23,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "No hay tipificación de retención. No aplica este motivo."
+    },
+    {
+      "id": 24,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Tipificación registrada: RENUNCIA. Grabación confirma RENUNCIA. No hay discrepancia."
+    },
+    {
+      "id": 25,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Se tipifica la única gestión solicitada: renuncia de DES-CONS-0002. Todas las gestiones están tipificadas."
+    },
+    {
+      "id": 26,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Cliente solicita solo la renuncia del seguro. Ejecutivo procesa la renuncia. Gestión solicitada se impacta."
+    },
+    {
+      "id": 27,
+      "estado": "no_aplica",
+      "confianza": 1.0,
+      "comentario": "No hay tercero en la llamada. Cliente es el titular (Carolina Paredes). No aplica este motivo."
+    },
+    {
+      "id": 28,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "No hay consulta sobre devolución de primas. Según ficha, prima es única (pagada de una vez). No aplica negación de devolución."
+    },
+    {
+      "id": 29,
+      "estado": "incumple",
+      "confianza": 0.85,
+      "evidencia": [
+        {
+          "t": "01:56–02:11",
+          "hablante": "AGENTE",
+          "cita": "Listo. Le confirmo que quedó ingresada la renuncia de su seguro de desempleo. El cargo se hacía a su crédito de consumo, así que no tendrá más movimientos asociados. ¿Está de acuerdo? [CLIENTE: Sí, de acuerdo, gracias.] Que tenga un buen día."
+        }
+      ],
+      "comentario": "Protocolo de cierre es incompleto. Falta: (1) número de póliza, (2) confirmación clara del medio de pago futuro, (3) resumen de gestión realizada. El cierre es muy breve y no sigue un protocolo estructurado de BancoEstado."
+    },
+    {
+      "id": 30,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Cliente responde 'Sí, de acuerdo, gracias' (02:09), que es una aceptación clara. Ejecutivo no necesita reiterar."
+    },
+    {
+      "id": 31,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "evidencia": [
+        {
+          "t": "00:10–00:28",
+          "hablante": "AGENTE",
+          "cita": "¿me indica su RUT, por favor? [CLIENTE: Veintidós millones doscientos veintidós mil doscientos veintidós guion dos.] ¿Su nombre completo y fecha de nacimiento? [CLIENTE: Carolina Andrea Paredes Lagos, nacida el dos de julio del noventa.]"
+        }
+      ],
+      "comentario": "Ejecutivo valida RUT (22.222.222-2), nombre completo (Carolina Andrea Paredes Lagos) y fecha de nacimiento (02/07/1990). Validación correcta."
+    },
+    {
+      "id": 32,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Ejecutivo no condiciona la respuesta a un 'sí'. Pregunta final es abierta: '¿Está de acuerdo?' sin predisposición."
+    },
+    {
+      "id": 33,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "evidencia": [
+        {
+          "t": "00:28–00:32",
+          "hablante": "AGENTE",
+          "cita": "¿Me confirma su correo y teléfono registrados? [CLIENTE: carolina punto paredes arroba correo ejemplo punto cl, y el nueve ocho siete seis cinco cuatro tres dos uno.]"
+        }
+      ],
+      "comentario": "Ejecutivo valida email (carolina.paredes@correoejemplo.cl) y teléfono (987654321). Validación correcta."
+    }
+  ]
+}
+```

@@ -118,7 +118,7 @@ def main() -> None:
 
         precision = f"{tp / (tp + fp):.0%}" if tp + fp else "—"
         recall = f"{tp / (tp + fn):.0%}" if tp + fn else "—"
-        model_cell = ", ".join(sorted(returned_models)) or "(manual)"
+        model_cell = ", ".join(sorted(returned_models)) or ("(manual)" if answered else "—")
         cost_cell = f"{sum(costs):.4f}" if costs else "—"
         latency_cell = f"{sum(latencies) / len(latencies) / 1000:.1f} s" if latencies else "—"
         lines.append(

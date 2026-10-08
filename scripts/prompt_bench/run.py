@@ -82,7 +82,8 @@ def call_anthropic(cfg: dict, system: str, user: str) -> tuple[str, str, dict]:
         "messages": [{"role": "user", "content": user}],
     }
     if "temperature" in cfg:
-        params["temperature"] = cfg["temperature"]
+        # El SDK 1.x ya no expone temperature; solo los modelos antiguos (ej. Haiku 4.5) lo aceptan.
+        params["extra_body"] = {"temperature": cfg["temperature"]}
     if "effort" in cfg:
         params["output_config"] = {"effort": cfg["effort"]}
     response = client.messages.create(**params)
