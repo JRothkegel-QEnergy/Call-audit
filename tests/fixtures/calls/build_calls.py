@@ -16,12 +16,14 @@ SALE = "Sale Seguro"
 PROTECCION = "Protección Global"
 
 
-def policy(name, number, retainable=True, cancellable=True):
+def policy(name, number, retainable=True, cancellable=True, premium_refund=None):
+    # premium_refund: True/False si en el fixture se asume que corresponde devolución de prima; None = sin dato.
     return {
         "name": name,
         "policy_number": number,
         "retainable": retainable,
         "cancellable_in_channel": cancellable,
+        "premium_refund": premium_refund,
     }
 
 
@@ -66,7 +68,7 @@ call(
         ("C", "Ya, pero si lo dejo, ¿después lo puedo sacar igual?"),
         ("A", "Sí, don Pedro. La permanencia en el seguro la decide usted; puede renunciar cuando quiera."),
         ("C", "Ah, ya. Entonces lo mantengo no más po, si no me están cobrando nada aparte."),
-        ("A", "Perfecto. Le resumo la gestión: hoy mantenemos vigente su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0001. La prima fue pagada en forma única junto con su crédito de consumo, así que no tiene cargos mensuales en su cuenta. No se realiza ninguna renuncia. ¿Está conforme con la gestión realizada?"),
+        ("A", "Perfecto. Le resumo la gestión: hoy mantenemos vigente su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0001. El medio de pago es el cargo único que se hizo en su crédito de consumo, así que no tiene cargos mensuales en su cuenta. No se realiza ninguna renuncia. ¿Está conforme con la gestión realizada?"),
         ("C", "Sí, conforme."),
         ("A", "Muchas gracias por su tiempo, don Pedro. Que tenga muy buena tarde."),
         ("C", "Gracias, igualmente. Chao."),
@@ -84,7 +86,7 @@ call(
 call(
     call_id="synth-02",
     title="Exceso de objeciones y cierre sin N° de póliza",
-    description="El cliente insiste en renunciar; el ejecutivo argumenta 4 veces tras sus negativas. "
+    description="El cliente insiste en renunciar; el ejecutivo da 5 argumentos de retención (1 tras la solicitud y 4 tras negativas). "
     "Procesa la renuncia, pero en el cierre no menciona el número de seguro.",
     agent_id="EJ-0102",
     date="2026-09-02",
@@ -119,9 +121,9 @@ call(
     expected={
         "call_verdict": "non_compliant",
         "cancellation_intent": True,
-        "outcomes": [{"policy_number": "DES-CONS-0002", "outcome": "RENUNCIA", "cancellation_reason": "Problemas Económicos", "objections": 4}],
+        "outcomes": [{"policy_number": "DES-CONS-0002", "outcome": "RENUNCIA", "cancellation_reason": "Problemas Económicos", "objections": 5}],
         "findings": [
-            {"criterion_id": 3, "status": "non_compliant", "note": "4 objeciones después de negativas explícitas; el máximo es 3."},
+            {"criterion_id": 3, "status": "non_compliant", "note": "5 argumentos de retención (el primero tras la solicitud y 4 tras negativas explícitas); el máximo es 3."},
             {"criterion_id": 13, "status": "non_compliant", "note": "El cierre confirma la renuncia pero no menciona el N° de póliza DES-CONS-0002."},
         ],
     },
@@ -185,10 +187,10 @@ call(
         ("C", "Quiero sacar el seguro de desempleo del crédito. Es que ahora no me alcanza, ando corta de plata con todo lo que está subiendo."),
         ("A", "Entiendo. ¿Sigue trabajando en el mismo lugar?"),
         ("C", "Sí, sigo en la misma pega, no es eso. Es que los gastos me tienen ahogada."),
-        ("A", "Le cuento que este seguro le sirve justamente si pierde la pega: le paga tres cuotas de su crédito."),
-        ("C", "¿Solo tres? Pucha, no es tanto."),
-        ("A", "Sí, tres cuotas, y se pagan apenas presenta el finiquito."),
-        ("C", "No, igual prefiero sacarlo."),
+        ("A", "Le cuento que este seguro le sirve justamente si pierde la pega, porque le paga cuotas de su crédito."),
+        ("C", "¿Y cuántas cuotas me paga?"),
+        ("A", "Le paga tres cuotas, y se pagan apenas presenta el finiquito."),
+        ("C", "Pucha, no es tanto. Igual prefiero sacarlo."),
         ("A", "Piense que la prima ya está pagada, no es un cobro mensual."),
         ("C", "Ya, pero lo quiero sacar igual. Quiero tener menos cosas."),
         ("A", "Bueno, señora Andrea, procedo con la renuncia."),
@@ -227,7 +229,7 @@ call(
         ("A", "Gracias, don Jorge, quedó validado. ¿En qué lo ayudo?"),
         ("C", "Quiero renunciar al seguro de salud de la pyme, no quiero más compromisos. Pero mire, mi señora es la que ve estas cosas, le paso con ella."),
         ("C", "Hola, buenas, habla Marcela, la señora de Jorge. ¿Cuánto es lo que estamos pagando por ese seguro y desde cuándo?"),
-        ("A", "Hola, señora Marcela. El seguro de Salud Incapacidad MYPE tiene una prima mensual que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado."),
+        ("A", "Hola, señora Marcela. El seguro de Salud Incapacidad MYPE tiene una prima mensual de doce mil cuatrocientos pesos, que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado."),
         ("C", "Ya, ¿y qué pasa si lo sacamos? ¿Pierde algo?"),
         ("A", "Perdería la cobertura de incapacidad para su negocio: si don Jorge queda incapacitado temporalmente, el seguro le paga una renta diaria. Es una buena protección para un emprendedor."),
         ("C", "No, igual lo queremos sacar. Ya tenemos muchas cuentas."),
@@ -283,6 +285,10 @@ call(
             {"criterion_id": 16, "status": "non_compliant", "note": "Argumenta para retener sin que la clienta haya expresado intención de renuncia."},
             {"criterion_id": 32, "status": "non_compliant", "note": "'Usted está de acuerdo en mantenerlo, ¿cierto?': condiciona la respuesta a un sí."},
             {"criterion_id": 8, "status": "non_compliant", "note": "Elude la pregunta sobre la cobertura de robo para insistir en la retención."},
+            {"criterion_id": 29, "status": "uncertain", "note": "El ejecutivo da el seguro por retenido sin solicitud. Si eso cuenta como gestión, falta el protocolo de cierre (TBD con el cliente)."},
+            {"criterion_id": 13, "status": "uncertain", "note": "Igual que 29."},
+            {"criterion_id": 15, "status": "uncertain", "note": "Igual que 29."},
+            {"criterion_id": 25, "status": "uncertain", "note": "Igual que 29: si la retención cuenta como gestión, no está tipificada."},
         ],
         "notes": "No hay tipificación porque no hubo gestión de renuncia ni de retención solicitada por la clienta.",
     },
@@ -292,7 +298,7 @@ call(
 call(
     call_id="synth-07",
     title="Llamada larga con esperas excesivas y descalificación de la competencia",
-    description="El cliente tiene una mejor oferta en otra compañía. El ejecutivo lo deja dos veces en espera (45 s y 210 s) "
+    description="El cliente ya contrató un seguro en otra compañía. El ejecutivo lo deja dos veces en espera (45 s y 210 s) "
     "y descalifica a la competencia. El cliente termina renunciando.",
     agent_id="EJ-0107",
     date="2026-09-09",
@@ -310,15 +316,15 @@ call(
         ("A", "¿Me confirma su correo y teléfono?"),
         ("C", "cristian punto molina arroba correo ejemplo punto cl, y el nueve siete siete siete uno uno uno dos dos."),
         ("A", "Gracias, don Cristián, quedó validado. ¿En qué lo puedo ayudar?"),
-        ("C", "Mire, tengo una ferretería chica y tengo el seguro de salud incapacidad MYPE con ustedes. Me ofrecieron uno en otra compañía que cubre más y es más barato, así que quiero renunciar a este."),
+        ("C", "Mire, tengo una ferretería chica y tengo el seguro de salud incapacidad MYPE con ustedes. Ya contraté uno en otra compañía que cubre más y es más barato, así que quiero renunciar a este."),
         ("A", "Entiendo, don Cristián. Permítame revisar el detalle de su póliza. Lo dejo un momento en espera."),
         ("HOLD", 45),
-        ("A", "Gracias por esperar. Veo su seguro Salud Incapacidad MYPE, con prima mensual cargada a su cuenta corriente. ¿Me puede contar qué le ofrecieron en la otra compañía?"),
+        ("A", "Gracias por esperar. Veo su seguro Salud Incapacidad MYPE, con prima mensual cargada a su cuenta corriente. ¿Me puede contar qué contrató en la otra compañía?"),
         ("C", "Una renta diaria más alta por incapacidad y además cubre hospitalización. Y sale como cuatro lucas menos al mes."),
         ("A", "Mire, don Cristián, le soy honesta: esa otra compañía es una estafa. Siempre ponen letra chica y después no pagan nada. Los que se cambian a ellos después vuelven llorando."),
         ("C", "Bueno, pero yo leí las condiciones y me parecen bien."),
         ("A", "Nuestro seguro tiene el respaldo de BancoEstado. Si usted queda incapacitado, le pagamos la renta diaria sin tantos trámites, y el cargo es automático, no se tiene que preocupar."),
-        ("C", "Ya, pero el otro igual cubre más, la verdad. Yo creo que me cambio."),
+        ("C", "Ya, pero el otro igual cubre más, la verdad. Quiero sacar este."),
         ("A", "Déjeme consultar con mi supervisor si hay alguna alternativa para usted. Lo dejo en espera nuevamente."),
         ("HOLD", 210),
         ("A", "Disculpe la demora, don Cristián. Mi supervisor me indica que no tenemos un plan alternativo con más cobertura en este momento."),
@@ -335,7 +341,7 @@ call(
     expected={
         "call_verdict": "non_compliant",
         "cancellation_intent": True,
-        "outcomes": [{"policy_number": "MYPE-0007", "outcome": "RENUNCIA", "cancellation_reason": "Cliente posee otros Seguros", "objections": 2}],
+        "outcomes": [{"policy_number": "MYPE-0007", "outcome": "RENUNCIA", "cancellation_reason": "Cliente posee otros Seguros", "objections": 3}],
         "findings": [
             {"criterion_id": 11, "status": "non_compliant", "note": "'Esa otra compañía es una estafa': descalifica a la competencia."},
             {"criterion_id": 1, "status": "depends_on_threshold", "note": "Esperas de 45 s y 210 s. El umbral es TBD con el cliente; con un umbral de ejemplo de 120 s, la segunda espera incumple."},
@@ -352,9 +358,8 @@ call(
     "y le niega la devolución de la prima, que en este caso sí corresponde (supuesto sintético del fixture).",
     agent_id="EJ-0108",
     date="2026-09-10",
-    policies=[policy(SALE, "SALE-0008")],
+    policies=[policy(SALE, "SALE-0008", premium_refund=True)],
     typification=[{"policy_number": "SALE-0008", "outcome": "RENUNCIA", "reason": "No informado"}],
-    fixture_assumptions={"premium_refund_applies": True},
     turns=[
         ("A", "BancoEstado Corredores de Seguros, buenas tardes, le atiende Sebastián Lagos."),
         ("C", "Hola, buenas tardes, habla Valentina Reyes."),
@@ -380,10 +385,13 @@ call(
         "outcomes": [{"policy_number": "SALE-0008", "outcome": "RENUNCIA", "cancellation_reason": "No informado", "objections": 0}],
         "findings": [
             {"criterion_id": 12, "status": "non_compliant", "note": "La clienta solo consulta qué cubre; el ejecutivo le sugiere renunciar."},
-            {"criterion_id": 28, "status": "non_compliant", "note": "Niega la devolución de prima; en este fixture se asume que corresponde (premium_refund_applies)."},
+            {"criterion_id": 28, "status": "non_compliant", "note": "Niega la devolución de prima y en los metadatos devolucion_prima = corresponde."},
             {"criterion_id": 6, "status": "non_compliant", "note": "No explica qué cubre el seguro ante la consulta directa."},
+            {"criterion_id": 4, "status": "non_compliant", "note": "No indica ninguna característica del seguro que se renuncia."},
+            {"criterion_id": 8, "status": "non_compliant", "note": "La clienta pregunta qué cubre y el ejecutivo no responde."},
+            {"criterion_id": 14, "status": "non_compliant", "note": "Seguro retenible renunciado sin ningún intento de retención."},
         ],
-        "notes": "La regla real de devolución de primas es TBD con el cliente; el supuesto vive solo en este fixture.",
+        "notes": "Que corresponda devolución de prima es un supuesto del fixture (premium_refund=True); la regla real es TBD con el cliente.",
     },
 )
 
@@ -422,7 +430,7 @@ call(
         ("C", "Ya, dale."),
         ("A", "Mientras carga el sistema, don Felipe, ¿quiere que le actualice su dirección o algún dato de contacto?"),
         ("C", "No, está todo bien, gracias."),
-        ("A", "Perfecto. Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009, cuya prima fue pagada en forma única con su crédito. ¿Está de acuerdo con la gestión?"),
+        ("A", "Perfecto. Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009, cuyo medio de pago fue el cargo único en su crédito de consumo. ¿Está de acuerdo con la gestión?"),
         ("C", "Sí. ¿Y el de incendio quedó listo también?"),
         ("A", "Sí, don Felipe, quedó todo listo."),
         ("C", "Ya, perfecto. Muchas gracias."),
@@ -477,6 +485,7 @@ call(
         "findings": [
             {"criterion_id": 9, "status": "non_compliant", "note": "Renuncia un seguro marcado como irrenunciable en este canal (metadato cancellable_in_channel=false)."},
             {"criterion_id": 7, "status": "non_compliant", "note": "Debió derivar la solicitud al área correspondiente."},
+            {"criterion_id": 4, "status": "non_compliant", "note": "Solo nombra el seguro; no indica ninguna característica."},
         ],
         "notes": "Seguro no retenible: el motivo 14 no aplica.",
     },
@@ -513,9 +522,11 @@ call(
         "outcomes": [{"policy_number": "DES-CONS-0011", "outcome": "SIN_GESTION", "cancellation_reason": "No desea contraer más obligaciones", "objections": 1}],
         "findings": [
             {"criterion_id": 29, "status": "uncertain", "note": "La llamada se corta antes del cierre; no se puede evaluar el protocolo de cierre."},
-            {"criterion_id": 24, "status": "uncertain", "note": "Se tipifica RENUNCIA pero la grabación no muestra la gestión terminada."},
+            {"criterion_id": 13, "status": "uncertain", "note": "Igual que 29."},
+            {"criterion_id": 15, "status": "uncertain", "note": "Igual que 29."},
+            {"criterion_id": 26, "status": "uncertain", "note": "No se ve si la renuncia se alcanzó a gestionar."},
         ],
-        "notes": "Debe ir a revisión humana, no marcarse como cumple ni como no cumple.",
+        "notes": "Debe ir a revisión humana. La tipificación RENUNCIA no se puede verificar: ningún motivo 18 a 25 describe una gestión inconclusa.",
     },
 )
 

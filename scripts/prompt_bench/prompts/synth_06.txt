@@ -7,13 +7,13 @@ esperas_seg: []
 umbral_espera_seg: 120
 
 ## Seguros del cliente consultados en la llamada
-- nombre: Protección Global | n_poliza: PROT-GLB-0006 | retenible: si | renunciable_en_canal: si
+- nombre: Protección Global | n_poliza: PROT-GLB-0006 | retenible: si | renunciable_en_canal: si | devolucion_prima: sin dato
 
 ## Tipificación registrada por el ejecutivo
 - (sin tipificación registrada)
 
 ## Ficha de producto (del seguro gestionado)
-Protección Global: No disponible (ficha pendiente con el cliente). Evalúa los motivos 2 y 6 como 'indeterminado' si dependen de la ficha.
+Protección Global: No disponible (ficha pendiente con el cliente).
 
 ## Transcripción (canal separado, timestamps mm:ss)
 [00:01] AGENTE: Buenos días, BancoEstado Corredores de Seguros, le habla Ignacio Vargas. ¿Con quién hablo?

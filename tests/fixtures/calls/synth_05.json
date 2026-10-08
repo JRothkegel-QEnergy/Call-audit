@@ -6,14 +6,15 @@
   "metadata": {
     "date": "2026-09-05",
     "agent_id": "EJ-0105",
-    "duration_sec": 113,
+    "duration_sec": 115,
     "holds_sec": [],
     "policies": [
       {
         "name": "Seguro de Salud Incapacidad MYPE",
         "policy_number": "MYPE-0005",
         "retainable": true,
-        "cancellable_in_channel": true
+        "cancellable_in_channel": true,
+        "premium_refund": null
       }
     ],
     "typification": [
@@ -82,43 +83,43 @@
     {
       "channel": "agent",
       "start_ms": 61092,
-      "end_ms": 73015,
-      "text": "Hola, señora Marcela. El seguro de Salud Incapacidad MYPE tiene una prima mensual que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado."
+      "end_ms": 74938,
+      "text": "Hola, señora Marcela. El seguro de Salud Incapacidad MYPE tiene una prima mensual de doce mil cuatrocientos pesos, que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado."
     },
     {
       "channel": "customer",
-      "start_ms": 73815,
-      "end_ms": 77276,
+      "start_ms": 75738,
+      "end_ms": 79200,
       "text": "Ya, ¿y qué pasa si lo sacamos? ¿Pierde algo?"
     },
     {
       "channel": "agent",
-      "start_ms": 77876,
-      "end_ms": 88646,
+      "start_ms": 79800,
+      "end_ms": 90569,
       "text": "Perdería la cobertura de incapacidad para su negocio: si don Jorge queda incapacitado temporalmente, el seguro le paga una renta diaria. Es una buena protección para un emprendedor."
     },
     {
       "channel": "customer",
-      "start_ms": 89546,
-      "end_ms": 93007,
+      "start_ms": 91469,
+      "end_ms": 94930,
       "text": "No, igual lo queremos sacar. Ya tenemos muchas cuentas."
     },
     {
       "channel": "agent",
-      "start_ms": 93507,
-      "end_ms": 105046,
+      "start_ms": 95430,
+      "end_ms": 106969,
       "text": "Perfecto, señora Marcela. Entonces le confirmo: queda ingresada la renuncia del seguro Salud Incapacidad MYPE, póliza número MYPE-0005, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?"
     },
     {
       "channel": "customer",
-      "start_ms": 106246,
-      "end_ms": 108169,
+      "start_ms": 108169,
+      "end_ms": 110092,
       "text": "Sí, de acuerdo. Gracias, señorita."
     },
     {
       "channel": "agent",
-      "start_ms": 108869,
-      "end_ms": 111176,
+      "start_ms": 110792,
+      "end_ms": 113100,
       "text": "A usted, que tengan buena tarde."
     }
   ],

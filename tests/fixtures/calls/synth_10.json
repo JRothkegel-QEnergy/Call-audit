@@ -13,7 +13,8 @@
         "name": "Seguro de Incapacidad Temporal - Créditos de consumo",
         "policy_number": "INC-TMP-0010",
         "retainable": false,
-        "cancellable_in_channel": false
+        "cancellable_in_channel": false,
+        "premium_refund": null
       }
     ],
     "typification": [
@@ -125,6 +126,11 @@
         "criterion_id": 7,
         "status": "non_compliant",
         "note": "Debió derivar la solicitud al área correspondiente."
+      },
+      {
+        "criterion_id": 4,
+        "status": "non_compliant",
+        "note": "Solo nombra el seguro; no indica ninguna característica."
       }
     ],
     "notes": "Seguro no retenible: el motivo 14 no aplica."

@@ -1,6 +1,6 @@
 ```json
 {
-  "resumen": "Gloria Fernández llama para renunciar a un Seguro de Incapacidad Temporal asociado a su crédito de consumo, indicando que no recuerda haberlo contratado. El ejecutivo valida identidad, gestiona la renuncia y cierra la llamada con protocolo de cierre que incluye número de póliza y medio de pago.",
+  "resumen": "Gloria Fernández llama para renunciar a un Seguro de Incapacidad Temporal asociado a su crédito de consumo, indicando que no recuerda haberlo contratado. El ejecutivo valida identidad, procesa la renuncia sin intentar retención y cierra con confirmación del número de póliza y medio de pago.",
   "intencion_renuncia": {
     "expresada": true,
     "cita": "Me sale un seguro de incapacidad temporal en el crédito y yo no me acuerdo de haberlo contratado. Lo quiero sacar.",
@@ -12,276 +12,221 @@
       "resultado_grabacion": "RENUNCIA",
       "motivo_renuncia": "Desconoce contratación del seguro",
       "n_objeciones": 0,
-      "evidencia": "Cliente expresa no recordar la contratación y solicita dar de baja. Ejecutivo procesa la renuncia sin objeciones."
+      "evidencia": "Cliente expresa no recordar la contratación y solicita dar de baja. Ejecutivo procesa la renuncia sin argumentos de retención."
     }
   ],
   "criterios": [
     {
       "id": 1,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "No hay esperas registradas en metadatos (esperas_seg: []). Llamada fluida sin pausas excesivas."
+      "comentario": "No hay esperas registradas en los metadatos (esperas_seg: []). No aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 2,
+      "comentario": "La ficha de producto no está disponible (pendiente con el cliente). No es posible contrastar si la descripción corresponde a otro seguro. El ejecutivo menciona 'Seguro de Incapacidad Temporal asociado a su crédito de consumo', que coincide con el nombre en metadatos. Sin ficha, no hay base para marcar incumplimiento.",
       "estado": "indeterminado",
-      "confianza": 0.5,
-      "comentario": "Ficha de producto no disponible. No se puede verificar si la descripción del seguro es correcta. El ejecutivo menciona 'seguro de Incapacidad Temporal asociado a su crédito de consumo' pero sin ficha no se puede contrastar."
+      "confianza": 0.5
     },
     {
       "id": 3,
+      "comentario": "El cliente expresó intención de renuncia. El ejecutivo no realizó ningún intento de retención (n_objeciones = 0). No se excedió el máximo de 3 objeciones.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Cero objeciones realizadas. El ejecutivo acepta la solicitud sin argumentar para retener."
+      "confianza": 1.0
     },
     {
       "id": 4,
+      "comentario": "El ejecutivo indica una característica del seguro: 'Seguro de Incapacidad Temporal asociado a su crédito de consumo' (00:44). Aunque breve, menciona el tipo de seguro y su asociación al crédito.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "evidencia": [
-        {
-          "t": "00:44",
-          "hablante": "AGENTE",
-          "cita": "Es el seguro de Incapacidad Temporal asociado a su crédito de consumo."
-        }
-      ],
-      "comentario": "El ejecutivo indica la característica principal del seguro: que es de Incapacidad Temporal y está asociado a crédito de consumo."
+      "confianza": 0.9
     },
     {
       "id": 5,
+      "comentario": "El cliente no realizó preguntas sobre permanencia, coberturas o características del producto. No hay evidencia de que el ejecutivo haya eludido responder sobre estos temas.",
       "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "El cliente no consulta sobre permanencia o continuidad del seguro. No aplica este motivo."
+      "confianza": 1.0
     },
     {
       "id": 6,
-      "estado": "indeterminado",
-      "confianza": 0.5,
-      "comentario": "Ficha de producto no disponible. No se puede evaluar si el ejecutivo maneja correctamente información de coberturas o características detalladas. El cliente no realiza preguntas específicas sobre el producto."
+      "comentario": "El cliente no formuló preguntas sobre el producto o coberturas. El ejecutivo no tuvo oportunidad de demostrar manejo de información. No aplica.",
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 7,
-      "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "La solicitud se resuelve en el canal de retención. No hay derivación requerida a otra área."
-    },
-    {
-      "id": 8,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El ejecutivo responde de forma directa a cada pregunta del cliente sin evasiones."
-    },
-    {
-      "id": 9,
+      "comentario": "El seguro INC-TMP-0010 es no renunciable en este canal (según metadatos: renunciable_en_canal: no). El ejecutivo procesó la renuncia sin derivar a otra área o canal. Esto constituye un incumplimiento del protocolo: debería haber derivado la solicitud.",
       "estado": "incumple",
-      "confianza": 1.0,
+      "confianza": 0.95,
       "evidencia": [
         {
           "t": "00:44",
           "hablante": "AGENTE",
-          "cita": "Se lo doy de baja."
-        },
-        {
-          "t": "00:55",
-          "hablante": "AGENTE",
-          "cita": "Quedó ingresada la renuncia de su seguro de Incapacidad Temporal, póliza número INC-TMP-0010"
+          "cita": "Entiendo, señora Gloria. Es el seguro de Incapacidad Temporal asociado a su crédito de consumo. Se lo doy de baja."
         }
-      ],
-      "comentario": "Según metadatos, el seguro INC-TMP-0010 tiene renunciable_en_canal: no. El ejecutivo procesa la renuncia en este canal, lo que incumple la política. Este es un motivo crítico."
+      ]
+    },
+    {
+      "id": 8,
+      "comentario": "El cliente expresó su solicitud de forma clara ('Lo quiero sacar') y el ejecutivo respondió directamente ('Se lo doy de baja'). No hay evasión de preguntas.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro INC-TMP-0010 es irrenunciable en este canal (renunciable_en_canal: no). El ejecutivo procesó la renuncia sin derivar. Esto incumple el protocolo de no renunciar seguros irrenunciables en este canal.",
+      "estado": "incumple",
+      "confianza": 0.95,
+      "evidencia": [
+        {
+          "t": "00:44",
+          "hablante": "AGENTE",
+          "cita": "Entiendo, señora Gloria. Es el seguro de Incapacidad Temporal asociado a su crédito de consumo. Se lo doy de baja."
+        }
+      ]
     },
     {
       "id": 10,
+      "comentario": "No hay evidencia de conductas que incumplan la política de BancoEstado más allá de lo ya evaluado en otros motivos (motivos 7 y 9 cubren la derivación incorrecta).",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "La atención es respetuosa, clara y se ajusta a los estándares de comunicación profesional de BancoEstado."
+      "confianza": 0.9
     },
     {
       "id": 11,
+      "comentario": "El ejecutivo no descalifica a pares, a BancoEstado ni a la competencia en la transcripción.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El ejecutivo no descalifica a pares, a BancoEstado ni a la competencia."
+      "confianza": 1.0
     },
     {
       "id": 12,
-      "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "El cliente expresó intención de renuncia. El ejecutivo no indujo la renuncia."
+      "comentario": "El cliente expresó la intención de renuncia ('Lo quiero sacar'). El ejecutivo no sugirió ni propuso renunciar; respondió a la solicitud del cliente.",
+      "estado": "cumple",
+      "confianza": 1.0
     },
     {
       "id": 13,
+      "comentario": "En el protocolo de cierre (00:55), el ejecutivo menciona: 'póliza número INC-TMP-0010'. El número de seguro está presente.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "evidencia": [
-        {
-          "t": "00:55",
-          "hablante": "AGENTE",
-          "cita": "póliza número INC-TMP-0010"
-        }
-      ],
-      "comentario": "El ejecutivo menciona el número de póliza en el protocolo de cierre."
+      "confianza": 1.0
     },
     {
       "id": 14,
+      "comentario": "El seguro INC-TMP-0010 es no retenible (retenible: no). No aplica el motivo de realizar intento de retención en seguro retenible.",
       "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "El seguro es NO RETENIBLE según metadatos (retenible: no). No aplica el motivo de no realizar intento de retención."
+      "confianza": 1.0
     },
     {
       "id": 15,
+      "comentario": "En el protocolo de cierre (00:55), el ejecutivo informa: 'con prima única cargada en su crédito de consumo'. El medio de pago está especificado.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "evidencia": [
-        {
-          "t": "00:55",
-          "hablante": "AGENTE",
-          "cita": "con prima única cargada en su crédito de consumo"
-        }
-      ],
-      "comentario": "El ejecutivo informa el medio de pago (prima cargada en crédito de consumo) en el protocolo de cierre."
+      "confianza": 1.0
     },
     {
       "id": 16,
-      "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "El cliente expresó intención de renuncia. El ejecutivo no realizó retención sin solicitud previa."
+      "comentario": "El cliente expresó intención de renuncia. El ejecutivo no realizó retención sin intención del cliente.",
+      "estado": "cumple",
+      "confianza": 1.0
     },
     {
       "id": 17,
+      "comentario": "El seguro INC-TMP-0010 es no retenible (retenible: no). El ejecutivo no intentó retenerlo. No aplica.",
       "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "El seguro es NO RETENIBLE según metadatos. No aplica este motivo."
+      "confianza": 1.0
     },
     {
       "id": 18,
+      "comentario": "La tipificación registrada es 'Desconoce contratación del seguro'. El cliente dice: 'yo no me acuerdo de haberlo contratado' (00:35). El motivo tipificado coincide con lo expresado en la grabación.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "La tipificación registrada (Desconoce contratación del seguro) coincide con lo expresado por el cliente en la grabación: 'yo no me acuerdo de haberlo contratado'."
+      "confianza": 1.0
     },
     {
       "id": 19,
+      "comentario": "La tipificación registra RENUNCIA. La grabación muestra RENUNCIA (cliente solicita dar de baja, ejecutivo procesa la renuncia). Coinciden.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "La tipificación registrada es RENUNCIA y la grabación confirma RENUNCIA. No hay discrepancia."
+      "confianza": 1.0
     },
     {
       "id": 20,
+      "comentario": "La tipificación registra renuncia de INC-TMP-0010. En la grabación, el cliente menciona 'un seguro de incapacidad temporal en el crédito' (00:35) y el ejecutivo confirma 'Seguro de Incapacidad Temporal asociado a su crédito de consumo' (00:44). El seguro mencionado coincide con el tipificado.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El seguro tipificado (INC-TMP-0010) fue mencionado por el cliente en la llamada."
+      "confianza": 1.0
     },
     {
       "id": 21,
+      "comentario": "La tipificación registra renuncia de INC-TMP-0010. No hay evidencia de que corresponda a otro seguro. El cliente menciona un único seguro.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "La renuncia tipificada corresponde al seguro mencionado (Incapacidad Temporal). No hay confusión con otro seguro."
+      "confianza": 1.0
     },
     {
       "id": 22,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "No hay tipificación de retención. No aplica este motivo."
+      "comentario": "No hay retención tipificada. No aplica.",
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 23,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "No hay tipificación de retención. No aplica este motivo."
+      "comentario": "No hay retención tipificada. No aplica.",
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 24,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "La tipificación registrada es RENUNCIA y la grabación confirma RENUNCIA. No hay discrepancia inversa."
+      "comentario": "No hay retención tipificada. No aplica.",
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 25,
+      "comentario": "El cliente solicitó la renuncia de un único seguro (INC-TMP-0010). La tipificación registra una única gestión (RENUNCIA de INC-TMP-0010). Todas las gestiones solicitadas están tipificadas.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Se tipifica la única gestión solicitada: renuncia del seguro INC-TMP-0010."
+      "confianza": 1.0
     },
     {
       "id": 26,
+      "comentario": "El cliente solicitó dar de baja el seguro de incapacidad temporal. El ejecutivo procesó la renuncia. Se impactó la gestión solicitada.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El cliente solicitó dar de baja el seguro de incapacidad temporal. El ejecutivo procesa esa gestión."
+      "confianza": 1.0
     },
     {
       "id": 27,
+      "comentario": "No hay evidencia de que el ejecutivo haya entregado información a un tercero. La llamada es entre el ejecutivo y la cliente (Gloria Fernández). No aplica.",
       "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "No hay tercero en la llamada. El cliente es el titular y se comunica directamente."
+      "confianza": 1.0
     },
     {
       "id": 28,
+      "comentario": "El cliente no preguntó sobre devolución de primas. El ejecutivo no negó devolución. Los metadatos indican 'devolucion_prima: sin dato', por lo que no hay información para evaluar si corresponde o no. No hay conducta observable del ejecutivo sobre este punto.",
       "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "El cliente no consulta sobre devolución de primas. No aplica este motivo."
+      "confianza": 1.0
     },
     {
       "id": 29,
+      "comentario": "El ejecutivo realiza un protocolo de cierre (00:55): 'Quedó ingresada la renuncia de su seguro de Incapacidad Temporal, póliza número INC-TMP-0010, con prima única cargada en su crédito de consumo. ¿Está de acuerdo?'. Incluye resumen de gestión, número de póliza y medio de pago.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "evidencia": [
-        {
-          "t": "00:55",
-          "hablante": "AGENTE",
-          "cita": "Quedó ingresada la renuncia de su seguro de Incapacidad Temporal, póliza número INC-TMP-0010, con prima única cargada en su crédito de consumo. ¿Está de acuerdo?"
-        }
-      ],
-      "comentario": "El ejecutivo realiza protocolo de cierre: resume la gestión, menciona número de póliza y medio de pago, y solicita confirmación."
+      "confianza": 1.0
     },
     {
       "id": 30,
+      "comentario": "El cliente responde 'Sí, de acuerdo' (01:06) al cierre. Esta es una aceptación clara. No hay respuesta no permitida que requiera reiteración del protocolo.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El cliente responde 'Sí, de acuerdo' a la pregunta de confirmación del protocolo. No hay respuesta ambigua que requiera reiteración."
+      "confianza": 1.0
     },
     {
       "id": 31,
+      "comentario": "El ejecutivo valida RUT ('Diez millones ciento mil cien guion cero'), nombre completo ('Gloria Inés Fernández Soto') y fecha de nacimiento ('treinta de septiembre del sesenta y cinco') en los timestamps 00:09 a 00:21. Luego confirma 'Gracias, quedó validada' (00:32).",
       "estado": "cumple",
-      "confianza": 1.0,
-      "evidencia": [
-        {
-          "t": "00:09",
-          "hablante": "AGENTE",
-          "cita": "¿me indica su RUT, nombre completo y fecha de nacimiento?"
-        },
-        {
-          "t": "00:14",
-          "hablante": "CLIENTE",
-          "cita": "Diez millones cien mil cien guion cero. Gloria Inés Fernández Soto, treinta de septiembre del sesenta y cinco."
-        },
-        {
-          "t": "00:32",
-          "hablante": "AGENTE",
-          "cita": "Gracias, quedó validada."
-        }
-      ],
-      "comentario": "El ejecutivo valida RUT (10.100.100-0), nombre completo (Gloria Inés Fernández Soto) y fecha de nacimiento (30/09/1965)."
+      "confianza": 1.0
     },
     {
       "id": 32,
+      "comentario": "El ejecutivo pregunta '¿Está de acuerdo?' (00:55) al cierre. Esta es una pregunta neutra para confirmar la gestión, no una pregunta que predisponga o condicione la respuesta a un 'sí' de forma manipuladora. No es el motivo 32.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El ejecutivo no predispone al cliente con preguntas cerradas que condicionen la respuesta a un 'sí'. La pregunta de cierre es abierta: '¿Está de acuerdo?'"
+      "confianza": 0.95
     },
     {
       "id": 33,
+      "comentario": "El ejecutivo valida email ('gloria punto fernandez arroba correo ejemplo punto cl') y teléfono ('nueve uno uno uno dos dos dos tres tres') en los timestamps 00:22 a 00:31. Luego confirma 'Gracias, quedó validada' (00:32).",
       "estado": "cumple",
-      "confianza": 1.0,
-      "evidencia": [
-        {
-          "t": "00:22",
-          "hablante": "AGENTE",
-          "cita": "¿Y su correo y teléfono?"
-        },
-        {
-          "t": "00:25",
-          "hablante": "CLIENTE",
-          "cita": "gloria punto fernandez arroba correo ejemplo punto cl, nueve uno uno uno dos dos dos tres tres."
-        }
-      ],
-      "comentario": "El ejecutivo valida email (gloria.fernandez@correoejemplo.cl) y teléfono (911122233)."
+      "confianza": 1.0
     }
   ]
 }

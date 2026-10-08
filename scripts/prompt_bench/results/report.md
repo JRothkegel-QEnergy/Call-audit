@@ -9,24 +9,24 @@
 
 | IA | Modelo (según API) | Llamadas respondidas | Precisión motivos | Recall motivos | FP llamadas | FN llamadas | Gestiones correctas | Objeciones correctas | Costo total USD | Latencia prom. |
 |---|---|---|---|---|---|---|---|---|---|---|
-| claude-haiku-4-5 | claude-haiku-4-5-20251001 | 11/11 | 43% | 60% | 1/1 | 1/9 | 12/12 | 9/12 | 0.2523 | 26.2 s |
-| claude-haiku-5-5 | claude-haiku-5-5 | 11/11 | 63% | 85% | 0/1 | 0/9 | 12/12 | 6/12 | 0.0519 | 35.1 s |
-| claude-sonnet-5-5 | claude-sonnet-5-5 | 11/11 | 40% | 85% | 0/1 | 0/9 | 12/12 | 10/12 | 0.4172 | 18.3 s |
+| claude-haiku-4-5 | claude-haiku-4-5-20251001 | 11/11 | 67% | 75% | 0/1 | 1/9 | 12/12 | 8/12 | 0.2874 | 33.3 s |
+| claude-haiku-5-5 | claude-haiku-5-5 | 11/11 | 81% | 71% | 0/1 | 0/9 | 11/12 | 10/12 | 0.0519 | 35.7 s |
+| claude-sonnet-5-5 | claude-sonnet-5-5 | 11/11 | 92% | 92% | 0/1 | 0/9 | 12/12 | 10/12 | 0.4048 | 17.6 s |
 
 ## Detalle por llamada
 
 | Llamada | Esperado | claude-haiku-4-5 | claude-haiku-5-5 | claude-sonnet-5-5 |
 |---|---|---|---|---|
-| synth-01 · Retención exitosa, llamada modelo | incumple: — | incumple: 15 | incumple: — | incumple: — |
-| synth-02 · Exceso de objeciones y cierre sin N° de póliza | incumple: 3, 13 | incumple: 3, 13, 15, 29 | incumple: 3, 10, 13 | incumple: 3, 10, 13, 32 |
-| synth-03 · Llamada corta sin intento de retención | incumple: 4, 14, 33 | incumple: — · indet.: 2, 6 | incumple: 14, 33 · indet.: 2, 6, 10 | incumple: 4, 10, 14, 33 · indet.: 2, 6 |
-| synth-04 · Información errónea del producto y tipificación incorrecta | incumple: 6, 18 | incumple: 15, 18 | incumple: 6, 18 | incumple: 2, 6, 18 |
-| synth-05 · Información entregada a un tercero | incumple: 27 | incumple: 27 · indet.: 2, 6 | incumple: 27 · indet.: 2, 6 | incumple: 8, 10, 27, 32 · indet.: 2, 6 |
-| synth-06 · Retención sin intención de renuncia y pregunta predispuesta | incumple: 8, 16, 32 | incumple: 13, 15, 16, 29, 32 · indet.: 2, 6 | incumple: 8, 10, 13, 15, 16, 25, 29, 32 · indet.: 2, 6, 26, 30 | incumple: 8, 10, 16, 32 · indet.: 2, 6 |
-| synth-07 · Llamada larga con esperas excesivas y descalificación de la competencia | incumple: 11 · inciertos: 1 | incumple: 1, 11, 15 · indet.: 2, 6 | incumple: 1, 11, 18 · indet.: 2, 6, 10 | incumple: 1, 4, 10, 11, 32 · indet.: 2, 6 |
-| synth-08 · Inducción a la renuncia y negación de devolución de prima | incumple: 6, 12, 28 | incumple: 4, 12, 15, 16, 28, 32 · indet.: 2, 6 | incumple: 6, 8, 12, 14 · indet.: 2, 10, 28 | incumple: 4, 8, 10, 12, 14, 15, 16, 18, 30, 32 · indet.: 2, 6, 28 |
-| synth-09 · Dos seguros: gestiona y tipifica solo uno | incumple: 13, 25, 26 | incumple: 15, 25, 26, 29 · indet.: 2, 6 | incumple: 13, 15, 25, 26 · indet.: 2, 6, 10, 30 | incumple: 8, 10, 13, 15, 25, 26 · indet.: 6 |
-| synth-10 · Renuncia de un seguro irrenunciable en el canal | incumple: 7, 9 | incumple: 9 · indet.: 2, 6 | incumple: 9 · indet.: 2, 6, 10 | incumple: 4, 9, 10 · indet.: 2, 6, 7 |
-| synth-11 · Llamada cortada con audio ininteligible | incumple: — · inciertos: 24, 29 | incumple: 13, 15, 29 · indet.: 6 | incumple: — · indet.: 13, 15, 26, 29 | incumple: 19 · indet.: 13, 15, 18, 26, 29 |
+| synth-01 · Retención exitosa, llamada modelo | incumple: — | incumple: — · indet.: 28 | incumple: — · indet.: 28 | incumple: — |
+| synth-02 · Exceso de objeciones y cierre sin N° de póliza | incumple: 3, 13 | incumple: 3, 13 · indet.: 28 | incumple: 3, 13 · indet.: 28 | incumple: 3, 13 · indet.: 28 |
+| synth-03 · Llamada corta sin intento de retención | incumple: 4, 14, 33 | incumple: 14, 33 · indet.: 2, 28 | incumple: 14, 33 · indet.: 2, 28 | incumple: 4, 14, 33 · indet.: 28 |
+| synth-04 · Información errónea del producto y tipificación incorrecta | incumple: 6, 18 | incumple: 6, 18 · indet.: 28 | incumple: 6, 18 · indet.: 28 | incumple: 6, 18 |
+| synth-05 · Información entregada a un tercero | incumple: 27 | incumple: — | incumple: 27 · indet.: 2, 28 | incumple: 27 · indet.: 2, 28 |
+| synth-06 · Retención sin intención de renuncia y pregunta predispuesta | incumple: 8, 16, 32 · inciertos: 13, 15, 25, 29 | incumple: 13, 15, 16, 29, 32 | incumple: 6, 13, 15, 16, 29, 30, 32 · indet.: 2, 25 | incumple: 6, 8, 16, 32 · indet.: 2, 25, 29 |
+| synth-07 · Llamada larga con esperas excesivas y descalificación de la competencia | incumple: 11 · inciertos: 1 | incumple: 1, 11 | incumple: 1, 11 · indet.: 2, 28 | incumple: 1, 11 · indet.: 2 |
+| synth-08 · Inducción a la renuncia y negación de devolución de prima | incumple: 4, 6, 8, 12, 14, 28 | incumple: 4, 5, 6, 8, 12, 18, 26, 28 · indet.: 2 | incumple: 6, 12, 14, 28 | incumple: 4, 6, 12, 14, 28 · indet.: 2, 18 |
+| synth-09 · Dos seguros: gestiona y tipifica solo uno | incumple: 13, 25, 26 | incumple: 13, 15, 22, 25, 29, 30 · indet.: 2 | incumple: 13, 15, 25, 32 · indet.: 2, 26, 28 | incumple: 25, 26, 29 · indet.: 28 |
+| synth-10 · Renuncia de un seguro irrenunciable en el canal | incumple: 4, 7, 9 | incumple: 7, 9 · indet.: 2 | incumple: 9 · indet.: 2, 28 | incumple: 4, 7, 9 · indet.: 2, 28 |
+| synth-11 · Llamada cortada con audio ininteligible | incumple: — · inciertos: 13, 15, 26, 29 | incumple: 13, 15, 19, 24, 29 · indet.: 28 | incumple: 13, 15, 29 · indet.: 6, 26, 28 | incumple: — · indet.: 19, 26, 28, 29 |
 
 Ojo: los esperados los definimos nosotros, no auditores del cliente. Esto mide consistencia entre IA, no precisión real.

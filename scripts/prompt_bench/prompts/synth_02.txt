@@ -7,7 +7,7 @@ esperas_seg: []
 umbral_espera_seg: 120
 
 ## Seguros del cliente consultados en la llamada
-- nombre: Seguro de Desempleo - Créditos de consumo | n_poliza: DES-CONS-0002 | retenible: si | renunciable_en_canal: si
+- nombre: Seguro de Desempleo - Créditos de consumo | n_poliza: DES-CONS-0002 | retenible: si | renunciable_en_canal: si | devolucion_prima: sin dato
 
 ## Tipificación registrada por el ejecutivo
 - seguro: DES-CONS-0002 | gestion: RENUNCIA | motivo: Problemas Económicos

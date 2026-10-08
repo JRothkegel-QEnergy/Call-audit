@@ -19,7 +19,8 @@ OUT_DIR = Path(__file__).resolve().parent / "prompts"
 
 # Umbral de ejemplo: el real es TBD con el cliente (docs/client-open-questions.md).
 EXAMPLE_HOLD_THRESHOLD_SEC = 120
-MISSING_PRODUCT_SHEET = "No disponible (ficha pendiente con el cliente). Evalúa los motivos 2 y 6 como 'indeterminado' si dependen de la ficha."
+MISSING_PRODUCT_SHEET = "No disponible (ficha pendiente con el cliente)."
+REFUND = {True: "corresponde", False: "no corresponde", None: "sin dato"}
 
 JSON_OUTPUT_INSTRUCTION = """
 ## Formato de respuesta (modo chat, sin herramientas)
@@ -54,7 +55,7 @@ def render_user_message(call: dict, desempleo_sheet: str) -> str:
     yes_no = lambda b: "si" if b else "no"  # noqa: E731
     policies = "\n".join(
         f"- nombre: {p['name']} | n_poliza: {p['policy_number']} | retenible: {yes_no(p['retainable'])} "
-        f"| renunciable_en_canal: {yes_no(p['cancellable_in_channel'])}"
+        f"| renunciable_en_canal: {yes_no(p['cancellable_in_channel'])} | devolucion_prima: {REFUND[p.get('premium_refund')]}"
         for p in meta["policies"]
     )
     typification = "\n".join(

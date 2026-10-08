@@ -6,14 +6,15 @@
   "metadata": {
     "date": "2026-09-01",
     "agent_id": "EJ-0101",
-    "duration_sec": 179,
+    "duration_sec": 180,
     "holds_sec": [],
     "policies": [
       {
         "name": "Seguro de Desempleo - Créditos de consumo",
         "policy_number": "DES-CONS-0001",
         "retainable": true,
-        "cancellable_in_channel": true
+        "cancellable_in_channel": true,
+        "premium_refund": null
       }
     ],
     "typification": [
@@ -160,25 +161,25 @@
     {
       "channel": "agent",
       "start_ms": 148361,
-      "end_ms": 168361,
-      "text": "Perfecto. Le resumo la gestión: hoy mantenemos vigente su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0001. La prima fue pagada en forma única junto con su crédito de consumo, así que no tiene cargos mensuales en su cuenta. No se realiza ninguna renuncia. ¿Está conforme con la gestión realizada?"
+      "end_ms": 169515,
+      "text": "Perfecto. Le resumo la gestión: hoy mantenemos vigente su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0001. El medio de pago es el cargo único que se hizo en su crédito de consumo, así que no tiene cargos mensuales en su cuenta. No se realiza ninguna renuncia. ¿Está conforme con la gestión realizada?"
     },
     {
       "channel": "customer",
-      "start_ms": 169261,
-      "end_ms": 170461,
+      "start_ms": 170415,
+      "end_ms": 171615,
       "text": "Sí, conforme."
     },
     {
       "channel": "agent",
-      "start_ms": 170961,
-      "end_ms": 175576,
+      "start_ms": 172115,
+      "end_ms": 176730,
       "text": "Muchas gracias por su tiempo, don Pedro. Que tenga muy buena tarde."
     },
     {
       "channel": "customer",
-      "start_ms": 176776,
-      "end_ms": 177976,
+      "start_ms": 177930,
+      "end_ms": 179130,
       "text": "Gracias, igualmente. Chao."
     }
   ],

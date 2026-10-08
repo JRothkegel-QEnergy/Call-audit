@@ -26,8 +26,8 @@ El cliente quiere renunciar a dos seguros (desempleo e Incendio Hogar). El ejecu
 [02:18] CLIENTE: Ya, dale.
 [02:20] AGENTE : Mientras carga el sistema, don Felipe, ¿quiere que le actualice su dirección o algún dato de contacto?
 [02:28] CLIENTE: No, está todo bien, gracias.
-[02:31] AGENTE : Perfecto. Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009, cuya prima fue pagada en forma única con su crédito. ¿Está de acuerdo con la gestión?
-[02:45] CLIENTE: Sí. ¿Y el de incendio quedó listo también?
-[02:49] AGENTE : Sí, don Felipe, quedó todo listo.
-[02:52] CLIENTE: Ya, perfecto. Muchas gracias.
-[02:54] AGENTE : A usted, que le vaya muy bien con su nuevo trabajo.
+[02:31] AGENTE : Perfecto. Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009, cuyo medio de pago fue el cargo único en su crédito de consumo. ¿Está de acuerdo con la gestión?
+[02:46] CLIENTE: Sí. ¿Y el de incendio quedó listo también?
+[02:50] AGENTE : Sí, don Felipe, quedó todo listo.
+[02:53] CLIENTE: Ya, perfecto. Muchas gracias.
+[02:55] AGENTE : A usted, que le vaya muy bien con su nuevo trabajo.

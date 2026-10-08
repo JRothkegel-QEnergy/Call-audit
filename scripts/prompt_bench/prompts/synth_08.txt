@@ -7,13 +7,13 @@ esperas_seg: []
 umbral_espera_seg: 120
 
 ## Seguros del cliente consultados en la llamada
-- nombre: Sale Seguro | n_poliza: SALE-0008 | retenible: si | renunciable_en_canal: si
+- nombre: Sale Seguro | n_poliza: SALE-0008 | retenible: si | renunciable_en_canal: si | devolucion_prima: corresponde
 
 ## Tipificación registrada por el ejecutivo
 - seguro: SALE-0008 | gestion: RENUNCIA | motivo: No informado
 
 ## Ficha de producto (del seguro gestionado)
-Sale Seguro: No disponible (ficha pendiente con el cliente). Evalúa los motivos 2 y 6 como 'indeterminado' si dependen de la ficha.
+Sale Seguro: No disponible (ficha pendiente con el cliente).
 
 ## Transcripción (canal separado, timestamps mm:ss)
 [00:01] AGENTE: BancoEstado Corredores de Seguros, buenas tardes, le atiende Sebastián Lagos.

@@ -6,14 +6,15 @@
   "metadata": {
     "date": "2026-09-04",
     "agent_id": "EJ-0104",
-    "duration_sec": 114,
+    "duration_sec": 115,
     "holds_sec": [],
     "policies": [
       {
         "name": "Seguro de Desempleo - Créditos de consumo",
         "policy_number": "DES-CONS-0004",
         "retainable": true,
-        "cancellable_in_channel": true
+        "cancellable_in_channel": true,
+        "premium_refund": null
       }
     ],
     "typification": [
@@ -101,60 +102,60 @@
       "channel": "agent",
       "start_ms": 64461,
       "end_ms": 71769,
-      "text": "Le cuento que este seguro le sirve justamente si pierde la pega: le paga tres cuotas de su crédito."
+      "text": "Le cuento que este seguro le sirve justamente si pierde la pega, porque le paga cuotas de su crédito."
     },
     {
       "channel": "customer",
       "start_ms": 72669,
-      "end_ms": 74976,
-      "text": "¿Solo tres? Pucha, no es tanto."
+      "end_ms": 74592,
+      "text": "¿Y cuántas cuotas me paga?"
     },
     {
       "channel": "agent",
-      "start_ms": 75476,
+      "start_ms": 75092,
       "end_ms": 79323,
-      "text": "Sí, tres cuotas, y se pagan apenas presenta el finiquito."
+      "text": "Le paga tres cuotas, y se pagan apenas presenta el finiquito."
     },
     {
       "channel": "customer",
       "start_ms": 80523,
-      "end_ms": 82061,
-      "text": "No, igual prefiero sacarlo."
+      "end_ms": 83215,
+      "text": "Pucha, no es tanto. Igual prefiero sacarlo."
     },
     {
       "channel": "agent",
-      "start_ms": 82761,
-      "end_ms": 87376,
+      "start_ms": 83915,
+      "end_ms": 88530,
       "text": "Piense que la prima ya está pagada, no es un cobro mensual."
     },
     {
       "channel": "customer",
-      "start_ms": 88376,
-      "end_ms": 92223,
+      "start_ms": 89530,
+      "end_ms": 93376,
       "text": "Ya, pero lo quiero sacar igual. Quiero tener menos cosas."
     },
     {
       "channel": "agent",
-      "start_ms": 93023,
-      "end_ms": 95715,
+      "start_ms": 94176,
+      "end_ms": 96869,
       "text": "Bueno, señora Andrea, procedo con la renuncia."
     },
     {
       "channel": "agent",
-      "start_ms": 96315,
-      "end_ms": 107469,
+      "start_ms": 97469,
+      "end_ms": 108623,
       "text": "Le resumo: se ingresó la renuncia de su seguro de desempleo, póliza número DES-CONS-0004, asociado a su crédito de consumo con cargo único en el crédito. ¿Está de acuerdo?"
     },
     {
       "channel": "customer",
-      "start_ms": 108369,
-      "end_ms": 109569,
+      "start_ms": 109523,
+      "end_ms": 110723,
       "text": "Sí, de acuerdo."
     },
     {
       "channel": "agent",
-      "start_ms": 110069,
-      "end_ms": 112376,
+      "start_ms": 111223,
+      "end_ms": 113530,
       "text": "Muchas gracias, que tenga buena tarde."
     }
   ],

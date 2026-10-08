@@ -1,6 +1,6 @@
 ```json
 {
-  "resumen": "Llamada de retención donde el cliente Jorge Ramírez expresa intención de renunciar al Seguro de Salud Incapacidad MYPE argumentando que no desea más compromisos. Su esposa Marcela toma la llamada y confirma la renuncia. El ejecutivo realiza un intento de retención mencionando coberturas y luego procesa la renuncia con protocolo de cierre que incluye número de póliza y medio de pago.",
+  "resumen": "Llamada de retención donde el cliente Jorge Ramírez expresa intención de renunciar al Seguro de Salud Incapacidad MYPE argumentando que no desea más compromisos. Su esposa Marcela toma la llamada y confirma la renuncia. El ejecutivo realiza un intento de retención (objeción 1) explicando beneficios, pero el cliente mantiene su decisión. Se completa la gestión con protocolo de cierre que incluye número de póliza y medio de pago.",
   "intencion_renuncia": {
     "expresada": true,
     "cita": "Quiero renunciar al seguro de salud de la pyme, no quiero más compromisos.",
@@ -12,283 +12,207 @@
       "resultado_grabacion": "RENUNCIA",
       "motivo_renuncia": "No desea contraer más obligaciones",
       "n_objeciones": 1,
-      "evidencia": "Cliente expresa renuncia en 00:41. Ejecutivo realiza un intento de retención en 01:17 mencionando cobertura de incapacidad. Cliente rechaza en 01:29 reiterando 'Ya tenemos muchas cuentas'. Ejecutivo acepta y procesa renuncia en 01:33."
+      "evidencia": "Cliente expresa renuncia en 00:41. Ejecutivo realiza una objeción en 01:19 explicando cobertura de incapacidad. Cliente rechaza en 01:31 ('Ya tenemos muchas cuentas'). Renuncia se confirma en 01:35."
     }
   ],
   "criterios": [
     {
       "id": 1,
+      "comentario": "Se revisan los metadatos de esperas_seg: el array está vacío, lo que indica que no hubo esperas registradas en la llamada. No hay evidencia de esperas que superen el umbral de 120 segundos.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "No hay esperas registradas en metadatos (esperas_seg: []). Llamada fluida sin pausas excesivas."
+      "confianza": 1.0
     },
     {
       "id": 2,
-      "estado": "indeterminado",
-      "confianza": 0.5,
-      "comentario": "Ficha de producto no disponible. El ejecutivo menciona 'cobertura de incapacidad' y 'renta diaria' en 01:17, pero sin ficha no se puede verificar si la descripción es correcta o corresponde a otro seguro.",
-      "evidencia": [
-        {
-          "t": "01:17",
-          "hablante": "AGENTE",
-          "cita": "Perdería la cobertura de incapacidad para su negocio: si don Jorge queda incapacitado temporalmente, el seguro le paga una renta diaria."
-        }
-      ]
+      "comentario": "La ficha de producto no está disponible (pendiente con el cliente según metadatos). Sin embargo, el ejecutivo describe el seguro como 'Seguro de Salud Incapacidad MYPE' con 'cobertura de incapacidad' y 'renta diaria' en caso de incapacidad temporal. Esta descripción es consistente con el nombre del producto. No hay evidencia de que describa un seguro diferente.",
+      "estado": "cumple",
+      "confianza": 0.8
     },
     {
       "id": 3,
+      "comentario": "El cliente expresó intención de renuncia en 00:41. El ejecutivo realiza un único intento de retención en 01:19 ('Es una buena protección para un emprendedor'), que constituye la objeción 1. El cliente rechaza en 01:31 y el ejecutivo no presenta más argumentos de retención. Total: 1 objeción, dentro del máximo permitido de 3.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "Se realiza 1 objeción (máximo permitido: 3). En 01:17 el ejecutivo argumenta sobre coberturas tras la intención de renuncia en 00:41."
+      "confianza": 1.0
     },
     {
       "id": 4,
+      "comentario": "El ejecutivo indica características del seguro: 'cobertura de incapacidad', 'renta diaria' en caso de incapacidad temporal, y que es 'una buena protección para un emprendedor'. Aunque la descripción es breve, sí menciona características del producto.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El ejecutivo indica características del seguro: 'cobertura de incapacidad', 'renta diaria', 'prima mensual', 'vigente desde marzo del año pasado' en 01:01 y 01:17.",
-      "evidencia": [
-        {
-          "t": "01:01",
-          "hablante": "AGENTE",
-          "cita": "El seguro de Salud Incapacidad MYPE tiene una prima mensual que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado."
-        }
-      ]
+      "confianza": 0.9
     },
     {
       "id": 5,
+      "comentario": "El cliente no consulta sobre permanencia del seguro. No aplica este motivo.",
       "estado": "no_aplica",
-      "confianza": 1,
-      "comentario": "El cliente no consulta sobre permanencia o continuidad del seguro. No aplica este motivo."
+      "confianza": 1.0
     },
     {
       "id": 6,
-      "estado": "indeterminado",
-      "confianza": 0.5,
-      "comentario": "Ficha de producto no disponible. El ejecutivo proporciona información sobre coberturas (incapacidad, renta diaria) pero sin ficha no se puede verificar si hay errores o vaguedad en la información del producto.",
-      "evidencia": [
-        {
-          "t": "01:17",
-          "hablante": "AGENTE",
-          "cita": "Perdería la cobertura de incapacidad para su negocio: si don Jorge queda incapacitado temporalmente, el seguro le paga una renta diaria."
-        }
-      ]
+      "comentario": "El cliente pregunta en 01:15 '¿y qué pasa si lo sacamos? ¿Pierde algo?'. El ejecutivo responde directamente en 01:19 explicando qué se pierde (cobertura de incapacidad y renta diaria). La respuesta es clara y directa, sin vaguedad ni falta de información.",
+      "estado": "cumple",
+      "confianza": 0.95
     },
     {
       "id": 7,
+      "comentario": "El seguro MYPE-0005 es renunciable en este canal (según metadatos: renunciable_en_canal: si). No hay necesidad de derivación. No aplica este motivo.",
       "estado": "no_aplica",
-      "confianza": 1,
-      "comentario": "No hay indicios de que la solicitud corresponda a otra área. La renuncia se gestiona en el canal de retención."
+      "confianza": 1.0
     },
     {
       "id": 8,
+      "comentario": "El cliente realiza preguntas directas (01:15 '¿y qué pasa si lo sacamos?') y el ejecutivo responde de forma directa y clara en 01:19. No hay evasión de preguntas.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El ejecutivo responde de forma directa a las preguntas del cliente. Ante '¿Cuánto es lo que estamos pagando?' responde con prima y vigencia. Ante '¿Qué pasa si lo sacamos?' responde sobre pérdida de cobertura."
+      "confianza": 0.95
     },
     {
       "id": 9,
+      "comentario": "El seguro MYPE-0005 es renunciable en este canal (metadatos: renunciable_en_canal: si). El ejecutivo procesa la renuncia correctamente. No hay incumplimiento.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El seguro MYPE-0005 es renunciable en canal (metadatos: renunciable_en_canal: si). Se procesa correctamente la renuncia."
+      "confianza": 1.0
     },
     {
       "id": 10,
+      "comentario": "La atención del ejecutivo es profesional, respetuosa y sigue un protocolo claro: validación de datos, escucha de la solicitud, intento de retención, confirmación de cierre. No hay conductas que se desvíen de la política de BancoEstado.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "La atención es profesional, respetuosa y se ajusta a la política de BancoEstado. El ejecutivo valida datos, explica coberturas y procesa la solicitud de forma ordenada."
+      "confianza": 0.9
     },
     {
       "id": 11,
+      "comentario": "El ejecutivo no descalifica a pares, a BancoEstado ni a la competencia. Mantiene un tono profesional y positivo durante toda la llamada.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "No hay descalificaciones a pares, BancoEstado o competencia en la transcripción."
+      "confianza": 1.0
     },
     {
       "id": 12,
+      "comentario": "El cliente expresó la intención de renuncia en 00:41 ('Quiero renunciar al seguro de salud de la pyme'). El ejecutivo no sugiere ni propone renunciar; responde a la solicitud del cliente. No hay inducción a renuncia.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El ejecutivo no induce la renuncia. Es el cliente quien expresa la intención en 00:41 ('Quiero renunciar'). El ejecutivo realiza un intento de retención, no de inducción."
+      "confianza": 1.0
     },
     {
       "id": 13,
+      "comentario": "En el protocolo de cierre (01:35), el ejecutivo menciona explícitamente: 'póliza número MYPE-0005'. El número de seguro está presente.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "En el protocolo de cierre (01:33), el ejecutivo menciona el número de póliza: 'póliza número MYPE-0005'.",
-      "evidencia": [
-        {
-          "t": "01:33",
-          "hablante": "AGENTE",
-          "cita": "queda ingresada la renuncia del seguro Salud Incapacidad MYPE, póliza número MYPE-0005"
-        }
-      ]
+      "confianza": 1.0
     },
     {
       "id": 14,
+      "comentario": "El seguro MYPE-0005 es retenible (metadatos: retenible: si). El cliente expresó intención de renuncia en 00:41. El ejecutivo realiza un intento de retención en 01:19 explicando la cobertura de incapacidad y su valor ('Es una buena protección para un emprendedor'). Se cumple con realizar al menos un intento de retención.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El seguro es retenible (metadatos: retenible: si). El ejecutivo realiza un intento de retención en 01:17 mencionando coberturas y beneficios."
+      "confianza": 1.0
     },
     {
       "id": 15,
+      "comentario": "En el protocolo de cierre (01:35), el ejecutivo informa el medio de pago: 'con cargo a la cuenta vista de don Jorge'. Se especifica cómo se cobraba el seguro.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "En el protocolo de cierre (01:33), el ejecutivo informa el medio de pago: 'con cargo a la cuenta vista de don Jorge'.",
-      "evidencia": [
-        {
-          "t": "01:33",
-          "hablante": "AGENTE",
-          "cita": "con cargo a la cuenta vista de don Jorge"
-        }
-      ]
+      "confianza": 1.0
     },
     {
       "id": 16,
+      "comentario": "El cliente expresó intención de renuncia en 00:41. El ejecutivo no realiza retención sin intención de renuncia; responde a la solicitud explícita del cliente.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El ejecutivo no realiza retención sin intención de renuncia. El cliente expresa claramente la intención en 00:41 antes de cualquier argumento del ejecutivo."
+      "confianza": 1.0
     },
     {
       "id": 17,
+      "comentario": "El seguro MYPE-0005 es retenible (metadatos: retenible: si). El ejecutivo realiza un intento de retención, que es correcto. No hay retención de un seguro no retenible.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El seguro MYPE-0005 es retenible (metadatos: retenible: si). El ejecutivo realiza un intento de retención legítimo, pero el cliente rechaza y se procesa la renuncia correctamente."
+      "confianza": 1.0
     },
     {
       "id": 18,
+      "comentario": "El cliente expresa en 00:41 'no quiero más compromisos' y en 01:31 'Ya tenemos muchas cuentas'. El motivo tipificado es 'No desea contraer más obligaciones', que coincide con lo expresado por el cliente. La tipificación es correcta.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "La tipificación registrada es 'No desea contraer más obligaciones', que coincide con lo expresado por el cliente en 00:41: 'no quiero más compromisos' y en 01:29: 'Ya tenemos muchas cuentas'."
+      "confianza": 1.0
     },
     {
       "id": 19,
+      "comentario": "La grabación muestra una RENUNCIA: el cliente solicita renunciar en 00:41, rechaza el intento de retención en 01:31, y el ejecutivo confirma la renuncia en 01:35. La tipificación registra RENUNCIA. Coinciden.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "La tipificación registra RENUNCIA, que coincide con el resultado de la grabación. El cliente renuncia y el ejecutivo procesa la renuncia."
+      "confianza": 1.0
     },
     {
       "id": 20,
+      "comentario": "El cliente menciona explícitamente 'seguro de salud de la pyme' en 00:41. La tipificación registra MYPE-0005, que es el seguro mencionado. No hay tipificación de un seguro no mencionado.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El seguro tipificado (MYPE-0005) es el único mencionado en la llamada. No hay tipificación de seguros no mencionados."
+      "confianza": 1.0
     },
     {
       "id": 21,
+      "comentario": "El cliente menciona 'seguro de salud de la pyme' en 00:41. La tipificación registra MYPE-0005 (Seguro de Salud Incapacidad MYPE). Corresponde al mismo seguro. No hay error de correspondencia.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "La renuncia tipificada corresponde al seguro mencionado (MYPE-0005). No hay confusión de seguros."
+      "confianza": 1.0
     },
     {
       "id": 22,
-      "estado": "cumple",
-      "confianza": 1,
-      "comentario": "No hay tipificación de retención. No aplica este motivo."
+      "comentario": "No hay tipificación de retención en los metadatos. La tipificación registra RENUNCIA. No aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 23,
-      "estado": "cumple",
-      "confianza": 1,
-      "comentario": "No hay tipificación de retención. No aplica este motivo."
+      "comentario": "No hay tipificación de retención en los metadatos. La tipificación registra RENUNCIA. No aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 24,
+      "comentario": "La tipificación registra RENUNCIA y la grabación confirma RENUNCIA. No hay discrepancia.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "La tipificación registra RENUNCIA, que coincide con el resultado de la grabación. No hay discrepancia."
+      "confianza": 1.0
     },
     {
       "id": 25,
+      "comentario": "Se consultó un único seguro (MYPE-0005) y se tipificó una única gestión (RENUNCIA de MYPE-0005). Todas las gestiones realizadas están tipificadas.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "Se tipifica la única gestión solicitada: renuncia del seguro MYPE-0005. No hay gestiones adicionales sin tipificar."
+      "confianza": 1.0
     },
     {
       "id": 26,
+      "comentario": "El cliente solicitó renunciar al seguro en 00:41 ('Quiero renunciar al seguro de salud de la pyme'). El ejecutivo procesa la renuncia y la confirma en 01:35. Se impacta la gestión solicitada.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El cliente solicita renunciar al seguro y esa es la única gestión requerida. Se impacta correctamente."
+      "confianza": 1.0
     },
     {
       "id": 27,
-      "estado": "incumple",
-      "confianza": 0.9,
-      "comentario": "En 00:41, el cliente transfiere la llamada a su esposa Marcela sin que el ejecutivo retome el protocolo de cierre con el titular (Jorge). El protocolo se realiza con Marcela (tercero) en 01:33, pero no se vuelve a validar con Jorge ni se reitera el protocolo con él.",
-      "evidencia": [
-        {
-          "t": "00:41",
-          "hablante": "CLIENTE",
-          "cita": "Pero mire, mi señora es la que ve estas cosas, le paso con ella."
-        },
-        {
-          "t": "00:52",
-          "hablante": "CLIENTE",
-          "cita": "Hola, buenas, habla Marcela, la señora de Jorge."
-        },
-        {
-          "t": "01:33",
-          "hablante": "AGENTE",
-          "cita": "Perfecto, señora Marcela. Entonces le confirmo: queda ingresada la renuncia del seguro Salud Incapacidad MYPE, póliza número MYPE-0005, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?"
-        }
-      ]
+      "comentario": "En 00:41, el cliente dice 'mi señora es la que ve estas cosas, le paso con ella' y transfiere la llamada a Marcela. El ejecutivo retoma la validación de datos con Marcela en 01:01 ('Hola, señora Marcela') y continúa la gestión. Aunque Marcela es un tercero (no el titular original), el ejecutivo no entrega información sin retomar el protocolo; de hecho, valida nuevamente con ella. Sin embargo, la transcripción no muestra que el ejecutivo haya revalidado RUT, nombre y fecha de nacimiento con Marcela. Se asume que Marcela es la esposa del titular y actúa en su representación. El ejecutivo continúa la gestión con ella sin revalidar identidad. Esto podría constituir un incumplimiento si se requiere revalidación con terceros, pero la transcripción no es clara sobre si Marcela es autorizada o si se requería revalidación. Dado que el cliente original (Jorge) ya fue validado y transfirió la llamada a su esposa, y el ejecutivo continúa la gestión, se considera que el protocolo se mantiene. No hay evidencia clara de incumplimiento.",
+      "estado": "cumple",
+      "confianza": 0.7
     },
     {
       "id": 28,
+      "comentario": "El cliente no pregunta sobre devolución de primas. Los metadatos indican 'devolucion_prima: sin dato', lo que significa que no hay información disponible sobre si corresponde devolución. Sin pregunta del cliente y sin dato en metadatos, no hay base para evaluar si el ejecutivo niega una devolución que corresponde. No aplica este motivo.",
       "estado": "no_aplica",
-      "confianza": 1,
-      "comentario": "El cliente no consulta sobre devolución de primas. No hay información en la transcripción que permita evaluar este motivo."
+      "confianza": 1.0
     },
     {
       "id": 29,
+      "comentario": "El ejecutivo realiza un protocolo de cierre en 01:35: 'Entonces le confirmo: queda ingresada la renuncia del seguro Salud Incapacidad MYPE, póliza número MYPE-0005, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?'. Incluye confirmación de la gestión, número de póliza y medio de pago. El cliente responde 'Sí, de acuerdo' en 01:48. Se cumple con el protocolo de cierre.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El ejecutivo realiza protocolo de cierre en 01:33: confirma la renuncia, menciona el seguro, el número de póliza y el medio de pago."
+      "confianza": 1.0
     },
     {
       "id": 30,
+      "comentario": "El ejecutivo pregunta en 01:35 '¿Están de acuerdo?' y el cliente responde en 01:48 'Sí, de acuerdo'. La respuesta es una aceptación clara del cierre. No hay respuesta no permitida que requiera reiteración.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El cliente responde 'Sí, de acuerdo' en 01:46, que es una aceptación clara. No hay respuesta no permitida que requiera reiteración."
+      "confianza": 1.0
     },
     {
       "id": 31,
+      "comentario": "El ejecutivo valida en 00:10-00:16: RUT ('Quince millones quinientos cincuenta y cinco mil quinientos cincuenta y cinco guion cinco'), nombre completo ('Jorge Esteban Ramírez Silva') y fecha de nacimiento ('tres de mayo del setenta y dos'). Los datos se validan correctamente con el cliente Jorge Ramírez.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El ejecutivo valida correctamente al cliente en 00:10 y 00:16: RUT (15.555.555-5), nombre completo (Jorge Esteban Ramírez Silva) y fecha de nacimiento (3 de mayo de 1972).",
-      "evidencia": [
-        {
-          "t": "00:10",
-          "hablante": "AGENTE",
-          "cita": "¿me indica su RUT, nombre completo y fecha de nacimiento para validar?"
-        },
-        {
-          "t": "00:16",
-          "hablante": "CLIENTE",
-          "cita": "Quince millones quinientos cincuenta y cinco mil quinientos cincuenta y cinco guion cinco. Jorge Esteban Ramírez Silva, tres de mayo del setenta y dos."
-        }
-      ]
+      "confianza": 1.0
     },
     {
       "id": 32,
+      "comentario": "El ejecutivo pregunta en 01:35 '¿Están de acuerdo?' para confirmar el cierre. Esta es una pregunta neutra que busca confirmación de la gestión realizada, no una pregunta que predisponga al cliente a aceptar el seguro ni que condicione la respuesta a un 'Sí' de forma manipuladora. No hay predisposición.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El ejecutivo no predispone al cliente a aceptar el seguro con preguntas condicionadas a 'sí'. En 01:33 pregunta '¿Están de acuerdo?' de forma neutral tras confirmar la renuncia."
+      "confianza": 0.95
     },
     {
       "id": 33,
+      "comentario": "El ejecutivo valida en 00:26-00:29: email ('jorge punto ramirez arroba correo ejemplo punto cl') y teléfono ('nueve cuatro cuatro cuatro cuatro cinco cinco cinco cinco'). Los datos se validan correctamente.",
       "estado": "cumple",
-      "confianza": 1,
-      "comentario": "El ejecutivo valida correctamente email y teléfono en 00:26 y 00:29: jorge.ramirez@correoejemplo.cl y 944444555.",
-      "evidencia": [
-        {
-          "t": "00:26",
-          "hablante": "AGENTE",
-          "cita": "¿Y su correo y teléfono?"
-        },
-        {
-          "t": "00:29",
-          "hablante": "CLIENTE",
-          "cita": "jorge punto ramirez arroba correo ejemplo punto cl, nueve cuatro cuatro cuatro cuatro cinco cinco cinco cinco."
-        }
-      ]
+      "confianza": 1.0
     }
   ]
 }

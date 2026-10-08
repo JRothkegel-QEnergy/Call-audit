@@ -1,6 +1,6 @@
 # synth-02 · Exceso de objeciones y cierre sin N° de póliza
 
-El cliente insiste en renunciar; el ejecutivo argumenta 4 veces tras sus negativas. Procesa la renuncia, pero en el cierre no menciona el número de seguro.
+El cliente insiste en renunciar; el ejecutivo da 5 argumentos de retención (1 tras la solicitud y 4 tras negativas). Procesa la renuncia, pero en el cierre no menciona el número de seguro.
 
 [00:01] AGENTE : Buenos días, mi nombre es Rodrigo Fuentes, de BancoEstado Corredores de Seguros. ¿Con quién hablo?
 [00:07] CLIENTE: Buenos días, con Carolina Paredes.

@@ -6,20 +6,22 @@
   "metadata": {
     "date": "2026-09-11",
     "agent_id": "EJ-0109",
-    "duration_sec": 180,
+    "duration_sec": 181,
     "holds_sec": [],
     "policies": [
       {
         "name": "Seguro de Desempleo - Créditos de consumo",
         "policy_number": "DES-CONS-0009",
         "retainable": true,
-        "cancellable_in_channel": true
+        "cancellable_in_channel": true,
+        "premium_refund": null
       },
       {
         "name": "Seguro Incendio Hogar",
         "policy_number": "INC-HOG-0009",
         "retainable": true,
-        "cancellable_in_channel": true
+        "cancellable_in_channel": true,
+        "premium_refund": null
       }
     ],
     "typification": [
@@ -178,31 +180,31 @@
     {
       "channel": "agent",
       "start_ms": 151130,
-      "end_ms": 164592,
-      "text": "Perfecto. Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009, cuya prima fue pagada en forma única con su crédito. ¿Está de acuerdo con la gestión?"
+      "end_ms": 165746,
+      "text": "Perfecto. Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009, cuyo medio de pago fue el cargo único en su crédito de consumo. ¿Está de acuerdo con la gestión?"
     },
     {
       "channel": "customer",
-      "start_ms": 165292,
-      "end_ms": 168369,
+      "start_ms": 166446,
+      "end_ms": 169523,
       "text": "Sí. ¿Y el de incendio quedó listo también?"
     },
     {
       "channel": "agent",
-      "start_ms": 169369,
-      "end_ms": 171676,
+      "start_ms": 170523,
+      "end_ms": 172830,
       "text": "Sí, don Felipe, quedó todo listo."
     },
     {
       "channel": "customer",
-      "start_ms": 172476,
-      "end_ms": 174015,
+      "start_ms": 173630,
+      "end_ms": 175169,
       "text": "Ya, perfecto. Muchas gracias."
     },
     {
       "channel": "agent",
-      "start_ms": 174615,
-      "end_ms": 178846,
+      "start_ms": 175769,
+      "end_ms": 179999,
       "text": "A usted, que le vaya muy bien con su nuevo trabajo."
     }
   ],

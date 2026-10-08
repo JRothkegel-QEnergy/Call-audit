@@ -13,7 +13,8 @@
         "name": "Sale Seguro",
         "policy_number": "SALE-0008",
         "retainable": true,
-        "cancellable_in_channel": true
+        "cancellable_in_channel": true,
+        "premium_refund": true
       }
     ],
     "typification": [
@@ -148,17 +149,29 @@
       {
         "criterion_id": 28,
         "status": "non_compliant",
-        "note": "Niega la devolución de prima; en este fixture se asume que corresponde (premium_refund_applies)."
+        "note": "Niega la devolución de prima y en los metadatos devolucion_prima = corresponde."
       },
       {
         "criterion_id": 6,
         "status": "non_compliant",
         "note": "No explica qué cubre el seguro ante la consulta directa."
+      },
+      {
+        "criterion_id": 4,
+        "status": "non_compliant",
+        "note": "No indica ninguna característica del seguro que se renuncia."
+      },
+      {
+        "criterion_id": 8,
+        "status": "non_compliant",
+        "note": "La clienta pregunta qué cubre y el ejecutivo no responde."
+      },
+      {
+        "criterion_id": 14,
+        "status": "non_compliant",
+        "note": "Seguro retenible renunciado sin ningún intento de retención."
       }
     ],
-    "notes": "La regla real de devolución de primas es TBD con el cliente; el supuesto vive solo en este fixture."
-  },
-  "fixture_assumptions": {
-    "premium_refund_applies": true
+    "notes": "Que corresponda devolución de prima es un supuesto del fixture (premium_refund=True); la regla real es TBD con el cliente."
   }
 }

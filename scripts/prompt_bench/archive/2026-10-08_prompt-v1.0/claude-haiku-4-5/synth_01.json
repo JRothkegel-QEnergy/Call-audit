@@ -1,0 +1,302 @@
+```json
+{
+  "resumen": "Cliente Pedro Soto llama para renunciar al Seguro de Desempleo - Créditos de consumo (DES-CONS-0001) por problemas económicos. El ejecutivo valida correctamente los datos, explica las coberturas del seguro, realiza un intento de retención informando que la permanencia la decide el cliente, y logra que el cliente mantenga el seguro. Se cierra con protocolo que incluye número de póliza pero no especifica medio de pago.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "quiero dar de baja el seguro de desempleo que tengo con el crédito de consumo. La verdad ando medio apretado con las lucas.",
+    "timestamp": "00:54"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "DES-CONS-0001",
+      "resultado_grabacion": "RETENCION",
+      "motivo_renuncia": "Problemas Económicos",
+      "n_objeciones": 1,
+      "evidencia": "Cliente expresa intención de renuncia por problemas económicos (00:54). Ejecutivo realiza 1 objeción/intento de retención (01:57-02:10) argumentando el beneficio del seguro en caso de desempleo. Cliente acepta mantener el seguro (02:21). Tipificación registrada coincide con grabación: RETENCION."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "No hay esperas registradas en metadatos (esperas_seg: []). Llamada fluida sin pausas excesivas."
+    },
+    {
+      "id": 2,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "evidencia": [
+        {
+          "t": "01:17-01:42",
+          "hablante": "AGENTE",
+          "cita": "Este seguro es de prima única, o sea, se pagó una sola vez por todo el período del crédito; no le genera un cobro mensual. Si queda desempleado por necesidades de la empresa o por mutuo acuerdo con indemnización, le paga hasta cinco cuotas de su crédito: dos de una vez contra el finiquito y tres más después de acreditar sesenta días de desempleo."
+        }
+      ],
+      "comentario": "Descripción coincide con ficha de producto: prima única, cobertura por desempleo (mutuo acuerdo/necesidades empresa), pago de hasta 5 cuotas (2 contra finiquito, 3 después de 60 días)."
+    },
+    {
+      "id": 3,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Se realiza 1 objeción/intento de retención (01:57-02:10), dentro del máximo permitido de 3."
+    },
+    {
+      "id": 4,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "evidencia": [
+        {
+          "t": "01:17-01:42",
+          "hablante": "AGENTE",
+          "cita": "Este seguro es de prima única... le paga hasta cinco cuotas de su crédito"
+        }
+      ],
+      "comentario": "Ejecutivo indica características del seguro: prima única, cobertura por desempleo, pago de cuotas."
+    },
+    {
+      "id": 5,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "evidencia": [
+        {
+          "t": "02:15",
+          "hablante": "AGENTE",
+          "cita": "La permanencia en el seguro la decide usted; puede renunciar cuando quiera."
+        }
+      ],
+      "comentario": "Ante consulta directa del cliente (02:10), ejecutivo informa correctamente que la permanencia la decide el cliente."
+    },
+    {
+      "id": 6,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Ejecutivo maneja correctamente la información del producto. Responde adecuadamente a la consulta del cliente sobre cobro mensual (01:47) y sobre rescate posterior (02:15)."
+    },
+    {
+      "id": 7,
+      "estado": "no_aplica",
+      "confianza": 1.0,
+      "comentario": "No corresponde derivación a otra área. La solicitud se gestiona completamente en el canal de retención."
+    },
+    {
+      "id": 8,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Ejecutivo responde de forma directa a todas las preguntas del cliente: sobre cobro mensual, sobre rescate posterior, sobre beneficios."
+    },
+    {
+      "id": 9,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Seguro es renunciable en canal (metadatos: renunciable_en_canal: si). No se incumple este criterio."
+    },
+    {
+      "id": 10,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Atención se ajusta a política de BancoEstado: validación de datos, explicación de producto, respeto a decisión del cliente, protocolo de cierre."
+    },
+    {
+      "id": 11,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "No hay descalificaciones a pares, BancoEstado o competencia en la transcripción."
+    },
+    {
+      "id": 12,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Ejecutivo no induce a la renuncia. El cliente expresa intención de renuncia primero (00:54), y ejecutivo realiza retención argumentando beneficios."
+    },
+    {
+      "id": 13,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "evidencia": [
+        {
+          "t": "02:28",
+          "hablante": "AGENTE",
+          "cita": "póliza número DES-CONS-0001"
+        }
+      ],
+      "comentario": "Ejecutivo menciona número de póliza en protocolo de cierre."
+    },
+    {
+      "id": 14,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "evidencia": [
+        {
+          "t": "01:57-02:10",
+          "hablante": "AGENTE",
+          "cita": "Considere que si su situación laboral se complica, son hasta cinco cuotas que no tendría que pagar usted. Justo cuando me cuenta que está apretado, es cuando más le sirve."
+        }
+      ],
+      "comentario": "Seguro es retenible (metadatos: retenible: si). Ejecutivo realiza intento de retención argumentando beneficios ante la intención de renuncia."
+    },
+    {
+      "id": 15,
+      "estado": "incumple",
+      "confianza": 0.95,
+      "evidencia": [
+        {
+          "t": "02:28-02:49",
+          "hablante": "AGENTE",
+          "cita": "Le resumo la gestión: hoy mantenemos vigente su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0001. La prima fue pagada en forma única junto con su crédito de consumo, así que no tiene cargos mensuales en su cuenta. No se realiza ninguna renuncia. ¿Está conforme con la gestión realizada?"
+        }
+      ],
+      "comentario": "En protocolo de cierre (02:28-02:49), ejecutivo no informa el medio de pago asociado al seguro. Menciona que la prima fue pagada en forma única, pero no especifica cómo se cobra o se asocia al crédito de consumo como medio de pago."
+    },
+    {
+      "id": 16,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Cliente expresa intención de renuncia (00:54) antes de que ejecutivo realice retención. No hay retención sin intención previa de renuncia."
+    },
+    {
+      "id": 17,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Seguro es retenible (metadatos: retenible: si). Retención es permitida."
+    },
+    {
+      "id": 18,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Tipificación registrada: motivo 'Problemas Económicos'. Cliente dice 'ando medio apretado con las lucas' (00:54), lo que corresponde a problemas económicos. Tipificación es correcta."
+    },
+    {
+      "id": 19,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Tipificación registrada: RETENCION. Resultado en grabación: RETENCION (cliente mantiene el seguro tras intento de retención). Coinciden."
+    },
+    {
+      "id": 20,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Motivo de renuncia tipificado corresponde a seguro mencionado (DES-CONS-0001). No hay tipificación de renuncia de seguro no mencionado."
+    },
+    {
+      "id": 21,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Motivo de renuncia tipificado corresponde al seguro gestionado (DES-CONS-0001). No hay confusión con otro seguro."
+    },
+    {
+      "id": 22,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Retención tipificada corresponde a seguro mencionado (DES-CONS-0001). No hay tipificación de retención de seguro no mencionado."
+    },
+    {
+      "id": 23,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Retención tipificada corresponde al seguro gestionado (DES-CONS-0001). No hay confusión con otro seguro."
+    },
+    {
+      "id": 24,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Tipificación registrada: RETENCION. Resultado en grabación: RETENCION. No hay tipificación de retención cuando la grabación muestra renuncia."
+    },
+    {
+      "id": 25,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Se tipifica la única gestión realizada en la llamada (DES-CONS-0001: RETENCION). No hay gestiones sin tipificar."
+    },
+    {
+      "id": 26,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Cliente solicita dar de baja el seguro (00:54). Ejecutivo realiza retención y cliente acepta mantenerlo (02:21). Se impacta la gestión solicitada (aunque con resultado de retención)."
+    },
+    {
+      "id": 27,
+      "estado": "no_aplica",
+      "confianza": 1.0,
+      "comentario": "No hay tercero en la llamada. Cliente es el titular y se comunica directamente con el ejecutivo."
+    },
+    {
+      "id": 28,
+      "estado": "no_aplica",
+      "confianza": 1.0,
+      "comentario": "No hay solicitud de devolución de primas. Cliente mantiene el seguro, por lo que no aplica este criterio."
+    },
+    {
+      "id": 29,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "evidencia": [
+        {
+          "t": "02:28-02:49",
+          "hablante": "AGENTE",
+          "cita": "Le resumo la gestión: hoy mantenemos vigente su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0001. La prima fue pagada en forma única junto con su crédito de consumo, así que no tiene cargos mensuales en su cuenta. No se realiza ninguna renuncia. ¿Está conforme con la gestión realizada?"
+        }
+      ],
+      "comentario": "Ejecutivo realiza protocolo de cierre: resume la gestión, menciona el seguro, el número de póliza, y solicita confirmación de conformidad."
+    },
+    {
+      "id": 30,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Cliente responde 'Sí, conforme' (02:49) a la pregunta de conformidad. Respuesta clara y permitida. No requiere reiteración."
+    },
+    {
+      "id": 31,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "evidencia": [
+        {
+          "t": "00:10-00:30",
+          "hablante": "AGENTE",
+          "cita": "¿Me puede indicar su RUT? ... ¿Me indica su nombre completo? ... ¿Y su fecha de nacimiento?"
+        },
+        {
+          "t": "00:17",
+          "hablante": "CLIENTE",
+          "cita": "once millones ciento once mil ciento once guion uno"
+        },
+        {
+          "t": "00:25",
+          "hablante": "CLIENTE",
+          "cita": "Pedro Andrés Soto Muñoz"
+        },
+        {
+          "t": "00:30",
+          "hablante": "CLIENTE",
+          "cita": "El catorce de marzo del ochenta y cinco"
+        }
+      ],
+      "comentario": "Ejecutivo valida correctamente RUT, nombre completo y fecha de nacimiento al inicio de la llamada."
+    },
+    {
+      "id": 32,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "comentario": "Ejecutivo no predispone al cliente a aceptar el seguro con preguntas condicionadas a 'sí'. La pregunta de cierre es abierta: '¿Está conforme con la gestión realizada?' (02:49)."
+    },
+    {
+      "id": 33,
+      "estado": "cumple",
+      "confianza": 1.0,
+      "evidencia": [
+        {
+          "t": "00:34-00:39",
+          "hablante": "AGENTE",
+          "cita": "¿Me confirma su correo electrónico y un teléfono de contacto?"
+        },
+        {
+          "t": "00:39",
+          "hablante": "CLIENTE",
+          "cita": "pedro punto soto arroba correo ejemplo punto cl, y el teléfono es el nueve uno dos tres cuatro cinco seis siete ocho"
+        }
+      ],
+      "comentario": "Ejecutivo valida correctamente email y teléfono de contacto."
+    }
+  ]
+}
+```

@@ -7,13 +7,13 @@ esperas_seg: []
 umbral_espera_seg: 120
 
 ## Seguros del cliente consultados en la llamada
-- nombre: Seguro de Incapacidad Temporal - Créditos de consumo | n_poliza: INC-TMP-0010 | retenible: no | renunciable_en_canal: no
+- nombre: Seguro de Incapacidad Temporal - Créditos de consumo | n_poliza: INC-TMP-0010 | retenible: no | renunciable_en_canal: no | devolucion_prima: sin dato
 
 ## Tipificación registrada por el ejecutivo
 - seguro: INC-TMP-0010 | gestion: RENUNCIA | motivo: Desconoce contratación del seguro
 
 ## Ficha de producto (del seguro gestionado)
-Seguro de Incapacidad Temporal - Créditos de consumo: No disponible (ficha pendiente con el cliente). Evalúa los motivos 2 y 6 como 'indeterminado' si dependen de la ficha.
+Seguro de Incapacidad Temporal - Créditos de consumo: No disponible (ficha pendiente con el cliente).
 
 ## Transcripción (canal separado, timestamps mm:ss)
 [00:01] AGENTE: Buenas tardes, BancoEstado Corredores de Seguros, le habla Tomás Silva. ¿Con quién hablo?

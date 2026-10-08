@@ -1,6 +1,6 @@
 ```json
 {
-  "resumen": "Cliente Luis Contreras llama para renunciar al Seguro Incendio Hogar (INC-HOG-0003) tras vender su departamento. El ejecutivo valida identidad, procesa la renuncia sin intentos de retención y cierra con protocolo que incluye número de póliza y medio de pago. La gestión se tipifica correctamente como RENUNCIA por Cambio de Domicilio o Venta de Propiedad.",
+  "resumen": "Cliente Luis Contreras llama para renunciar al Seguro Incendio Hogar (INC-HOG-0003) tras vender su departamento. El ejecutivo valida identidad, procesa la renuncia sin intentos de retención y cierra con protocolo completo incluyendo número de póliza y medio de pago.",
   "intencion_renuncia": {
     "expresada": true,
     "cita": "Vendí el departamento y quiero dar de baja el seguro de incendio, porque ya no tiene sentido.",
@@ -12,247 +12,221 @@
       "resultado_grabacion": "RENUNCIA",
       "motivo_renuncia": "Cambio de Domicilio o Venta de Propiedad",
       "n_objeciones": 0,
-      "evidencia": "Cliente expresa intención clara de renuncia por venta de propiedad (00:25). Ejecutivo procesa sin objeciones. Cierre confirma renuncia ingresada (00:38)."
+      "evidencia": "Cliente expresa intención de renuncia por venta de departamento (00:25). Ejecutivo no realiza ningún intento de retención. Renuncia procesada en 00:38."
     }
   ],
   "criterios": [
     {
       "id": 1,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "No hay esperas registradas en metadatos (esperas_seg: [])."
+      "comentario": "No hay registro de esperas en los metadatos (esperas_seg: []). No aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 2,
+      "comentario": "La ficha de producto no está disponible (pendiente con el cliente). No es posible contrastar si la descripción corresponde a otro seguro. Se marca indeterminado.",
       "estado": "indeterminado",
-      "confianza": 0.5,
-      "comentario": "Ficha de producto no disponible. No se puede contrastar descripción del seguro con documento oficial. Motivo 2 depende de la ficha según instrucciones."
+      "confianza": 0.5
     },
     {
       "id": 3,
+      "comentario": "El ejecutivo realiza 0 objeciones. El máximo permitido es 3. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Cero objeciones realizadas. El ejecutivo no intenta retener tras la solicitud de renuncia."
+      "confianza": 1.0
     },
     {
       "id": 4,
+      "comentario": "El ejecutivo menciona 'seguro Incendio Hogar' en el cierre (00:38), identificando la característica principal del seguro. Cumple.",
       "estado": "cumple",
-      "confianza": 0.9,
-      "evidencia": [
-        {
-          "t": "00:38",
-          "hablante": "AGENTE",
-          "cita": "Quedó ingresada la renuncia de su seguro Incendio Hogar"
-        }
-      ],
-      "comentario": "El ejecutivo menciona el nombre del seguro ('Incendio Hogar') en el cierre."
+      "confianza": 1.0
     },
     {
       "id": 5,
+      "comentario": "No hay preguntas del cliente sobre permanencia o características del producto. No aplica.",
       "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "El cliente no consulta sobre permanencia. No aplica este motivo."
+      "confianza": 1.0
     },
     {
       "id": 6,
-      "estado": "indeterminado",
-      "confianza": 0.5,
-      "comentario": "Ficha de producto no disponible. No hay preguntas del cliente sobre coberturas o características que permitan evaluar manejo de información. Motivo 6 depende de la ficha según instrucciones."
+      "comentario": "No hay preguntas del cliente sobre coberturas o características del producto que requieran respuesta del ejecutivo. No aplica.",
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 7,
-      "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "No hay solicitud que requiera derivación a otra área. La renuncia se gestiona en el canal."
+      "comentario": "La solicitud es una renuncia de seguro renunciable en este canal (metadatos: renunciable_en_canal: si). No requiere derivación. Cumple.",
+      "estado": "cumple",
+      "confianza": 1.0
     },
     {
       "id": 8,
+      "comentario": "El ejecutivo responde de forma directa a la solicitud del cliente. Ante la intención de renuncia, procesa inmediatamente sin evasiones. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El ejecutivo responde de forma directa a la solicitud del cliente sin evasivas."
+      "confianza": 1.0
     },
     {
       "id": 9,
+      "comentario": "El seguro es renunciable en este canal (metadatos: renunciable_en_canal: si). No incumple este motivo.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Metadatos indican renunciable_en_canal: si. La renuncia es válida en este canal."
+      "confianza": 1.0
     },
     {
       "id": 10,
+      "comentario": "No hay conductas que sugieran incumplimiento de la política de BancoEstado. La atención es profesional y directa. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "La atención es directa, eficiente y se ajusta al protocolo de BancoEstado."
+      "confianza": 1.0
     },
     {
       "id": 11,
+      "comentario": "El ejecutivo no descalifica a pares, BancoEstado o competencia. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "No hay descalificaciones a pares, BancoEstado o competencia."
+      "confianza": 1.0
     },
     {
       "id": 12,
+      "comentario": "El cliente expresa la intención de renuncia (00:25). El ejecutivo no la sugiere ni propone; solo la procesa. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El ejecutivo no induce la renuncia. El cliente expresa la intención primero."
+      "confianza": 1.0
     },
     {
       "id": 13,
+      "comentario": "En el protocolo de cierre (00:38), el ejecutivo menciona 'póliza número INC-HOG-0003'. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "evidencia": [
-        {
-          "t": "00:38",
-          "hablante": "AGENTE",
-          "cita": "póliza número INC-HOG-0003"
-        }
-      ],
-      "comentario": "El ejecutivo menciona el número de póliza en el protocolo de cierre."
+      "confianza": 1.0
     },
     {
       "id": 14,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El seguro es retenible (metadatos: retenible: si), pero el cliente expresa motivo válido (venta de propiedad). No se requiere intento de retención en este contexto; la ausencia de objeciones es apropiada."
+      "comentario": "El seguro es retenible (metadatos: retenible: si). El ejecutivo no realiza ningún intento de retención tras la intención de renuncia. Incumple.",
+      "evidencia": [
+        {
+          "t": "00:25-00:38",
+          "hablante": "AGENTE",
+          "cita": "Ya, perfecto, se lo doy de baja al tiro."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
     },
     {
       "id": 15,
+      "comentario": "En el protocolo de cierre (00:38), el ejecutivo informa 'se cargaba mensualmente a su cuenta corriente terminada en cuatro cinco'. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "evidencia": [
-        {
-          "t": "00:38",
-          "hablante": "AGENTE",
-          "cita": "se cargaba mensualmente a su cuenta corriente terminada en cuatro cinco"
-        }
-      ],
-      "comentario": "El ejecutivo informa el medio de pago (cargo mensual a cuenta corriente terminada en 45)."
+      "confianza": 1.0
     },
     {
       "id": 16,
+      "comentario": "El cliente expresó intención de renuncia (00:25). El ejecutivo no realiza retención sin intención. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El cliente expresa intención de renuncia primero (00:25). El ejecutivo no retiene sin que haya solicitud previa."
+      "confianza": 1.0
     },
     {
       "id": 17,
+      "comentario": "El seguro es retenible (metadatos: retenible: si). El ejecutivo no lo retiene. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El seguro es retenible (metadatos: retenible: si). No hay retención realizada."
+      "confianza": 1.0
     },
     {
       "id": 18,
+      "comentario": "Tipificación registrada: 'Cambio de Domicilio o Venta de Propiedad'. Cliente dice 'Vendí el departamento' (00:25). Coincide. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Tipificación registrada: 'Cambio de Domicilio o Venta de Propiedad'. Cliente dice 'Vendí el departamento' (00:25). Motivo tipificado coincide con lo expresado."
+      "confianza": 1.0
     },
     {
       "id": 19,
+      "comentario": "Tipificación registrada: RENUNCIA. Grabación: RENUNCIA. Coincide. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Tipificación registrada: RENUNCIA. Grabación confirma RENUNCIA. No hay discrepancia."
+      "confianza": 1.0
     },
     {
       "id": 20,
+      "comentario": "Tipificación registrada: renuncia de INC-HOG-0003. Cliente menciona 'seguro de incendio' (00:25) y ejecutivo confirma 'Incendio Hogar, póliza número INC-HOG-0003' (00:38). Coincide. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El motivo tipificado corresponde al seguro mencionado (INC-HOG-0003). No hay tipificación de motivo para seguro no mencionado."
+      "confianza": 1.0
     },
     {
       "id": 21,
+      "comentario": "Tipificación registrada: renuncia de INC-HOG-0003. Grabación: renuncia de INC-HOG-0003. Coincide. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El motivo tipificado corresponde al seguro gestionado (INC-HOG-0003). No hay confusión entre seguros."
+      "confianza": 1.0
     },
     {
       "id": 22,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "No hay tipificación de retención. No aplica este motivo."
+      "comentario": "No hay tipificación de retención. No aplica.",
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 23,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "No hay tipificación de retención. No aplica este motivo."
+      "comentario": "No hay tipificación de retención. No aplica.",
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 24,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Tipificación registrada: RENUNCIA. Grabación confirma RENUNCIA. No hay discrepancia inversa."
+      "comentario": "No hay tipificación de retención. No aplica.",
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 25,
+      "comentario": "Se tipificó una gestión (renuncia de INC-HOG-0003) y se realizó una gestión (renuncia de INC-HOG-0003). Coincide. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Un único seguro gestionado (INC-HOG-0003). Tipificación completa: RENUNCIA con motivo. No hay gestiones sin tipificar."
+      "confianza": 1.0
     },
     {
       "id": 26,
+      "comentario": "El cliente solicitó dar de baja el seguro (00:25). Se procesó la renuncia (00:38). Se impactó la gestión solicitada. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El cliente solicita una única gestión (renuncia del seguro de incendio). Se impacta completamente."
+      "confianza": 1.0
     },
     {
       "id": 27,
+      "comentario": "No hay terceros en la llamada. No aplica.",
       "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "No hay tercero en la llamada. El cliente es el titular. No aplica este motivo."
+      "confianza": 1.0
     },
     {
       "id": 28,
-      "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "El cliente no consulta sobre devolución de primas. No hay negación de devolución. No aplica este motivo."
+      "comentario": "Metadatos: devolucion_prima: sin dato. No es posible determinar si corresponde devolución de prima. El ejecutivo no menciona devolución ni la niega. Se marca indeterminado.",
+      "estado": "indeterminado",
+      "confianza": 0.5
     },
     {
       "id": 29,
+      "comentario": "El ejecutivo realiza protocolo de cierre (00:38): resumen de gestión, número de póliza e información de medio de pago. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "evidencia": [
-        {
-          "t": "00:38",
-          "hablante": "AGENTE",
-          "cita": "Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, póliza número INC-HOG-0003, que se cargaba mensualmente a su cuenta corriente terminada en cuatro cinco. ¿Está de acuerdo con la gestión?"
-        }
-      ],
-      "comentario": "El ejecutivo realiza protocolo de cierre completo: resumen de gestión, número de póliza, medio de pago y confirmación."
+      "confianza": 1.0
     },
     {
       "id": 30,
+      "comentario": "El cliente responde 'Sí, de acuerdo' (00:52) a la confirmación del cierre. Respuesta clara de aceptación. No requiere reiteración. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El cliente responde 'Sí, de acuerdo' (00:52), que es una aceptación clara. No se requiere reiterar."
+      "confianza": 1.0
     },
     {
       "id": 31,
+      "comentario": "El ejecutivo solicita y valida RUT ('Trece millones trescientos treinta y tres mil trescientos treinta y tres guion tres'), nombre completo ('Luis Alberto Contreras Vega') y fecha de nacimiento ('nueve de enero del setenta y ocho') en 00:08-00:13. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "evidencia": [
-        {
-          "t": "00:08",
-          "hablante": "AGENTE",
-          "cita": "Don Luis, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
-        },
-        {
-          "t": "00:13",
-          "hablante": "CLIENTE",
-          "cita": "Trece millones trescientos treinta y tres mil trescientos treinta y tres guion tres. Luis Alberto Contreras Vega, nueve de enero del setenta y ocho."
-        }
-      ],
-      "comentario": "El ejecutivo valida RUT (13.333.333-3), nombre completo (Luis Alberto Contreras Vega) y fecha de nacimiento (09/01/1978)."
+      "confianza": 1.0
     },
     {
       "id": 32,
+      "comentario": "El ejecutivo pregunta '¿Está de acuerdo con la gestión?' (00:38). Es una pregunta neutra para confirmar el cierre, no predispone con un 'cierto' o similar. Cumple.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "El ejecutivo pregunta '¿Está de acuerdo con la gestión?' (00:38), que es una pregunta abierta. No predispone con un 'cierto' o condiciona a 'sí'."
+      "confianza": 1.0
     },
     {
       "id": 33,
-      "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "El ejecutivo no solicita email ni teléfono en la transcripción. No hay evidencia de que deba validarlos en este contexto de renuncia. Motivo no aplica o no se evidencia su necesidad."
+      "comentario": "El ejecutivo no solicita ni valida email ni teléfono del cliente. Estos datos no se mencionan en la llamada. Incumple.",
+      "evidencia": [
+        {
+          "t": "00:08-00:23",
+          "hablante": "AGENTE",
+          "cita": "¿me indica su RUT, nombre completo y fecha de nacimiento? [validación realizada, pero sin email ni teléfono]"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
     }
   ]
 }

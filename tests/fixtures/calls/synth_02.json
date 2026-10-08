@@ -2,7 +2,7 @@
   "call_id": "synth-02",
   "synthetic": true,
   "title": "Exceso de objeciones y cierre sin N° de póliza",
-  "description": "El cliente insiste en renunciar; el ejecutivo argumenta 4 veces tras sus negativas. Procesa la renuncia, pero en el cierre no menciona el número de seguro.",
+  "description": "El cliente insiste en renunciar; el ejecutivo da 5 argumentos de retención (1 tras la solicitud y 4 tras negativas). Procesa la renuncia, pero en el cierre no menciona el número de seguro.",
   "metadata": {
     "date": "2026-09-02",
     "agent_id": "EJ-0102",
@@ -13,7 +13,8 @@
         "name": "Seguro de Desempleo - Créditos de consumo",
         "policy_number": "DES-CONS-0002",
         "retainable": true,
-        "cancellable_in_channel": true
+        "cancellable_in_channel": true,
+        "premium_refund": null
       }
     ],
     "typification": [
@@ -178,14 +179,14 @@
         "policy_number": "DES-CONS-0002",
         "outcome": "RENUNCIA",
         "cancellation_reason": "Problemas Económicos",
-        "objections": 4
+        "objections": 5
       }
     ],
     "findings": [
       {
         "criterion_id": 3,
         "status": "non_compliant",
-        "note": "4 objeciones después de negativas explícitas; el máximo es 3."
+        "note": "5 argumentos de retención (el primero tras la solicitud y 4 tras negativas explícitas); el máximo es 3."
       },
       {
         "criterion_id": 13,

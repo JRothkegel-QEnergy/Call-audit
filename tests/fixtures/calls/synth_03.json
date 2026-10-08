@@ -13,7 +13,8 @@
         "name": "Seguro Incendio Hogar",
         "policy_number": "INC-HOG-0003",
         "retainable": true,
-        "cancellable_in_channel": true
+        "cancellable_in_channel": true,
+        "premium_refund": null
       }
     ],
     "typification": [

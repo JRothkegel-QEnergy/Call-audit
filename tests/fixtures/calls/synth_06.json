@@ -13,7 +13,8 @@
         "name": "Protección Global",
         "policy_number": "PROT-GLB-0006",
         "retainable": true,
-        "cancellable_in_channel": true
+        "cancellable_in_channel": true,
+        "premium_refund": null
       }
     ],
     "typification": []
@@ -148,6 +149,26 @@
         "criterion_id": 8,
         "status": "non_compliant",
         "note": "Elude la pregunta sobre la cobertura de robo para insistir en la retención."
+      },
+      {
+        "criterion_id": 29,
+        "status": "uncertain",
+        "note": "El ejecutivo da el seguro por retenido sin solicitud. Si eso cuenta como gestión, falta el protocolo de cierre (TBD con el cliente)."
+      },
+      {
+        "criterion_id": 13,
+        "status": "uncertain",
+        "note": "Igual que 29."
+      },
+      {
+        "criterion_id": 15,
+        "status": "uncertain",
+        "note": "Igual que 29."
+      },
+      {
+        "criterion_id": 25,
+        "status": "uncertain",
+        "note": "Igual que 29: si la retención cuenta como gestión, no está tipificada."
       }
     ],
     "notes": "No hay tipificación porque no hubo gestión de renuncia ni de retención solicitada por la clienta."

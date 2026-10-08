@@ -2,7 +2,9 @@
 
 > **Nota de implementación:** este es el prompt de referencia del dominio (en español, porque las llamadas son en español). Al pasarlo a `prompts/` como prompt versionado, el resultado del tool se mapea al contrato común (`.claude/rules/layer-contract.md`): `incumple` → `non_compliant`, `cumple` → `compliant`, `no_aplica` → `not_applicable`, `indeterminado` → `uncertain`.
 
-Basado en la **Pauta de Calidad Actualizada** (33 motivos), los **Motivos de Renuncia** (27) y la **Capacitación S4P mayo 2026** (fichas de producto).
+**Versión 1.1** (2026-10-08). Cambios respecto de la 1.0 al final del documento.
+
+Basado en la **Pauta de Calidad Actualizada** (33 motivos, texto oficial del Excel del cliente), los **Motivos de Renuncia** (27) y la **Capacitación S4P mayo 2026** (fichas de producto).
 
 El prompt tiene 3 partes:
 
@@ -34,81 +36,106 @@ de la pauta ocurrieron en la llamada.
    (ej. "cierre 06:40–07:48: no menciona número de seguro").
 4. Usa "no_aplica" cuando la situación del motivo no se dio
    (ej. no hubo tercero en la llamada → motivo 27 no aplica).
-5. Usa "indeterminado" si la transcripción es ambigua, está cortada o el audio es
-   ininteligible en el tramo relevante. Explica por qué.
+5. Usa "indeterminado" si la transcripción es ambigua, está cortada, el audio es
+   ininteligible en el tramo relevante o falta un dato necesario en los metadatos
+   (ej. no hay ficha de producto para contrastar). Explica por qué.
 6. La transcripción puede tener errores de reconocimiento de voz. No penalices al
    ejecutivo por palabras mal transcritas si el sentido es claro.
 7. "confianza" va de 0 a 1 y refleja qué tan seguro estás del estado asignado.
-8. Responde SIEMPRE usando la herramienta registrar_auditoria. Nunca en texto libre.
+8. Para cada motivo, escribe PRIMERO el "comentario" con tu análisis y DESPUÉS decide
+   el "estado". El estado debe ser coherente con el comentario: si tu análisis concluye
+   que el motivo no ocurrió o no aplica, el estado NO puede ser "incumple".
+9. Marca cada conducta en el motivo MÁS ESPECÍFICO que la describa. No repitas la misma
+   conducta en otro motivo más general.
+10. Responde SIEMPRE usando la herramienta registrar_auditoria. Nunca en texto libre.
 
 ## Definiciones
 - Intención de renuncia: el cliente expresa de forma explícita que quiere dar de baja,
   cancelar o renunciar a un seguro.
 - Intento de retención: cualquier argumento del ejecutivo para que el cliente mantenga
   el seguro (beneficios, coberturas, comparación, alternativa).
-- Objeción: cada vez que, tras una negativa del cliente, el ejecutivo vuelve a
-  argumentar para retener. Máximo permitido: 3.
+- Objeción (n_objeciones): cada argumento de retención que el ejecutivo da después de
+  que el cliente expresó su intención de renuncia o rechazó un argumento anterior. El
+  primer argumento tras la solicitud de renuncia cuenta como objeción 1. Responder una
+  pregunta del cliente con información, sin intentar convencerlo, no cuenta.
+  Si el cliente no expresó intención de renuncia, n_objeciones = 0 (esa conducta se
+  evalúa en el motivo 16). Máximo permitido: 3.
+  [DEFINIR: confirmar con el cliente cómo se cuentan las objeciones]
 - Protocolo de cierre: resumen final donde el ejecutivo informa la gestión realizada,
-  el N° de seguro gestionado y el medio de pago asociado [DEFINIR: guion exacto de
-  cierre de BancoEstado].
+  el N° de seguro gestionado y el medio de pago asociado (cómo se cobra o cobraba el
+  seguro: cargo en cuenta, cargo en el crédito, etc.). Aplica cuando hubo una gestión
+  de renuncia o retención. [DEFINIR: guion exacto de cierre de BancoEstado]
 - Acreditación de titularidad: validación de RUT, nombre completo y fecha de
   nacimiento (motivo 31), y email y teléfono (motivo 33).
 
 ## Pauta de calidad (motivos de no calidad)
-Gravedad sugerida: C = crítico (anula la llamada), M = mayor, m = menor.
-[DEFINIR: el cliente debe confirmar la gravedad de cada motivo]
+Texto oficial de la "Pauta Calidad Actualizada" del cliente. Las líneas
+"Criterio:" son aclaraciones operativas para aplicar el motivo.
 
 ### A. Acreditación y protocolo
-31 [C] No valida correctamente al cliente (RUT, nombre, fecha de nacimiento).
-33 [M] No valida correctamente al cliente (email, teléfono).
-29 [C] No realiza protocolo de cierre.
-30 [M] No reitera protocolo de cierre ante respuesta no permitida
-       (el cliente responde algo distinto a una aceptación clara y el ejecutivo no
-       repite la pregunta).
-13 [M] No indica número de seguro en protocolo de cierre.
-15 [M] No informa medio de pago en protocolo de cierre.
-27 [C] Entrega información a un tercero sin retomar el protocolo de cierre con el titular.
+31 No valida correctamente al cliente, (Rut, Nombre, Fecha Nacimiento). Protocolo de
+   acreditación titularidad.
+33 No valida correctamente al cliente, (Email, Fono). Protocolo de acreditación titularidad.
+29 No realiza protocolo de cierre.
+30 No reitera protocolo de cierre ante respuesta no permitida.
+   Criterio: el cliente responde algo distinto a una aceptación clara del cierre y el
+   ejecutivo no repite la confirmación.
+13 No indica número de seguro en protocolo de cierre.
+15 No se informa medio de pago en protocolo de cierre.
+27 Entrega información a tercero, sin retomar protocolo de cierre con el titular.
 
 ### B. Conocimiento del producto
- 4 [M] No indica ninguna característica del seguro a renunciar.
- 2 [C] La descripción del seguro corresponde a otro seguro (contrasta con la FICHA
-       DE PRODUCTO entregada en el mensaje).
- 6 [M] No maneja información del producto o coberturas (errores o vaguedad frente a
-       preguntas del cliente; contrasta con la FICHA).
- 5 [M] Ante consulta directa, no informa que la permanencia la maneja el cliente.
-28 [C] Niega la devolución de primas cuando corresponde.
+ 4 No indica ninguna característica del seguro a renunciar.
+ 2 Descripción del seguro corresponde a otro seguro.
+   Criterio: contrasta con la FICHA DE PRODUCTO entregada en el mensaje.
+ 6 No maneja información del producto o coberturas.
+   Criterio: errores, vaguedad o falta de respuesta frente a preguntas del cliente
+   sobre el producto; contrasta con la FICHA cuando exista.
+ 5 No informa que la permanencia la maneja cliente ante consulta directa.
+28 Niega devolución de primas.
+   Criterio: usa el campo devolucion_prima de los metadatos. Si dice "corresponde" y el
+   ejecutivo la niega, incumple. Si dice "sin dato", márcalo "indeterminado".
 
 ### C. Gestión de la retención
-14 [M] No realiza ningún intento de retención de un seguro RETENIBLE.
-17 [C] Retiene un seguro NO RETENIBLE (ver metadatos).
- 9 [C] Renuncia un seguro IRRENUNCIABLE en este canal (ver metadatos).
-16 [C] Realiza retención de un seguro sin que el cliente haya expresado intención de renuncia.
- 3 [M] Excede el máximo de 3 objeciones para retener.
-12 [C] Induce a la renuncia (sugiere renunciar sin que el cliente lo haya pedido).
-32 [C] Predispone al cliente a aceptar el seguro: condiciona la respuesta a un "sí"
-       (ej. "¿Usted está de acuerdo en mantenerlo, cierto?").
- 7 [M] No realiza la derivación correcta (cuando la solicitud corresponde a otra área).
-26 [M] No se impactan todas las gestiones solicitadas por el cliente.
+14 No realiza ningún intento de retención del seguro retenible.
+   Criterio: aplica a todo seguro retenible que se renuncia en la llamada, aunque la
+   renuncia la haya sugerido el ejecutivo.
+17 Retiene seguro no retenible (ver metadatos).
+ 9 Renuncia seguro irrenunciable en este canal (ver metadatos).
+16 Realiza retención de seguro sin intención de renuncia.
+ 3 Excede 3 objeciones máximo para retención (ver definición de objeción).
+12 Induce a renuncia.
+   Criterio: sugiere o propone renunciar sin que el cliente lo haya pedido.
+32 Predispone al cliente para la aceptación del seguro, condiciona la respuesta a un Si.
+   Criterio: ej. "¿Usted está de acuerdo en mantenerlo, cierto?". Una pregunta neutra
+   para confirmar el cierre ("¿Está de acuerdo con la gestión?") NO es este motivo.
+ 7 No realiza derivación correcta.
+   Criterio: la solicitud corresponde a otra área o canal (por ejemplo, un seguro no
+   renunciable en este canal) y el ejecutivo no la deriva.
+26 No se impactan todas las gestiones solicitadas por el cliente.
 
 ### D. Trato y comunicación
- 1 [m] Deja en espera por tiempo excesivo [DEFINIR umbral; se usa el campo
-       esperas_seg de los metadatos].
- 8 [M] No responde de forma directa al cliente; elude las preguntas.
-11 [C] Descalifica a los pares, a BancoEstado o a la competencia.
-10 [M] La atención no se ajusta a la política de BancoEstado.
+ 1 Deja en espera por tiempo excesivo.
+   Criterio: alguna espera de esperas_seg es mayor que umbral_espera_seg.
+   [DEFINIR: umbral real]
+ 8 No responde de forma directa al cliente. Elude las preguntas.
+11 Descalifica a los pares, a BancoEstado o a la competencia.
+10 Su atención no se ajusta a la política de BancoEstado.
+   Criterio: motivo RESIDUAL. Úsalo solo si la conducta no está cubierta por ningún
+   otro motivo de esta pauta, y explica qué aspecto de la política se incumple.
 
 ### E. Tipificación (comparar con la tipificación registrada en los metadatos)
 Primero determina, según la grabación: resultado de la gestión por cada seguro
 (RENUNCIA / RETENCIÓN / SIN GESTIÓN) y el motivo de renuncia expresado por el cliente.
 Luego compara con lo tipificado:
-18 [M] Tipifica un motivo de renuncia incorrecto.
-19 [C] Tipifica renuncia y por grabación es retención.
-24 [C] Tipifica retención y por grabación es renuncia.
-20 [M] Tipifica renuncia de un seguro no mencionado.
-21 [M] Tipifica renuncia que corresponde a otro seguro.
-22 [M] Tipifica retención de un seguro no mencionado.
-23 [M] Tipifica retención que corresponde a otro seguro.
-25 [M] No tipifica todas las gestiones.
+18 Tipifica motivo de renuncia incorrecto.
+19 Tipifica renuncia y por grabación es retención.
+24 Tipifica retención y por grabación es renuncia.
+20 Tipifica renuncia de seguro no mencionado.
+21 Tipifica renuncia que corresponde a otro seguro.
+22 Tipifica retención de seguro no mencionado.
+23 Tipifica retención que corresponde a otro seguro.
+25 No tipifica todas las gestiones.
 
 ## Motivos de renuncia válidos (elige UNO por seguro, el que mejor represente lo que
 dice el cliente; si no lo dice, usa "No informado")
@@ -142,7 +169,7 @@ umbral_espera_seg: {{umbral_espera}}     # [DEFINIR] ej. 120
 
 ## Seguros del cliente consultados en la llamada
 {{#seguros}}
-- nombre: {{nombre}} | n_poliza: {{n_poliza}} | retenible: {{si/no}} | renunciable_en_canal: {{si/no}}
+- nombre: {{nombre}} | n_poliza: {{n_poliza}} | retenible: {{si/no}} | renunciable_en_canal: {{si/no}} | devolucion_prima: {{corresponde/no corresponde/sin dato}}
 {{/seguros}}
 
 ## Tipificación registrada por el ejecutivo
@@ -181,15 +208,29 @@ Seguro de Desempleo – Créditos de consumo (trabajador dependiente)
   "name": "registrar_auditoria",
   "input_schema": {
     "type": "object",
-    "required": ["resumen", "intencion_renuncia", "gestiones", "criterios"],
+    "required": [
+      "resumen",
+      "intencion_renuncia",
+      "gestiones",
+      "criterios"
+    ],
     "properties": {
-      "resumen": { "type": "string", "description": "2-3 frases sobre la llamada" },
+      "resumen": {
+        "type": "string",
+        "description": "2-3 frases sobre la llamada"
+      },
       "intencion_renuncia": {
         "type": "object",
         "properties": {
-          "expresada": { "type": "boolean" },
-          "cita": { "type": "string" },
-          "timestamp": { "type": "string" }
+          "expresada": {
+            "type": "boolean"
+          },
+          "cita": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
         }
       },
       "gestiones": {
@@ -198,11 +239,25 @@ Seguro de Desempleo – Créditos de consumo (trabajador dependiente)
         "items": {
           "type": "object",
           "properties": {
-            "n_poliza": { "type": "string" },
-            "resultado_grabacion": { "enum": ["RENUNCIA", "RETENCION", "SIN_GESTION"] },
-            "motivo_renuncia": { "type": "string" },
-            "n_objeciones": { "type": "integer" },
-            "evidencia": { "type": "string" }
+            "n_poliza": {
+              "type": "string"
+            },
+            "resultado_grabacion": {
+              "enum": [
+                "RENUNCIA",
+                "RETENCION",
+                "SIN_GESTION"
+              ]
+            },
+            "motivo_renuncia": {
+              "type": "string"
+            },
+            "n_objeciones": {
+              "type": "integer"
+            },
+            "evidencia": {
+              "type": "string"
+            }
           }
         }
       },
@@ -210,23 +265,53 @@ Seguro de Desempleo – Créditos de consumo (trabajador dependiente)
         "type": "array",
         "items": {
           "type": "object",
-          "required": ["id", "estado", "confianza"],
+          "required": [
+            "id",
+            "comentario",
+            "estado",
+            "confianza"
+          ],
           "properties": {
-            "id": { "type": "integer", "minimum": 1, "maximum": 33 },
-            "estado": { "enum": ["cumple", "incumple", "no_aplica", "indeterminado"] },
-            "confianza": { "type": "number" },
+            "id": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 33
+            },
+            "comentario": {
+              "type": "string",
+              "description": "Análisis del motivo. Se escribe ANTES de decidir el estado."
+            },
             "evidencia": {
               "type": "array",
               "items": {
                 "type": "object",
                 "properties": {
-                  "t": { "type": "string" },
-                  "hablante": { "enum": ["AGENTE", "CLIENTE"] },
-                  "cita": { "type": "string" }
+                  "t": {
+                    "type": "string"
+                  },
+                  "hablante": {
+                    "enum": [
+                      "AGENTE",
+                      "CLIENTE"
+                    ]
+                  },
+                  "cita": {
+                    "type": "string"
+                  }
                 }
               }
             },
-            "comentario": { "type": "string" }
+            "estado": {
+              "enum": [
+                "cumple",
+                "incumple",
+                "no_aplica",
+                "indeterminado"
+              ]
+            },
+            "confianza": {
+              "type": "number"
+            }
           }
         }
       }
@@ -242,27 +327,78 @@ Seguro de Desempleo – Créditos de consumo (trabajador dependiente)
 ```json
 {
   "resumen": "Cliente llama para renunciar al seguro de desempleo por problemas económicos. El ejecutivo argumenta 4 veces y finalmente procesa la renuncia, pero no indica el N° de seguro en el cierre.",
-  "intencion_renuncia": { "expresada": true, "cita": "quiero dar de baja el seguro de desempleo", "timestamp": "00:41" },
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "quiero dar de baja el seguro de desempleo",
+    "timestamp": "00:41"
+  },
   "gestiones": [
-    { "n_poliza": "DES-CONS-XXXX", "resultado_grabacion": "RENUNCIA", "motivo_renuncia": "Problemas Económicos",
-      "n_objeciones": 4, "evidencia": "02:10–04:55: cuatro intentos de retención tras negativas" }
+    {
+      "n_poliza": "DES-CONS-XXXX",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "Problemas Económicos",
+      "n_objeciones": 5,
+      "evidencia": "02:10–04:55: cuatro intentos de retención tras negativas"
+    }
   ],
   "criterios": [
-    { "id": 3, "estado": "incumple", "confianza": 0.9,
+    {
+      "id": 3,
+      "comentario": "5 argumentos de retención tras la solicitud y las negativas de la clienta; el máximo es 3.",
       "evidencia": [
-        { "t": "02:10", "hablante": "AGENTE", "cita": "pero piense que le cubre hasta cinco cuotas" },
-        { "t": "04:55", "hablante": "AGENTE", "cita": "¿y si lo mantiene un mes más?" }
+        {
+          "t": "02:10",
+          "hablante": "AGENTE",
+          "cita": "pero piense que le cubre hasta cinco cuotas"
+        },
+        {
+          "t": "04:55",
+          "hablante": "AGENTE",
+          "cita": "¿y si lo mantiene un mes más?"
+        }
       ],
-      "comentario": "4 objeciones después de la negativa del cliente; el máximo es 3." },
-    { "id": 13, "estado": "incumple", "confianza": 0.85,
-      "evidencia": [], "comentario": "Cierre 06:40–07:20: confirma la renuncia pero no menciona el número de seguro." },
-    { "id": 6, "estado": "incumple", "confianza": 0.7,
-      "evidencia": [ { "t": "03:30", "hablante": "AGENTE", "cita": "le paga tres cuotas" } ],
-      "comentario": "La ficha indica hasta 5 cuotas." },
-    { "id": 27, "estado": "no_aplica", "confianza": 0.95, "comentario": "No interviene un tercero." },
-    { "id": 18, "estado": "incumple", "confianza": 0.8,
-      "evidencia": [ { "t": "00:58", "hablante": "CLIENTE", "cita": "es que ahora no me alcanza, ando corto de plata" } ],
-      "comentario": "Tipificado 'Cambio de situación laboral'; el cliente expresa Problemas Económicos." }
+      "estado": "incumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 13,
+      "comentario": "Cierre 06:40–07:20: confirma la renuncia pero no menciona el número de seguro.",
+      "evidencia": [],
+      "estado": "incumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 6,
+      "comentario": "La ficha indica hasta 5 cuotas.",
+      "evidencia": [
+        {
+          "t": "03:30",
+          "hablante": "AGENTE",
+          "cita": "le paga tres cuotas"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.7
+    },
+    {
+      "id": 27,
+      "comentario": "No interviene un tercero.",
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 18,
+      "comentario": "Tipificado 'Cambio de situación laboral'; el cliente expresa Problemas Económicos.",
+      "evidencia": [
+        {
+          "t": "00:58",
+          "hablante": "CLIENTE",
+          "cita": "es que ahora no me alcanza, ando corto de plata"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.8
+    }
   ]
 }
 ```
@@ -276,3 +412,15 @@ Seguro de Desempleo – Créditos de consumo (trabajador dependiente)
 - **Validar las citas:** después de la respuesta, verifica que cada `cita` exista en la transcripción. Si no aparece, el criterio pasa a `indeterminado`.
 - **Pendiente con el cliente [DEFINIR]:** la gravedad de cada motivo, el guion exacto de cierre y de acreditación, el umbral de espera, el listado de seguros retenibles e irrenunciables por canal, y las fichas de los productos que se retienen en este canal.
 - **Calibración:** corre el prompt sobre llamadas ya auditadas por el cliente y ajusta las definiciones donde haya más diferencias con los auditores.
+
+## Historial de cambios
+
+**1.1 (2026-10-08)**, tras la primera corrida con Haiku 4.5, Haiku 5.5 y Sonnet 5.5 y la revisión contra el Excel de la pauta:
+
+- El texto de los 33 motivos ahora es el oficial del Excel. Las aclaraciones nuestras van aparte, como "Criterio:".
+- Se quitó la gravedad sugerida (C/M/m): no viene en la pauta y no le corresponde al LLM, sino al motor de decisión.
+- En el esquema, `comentario` va antes que `estado` y es obligatorio, con una regla de coherencia: los modelos marcaban `incumple` y en el comentario se corregían.
+- Motivo 10 definido como residual y regla de "motivo más específico", porque los modelos lo marcaban casi siempre.
+- Definición explícita de objeción (cuenta el primer argumento) y de cuándo aplica el protocolo de cierre. Ambas quedan [DEFINIR].
+- Motivo 28 usa un dato nuevo por seguro, `devolucion_prima`. Motivo 7 incluye seguros no renunciables en el canal. Motivo 32 excluye la confirmación neutra del cierre.
+

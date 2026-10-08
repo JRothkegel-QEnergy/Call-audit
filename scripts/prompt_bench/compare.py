@@ -1,19 +1,21 @@
 """Compara las respuestas de distintas IA contra los hallazgos esperados de las llamadas sintéticas.
 
 Uso:
-    python scripts/prompt_bench/compare.py
+    python scripts/prompt_bench/compare.py                 # compara results/
+    python scripts/prompt_bench/compare.py <carpeta>       # compara otra carpeta, ej. una de archive/
 
-Espera las respuestas en scripts/prompt_bench/results/<nombre-ia>/synth_NN.json (el JSON que devolvió
-la IA, tal cual; se toleran bloques ```json y texto alrededor). Escribe results/report.md.
+Espera las respuestas en <carpeta>/<nombre-ia>/synth_NN.json (el JSON que devolvió la IA, tal cual;
+se toleran bloques ```json y texto alrededor). Escribe <carpeta>/report.md.
 """
 
 import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 CALLS_DIR = ROOT / "tests" / "fixtures" / "calls"
-RESULTS_DIR = Path(__file__).resolve().parent / "results"
+RESULTS_DIR = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parent / "results"
 
 STATUS_MAP = {"incumple": "non_compliant", "cumple": "compliant", "no_aplica": "not_applicable", "indeterminado": "uncertain"}
 

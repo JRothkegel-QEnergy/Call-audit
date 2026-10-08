@@ -24,7 +24,7 @@ El cliente quiere renunciar al seguro de desempleo por problemas económicos. Ac
 [02:10] CLIENTE: Ya, pero si lo dejo, ¿después lo puedo sacar igual?
 [02:15] AGENTE : Sí, don Pedro. La permanencia en el seguro la decide usted; puede renunciar cuando quiera.
 [02:21] CLIENTE: Ah, ya. Entonces lo mantengo no más po, si no me están cobrando nada aparte.
-[02:28] AGENTE : Perfecto. Le resumo la gestión: hoy mantenemos vigente su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0001. La prima fue pagada en forma única junto con su crédito de consumo, así que no tiene cargos mensuales en su cuenta. No se realiza ninguna renuncia. ¿Está conforme con la gestión realizada?
-[02:49] CLIENTE: Sí, conforme.
-[02:50] AGENTE : Muchas gracias por su tiempo, don Pedro. Que tenga muy buena tarde.
-[02:56] CLIENTE: Gracias, igualmente. Chao.
+[02:28] AGENTE : Perfecto. Le resumo la gestión: hoy mantenemos vigente su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0001. El medio de pago es el cargo único que se hizo en su crédito de consumo, así que no tiene cargos mensuales en su cuenta. No se realiza ninguna renuncia. ¿Está conforme con la gestión realizada?
+[02:50] CLIENTE: Sí, conforme.
+[02:52] AGENTE : Muchas gracias por su tiempo, don Pedro. Que tenga muy buena tarde.
+[02:57] CLIENTE: Gracias, igualmente. Chao.

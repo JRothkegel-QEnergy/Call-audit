@@ -7,13 +7,13 @@ esperas_seg: []
 umbral_espera_seg: 120
 
 ## Seguros del cliente consultados en la llamada
-- nombre: Seguro Incendio Hogar | n_poliza: INC-HOG-0003 | retenible: si | renunciable_en_canal: si
+- nombre: Seguro Incendio Hogar | n_poliza: INC-HOG-0003 | retenible: si | renunciable_en_canal: si | devolucion_prima: sin dato
 
 ## Tipificación registrada por el ejecutivo
 - seguro: INC-HOG-0003 | gestion: RENUNCIA | motivo: Cambio de Domicilio o Venta de Propiedad
 
 ## Ficha de producto (del seguro gestionado)
-Seguro Incendio Hogar: No disponible (ficha pendiente con el cliente). Evalúa los motivos 2 y 6 como 'indeterminado' si dependen de la ficha.
+Seguro Incendio Hogar: No disponible (ficha pendiente con el cliente).
 
 ## Transcripción (canal separado, timestamps mm:ss)
 [00:01] AGENTE: BancoEstado Corredores de Seguros, buenas tardes, habla Javiera Morales.

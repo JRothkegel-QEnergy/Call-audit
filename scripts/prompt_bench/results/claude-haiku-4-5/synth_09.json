@@ -1,6 +1,6 @@
 ```json
 {
-  "resumen": "Felipe Gutiérrez solicita renunciar a dos seguros: Desempleo de Crédito de Consumo y Seguro Incendio Hogar. El ejecutivo valida identidad, realiza dos intentos de retención (uno por cada seguro) y gestiona ambas renuncias. Cierra con protocolo parcial.",
+  "resumen": "Felipe Gutiérrez llama para renunciar a dos seguros: Desempleo (crédito de consumo) e Incendio Hogar. Cambió de situación laboral (pasó a independiente) y desea ordenar gastos. El ejecutivo valida identidad, realiza dos intentos de retención (uno por seguro), gestiona ambas renuncias y cierra con protocolo parcial.",
   "intencion_renuncia": {
     "expresada": true,
     "cita": "Quiero renunciar a dos seguros: el de desempleo del crédito y el de incendio de la casa.",
@@ -12,192 +12,195 @@
       "resultado_grabacion": "RENUNCIA",
       "motivo_renuncia": "Cambio de situación laboral",
       "n_objeciones": 1,
-      "evidencia": "Cliente expresa que se quedó sin pega y se va a trabajar independiente, por lo que el seguro no le servirá. Ejecutivo realiza un intento de retención (01:13–01:27) argumentando cobertura futura. Cliente rechaza y ejecutivo acepta la renuncia (01:33)."
+      "evidencia": "Cliente expresa intención de renuncia en 00:44. Ejecutivo realiza 1 objeción en 01:13 (argumenta cobertura futura si vuelve a tener contrato). Cliente rechaza en 01:27. Ejecutivo acepta renuncia en 01:33."
     },
     {
       "n_poliza": "INC-HOG-0009",
       "resultado_grabacion": "RENUNCIA",
       "motivo_renuncia": "Problemas Económicos",
       "n_objeciones": 1,
-      "evidencia": "Cliente expresa que es un gasto mensual que no puede tener (01:56). Ejecutivo realiza un intento de retención (02:04–02:10) sugiriendo mantenerlo temporalmente. Cliente rechaza explícitamente (02:10) y ejecutivo acepta (02:14)."
+      "evidencia": "Cliente expresa intención de renuncia en 00:44. Ejecutivo realiza 1 objeción en 01:40 (argumenta importancia de cobertura por trabajo desde casa). Cliente rechaza en 01:56 por razones económicas. Ejecutivo realiza segundo intento en 02:04 (sugiere mantener temporalmente). Cliente rechaza definitivamente en 02:10. Ejecutivo acepta renuncia en 02:14."
     }
   ],
   "criterios": [
     {
       "id": 1,
+      "comentario": "Se revisan los metadatos de esperas_seg: el array está vacío, no hay registros de esperas. No se detectan pausas excesivas en la transcripción que superen el umbral de 120 segundos. La llamada fluye naturalmente sin interrupciones prolongadas.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "No hay esperas registradas en metadatos (esperas_seg: [])."
+      "confianza": 1.0
     },
     {
       "id": 2,
+      "comentario": "El ejecutivo describe el Seguro Incendio Hogar en 01:40 como 'protege su vivienda y sus contenidos ante incendio y otros eventos de la naturaleza'. La ficha de producto no está disponible (dice 'pendiente con el cliente'), por lo que no es posible contrastar si la descripción corresponde a otro seguro. Se marca indeterminado por falta de ficha de referencia.",
       "estado": "indeterminado",
-      "confianza": 0.5,
-      "comentario": "Ficha de Incendio Hogar pendiente según metadatos. No se puede contrastar descripción del ejecutivo (01:40) con ficha oficial. Descripción general es correcta pero incompleta."
+      "confianza": 0.6
     },
     {
       "id": 3,
+      "comentario": "Se cuentan las objeciones por seguro. Para DES-CONS-0009: 1 objeción (01:13). Para INC-HOG-0009: 2 objeciones (01:40 y 02:04). Ambas están dentro del máximo permitido de 3 objeciones por seguro. No se excede el límite.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Se realizan 2 objeciones en total (una por seguro), dentro del máximo de 3 permitido."
+      "confianza": 1.0
     },
     {
       "id": 4,
+      "comentario": "Para DES-CONS-0009: el ejecutivo indica características en 01:13 ('cubriría si a futuro vuelve a tener contrato y lo despiden por necesidades de la empresa', 'prima ya está pagada'). Para INC-HOG-0009: el ejecutivo describe en 01:40 ('protege su vivienda y sus contenidos ante incendio y otros eventos de la naturaleza'). Ambos seguros tienen al menos una característica mencionada.",
       "estado": "cumple",
-      "confianza": 0.9,
-      "comentario": "Ejecutivo indica características del Seguro de Desempleo (01:13–01:27): cobertura por despido por necesidades de empresa, prima pagada única. Para Incendio Hogar (01:40–01:56): protege vivienda y contenidos ante incendio y eventos de naturaleza.",
-      "evidencia": [
-        {
-          "t": "01:13",
-          "hablante": "AGENTE",
-          "cita": "este seguro le cubriría si a futuro vuelve a tener contrato y lo despiden por necesidades de la empresa. Como la prima ya está pagada, no le cuesta nada mantenerlo."
-        }
-      ]
+      "confianza": 1.0
     },
     {
       "id": 5,
+      "comentario": "El cliente no formula preguntas directas sobre características o coberturas específicas del producto. El ejecutivo proporciona información sobre cobertura futura (DES-CONS-0009) y protección de vivienda (INC-HOG-0009) sin que el cliente cuestione. No hay evidencia de falta de manejo de información del producto.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Cliente pregunta implícitamente sobre permanencia al decir 'voy a ser independiente, entonces no me va a cubrir' (01:27). Ejecutivo no niega que la permanencia la maneja el cliente, sino que acepta la renuncia."
+      "confianza": 0.9
     },
     {
       "id": 6,
-      "estado": "indeterminado",
-      "confianza": 0.5,
-      "comentario": "Ficha de Incendio Hogar pendiente. No se puede evaluar si hay errores o vaguedad en la descripción de coberturas sin contrastar con ficha oficial."
+      "comentario": "No hay preguntas del cliente sobre coberturas o características específicas que el ejecutivo no responda. El cliente solo expresa su intención de renunciar por razones económicas y laborales. No se detecta vaguedad o falta de respuesta ante consultas sobre el producto.",
+      "estado": "cumple",
+      "confianza": 0.9
     },
     {
       "id": 7,
+      "comentario": "Ambos seguros son renunciables en este canal según metadatos (renunciable_en_canal: si). No hay necesidad de derivación a otro canal o área. El ejecutivo gestiona ambas renuncias directamente sin derivar.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "No hay indicios de que la solicitud corresponda a otra área. Ambas renuncias se gestionan en el canal de retención."
+      "confianza": 1.0
     },
     {
       "id": 8,
+      "comentario": "El ejecutivo responde de forma directa a las solicitudes del cliente. Cuando el cliente expresa intención de renuncia, el ejecutivo confirma y procede. No hay evasión de preguntas. Las respuestas son claras y pertinentes.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Ejecutivo responde de forma directa a todas las preguntas y solicitudes del cliente."
+      "confianza": 1.0
     },
     {
       "id": 9,
+      "comentario": "Ambos seguros son renunciables en este canal según metadatos (renunciable_en_canal: si). No hay intento de renunciar un seguro irrenunciable en este canal.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Ambos seguros son renunciables en canal según metadatos (renunciable_en_canal: si)."
+      "confianza": 1.0
     },
     {
       "id": 10,
+      "comentario": "La atención del ejecutivo es profesional, respetuosa y sigue un protocolo claro: validación de identidad, escucha de solicitud, intentos de retención moderados, cierre con resumen. No se detectan conductas que incumplan la política de BancoEstado.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "La atención se ajusta a la política: validación de identidad, intentos de retención moderados, cierre con resumen."
+      "confianza": 0.9
     },
     {
       "id": 11,
+      "comentario": "El ejecutivo no descalifica a pares, a BancoEstado ni a la competencia. Mantiene un tono profesional y positivo durante toda la llamada.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "No hay descalificaciones a pares, BancoEstado o competencia."
+      "confianza": 1.0
     },
     {
       "id": 12,
+      "comentario": "El ejecutivo no sugiere ni propone renunciar. Es el cliente quien expresa la intención de renuncia en 00:44. El ejecutivo realiza intentos de retención, no de inducción a renuncia.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Ejecutivo no induce la renuncia. El cliente expresa claramente su intención desde el inicio (00:44)."
+      "confianza": 1.0
     },
     {
       "id": 13,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Ejecutivo menciona número de póliza DES-CONS-0009 en el cierre (02:31).",
+      "comentario": "En el protocolo de cierre (02:31), el ejecutivo menciona el número de póliza para DES-CONS-0009: 'póliza número DES-CONS-0009'. Sin embargo, para INC-HOG-0009, en 02:50 solo dice 'quedó todo listo' sin mencionar el número de póliza. El protocolo de cierre es incompleto para el segundo seguro.",
       "evidencia": [
         {
           "t": "02:31",
           "hablante": "AGENTE",
-          "cita": "póliza número DES-CONS-0009"
-        }
-      ]
-    },
-    {
-      "id": 14,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Ambos seguros son retenibles (metadatos). Se realizan intentos de retención para ambos: DES-CONS-0009 (01:13–01:27) e INC-HOG-0009 (01:40–01:56, 02:04–02:10)."
-    },
-    {
-      "id": 15,
-      "estado": "incumple",
-      "confianza": 0.95,
-      "comentario": "En el cierre (02:31–02:49), ejecutivo no informa el medio de pago asociado a ninguno de los seguros.",
-      "evidencia": [
-        {
-          "t": "02:31",
-          "hablante": "AGENTE",
-          "cita": "Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009, cuya prima fue pagada en forma única con su crédito. ¿Está de acuerdo con la gestión?"
+          "cita": "queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009"
         },
         {
-          "t": "02:49",
+          "t": "02:50",
           "hablante": "AGENTE",
           "cita": "Sí, don Felipe, quedó todo listo."
         }
-      ]
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 14,
+      "comentario": "Ambos seguros son retenibles según metadatos (retenible: si). Para DES-CONS-0009: el ejecutivo realiza 1 intento de retención en 01:13. Para INC-HOG-0009: el ejecutivo realiza 2 intentos de retención en 01:40 y 02:04. Se realizan intentos de retención en ambos casos.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "comentario": "En el protocolo de cierre para DES-CONS-0009 (02:31), el ejecutivo menciona el medio de pago: 'cuyo medio de pago fue el cargo único en su crédito de consumo'. Para INC-HOG-0009, en 02:50 no se menciona el medio de pago, solo 'quedó todo listo'. El protocolo de cierre es incompleto para el segundo seguro.",
+      "evidencia": [
+        {
+          "t": "02:31",
+          "hablante": "AGENTE",
+          "cita": "cuyo medio de pago fue el cargo único en su crédito de consumo"
+        },
+        {
+          "t": "02:50",
+          "hablante": "AGENTE",
+          "cita": "Sí, don Felipe, quedó todo listo."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
     },
     {
       "id": 16,
+      "comentario": "El cliente expresa intención clara de renuncia en 00:44. El ejecutivo realiza intentos de retención solo después de esta expresión. No hay retención sin intención de renuncia.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Ejecutivo no retiene sin que el cliente haya expresado intención de renuncia. Cliente expresa claramente su intención al inicio (00:44)."
+      "confianza": 1.0
     },
     {
       "id": 17,
+      "comentario": "Ambos seguros son retenibles según metadatos (retenible: si). El ejecutivo no intenta retener un seguro no retenible.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Ambos seguros son retenibles (metadatos). No se retiene ningún seguro no retenible."
+      "confianza": 1.0
     },
     {
       "id": 18,
+      "comentario": "Tipificación registrada: DES-CONS-0009 como RENUNCIA con motivo 'Cambio de situación laboral'. Por grabación: el cliente dice en 00:44 'me quedé sin pega hace un mes, me voy a trabajar independiente' y en 01:27 'voy a ser independiente, entonces no me va a cubrir'. El motivo tipificado coincide con lo expresado en la grabación.",
       "estado": "cumple",
-      "confianza": 0.9,
-      "comentario": "Tipificación registrada: DES-CONS-0009 con motivo 'Cambio de situación laboral'. Según grabación, cliente dice 'me quedé sin pega hace un mes, me voy a trabajar independiente' (00:44), lo que corresponde a cambio de situación laboral. Para INC-HOG-0009, cliente expresa 'es un gasto mensual que ahora no puedo tener' (01:56), correspondiente a 'Problemas Económicos'. No hay tipificación registrada para INC-HOG-0009 en metadatos."
+      "confianza": 1.0
     },
     {
       "id": 19,
+      "comentario": "Tipificación registrada: DES-CONS-0009 como RENUNCIA. Por grabación: el cliente expresa intención de renuncia en 00:44 y 01:27, y el ejecutivo confirma la renuncia en 01:33 y 02:31. La tipificación coincide con el resultado de la grabación.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Tipificación registrada es RENUNCIA para DES-CONS-0009. Grabación confirma RENUNCIA."
+      "confianza": 1.0
     },
     {
       "id": 20,
+      "comentario": "Tipificación registrada: DES-CONS-0009 como RENUNCIA. Por grabación: el cliente menciona explícitamente 'el de desempleo del crédito' en 00:44 y el ejecutivo gestiona ese seguro. El seguro tipificado es el mencionado por el cliente.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Tipificación registrada (DES-CONS-0009) corresponde a seguro mencionado por el cliente (00:44)."
+      "confianza": 1.0
     },
     {
       "id": 21,
+      "comentario": "Tipificación registrada: DES-CONS-0009 como RENUNCIA. Por grabación: el cliente menciona 'el de desempleo del crédito' en 00:44, que corresponde a DES-CONS-0009 (Seguro de Desempleo - Créditos de consumo). La tipificación corresponde al seguro correcto.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Tipificación registrada (DES-CONS-0009) corresponde al seguro correcto según grabación."
+      "confianza": 1.0
     },
     {
       "id": 22,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "No hay tipificación de retención registrada. No aplica."
+      "comentario": "Tipificación registrada: solo DES-CONS-0009. Por grabación: el cliente también solicita renuncia de INC-HOG-0009 en 00:44 ('el de incendio de la casa'). No se tipificó la renuncia de INC-HOG-0009, aunque fue gestionada en la llamada.",
+      "evidencia": [
+        {
+          "t": "00:44",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar a dos seguros: el de desempleo del crédito y el de incendio de la casa."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
     },
     {
       "id": 23,
+      "comentario": "Tipificación registrada: DES-CONS-0009. Por grabación: el cliente menciona dos seguros distintos en 00:44. La tipificación de DES-CONS-0009 corresponde al seguro correcto mencionado.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "No hay tipificación de retención registrada. No aplica."
+      "confianza": 1.0
     },
     {
       "id": 24,
+      "comentario": "Tipificación registrada: DES-CONS-0009 como RENUNCIA. Por grabación: el cliente expresa intención de renuncia en 00:44 y 01:27, y el ejecutivo confirma renuncia en 01:33 y 02:31. No hay retención de este seguro.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Tipificación registrada es RENUNCIA. Grabación confirma RENUNCIA para DES-CONS-0009."
+      "confianza": 1.0
     },
     {
       "id": 25,
-      "estado": "incumple",
-      "confianza": 0.95,
-      "comentario": "Cliente solicita renuncia de dos seguros (00:44). Tipificación registrada solo incluye DES-CONS-0009. INC-HOG-0009 no está tipificado, aunque fue gestionado como RENUNCIA según grabación (02:49).",
+      "comentario": "El cliente solicita renuncia de dos seguros en 00:44: DES-CONS-0009 e INC-HOG-0009. Tipificación registrada: solo DES-CONS-0009. Falta tipificar la renuncia de INC-HOG-0009, aunque fue gestionada en la llamada (confirmada en 02:46 y 02:50).",
       "evidencia": [
         {
           "t": "00:44",
@@ -205,112 +208,124 @@
           "cita": "Quiero renunciar a dos seguros: el de desempleo del crédito y el de incendio de la casa."
         },
         {
-          "t": "02:49",
+          "t": "02:46",
+          "hablante": "CLIENTE",
+          "cita": "¿Y el de incendio quedó listo también?"
+        },
+        {
+          "t": "02:50",
           "hablante": "AGENTE",
           "cita": "Sí, don Felipe, quedó todo listo."
         }
-      ]
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
     },
     {
       "id": 26,
-      "estado": "incumple",
-      "confianza": 0.95,
-      "comentario": "Cliente solicita renuncia de dos seguros (00:44). Ejecutivo gestiona ambos, pero en el cierre solo resume explícitamente la renuncia de DES-CONS-0009 (02:31–02:45). La renuncia de INC-HOG-0009 se confirma de forma vaga ('quedó todo listo') sin protocolo de cierre específico.",
-      "evidencia": [
-        {
-          "t": "02:31",
-          "hablante": "AGENTE",
-          "cita": "Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009"
-        },
-        {
-          "t": "02:45",
-          "hablante": "CLIENTE",
-          "cita": "Sí. ¿Y el de incendio quedó listo también?"
-        },
-        {
-          "t": "02:49",
-          "hablante": "AGENTE",
-          "cita": "Sí, don Felipe, quedó todo listo."
-        }
-      ]
+      "comentario": "El cliente solicita renuncia de dos seguros en 00:44. El ejecutivo gestiona ambas renuncias: DES-CONS-0009 (confirmada en 01:33 y 02:31) e INC-HOG-0009 (confirmada en 02:50). Se impactan todas las gestiones solicitadas.",
+      "estado": "cumple",
+      "confianza": 1.0
     },
     {
       "id": 27,
+      "comentario": "No hay tercero en la llamada. El cliente es el titular (Felipe Gutiérrez) y se comunica directamente con el ejecutivo. No aplica este motivo.",
       "estado": "no_aplica",
-      "confianza": 1.0,
-      "comentario": "No hay tercero en la llamada. Cliente es el titular y habla directamente con el ejecutivo."
+      "confianza": 1.0
     },
     {
       "id": 28,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "No hay solicitud de devolución de primas. Para DES-CONS-0009, ejecutivo menciona que 'la prima ya está pagada' (01:13), lo que es correcto según ficha (prima única). No aplica negación de devolución."
+      "comentario": "El cliente no pregunta sobre devolución de primas. Los metadatos indican 'devolucion_prima: sin dato' para ambos seguros, por lo que no hay información disponible para contrastar. No se detecta que el ejecutivo niegue devolución de primas.",
+      "estado": "no_aplica",
+      "confianza": 0.9
     },
     {
       "id": 29,
-      "estado": "incumple",
-      "confianza": 0.85,
-      "comentario": "Protocolo de cierre incompleto. Ejecutivo resume solo DES-CONS-0009 (02:31–02:45) con número de póliza. Para INC-HOG-0009, no hay protocolo de cierre formal: solo confirma 'quedó todo listo' (02:49) sin número de póliza, medio de pago ni resumen de gestión.",
+      "comentario": "El ejecutivo realiza protocolo de cierre en 02:31 para DES-CONS-0009 (resumen, número de póliza, medio de pago). Para INC-HOG-0009, en 02:50 solo dice 'quedó todo listo' sin resumen completo. El protocolo de cierre es parcial e incompleto para el segundo seguro.",
       "evidencia": [
         {
           "t": "02:31",
           "hablante": "AGENTE",
-          "cita": "Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009, cuya prima fue pagada en forma única con su crédito. ¿Está de acuerdo con la gestión?"
+          "cita": "Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009, cuyo medio de pago fue el cargo único en su crédito de consumo."
         },
         {
-          "t": "02:45",
+          "t": "02:50",
+          "hablante": "AGENTE",
+          "cita": "Sí, don Felipe, quedó todo listo."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 30,
+      "comentario": "En 02:31, el ejecutivo pregunta '¿Está de acuerdo con la gestión?' y el cliente responde 'Sí' en 02:46. El cliente luego pregunta '¿Y el de incendio quedó listo también?' en 02:46. El ejecutivo responde 'Sí, don Felipe, quedó todo listo' en 02:50. La respuesta del cliente en 02:46 es una pregunta, no una aceptación clara del cierre. El ejecutivo no repite la confirmación del protocolo de cierre para el segundo seguro.",
+      "evidencia": [
+        {
+          "t": "02:31",
+          "hablante": "AGENTE",
+          "cita": "¿Está de acuerdo con la gestión?"
+        },
+        {
+          "t": "02:46",
           "hablante": "CLIENTE",
           "cita": "Sí. ¿Y el de incendio quedó listo también?"
         },
         {
-          "t": "02:49",
+          "t": "02:50",
           "hablante": "AGENTE",
           "cita": "Sí, don Felipe, quedó todo listo."
         }
-      ]
-    },
-    {
-      "id": 30,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Cliente responde 'Sí' (02:45) a la pregunta de acuerdo con la gestión de DES-CONS-0009. Respuesta clara y permitida. Para INC-HOG-0009, cliente pregunta si quedó listo (02:45) y ejecutivo confirma (02:49). No hay respuesta no permitida que requiera reiteración."
+      ],
+      "estado": "incumple",
+      "confianza": 0.85
     },
     {
       "id": 31,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Ejecutivo valida RUT (00:15), nombre completo (00:24) y fecha de nacimiento (00:24).",
+      "comentario": "El ejecutivo valida en 00:10-00:24: RUT ('Diecinueve millones novecientos noventa y nueve mil novecientos noventa y nueve guion nueve'), nombre completo ('Felipe Ignacio Gutiérrez Bravo') y fecha de nacimiento ('diecisiete de junio del ochenta y siete'). Se validan correctamente los tres datos requeridos.",
       "evidencia": [
         {
           "t": "00:10",
           "hablante": "AGENTE",
-          "cita": "para validar su identidad, ¿me indica su RUT?"
+          "cita": "¿me indica su RUT?"
         },
         {
           "t": "00:21",
           "hablante": "AGENTE",
           "cita": "¿Nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:39",
+          "hablante": "AGENTE",
+          "cita": "Gracias, don Felipe, datos validados."
         }
-      ]
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
     },
     {
       "id": 32,
+      "comentario": "En 02:31, el ejecutivo pregunta '¿Está de acuerdo con la gestión?'. Esta es una pregunta neutra para confirmar el cierre, no una pregunta que condicione la respuesta a un 'Sí' o que predisponga al cliente. No hay formulación como '¿Usted está de acuerdo en mantenerlo, cierto?'.",
       "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Ejecutivo no predispone al cliente a aceptar con condicionales de 'sí'. Pregunta abierta: '¿Está de acuerdo con la gestión?' (02:31)."
+      "confianza": 0.95
     },
     {
       "id": 33,
-      "estado": "cumple",
-      "confianza": 1.0,
-      "comentario": "Ejecutivo valida email (00:32) y teléfono (00:32).",
+      "comentario": "El ejecutivo valida en 00:29-00:32: email ('felipe punto gutierrez arroba correo ejemplo punto cl') y teléfono ('nueve seis seis seis siete siete siete ocho ocho'). Se validan correctamente los dos datos requeridos.",
       "evidencia": [
         {
           "t": "00:29",
           "hablante": "AGENTE",
           "cita": "¿Su correo y teléfono de contacto?"
+        },
+        {
+          "t": "00:39",
+          "hablante": "AGENTE",
+          "cita": "Gracias, don Felipe, datos validados."
         }
-      ]
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
     }
   ]
 }
