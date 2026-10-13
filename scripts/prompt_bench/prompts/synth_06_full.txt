@@ -10,11 +10,15 @@ Tu tarea: revisar la transcripción y detectar cuáles de los 33 "motivos de no 
 de la pauta ocurrieron. La pauta se evalúa por cada seguro sobre el que hubo gestión.
 
 ## Datos que recibes
-- Por cada seguro del cliente consultado en la llamada: nombre, N° de seguro (MUS A Neto,
-  único por seguro), N° de póliza, inicio de vigencia, compañía, categoría (retenible /
-  no retenible / no renunciable), tipo de prima con su regla de devolución, medio de pago
-  y la FICHA del producto.
-  Estos datos vienen de BancoEstado y el ejecutivo no los puede editar: son la verdad.
+- Por cada seguro del cliente consultado en la llamada: los datos de BancoEstado (nombre,
+  N° de seguro MUS A Neto, N° de póliza, inicio de vigencia, medio de pago) y la FICHA
+  estándar del producto: compañía, categoría (retenible / no retenible / no renunciable),
+  tipo de prima con su regla de devolución, retracto, coberturas con montos, asistencias,
+  primas por plan y cómo se usa el seguro.
+  Estos datos vienen de BancoEstado y del catálogo oficial: son la verdad. Los datos
+  personales del cliente (RUT, fecha de nacimiento, correo, teléfono) NO vienen: asume
+  que los que da el cliente coinciden con los registrados, salvo que el ejecutivo diga
+  que no coinciden.
 - La tipificación que registró el ejecutivo.
 - Las esperas y la transcripción con timestamps.
 Identifica de qué seguro se habla por su nombre, su N° de seguro o lo que describe el
@@ -30,7 +34,12 @@ CONSUMO" no es "DESEMPLEO ITT CRE. CONSUMO"): usa siempre el de los metadatos.
    (ej. "cierre 06:40–07:48: no menciona el N° de seguro").
 4. "no_aplica": la situación del motivo no se dio (ej. no hubo tercero → 27 no aplica).
 5. "indeterminado": la transcripción es ambigua, está cortada, es ininteligible en el
-   tramo relevante, o falta un dato necesario (ej. no hay ficha). Explica por qué.
+   tramo relevante, o falta un dato que CAMBIARÍA el resultado (ej. el ejecutivo describe
+   coberturas concretas y no hay ficha para contrastarlas). Explica por qué.
+   Si falta un dato pero la situación del motivo no se dio (ej. no hay tipo de prima,
+   pero nadie habló de devolución), el estado es "no_aplica", no "indeterminado".
+   Cada "indeterminado" manda la llamada a un auditor: úsalo solo cuando de verdad no
+   puedas decidir.
 6. La transcripción viene de reconocimiento de voz: no penalices palabras mal transcritas
    si el sentido es claro. Los números se pueden decir dígito a dígito.
 7. "confianza" va de 0 a 1.
@@ -38,7 +47,10 @@ CONSUMO" no es "DESEMPLEO ITT CRE. CONSUMO"): usa siempre el de los metadatos.
    el comentario concluye que no ocurrió o no aplica, el estado NO puede ser "incumple".
    Comentario de 1 frase si cumple o no aplica; detallado si incumple o es indeterminado.
 9. Marca cada conducta en el motivo MÁS ESPECÍFICO que la describa. No la repitas en
-   otro motivo más general.
+   otro motivo más general. Excepciones (pares que SÍ se marcan juntos porque miden cosas
+   distintas): 8 y 6 (eludir una pregunta y no dar la información del producto),
+   26 y 25 (no gestionar un seguro pedido y no tipificarlo), 9 y 7 (renunciar un no
+   renunciable y no orientar al canal correcto).
 10. Omitir información del seguro (no mencionar todas las coberturas) se corrige con
     retroalimentación y NO es incumplimiento, salvo lo que exige el motivo 4. Lo que sí es
     incumplimiento es dar información INCORRECTA (motivos 2 y 6): genera reclamos.
@@ -158,7 +170,8 @@ aclaraciones del cliente para aplicar el motivo.
    atención cuando alguno de esos datos no coincide.
 33 No valida correctamente al cliente, (Email, Fono). Protocolo de acreditación titularidad.
    Criterio: debe preguntarlos o mencionarlos. Si el dato que da el cliente es distinto
-   al registrado, es solo una observación, no incumple.
+   al registrado, es solo una observación, no incumple. Tú no tienes los datos
+   registrados: evalúa solo si el ejecutivo los pidió o los confirmó.
 29 No realiza protocolo de cierre.
    Criterio: incumple SOLO si no hay ningún resumen final de la gestión: el ejecutivo
    termina sin repasar qué se hizo con el seguro. Si hay un resumen, aunque no siga el
@@ -193,7 +206,8 @@ aclaraciones del cliente para aplicar el motivo.
  6 No maneja información del producto o coberturas.
    Criterio: el ejecutivo siempre tiene la información y debe darla. Incumple si, ante
    preguntas del cliente sobre el producto, responde con datos que contradicen la ficha,
-   con vaguedad, no responde, o niega la información o la desvía a otro canal.
+   con vaguedad ("eso lo ve la compañía", "depende de su póliza"), no la da, o la niega
+   o la desvía a otro canal. Mide si el cliente recibió la información correcta.
    Excepción: las fechas de pago no se manejan en el call center.
  5 No informa que la permanencia la maneja cliente ante consulta directa.
    Criterio: el ejecutivo puede sugerir fechas para renunciar, pero no puede decir que esa
@@ -222,22 +236,33 @@ aclaraciones del cliente para aplicar el motivo.
    Criterio: sugiere o propone renunciar un seguro que el cliente no pidió cancelar (por
    ejemplo, uno que no era el motivo de la consulta).
 32 Predispone al cliente para la aceptación del seguro, condiciona la respuesta a un Si.
-   Criterio: ej. "¿Usted está de acuerdo en mantenerlo, cierto?". Las preguntas del
-   script NO son este motivo: "¿le parece entonces que mantengamos vigente su seguro?",
-   "¿Confirma que desea renunciar?", "¿eso es un Sí?", ni una pregunta neutra como
-   "¿Está de acuerdo con la gestión?".
+   Criterio: preguntas que dan por hecha la respuesta, normalmente con una coletilla:
+   "¿Usted está de acuerdo en mantenerlo, cierto?", "lo dejamos vigente, ¿verdad?",
+   "¿no es cierto que le conviene?". NO son este motivo: las preguntas del script
+   ("¿le parece entonces que mantengamos vigente su seguro?", "¿Confirma que desea
+   renunciar?", "¿eso es un Sí?"), una pregunta neutra ("¿Está de acuerdo con la
+   gestión?") ni las preguntas que ofrecen una alternativa como argumento de retención
+   ("¿no prefiere mantenerlo un tiempo más?"): esas son argumentos (motivo 3).
  7 No realiza derivación correcta.
    Criterio: la situación requiere orientar al cliente a otro canal (ver "Derivar") y el
    ejecutivo no lo hace, lo orienta a un canal equivocado o transfiere la llamada.
 26 No se impactan todas las gestiones solicitadas por el cliente.
-   Criterio: en la grabación el cliente pide gestionar un seguro que no se gestionó.
+   Criterio: el cliente pide renunciar (o gestionar) un seguro y en la grabación esa
+   gestión no se ve realizada: no hay cierre de ese seguro (no se nombra en el resumen
+   final ni se confirma con el cliente). NO basta con que el ejecutivo diga "quedó todo
+   listo": revisa seguro por seguro que cada solicitud tenga su cierre. Si además falta
+   en la tipificación, marca también el 25.
 
 ### D. Trato y comunicación
  1 Deja en espera por tiempo excesivo.
    Criterio: más de umbral_espera_seg (30 s) sin hablarle al cliente: una espera de
    esperas_seg o un silencio del ejecutivo entre timestamps.
  8 No responde de forma directa al cliente. Elude las preguntas.
-   Criterio: el cliente hace una pregunta directa y el ejecutivo responde otra cosa.
+   Criterio: el cliente hace una pregunta directa y el ejecutivo no la contesta: cambia
+   de tema, responde otra cosa o sigue con su discurso (ej. el cliente pregunta qué cubre
+   y el ejecutivo le propone renunciar o le habla de mantener el seguro). Mide la
+   conducta de eludir; si la pregunta era sobre el producto, marca además el 6.
+   Responder directo aunque con un dato errado NO es 8 (es 6, 28 u otro).
 11 Descalifica a los pares, a BancoEstado o a la competencia.
    Criterio: hablar mal de ejecutivos de venta, ejecutivos del banco, otros ejecutivos,
    BancoEstado, la compañía o la competencia.
@@ -267,7 +292,8 @@ Y todos los motivos de renuncia que expresa el cliente. Luego compara con lo tip
 22 Tipifica retención de seguro no mencionado.
 23 Tipifica retención que corresponde a otro seguro.
 25 No tipifica todas las gestiones.
-   Criterio: quedan renuncias o retenciones de la grabación sin tipificar.
+   Criterio: un seguro que el cliente pidió renunciar (se haya gestionado o no en la
+   llamada) o que se retuvo no aparece en la tipificación.
 
 ## Motivos de renuncia válidos (los que exprese el cliente; si no da ninguno, "No informado")
 No desea contraer más obligaciones | Problemas Económicos | Cliente posee otros Seguros |
@@ -303,23 +329,45 @@ umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
 ### Seguro 1: SALE SEGURO PLUS (Sucursales)
+Datos de la llamada (BancoEstado):
 - N° de seguro (MUS A Neto): 48213306
 - N° de póliza: 498213306
 - inicio de vigencia: 2025-03-15
+- medio de pago: CTV (Cuenta Vista (CuentaRUT) (Se paga con la cuenta vista))
+
+Ficha del producto (P34: Sale Seguro Plus (sucursales)):
 - compañía: BNP Paribas Cardif
-- categoría: RETENIBLE. Seguro retenible: si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
-- tipo de prima: prima mensual. Devolución: no hay devolución automática; si el cliente la pide por cobros incorrectos o desconocimiento, se le invita a ingresar un requerimiento al 600 660 1212, opción 2.
-- medio de pago: CTV (Se paga con la Cuenta vista (Cuenta rut))
-- ficha del producto:
-SEGURO | Cobertura Sale Seguro
-Seguro Sale Seguro Plus - Prima Recurrente | 1.-Utilización Forzada por Robo en ATM, Sucursales y BancoEstado Express :Utilización forzada de tarjetas bancarias por giros realizados en cajeros automáticos y en ventanilla: cubre perdida patrimonial que pueda sufrir el asegurado cuando este sea victima de un robo con el objeto de lograr la sustracción del dinero después de haber fectuado la transacción en el cajero automático mediante la utilización forzada de la tarjeta bancaria y transacciones efectuadas en la ventanilla de la sucursal bancaria. 2.-Engaño o extorsión; Cubre las pérdidas patrimoniales que pueda sufrir el Asegurado a causa de un Engaño o Extorsión cometido dentro del territorio nacional, por un tercero desconocido en contra de: el propio Asegurado o,sus padres, cónyuge, conviviente civil, pareja de hecho o hijos (ya sea de ambos, o solo de uno de ellos), que vivan en su mismo domicilio o (iii) un tercero que preste servicios en dicho domicilio. Se entenderá por: “Extorsión”, la amenaza de daño a la integridad física, reputación, mascota, o bienes, de alguna de las personas individualizadas en las condiciones particulares, sin que exista el uso de fuerza física o armas por parte del tercero para realizar el amedrentamiento, obligándolo a actuar de determinada manera y obtener así dinero u otro beneficio patrimonial. “Engaño”, la: suplantación de identidad o invención de alguna situación falsa por parte de un tercero desconocido que induce a alguna de las personas individualizadas en el párrafo primero de este literal, a realizar algún tipo de transacción o traspaso de bienes o dinero. El asegurado está sujeto a una defraudación, mediante el engaño o la extorsión, donde el cliente ve un daño patrimonial producto de esta acción ilícita. 3.-Robo con Violencia o Intimidación en las Personas. En el evento que el Asegurado reporte pérdidas patrimoniales (bienes muebles) a causa de un robo con violencia o Intimidación del que sea víctima, siempre que este ocurra dentro de los límites del Territorio Nacional, la Compañía indemnizará el monto de la pérdida con tope en el monto asegurado según el plan contratado. Para los efectos de esta cobertura se entenderá por Robo con “Violencia” el uso de la fuerza física contra la persona del Asegurado, o por Robo con “Intimidación”, el anuncio o amenaza dirigido al Asegurado en orden a causarle un mal o daño inminente. La compañía cubrirá todo tipo de aparatos y/o accesorios electrónicos, todo tipo de artículos de uso personal, inclusive silla, coche de bebé y/o similar. Esta cobertura se activara siempre que exista el hecho de robo, y esta sea con violencia, entendiéndose por violencia el uso de fuerza física contra la persona asegurada; o intimidación, que hace referencia a anuncios o amenazas dirigidas al asegurado, mientras se cumpla alguna de estas condiciones estará cubierto. 4.-Robo, Hurto o Extravío de Cheques. En el evento que el Asegurado reporte pérdidas en dinero como consecuencia de robo, hurto o extravío de uno o más talonarios de cheques o de cheques individuales emitidos por BancoEstado, la Compañía indemnizará el monto de los cheques pagados, siempre que se cumplan todos los requisitos y obligaciones. 5.-Compra Protegida. Esta cobertura cubre, pérdidas patrimoniales que pueda sufrir el asegurado, quien siendo víctima de la perpetración de un delito de robo o asalto, sufra la pérdida de algún bien adquirido de Forma Presencial dentro del territorio nacional, a través de los medios de pago provistos por BancoEstado. La indemnización se expresará en dinero según el monto de la pérdida con tope en el monto asegurado del plan contratado.
-PÓLIZAS
-COBERTURAS
-Este seguro ofrece la tranquilidad de tener cubiertas las perdidas patrimoniales que pueda sufrir el asegurado, cuando este sea victima de: - Utilización forzada de tarjetas bancarias en cajero automático o giros realizados sucursal BancoEstado y BancoEstado Express - Robo con violencia e intimidación en las personas - Engaño o extorsión. - Robo, hurto o extravío de cheques. - Robo de productos adquiridos utilizando una tarjeta bancaria BancoEstado (Compra protegida).
-Beneficio y Asistencias (600 6000 570) Seguro: | REQUISITO DE ASEGURABILIDAD
-Podrán ser Asegurados, los clientes mayores de 18 años, personas naturales, con o sin giro comercial, que tengan la calidad de titulares y/o adicionales autorizado por el primero de tarjetas emitidas por el Banco Estado, que en forma voluntaria se adhieran a esta Póliza.
-Qué hacer en caso de Siniestro.
-El asegurado, cuando requiera hacer uso del seguro, podrà denunciar el siniestro ingresando al sitio www.segurosbancoestado.cl, llamando al FonoSeguros 6006601212.
+- categoría: RETENIBLE. Si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
+- tipo de prima: prima mensual. Modalidad: Mensual y vencida, asociada a medio de pago (TC, Cuenta Vista, Chequera Electrónica)
+- devolución de prima al renunciar: no hay devolución automática; si el cliente la pide por cobros incorrectos o desconocimiento, se le invita a ingresar un requerimiento al 600 660 1212, opción 2.
+- retracto: sin dato en el catálogo
+- capital asegurado: Según plan (ver Coberturas)
+- edad mínima de ingreso: 18 años
+- plazo para denunciar siniestros (días): 180
+- fono asistencias: Beneficios y asistencias 600 6000 570
+- notas: No cubre clonación (eso es parte de la ley).
+Coberturas:
+- Utilización forzada por robo en ATM, sucursales y ServiEstado. monto: Plan 1 UF 10 / Plan 2 UF 15
+- Engaño o extorsión. monto: Plan 1 UF 5 / Plan 2 UF 15
+- Robo con violencia e intimidación en las personas. monto: Plan 1 UF 5 + UF 1,4116 / Plan 2 UF 7 + UF 1,4116. (*) UF 1,4116: monto de libre disposición en caso de siniestro (gastos legales, transporte u otros), 1 evento al año
+- Robo, hurto o extravío de cheques. monto: Plan 1 UF 5 / Plan 2 UF 7
+- Compra protegida. monto: Plan 1 UF 100 / Plan 2 UF 200
+- Detalle de coberturas. 1.-Utilización Forzada por Robo en ATM, Sucursales y BancoEstado Express :Utilización forzada de tarjetas bancarias por giros realizados en cajeros automáticos y en ventanilla: cubre perdida patrimonial que pueda sufrir el asegurado cuando este sea victima de un robo con el objeto de lograr la sustracción del dinero después de haber fectuado la transacción en el cajero automático mediante la utilización forzada de la tarjeta bancaria y transacciones efectuadas en la ventanilla de la sucursal bancaria. 2.-Engaño o extorsión; Cubre las pérdidas patrimoniales que pueda sufrir el Asegurado a causa de un Engaño o Extorsión cometido dentro del territorio nacional, por un tercero desconocido en contra de: el propio Asegurado o,sus padres, cónyuge, conviviente civil, pareja de hecho o hijos (ya sea de ambos, o solo de uno de ellos), que vivan en su mismo domicilio o (iii) un tercero que preste (...)
+- Resumen. Este seguro ofrece la tranquilidad de tener cubiertas las perdidas patrimoniales que pueda sufrir el asegurado, cuando este sea victima de: - Utilización forzada de tarjetas bancarias en cajero automático o giros realizados sucursal BancoEstado y BancoEstado Express - Robo con violencia e intimidación en las personas - Engaño o extorsión. - Robo, hurto o extravío de cheques. - Robo de productos adquiridos utilizando una tarjeta bancaria BancoEstado (Compra protegida)
+Asistencias y beneficios:
+- Monto de libre disposición en caso de siniestro. UF 1,4116 para gastos legales, de transporte u otros derivados de un siniestro de la cobertura. eventos: 1 al año (12 meses de vigencia). tope: UF 1,4116. fono: 600 6000 570
+- Traslado en taxi post robo o fraude. En caso de robo al titular en Chile, automóvil con conductor desde el lugar del robo hasta la dirección indicada. Si excede los límites se cobra un adicional. eventos: 1 al año. tope: 20 km o 1 hora de conducción. fono: 600 6000 570
+Primas:
+- Plan 1. Titular. monto asegurado: Ver Coberturas. prima UF: 0.1023. prima $ aprox.: 3000. Mensual y vencida
+- Plan 2. Titular. monto asegurado: Ver Coberturas. prima UF: 0.1535. prima $ aprox.: 4400. Mensual y vencida
+Siniestros (cómo usar el seguro):
+- Utilización forzada por robo en ATM, sucursales y ServiEstado. plazo: 180 días desde que el asegurado tomó conocimiento del hecho. canal: Web www.segurosbancoestado.cl o FonoSeguros 600 660 1212. documentos: • Constancia policial dentro de 24 horas. Si no tiene comprobante de giro, denuncia policial ratificada en Fiscalía. • Comprobante del giro en el cajero u otro documento que acredite la transacción. • Declaración de los hechos con detalle de objetos y montos robados
+- Engaño o extorsión. plazo: 180 días desde que el asegurado tomó conocimiento del hecho. canal: Web www.segurosbancoestado.cl o FonoSeguros 600 660 1212. documentos: • Constancia policial dentro de 48 horas (folio y número de la unidad policial). • Declaración de los hechos con detalle de objetos y montos robados
+- Robo con violencia e intimidación en las personas. plazo: 180 días desde que el asegurado tomó conocimiento del hecho. canal: Web www.segurosbancoestado.cl o FonoSeguros 600 660 1212. documentos: • Constancia policial dentro de 48 horas (folio y número). • Declaración de los hechos
+- Robo, hurto o extravío de cheques. plazo: 180 días desde que el asegurado tomó conocimiento del hecho. canal: Web www.segurosbancoestado.cl o FonoSeguros 600 660 1212. documentos: • Constancia policial dentro de 48 horas (folio y número). • Declaración de los hechos con detalle de documentos y montos. • Orden de no pago de los cheques. • Fotocopia legible de los cheques cobrados. • Fotocopia de cédula por ambos lados. • Si la cuenta es bipersonal, informarlo al denunciar
+- Compra protegida. plazo: 180 días desde que el asegurado tomó conocimiento del hecho. canal: Web www.segurosbancoestado.cl o FonoSeguros 600 660 1212. documentos: • Constancia policial dentro de 48 horas (folio y número). • Original del justificante de compra (fecha y precio). • Original del justificante de pago con la tarjeta usada
+Observaciones del catálogo (inconsistencias del original):
+- Pólizas: No se indica número de póliza en el original.
 
 ## Tipificación registrada por el ejecutivo
 - (sin tipificación registrada)

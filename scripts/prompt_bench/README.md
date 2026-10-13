@@ -5,11 +5,10 @@ Prueba el prompt de `docs/layer2-prompt-example.md` con distintas IA sobre las l
 ## 0. Armar el catálogo de seguros (una vez, o cuando cambie el Excel de apoyo)
 
 ```bash
-pip install pyxlsb
-python scripts/prompt_bench/extract_catalog.py "<ruta>/Apoyo nuevo v1.xlsb"
+python scripts/prompt_bench/extract_catalog.py "<ruta>/Apoyo_Seguros_estandarizado.xlsx"
 ```
 
-Deja `data/catalog/products.json` (fuera del repo, por ser material del cliente): categoría, tipo de prima, ficha y medios de pago de cada seguro.
+Deja `data/catalog/products.json` (fuera del repo, por ser material del cliente): por cada seguro, categoría, tipo de prima, coberturas, asistencias, primas, siniestros y retracto. `render.py` arma la ficha de cada seguro con la plantilla de `docs/layer2-product-sheet.md`.
 
 ## 1. Generar los prompts
 
@@ -60,6 +59,6 @@ Deja `results/report.md` con:
 
 - Los esperados los definimos nosotros, no auditores del cliente: esto mide **consistencia entre IA**, no precisión real. Eso lo da el golden set.
 - Umbral de espera: 30 s (nota del cliente en el motivo 1).
-- Las fichas salen del Excel de apoyo. Algunos seguros no tienen ficha (no retenibles, no renunciables, SONAP): la IA recibe "No disponible".
+- Las fichas salen del Excel estandarizado. Los no retenibles y no renunciables no tienen ficha: la IA recibe solo la categoría y la gestión.
 - Las transcripciones no están anonimizadas (son datos inventados). En producción, el texto se anonimiza antes del LLM.
 - Corridas anteriores en `archive/` (cada una con su `report.md`). Las de v1.x usan las 11 llamadas antiguas y otro esquema: no son directamente comparables con v2.0.

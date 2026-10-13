@@ -1,7 +1,7 @@
 """Arma los prompts de la capa 2 para cada llamada sintética, listos para pegar en cualquier IA.
 
 Uso:
-    python scripts/prompt_bench/extract_catalog.py "<ruta>/Apoyo nuevo v1.xlsb"   # una vez
+    python scripts/prompt_bench/extract_catalog.py "<ruta>/Apoyo_Seguros_estandarizado.xlsx"   # una vez
     python scripts/prompt_bench/render.py
 
 Genera en scripts/prompt_bench/prompts/:
@@ -9,11 +9,13 @@ Genera en scripts/prompt_bench/prompts/:
     synth_NN.txt        mensaje de usuario de cada llamada
     synth_NN_full.txt   system + usuario en un solo texto, para chats sin campo de system prompt
 
-Los datos de cada seguro (categoría, tipo de prima, ficha) salen de data/catalog/products.json.
+Cada seguro de los metadatos se completa con la ficha estándar (docs/layer2-product-sheet.md) y los datos de
+data/catalog/products.json.
 """
 
 import json
 import sys
+import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -24,20 +26,35 @@ OUT_DIR = Path(__file__).resolve().parent / "prompts"
 
 # Nota del cliente al motivo 1: "más de 30 segundos sin hablarle".
 HOLD_THRESHOLD_SEC = 30
-MISSING_PRODUCT_SHEET = "No disponible: el Excel de apoyo no tiene ficha para este seguro."
+SHEET_DOC = ROOT / "docs" / "layer2-product-sheet.md"
+NO_DATA = "sin dato en el catálogo"
 PREMIUM = {
     "credito": (
-        "prima única asociada a un crédito",
-        "al renunciar, la devolución de la prima no devengada es automática.",
+        "prima única asociada a un crédito (cobro anticipado)",
+        "corresponde devolución automática de la prima no devengada, en 10 días hábiles desde que la compañía toma conocimiento.",
     ),
-    "anual": ("prima anual", "tiene devolución de la prima no devengada."),
+    "anual": (
+        "prima anual (cobro anticipado)",
+        "corresponde devolución automática de la prima no devengada, en 10 días hábiles desde que la compañía toma conocimiento.",
+    ),
     "mensual": (
         "prima mensual",
         "no hay devolución automática; si el cliente la pide por cobros incorrectos o desconocimiento, "
         "se le invita a ingresar un requerimiento al 600 660 1212, opción 2.",
     ),
-    "sin_dato": ("sin dato en el catálogo", "sin dato."),
+    "sin_dato": (NO_DATA, NO_DATA),
 }
+CATEGORY_RULES = {
+    "RETENIBLE": "Si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.",
+    "NO_RETENIBLE": "Se puede renunciar, pero no se debe intentar retener (motivo 17).",
+    "NO_RENUNCIABLE_SUCURSAL": "No se puede renunciar por teléfono; solo se reemplaza por otra póliza en sucursal. Se registra como consulta.",
+    "NO_RENUNCIABLE_COSTO_BANCO": "Lo paga el banco, no tiene costo para el cliente. No se hace ninguna gestión.",
+    "NO_RENUNCIABLE_SUBSIDIADO": "Subsidiado MINVU, obligatorio. No se puede renunciar; el cliente no paga o paga solo una parte.",
+    "NO_RENUNCIABLE_OBLIGATORIO": "Obligatorio (SOAP). No se renuncia ni se reemplaza; si el cliente insiste, que llame a la compañía.",
+}
+# Las celdas de detalle a veces traen párrafos largos (causales, documentos). Se recortan para no inflar el prompt.
+MAX_DETAIL = 900
+MAX_DOCUMENTS = 300
 
 JSON_OUTPUT_INSTRUCTION = """
 ## Formato de respuesta (modo chat, sin herramientas)
@@ -69,41 +86,109 @@ def fmt(ms: int) -> str:
 
 def load_catalog() -> dict:
     if not CATALOG.exists():
-        sys.exit(f"Falta {CATALOG}. Corre primero: python scripts/prompt_bench/extract_catalog.py \"<ruta>/Apoyo nuevo v1.xlsb\"")
+        sys.exit(f"Falta {CATALOG}. Corre primero: python scripts/prompt_bench/extract_catalog.py \"<ruta>/Apoyo_Seguros_estandarizado.xlsx\"")
     return json.loads(CATALOG.read_text(encoding="utf-8"))
+
+
+def normalize(name: str) -> str:
+    text = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode()
+    return " ".join(text.upper().split())
+
+
+def find_product(name: str, catalog: dict) -> dict:
+    for product in catalog["products"]:
+        if normalize(name) in {normalize(n) for n in product["system_names"]}:
+            return product
+    sys.exit(f"El seguro '{name}' no está en el catálogo.")
 
 
 def payment_description(code: str, catalog: dict) -> str:
     if code == "OTRO":
-        return "otro medio de pago"
-    for line in catalog["payment_methods"]:
-        if line.split(":", 1)[0].strip() == code:
-            return line.split(":", 1)[1].strip()
-    return "sin descripción en el catálogo"
+        return "OTRO (otro medio de pago: no se menciona en el cierre)"
+    return f"{code} ({catalog['payment_methods'].get(code, 'sin descripción en el catálogo')})"
 
 
-def render_policy(n: int, policy: dict, catalog: dict) -> str:
-    products = {p["name"]: p for p in catalog["products"]}
-    product = products.get(policy["name"])
-    if product is None:
-        sys.exit(f"El seguro '{policy['name']}' no está en el catálogo.")
+def short(text: str | None, limit: int) -> str:
+    text = " ".join((text or "").split())
+    return text if len(text) <= limit else text[:limit].rsplit(" ", 1)[0] + " (...)"
+
+
+def bullet_list(items: list[str]) -> str:
+    return "\n".join(f"- {i}" for i in items) if items else f"- {NO_DATA}"
+
+
+def join_fields(*pairs: tuple[str, str | None]) -> str:
+    parts = [(label, str(value).rstrip(". ")) for label, value in pairs if value]
+    return ". ".join(f"{label}: {value}" if label else value for label, value in parts if value)
+
+
+def render_policy(n: int, policy: dict, catalog: dict, templates: tuple[str, str]) -> str:
+    product = find_product(policy["name"], catalog)
     premium, refund = PREMIUM[product["premium_type"]]
-    code = policy["payment_method"]
-    return f"""### Seguro {n}: {product['name']}
-- N° de seguro (MUS A Neto): {policy['mus_a_neto']}
-- N° de póliza: {policy.get('policy_number') or 'sin dato'}
-- inicio de vigencia: {policy.get('start_date') or 'sin dato'}
-- compañía: {product['insurer'] or 'sin dato'}
-- categoría: {product['category']}. {product['category_rule']}
-- tipo de prima: {premium}. Devolución: {refund}
-- medio de pago: {code} ({payment_description(code, catalog)})
-- ficha del producto:
-{product['product_sheet'] or MISSING_PRODUCT_SHEET}"""
+    values = {
+        "n": n,
+        "nombre_sistema": policy["name"],
+        "mus_a_neto": policy["mus_a_neto"],
+        "n_poliza": policy.get("policy_number") or NO_DATA,
+        "inicio_vigencia": policy.get("start_date") or NO_DATA,
+        "medio_pago": payment_description(policy["payment_method"], catalog),
+        "id_producto": product["id"],
+        "nombre_real": product["name"],
+        "compania": product.get("insurer") or NO_DATA,
+        "categoria": product["category"],
+        "regla_categoria": CATEGORY_RULES[product["category"]] + (f" {product['category_detail']}" if product.get("category_detail") else ""),
+    }
+    if not product["id"]:
+        return templates[1].format(**values)
+
+    general = [
+        ("capital asegurado", product.get("insured_capital")),
+        ("edad mínima de ingreso", product.get("min_entry_age")),
+        ("edad máxima de ingreso", product.get("max_entry_age")),
+        ("edad máxima de permanencia", product.get("max_stay_age")),
+        ("inicio de cobertura", product.get("coverage_start")),
+        ("apoyo solidario", product.get("solidarity_support")),
+        ("plazo para denunciar siniestros (días)", product.get("claim_deadline_days")),
+        ("fono asistencias", product.get("assistance_phone")),
+        ("notas", product.get("notes")),
+    ]
+    coverages = [
+        join_fields(("", c["name"]), ("monto", c.get("amount") and short(c["amount"], 300)), ("", short(c.get("detail"), MAX_DETAIL)), ("beneficiario", c.get("beneficiary")))
+        for c in product["coverages"]
+    ]
+    assistances = [
+        join_fields(("", a["name"]), ("", short(a.get("detail"), 400)), ("eventos", a.get("events")), ("tope", a.get("cap")), ("fono", a.get("phone")))
+        for a in product["assistances"]
+    ]
+    premiums = [
+        join_fields(("", r.get("plan")), ("", r.get("insured")), ("edad", r.get("age_band")), ("monto asegurado", r.get("amount_insured")),
+                    ("prima UF", r.get("premium_uf")), ("prima $ aprox.", r.get("premium_clp")), ("", r.get("periodicity")))
+        for r in product["premiums"]
+    ]
+    claims = [
+        join_fields(("", c.get("coverage")), ("plazo", c.get("deadline")), ("canal", c.get("channel")), ("documentos", short(c.get("documents"), MAX_DOCUMENTS)))
+        for c in product["claims"]
+    ]
+    disability = [f"días {r['from_day']} a {r['to_day'] or 'más'}: {r['amount']}" for r in product["temporary_disability_table"]]
+    values.update({
+        "tipo_prima": premium,
+        "modalidad_prima": product.get("premium_mode") or NO_DATA,
+        "regla_devolucion": refund,
+        "retracto": product.get("withdrawal") or NO_DATA,
+        "datos_generales": "\n".join(f"- {label}: {value}" for label, value in general if value),
+        "coberturas": bullet_list(coverages),
+        "asistencias": bullet_list(assistances),
+        "primas": bullet_list(premiums),
+        "tabla_incapacidad": f"Indemnización por incapacidad temporal:\n{bullet_list(disability)}\n" if disability else "",
+        "siniestros": bullet_list(claims),
+        "observaciones": ("Observaciones del catálogo (inconsistencias del original):\n" + bullet_list(product["observations"])) if product["observations"] else "",
+    })
+    return templates[0].format(**values).rstrip()
 
 
-def render_user_message(call: dict, catalog: dict) -> str:
+def render_user_message(call: dict, catalog: dict, templates: tuple[str, str]) -> str:
     meta = call["metadata"]
-    policies = "\n\n".join(render_policy(i, p, catalog) for i, p in enumerate(meta["policies"], start=1))
+    policies = "\n\n".join(render_policy(i, p, catalog, templates) for i, p in enumerate(meta["policies"], start=1))
     typification = "\n".join(
         f"- seguro: {t['mus_a_neto']} | gestion: {t['outcome']} | motivo: {t['reason']}" for t in meta["typification"]
     ) or "- (sin tipificación registrada)"
@@ -131,6 +216,8 @@ umbral_espera_seg: {HOLD_THRESHOLD_SEC}
 
 def main() -> None:
     catalog = load_catalog()
+    sheet_blocks = read_code_blocks(SHEET_DOC)
+    templates = (sheet_blocks[0], sheet_blocks[1])
     blocks = read_code_blocks(PROMPT_DOC)
     system_prompt, schema = blocks[0], blocks[3]
     system_prompt += "\n" + JSON_OUTPUT_INSTRUCTION.format(schema=json.dumps(json.loads(schema)["input_schema"], ensure_ascii=False))
@@ -141,7 +228,7 @@ def main() -> None:
     (OUT_DIR / "system.txt").write_text(system_prompt + "\n", encoding="utf-8")
     for path in sorted(CALLS_DIR.glob("synth_*.json")):
         call = json.loads(path.read_text(encoding="utf-8"))
-        user = render_user_message(call, catalog)
+        user = render_user_message(call, catalog, templates)
         (OUT_DIR / f"{path.stem}.txt").write_text(user, encoding="utf-8")
         (OUT_DIR / f"{path.stem}_full.txt").write_text(f"{system_prompt}\n\n---\n\n{user}", encoding="utf-8")
         print(f"ok {path.stem}")

@@ -2,7 +2,7 @@
 
 > **Nota de implementación:** este es el prompt de referencia del dominio (en español, porque las llamadas son en español). Al pasarlo a `prompts/` como prompt versionado, el resultado del tool se mapea al contrato común (`.claude/rules/layer-contract.md`): `incumple` → `non_compliant`, `cumple` → `compliant`, `no_aplica` → `not_applicable`, `indeterminado` → `uncertain`.
 
-**Versión 2.2** (2026-10-13). Cambios respecto de versiones anteriores al final del documento.
+**Versión 2.3** (2026-10-13). Cambios respecto de versiones anteriores al final del documento.
 
 Fuentes:
 
@@ -12,11 +12,12 @@ Fuentes:
 - **Script Retención BECS (julio 2026)**: protocolos de saludo, validación, retención, renuncia, solicitudes y cierre. Cuando contradice al Excel de apoyo, manda el script (es más nuevo y es el guion del ejecutivo).
 - **Motivos de Renuncia** (27).
 
-El prompt tiene 3 partes:
+El prompt tiene 3 partes, más una plantilla:
 
 1. **System prompt**: fijo por protocolo; se cachea en el batch.
 2. **Mensaje de usuario**: cambia en cada llamada; lleva los metadatos, los seguros con su ficha y la transcripción.
 3. **Esquema de salida**: tool con JSON forzado.
+4. **Ficha estándar del seguro** (`docs/layer2-product-sheet.md`): plantilla que se completa con el catálogo según el seguro de los metadatos y se inserta en el mensaje de usuario.
 
 Lo que está entre `{{ }}` lo completa el sistema. Lo marcado con **[DEFINIR]** debe confirmarlo el cliente.
 
@@ -37,11 +38,15 @@ Tu tarea: revisar la transcripción y detectar cuáles de los 33 "motivos de no 
 de la pauta ocurrieron. La pauta se evalúa por cada seguro sobre el que hubo gestión.
 
 ## Datos que recibes
-- Por cada seguro del cliente consultado en la llamada: nombre, N° de seguro (MUS A Neto,
-  único por seguro), N° de póliza, inicio de vigencia, compañía, categoría (retenible /
-  no retenible / no renunciable), tipo de prima con su regla de devolución, medio de pago
-  y la FICHA del producto.
-  Estos datos vienen de BancoEstado y el ejecutivo no los puede editar: son la verdad.
+- Por cada seguro del cliente consultado en la llamada: los datos de BancoEstado (nombre,
+  N° de seguro MUS A Neto, N° de póliza, inicio de vigencia, medio de pago) y la FICHA
+  estándar del producto: compañía, categoría (retenible / no retenible / no renunciable),
+  tipo de prima con su regla de devolución, retracto, coberturas con montos, asistencias,
+  primas por plan y cómo se usa el seguro.
+  Estos datos vienen de BancoEstado y del catálogo oficial: son la verdad. Los datos
+  personales del cliente (RUT, fecha de nacimiento, correo, teléfono) NO vienen: asume
+  que los que da el cliente coinciden con los registrados, salvo que el ejecutivo diga
+  que no coinciden.
 - La tipificación que registró el ejecutivo.
 - Las esperas y la transcripción con timestamps.
 Identifica de qué seguro se habla por su nombre, su N° de seguro o lo que describe el
@@ -57,7 +62,12 @@ CONSUMO" no es "DESEMPLEO ITT CRE. CONSUMO"): usa siempre el de los metadatos.
    (ej. "cierre 06:40–07:48: no menciona el N° de seguro").
 4. "no_aplica": la situación del motivo no se dio (ej. no hubo tercero → 27 no aplica).
 5. "indeterminado": la transcripción es ambigua, está cortada, es ininteligible en el
-   tramo relevante, o falta un dato necesario (ej. no hay ficha). Explica por qué.
+   tramo relevante, o falta un dato que CAMBIARÍA el resultado (ej. el ejecutivo describe
+   coberturas concretas y no hay ficha para contrastarlas). Explica por qué.
+   Si falta un dato pero la situación del motivo no se dio (ej. no hay tipo de prima,
+   pero nadie habló de devolución), el estado es "no_aplica", no "indeterminado".
+   Cada "indeterminado" manda la llamada a un auditor: úsalo solo cuando de verdad no
+   puedas decidir.
 6. La transcripción viene de reconocimiento de voz: no penalices palabras mal transcritas
    si el sentido es claro. Los números se pueden decir dígito a dígito.
 7. "confianza" va de 0 a 1.
@@ -65,7 +75,10 @@ CONSUMO" no es "DESEMPLEO ITT CRE. CONSUMO"): usa siempre el de los metadatos.
    el comentario concluye que no ocurrió o no aplica, el estado NO puede ser "incumple".
    Comentario de 1 frase si cumple o no aplica; detallado si incumple o es indeterminado.
 9. Marca cada conducta en el motivo MÁS ESPECÍFICO que la describa. No la repitas en
-   otro motivo más general.
+   otro motivo más general. Excepciones (pares que SÍ se marcan juntos porque miden cosas
+   distintas): 8 y 6 (eludir una pregunta y no dar la información del producto),
+   26 y 25 (no gestionar un seguro pedido y no tipificarlo), 9 y 7 (renunciar un no
+   renunciable y no orientar al canal correcto).
 10. Omitir información del seguro (no mencionar todas las coberturas) se corrige con
     retroalimentación y NO es incumplimiento, salvo lo que exige el motivo 4. Lo que sí es
     incumplimiento es dar información INCORRECTA (motivos 2 y 6): genera reclamos.
@@ -185,7 +198,8 @@ aclaraciones del cliente para aplicar el motivo.
    atención cuando alguno de esos datos no coincide.
 33 No valida correctamente al cliente, (Email, Fono). Protocolo de acreditación titularidad.
    Criterio: debe preguntarlos o mencionarlos. Si el dato que da el cliente es distinto
-   al registrado, es solo una observación, no incumple.
+   al registrado, es solo una observación, no incumple. Tú no tienes los datos
+   registrados: evalúa solo si el ejecutivo los pidió o los confirmó.
 29 No realiza protocolo de cierre.
    Criterio: incumple SOLO si no hay ningún resumen final de la gestión: el ejecutivo
    termina sin repasar qué se hizo con el seguro. Si hay un resumen, aunque no siga el
@@ -220,7 +234,8 @@ aclaraciones del cliente para aplicar el motivo.
  6 No maneja información del producto o coberturas.
    Criterio: el ejecutivo siempre tiene la información y debe darla. Incumple si, ante
    preguntas del cliente sobre el producto, responde con datos que contradicen la ficha,
-   con vaguedad, no responde, o niega la información o la desvía a otro canal.
+   con vaguedad ("eso lo ve la compañía", "depende de su póliza"), no la da, o la niega
+   o la desvía a otro canal. Mide si el cliente recibió la información correcta.
    Excepción: las fechas de pago no se manejan en el call center.
  5 No informa que la permanencia la maneja cliente ante consulta directa.
    Criterio: el ejecutivo puede sugerir fechas para renunciar, pero no puede decir que esa
@@ -249,22 +264,33 @@ aclaraciones del cliente para aplicar el motivo.
    Criterio: sugiere o propone renunciar un seguro que el cliente no pidió cancelar (por
    ejemplo, uno que no era el motivo de la consulta).
 32 Predispone al cliente para la aceptación del seguro, condiciona la respuesta a un Si.
-   Criterio: ej. "¿Usted está de acuerdo en mantenerlo, cierto?". Las preguntas del
-   script NO son este motivo: "¿le parece entonces que mantengamos vigente su seguro?",
-   "¿Confirma que desea renunciar?", "¿eso es un Sí?", ni una pregunta neutra como
-   "¿Está de acuerdo con la gestión?".
+   Criterio: preguntas que dan por hecha la respuesta, normalmente con una coletilla:
+   "¿Usted está de acuerdo en mantenerlo, cierto?", "lo dejamos vigente, ¿verdad?",
+   "¿no es cierto que le conviene?". NO son este motivo: las preguntas del script
+   ("¿le parece entonces que mantengamos vigente su seguro?", "¿Confirma que desea
+   renunciar?", "¿eso es un Sí?"), una pregunta neutra ("¿Está de acuerdo con la
+   gestión?") ni las preguntas que ofrecen una alternativa como argumento de retención
+   ("¿no prefiere mantenerlo un tiempo más?"): esas son argumentos (motivo 3).
  7 No realiza derivación correcta.
    Criterio: la situación requiere orientar al cliente a otro canal (ver "Derivar") y el
    ejecutivo no lo hace, lo orienta a un canal equivocado o transfiere la llamada.
 26 No se impactan todas las gestiones solicitadas por el cliente.
-   Criterio: en la grabación el cliente pide gestionar un seguro que no se gestionó.
+   Criterio: el cliente pide renunciar (o gestionar) un seguro y en la grabación esa
+   gestión no se ve realizada: no hay cierre de ese seguro (no se nombra en el resumen
+   final ni se confirma con el cliente). NO basta con que el ejecutivo diga "quedó todo
+   listo": revisa seguro por seguro que cada solicitud tenga su cierre. Si además falta
+   en la tipificación, marca también el 25.
 
 ### D. Trato y comunicación
  1 Deja en espera por tiempo excesivo.
    Criterio: más de umbral_espera_seg (30 s) sin hablarle al cliente: una espera de
    esperas_seg o un silencio del ejecutivo entre timestamps.
  8 No responde de forma directa al cliente. Elude las preguntas.
-   Criterio: el cliente hace una pregunta directa y el ejecutivo responde otra cosa.
+   Criterio: el cliente hace una pregunta directa y el ejecutivo no la contesta: cambia
+   de tema, responde otra cosa o sigue con su discurso (ej. el cliente pregunta qué cubre
+   y el ejecutivo le propone renunciar o le habla de mantener el seguro). Mide la
+   conducta de eludir; si la pregunta era sobre el producto, marca además el 6.
+   Responder directo aunque con un dato errado NO es 8 (es 6, 28 u otro).
 11 Descalifica a los pares, a BancoEstado o a la competencia.
    Criterio: hablar mal de ejecutivos de venta, ejecutivos del banco, otros ejecutivos,
    BancoEstado, la compañía o la competencia.
@@ -294,7 +320,8 @@ Y todos los motivos de renuncia que expresa el cliente. Luego compara con lo tip
 22 Tipifica retención de seguro no mencionado.
 23 Tipifica retención que corresponde a otro seguro.
 25 No tipifica todas las gestiones.
-   Criterio: quedan renuncias o retenciones de la grabación sin tipificar.
+   Criterio: un seguro que el cliente pidió renunciar (se haya gestionado o no en la
+   llamada) o que se retuvo no aparece en la tipificación.
 
 ## Motivos de renuncia válidos (los que exprese el cliente; si no da ninguno, "No informado")
 No desea contraer más obligaciones | Problemas Económicos | Cliente posee otros Seguros |
@@ -327,16 +354,7 @@ umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
 {{#seguros}}
-### Seguro {{n}}: {{nombre}}
-- N° de seguro (MUS A Neto): {{mus_a_neto}}
-- N° de póliza: {{n_poliza}}
-- inicio de vigencia: {{fecha_inicio_vigencia}}
-- compañía: {{compania}}
-- categoría: {{categoria}}. {{regla_categoria}}
-- tipo de prima: {{tipo_prima}}. Devolución: {{regla_devolucion}}
-- medio de pago: {{codigo}} ({{descripcion_medio_pago}})
-- ficha del producto:
-{{ficha}}
+{{ficha_estandar}}        # plantilla de docs/layer2-product-sheet.md, una por seguro
 {{/seguros}}
 
 ## Tipificación registrada por el ejecutivo
@@ -348,19 +366,24 @@ umbral_espera_seg: 30
 {{transcripcion}}
 ```
 
-**Ejemplo de un seguro** (los datos salen de `data/catalog/products.json`; la ficha es el texto completo de la hoja del producto en el Excel de apoyo, acá recortada):
+**Ejemplo de un seguro** (plantilla de `docs/layer2-product-sheet.md` completada con `data/catalog/products.json`, recortada):
 
 ```text
 ### Seguro 1: DESEMPLEO ITT CRE. CONSUMO
+Datos de la llamada (BancoEstado):
 - N° de seguro (MUS A Neto): 48213301
-- N° de póliza: 490000201
-- inicio de vigencia: 2025-11-03
+- N° de póliza: 498213301
+- inicio de vigencia: 2025-03-15
+- medio de pago: CRE (Crédito de Consumo (Está asociado a un crédito de consumo))
+
+Ficha del producto (P30: Desempleo e Incapacidad Temporal – Créditos de Consumo):
 - compañía: BNP Paribas Cardif
-- categoría: RETENIBLE. Seguro retenible: si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
-- tipo de prima: prima única asociada a un crédito. Devolución: al renunciar, la devolución de la prima no devengada es automática.
-- medio de pago: CRE (Está asociado a un Crédito de Consumo.)
-- ficha del producto:
-Seguro Desempleo e Incapacidad Temporal " Creditos Consumo - Prima Única | DESEMPLEO: 4 cuotas del crédito (pagadas de dos en dos), más un 3,5% ...
+- categoría: RETENIBLE. Si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
+- tipo de prima: prima única asociada a un crédito (cobro anticipado). Modalidad: Prima única y anticipada (según plazo y monto del crédito)
+- devolución de prima al renunciar: corresponde devolución automática de la prima no devengada, en 10 días hábiles desde que la compañía toma conocimiento.
+- capital asegurado: Hasta 4 cuotas del crédito + 3,5% gastos administrativos
+Coberturas:
+- Desempleo involuntario. monto: Hasta 4 cuotas + 3,5%. ...
 ```
 
 ---
@@ -610,6 +633,14 @@ Seguro Desempleo e Incapacidad Temporal " Creditos Consumo - Prima Única | DESE
 - **Pendiente con el cliente [DEFINIR]:** la gravedad de cada motivo, el conteo de objeciones, qué motivo aplica cuando se tipifica RENUNCIA y la grabación es CONSULTA, qué significa exactamente "medio de pago otro", si no informar la devolución automática es motivo 28 o 29, y si el aviso de grabación del saludo se evalúa.
 
 ## Historial de cambios
+
+**2.3 (2026-10-13)**, para subir la precisión de DeepSeek, GPT-6 Luna y Haiku 5.5 (errores revisados uno a uno):
+
+- La ficha de cada seguro sale de una plantilla aparte (`docs/layer2-product-sheet.md`) completada con el Excel estandarizado: coberturas con montos, asistencias, primas por plan, retracto y siniestros, en vez del volcado de la hoja original.
+- Motivos 6 y 8: se marcan juntos cuando el ejecutivo elude una pregunta sobre el producto (los tres modelos dejaban solo el 6 por la regla del motivo más específico). La regla 9 lista los pares que sí van juntos (8+6, 26+25, 9+7).
+- Motivo 26: no basta con que el ejecutivo diga "quedó todo listo"; cada seguro pedido debe tener su cierre (los tres modelos le creían).
+- Motivo 32: las preguntas que ofrecen una alternativa ("¿no prefiere mantenerlo un tiempo más?") son argumentos, no predisposición.
+- Indeterminado solo si el dato que falta cambiaría el resultado; los datos personales registrados no vienen y se asumen correctos (Haiku marcaba indeterminados de más).
 
 **2.2 (2026-10-13)**, tras la corrida con la 2.1:
 

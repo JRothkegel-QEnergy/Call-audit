@@ -8,15 +8,16 @@ umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
 ### Seguro 1: DESGRAVAMEN NOMINAL
+Datos de la llamada (BancoEstado):
 - N° de seguro (MUS A Neto): 48213311
 - N° de póliza: 498213311
 - inicio de vigencia: 2025-03-15
-- compañía: sin dato
-- categoría: NO_RENUNCIABLE_SUCURSAL. No renunciable por teléfono (obligatorio). Solo se puede reemplazar por otra póliza y esa gestión se hace en sucursal. Se registra como consulta: 'seguro no se puede renunciar, se deriva a sucursal'.
-- tipo de prima: sin dato en el catálogo. Devolución: sin dato.
-- medio de pago: HIP (Asociado a Crédito Hipotecario.)
-- ficha del producto:
-No disponible: el Excel de apoyo no tiene ficha para este seguro.
+- medio de pago: HIP (Crédito Hipotecario (Asociado a crédito hipotecario))
+
+Ficha del producto: no hay ficha en el catálogo para este seguro.
+- nombre real: DESGRAVAMEN NOMINAL
+- compañía: sin dato en el catálogo
+- categoría: NO_RENUNCIABLE_SUCURSAL. No se puede renunciar por teléfono; solo se reemplaza por otra póliza en sucursal. Se registra como consulta. Obligatorio. No se renuncia por call; solo se reemplaza por otra póliza en sucursal. Registrar como consulta/seguro no se puede renunciar.
 
 ## Tipificación registrada por el ejecutivo
 - seguro: 48213311 | gestion: RENUNCIA | motivo: Desconoce contratación del seguro

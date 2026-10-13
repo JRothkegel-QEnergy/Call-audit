@@ -149,6 +149,11 @@
         "note": "El ejecutivo da el seguro por retenido sin solicitud. Si eso cuenta como gestión, falta el protocolo de cierre (TBD con el cliente)."
       },
       {
+        "criterion_id": 30,
+        "status": "uncertain",
+        "note": "'Eh... sí, supongo' no es una respuesta válida según el script y el ejecutivo no repregunta. Aplica si la 'retención' cuenta como gestión con cierre."
+      },
+      {
         "criterion_id": 13,
         "status": "uncertain",
         "note": "Igual que 29."

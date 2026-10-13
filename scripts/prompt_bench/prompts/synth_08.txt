@@ -8,30 +8,34 @@ umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
 ### Seguro 1: AP INDIVIDUAL MEDIO DE PAGO
+Datos de la llamada (BancoEstado):
 - N° de seguro (MUS A Neto): 48213308
 - N° de póliza: 498213308
 - inicio de vigencia: 2025-03-15
+- medio de pago: CTV (Cuenta Vista (CuentaRUT) (Se paga con la cuenta vista))
+
+Ficha del producto (P07: AP Individual (medio de pago)):
 - compañía: MetLife
-- categoría: RETENIBLE. Seguro retenible: si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
-- tipo de prima: prima anual. Devolución: tiene devolución de la prima no devengada.
-- medio de pago: CTV (Se paga con la Cuenta vista (Cuenta rut))
-- ficha del producto:
-SEGURO | COBERTURAS
-ACCIDENTES PERSONALES PLAN INDIVIDUAL Póliza 491000167 | UF 180
-MUERTE ACCIDENTAL
-En caso de muerte accidental del Asegurado en Chile o en el extranjero, la Compañía pagará al beneficiario, de una sola vez; el capital asegurado según el plan contratado
-BENEFICIARIOS
-Serán beneficiarios de esta póliza todas aquellas personas naturales que el Asegurado designe al momento de la contratación del presente seguro, y que figuren individualizadas en la respectiva Propuesta de Seguro Muerte Accidental Plan Individual. En caso de no haber designado beneficiarios, serán los herederos legales (según posesión efectiva).
-APOYO SOLIDARIO | UF 5
-En caso de fallecimiento del Asegurado, sea cual sea la causa, la Compañía Aseguradora pagará al Reclamante del siniestro, de una sola vez, un monto total de UF 5. Dicho monto se pagará adicionalmente al capital asegurado por fallecimiento. | 1 evento
-POLIZAS N° 490000147, 491000147, 492000147, 490000167, 491000167 y 492000167.
-REQUISITOS DE ASEGURABILIDAD
-Edad mínima de Ingreso | 18 años
-Edad máxima de Ingreso | 78 años y 364 días
-Edad máxima de permanencia | 79 años y 364 días
-PRIMA DEL SEGURO
-UF 0,25
-PRIMA ANUAL
+- categoría: RETENIBLE. Si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
+- tipo de prima: prima anual (cobro anticipado). Modalidad: Anual: UF 0,25
+- devolución de prima al renunciar: corresponde devolución automática de la prima no devengada, en 10 días hábiles desde que la compañía toma conocimiento.
+- retracto: No
+- capital asegurado: Muerte accidental UF 180; Apoyo solidario UF 5 (1 evento)
+- edad mínima de ingreso: 18 años
+- edad máxima de ingreso: 78 años y 364 días
+- edad máxima de permanencia: 79 años y 364 días
+- inicio de cobertura: Desde que se contrata
+- apoyo solidario: Contrataciones desde el 01/01/2023 NO cuentan con apoyo solidario
+- plazo para denunciar siniestros (días): 240
+Coberturas:
+- Muerte accidental. monto: UF 180. En caso de muerte accidental del Asegurado en Chile o en el extranjero, la Compañía pagará al beneficiario, de una sola vez; el capital asegurado según el plan contratado. beneficiario: Serán beneficiarios de esta póliza todas aquellas personas naturales que el Asegurado designe al momento de la contratación del presente seguro, y que figuren individualizadas en la respectiva Propuesta de Seguro Muerte Accidental Plan Individual. En caso de no haber designado beneficiarios, serán los herederos legales (según posesión efectiva)
+- Apoyo solidario. monto: UF 5 (1 evento). En caso de fallecimiento del Asegurado, sea cual sea la causa, la Compañía Aseguradora pagará al Reclamante del siniestro, de una sola vez, un monto total de UF 5. Dicho monto se pagará adicionalmente al capital asegurado por fallecimiento. beneficiario: Reclamante del siniestro
+Asistencias y beneficios:
+- sin dato en el catálogo
+Primas:
+- Titular. monto asegurado: UF 180. prima UF: 0.25. Anual
+Siniestros (cómo usar el seguro):
+- sin dato en el catálogo
 
 ## Tipificación registrada por el ejecutivo
 - seguro: 48213308 | gestion: RENUNCIA | motivo: No informado

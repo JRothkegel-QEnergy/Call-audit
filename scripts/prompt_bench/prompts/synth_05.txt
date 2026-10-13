@@ -8,46 +8,57 @@ umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
 ### Seguro 1: HOSPITALIZACION TLMK
+Datos de la llamada (BancoEstado):
 - N° de seguro (MUS A Neto): 48213305
 - N° de póliza: 498213305
 - inicio de vigencia: 2025-03-15
+- medio de pago: CTV (Cuenta Vista (CuentaRUT) (Se paga con la cuenta vista))
+
+Ficha del producto (P05: Hospitalización TLMK):
 - compañía: MetLife
-- categoría: RETENIBLE. Seguro retenible: si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
-- tipo de prima: prima mensual. Devolución: no hay devolución automática; si el cliente la pide por cobros incorrectos o desconocimiento, se le invita a ingresar un requerimiento al 600 660 1212, opción 2.
-- medio de pago: CTV (Se paga con la Cuenta vista (Cuenta rut))
-- ficha del producto:
-Nombre en sistema | HOSPITALIZACIÓN TLMK
-SEGURO | COBERTURAS
-HOSPITALIZACIÓN | $ DE LIBRE DISPOSICIÓN
-POR ENFERMEDAD O ACCIDENTE
-SALA COMUN, UTI O UCI | desde UF 2
-Tope máximo de días | 180 días
-PRIMA DEL SEGURO PARA ASEGURADO TITULAR
-PLAN | PRIMA EN $ aprox | COBERTURA
-Plan 1 UF 0,1950 | 6300 | Plan 1 2 UF
-Plan 2 UF 0,2230 | 7200 | Plan 2 4 UF
-Plan 3 UF 0,2500 | 8100 | Plan 3 6 UF
-PRIMA ASEGURADO TITULAR + 1 ADICIONAL | PRIMA ASEGURADO TITULAR + 1 ADICIONAL
-Plan 1 UF 0,2380 | $ 6.800 | Plan 1 2 UF x asegurado adicional
-Plan 2 UF 0,2970 | $ 8.500 | Plan 1 4 UF x asegurado adicional
-Plan 3 UF 0,3570 | $ 10.200 | Plan 1 6 UF x asegurado adicional
-PRIMA ASEGURADO TITULAR + 2 ADICIONALES | PRIMA ASEGURADO TITULAR + 2 ADICIONALES
-Plan 1 UF 0,2680 | $ 7.700 | Plan 1 2 UF x asegurado adicional
-Plan 2 UF 0,3620 | $ 10.400 | Plan 1 4 UF x asegurado adicional
-Plan 3 UF 0,4540 | $ 13.000 | Plan 1 6 UF x asegurado adicional
-PRIMA ASEGURADO TITULAR + 3 ADICIONALES | PRIMA ASEGURADO TITULAR + 3 ADICIONALES
-Plan 1 UF 0,2970 | $ 8.500 | Plan 1 2 UF x asegurado adicional
-Plan 2 UF 0,4230 | $ 12.100 | Plan 1 4 UF x asegurado adicional
-Plan 3 UF 0,5530 | $ 15.900 | Plan 1 6 UF x asegurado adicional
-PRIMA ASEGURADO TITULAR + 4 ADICIONALES | PRIMA ASEGURADO TITULAR + 4 ADICIONALES
-Plan 1 UF 0,3270 | $ 9.400 | Plan 1 2 UF x asegurado adicional
-Plan 2 UF 0,4890 | $ 14.000 | Plan 1 4 UF x asegurado adicional
-Plan 3 UF 0,6510 | $ 18.700 | Plan 1 6 UF x asegurado adicional
-PRIMA ASEGURADO TITULAR + 5 ADICIONALES | PRIMA ASEGURADO TITULAR + 5 ADICIONALES
-Plan 1 UF 0,3570 | $ 10.200 | Plan 1 2 UF x asegurado adicional
-Plan 2 UF 0,5550 | $ 15.900 | Plan 1 4 UF x asegurado adicional
-Plan 3 UF 0,749 | $ 21.500 | Plan 1 6 UF x asegurado adicional
-Asistencia Renta Hospitalización
+- categoría: RETENIBLE. Si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
+- tipo de prima: prima mensual. Modalidad: Mensual
+- devolución de prima al renunciar: no hay devolución automática; si el cliente la pide por cobros incorrectos o desconocimiento, se le invita a ingresar un requerimiento al 600 660 1212, opción 2.
+- retracto: Sí, 10 días desde que recibe la póliza
+- capital asegurado: $ de libre disposición desde UF 2 (sala común, UTI o UCI); tope 180 días por evento
+- edad máxima de permanencia: 79 años y 364 días
+- inicio de cobertura: Desde que se contrata
+- apoyo solidario: Contrataciones desde el 01/01/2023 NO cuentan con apoyo solidario
+- plazo para denunciar siniestros (días): 180
+- fono asistencias: Hospitalización / IGS 226115423
+- notas: Mínimo 24 h hospitalizado. Capital de libre disposición independiente del tipo de sala. Asistencias donables a padres, cónyuge/conviviente civil e hijos.
+Coberturas:
+- Hospitalización por enfermedad o accidente. monto: Desde UF 2 (sala común, UTI o UCI). Mínimo 24 horas hospitalizado, máximo 180 días por evento; capital de libre disposición independiente del tipo de sala (común, UTI o UCI). beneficiario: Asegurado
+Asistencias y beneficios:
+- Batería de hipertensión. Exámenes: potasio, sodio, creatinina, colesterol total, glucosa en ayuna. La batería se toma completa. eventos: 1 por año de vigencia. tope: Sin límite. fono: IGS 226115423
+- Batería de diabetes. Exámenes: glicemia en ayuno, prueba de tolerancia a la glucosa. La batería se toma completa. eventos: 1 por año de vigencia. tope: Sin límite. fono: IGS 226115423
+- Examen de RX. RX de huesos. Requiere orden médica. eventos: 2 por año de vigencia. tope: Sin límite. fono: IGS 226115423
+- Telemedicina. Médico general; documentos solo si el médico lo estima necesario; servicio 24 horas. eventos: 6 por año de vigencia. tope: Sin límite. fono: IGS 226115423
+- Servicio de ambulancia. Pólizas 340018199 – 340013825. En caso de accidente del titular. eventos: 1 por año de vigencia. tope: UF 10. fono: IGS 226115423
+- Convenio Farmacias Cruz Verde. 10% de descuento en medicamentos y productos en Farmacias Cruz Verde, tope de descuento acumulado $10.000 mensuales. Excluye medicamentos oncológicos, inmunológicos, vacunas, medicina reproductiva y alimento para mascotas. Aplica aun con promociones y sin receta (salvo disposición S.N.S.). Presentar tarjeta de descuento + cédula de identidad; tarjeta intransferible. No es cobertura de seguro; (...). eventos: Mensual. tope: $10.000 de descuento al mes. fono: 600 660 1212
+Primas:
+- Plan 1. Titular solo. monto asegurado: UF 2. prima UF: 0.195. prima $ aprox.: 6300. Mensual
+- Plan 2. Titular solo. monto asegurado: UF 4. prima UF: 0.223. prima $ aprox.: 7200. Mensual
+- Plan 3. Titular solo. monto asegurado: UF 6. prima UF: 0.25. prima $ aprox.: 8100. Mensual
+- Plan 1. Titular + 1 adicional. monto asegurado: UF 2 por asegurado adicional. prima UF: 0.238. prima $ aprox.: 6800. Mensual
+- Plan 2. Titular + 1 adicional. monto asegurado: UF 4 por asegurado adicional. prima UF: 0.297. prima $ aprox.: 8500. Mensual
+- Plan 3. Titular + 1 adicional. monto asegurado: UF 6 por asegurado adicional. prima UF: 0.357. prima $ aprox.: 10200. Mensual
+- Plan 1. Titular + 2 adicionales. monto asegurado: UF 2 por asegurado adicional. prima UF: 0.268. prima $ aprox.: 7700. Mensual
+- Plan 2. Titular + 2 adicionales. monto asegurado: UF 4 por asegurado adicional. prima UF: 0.362. prima $ aprox.: 10400. Mensual
+- Plan 3. Titular + 2 adicionales. monto asegurado: UF 6 por asegurado adicional. prima UF: 0.454. prima $ aprox.: 13000. Mensual
+- Plan 1. Titular + 3 adicionales. monto asegurado: UF 2 por asegurado adicional. prima UF: 0.297. prima $ aprox.: 8500. Mensual
+- Plan 2. Titular + 3 adicionales. monto asegurado: UF 4 por asegurado adicional. prima UF: 0.423. prima $ aprox.: 12100. Mensual
+- Plan 3. Titular + 3 adicionales. monto asegurado: UF 6 por asegurado adicional. prima UF: 0.553. prima $ aprox.: 15900. Mensual
+- Plan 1. Titular + 4 adicionales. monto asegurado: UF 2 por asegurado adicional. prima UF: 0.327. prima $ aprox.: 9400. Mensual
+- Plan 2. Titular + 4 adicionales. monto asegurado: UF 4 por asegurado adicional. prima UF: 0.489. prima $ aprox.: 14000. Mensual
+- Plan 3. Titular + 4 adicionales. monto asegurado: UF 6 por asegurado adicional. prima UF: 0.651. prima $ aprox.: 18700. Mensual
+- Plan 1. Titular + 5 adicionales. monto asegurado: UF 2 por asegurado adicional. prima UF: 0.357. prima $ aprox.: 10200. Mensual
+- Plan 2. Titular + 5 adicionales. monto asegurado: UF 4 por asegurado adicional. prima UF: 0.555. prima $ aprox.: 15900. Mensual
+- Plan 3. Titular + 5 adicionales. monto asegurado: UF 6 por asegurado adicional. prima UF: 0.749. prima $ aprox.: 21500. Mensual
+Siniestros (cómo usar el seguro):
+- sin dato en el catálogo
+Observaciones del catálogo (inconsistencias del original):
+- Primas: En la hoja Hospitalización, las filas de adicionales dicen "Plan 1" para los planes 2 y 3 en la columna de cobertura; se interpretó por posición (2/4/6 UF).
 
 ## Tipificación registrada por el ejecutivo
 - seguro: 48213305 | gestion: RENUNCIA | motivo: No desea contraer más obligaciones

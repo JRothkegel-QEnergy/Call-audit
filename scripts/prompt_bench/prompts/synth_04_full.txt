@@ -10,11 +10,15 @@ Tu tarea: revisar la transcripción y detectar cuáles de los 33 "motivos de no 
 de la pauta ocurrieron. La pauta se evalúa por cada seguro sobre el que hubo gestión.
 
 ## Datos que recibes
-- Por cada seguro del cliente consultado en la llamada: nombre, N° de seguro (MUS A Neto,
-  único por seguro), N° de póliza, inicio de vigencia, compañía, categoría (retenible /
-  no retenible / no renunciable), tipo de prima con su regla de devolución, medio de pago
-  y la FICHA del producto.
-  Estos datos vienen de BancoEstado y el ejecutivo no los puede editar: son la verdad.
+- Por cada seguro del cliente consultado en la llamada: los datos de BancoEstado (nombre,
+  N° de seguro MUS A Neto, N° de póliza, inicio de vigencia, medio de pago) y la FICHA
+  estándar del producto: compañía, categoría (retenible / no retenible / no renunciable),
+  tipo de prima con su regla de devolución, retracto, coberturas con montos, asistencias,
+  primas por plan y cómo se usa el seguro.
+  Estos datos vienen de BancoEstado y del catálogo oficial: son la verdad. Los datos
+  personales del cliente (RUT, fecha de nacimiento, correo, teléfono) NO vienen: asume
+  que los que da el cliente coinciden con los registrados, salvo que el ejecutivo diga
+  que no coinciden.
 - La tipificación que registró el ejecutivo.
 - Las esperas y la transcripción con timestamps.
 Identifica de qué seguro se habla por su nombre, su N° de seguro o lo que describe el
@@ -30,7 +34,12 @@ CONSUMO" no es "DESEMPLEO ITT CRE. CONSUMO"): usa siempre el de los metadatos.
    (ej. "cierre 06:40–07:48: no menciona el N° de seguro").
 4. "no_aplica": la situación del motivo no se dio (ej. no hubo tercero → 27 no aplica).
 5. "indeterminado": la transcripción es ambigua, está cortada, es ininteligible en el
-   tramo relevante, o falta un dato necesario (ej. no hay ficha). Explica por qué.
+   tramo relevante, o falta un dato que CAMBIARÍA el resultado (ej. el ejecutivo describe
+   coberturas concretas y no hay ficha para contrastarlas). Explica por qué.
+   Si falta un dato pero la situación del motivo no se dio (ej. no hay tipo de prima,
+   pero nadie habló de devolución), el estado es "no_aplica", no "indeterminado".
+   Cada "indeterminado" manda la llamada a un auditor: úsalo solo cuando de verdad no
+   puedas decidir.
 6. La transcripción viene de reconocimiento de voz: no penalices palabras mal transcritas
    si el sentido es claro. Los números se pueden decir dígito a dígito.
 7. "confianza" va de 0 a 1.
@@ -38,7 +47,10 @@ CONSUMO" no es "DESEMPLEO ITT CRE. CONSUMO"): usa siempre el de los metadatos.
    el comentario concluye que no ocurrió o no aplica, el estado NO puede ser "incumple".
    Comentario de 1 frase si cumple o no aplica; detallado si incumple o es indeterminado.
 9. Marca cada conducta en el motivo MÁS ESPECÍFICO que la describa. No la repitas en
-   otro motivo más general.
+   otro motivo más general. Excepciones (pares que SÍ se marcan juntos porque miden cosas
+   distintas): 8 y 6 (eludir una pregunta y no dar la información del producto),
+   26 y 25 (no gestionar un seguro pedido y no tipificarlo), 9 y 7 (renunciar un no
+   renunciable y no orientar al canal correcto).
 10. Omitir información del seguro (no mencionar todas las coberturas) se corrige con
     retroalimentación y NO es incumplimiento, salvo lo que exige el motivo 4. Lo que sí es
     incumplimiento es dar información INCORRECTA (motivos 2 y 6): genera reclamos.
@@ -158,7 +170,8 @@ aclaraciones del cliente para aplicar el motivo.
    atención cuando alguno de esos datos no coincide.
 33 No valida correctamente al cliente, (Email, Fono). Protocolo de acreditación titularidad.
    Criterio: debe preguntarlos o mencionarlos. Si el dato que da el cliente es distinto
-   al registrado, es solo una observación, no incumple.
+   al registrado, es solo una observación, no incumple. Tú no tienes los datos
+   registrados: evalúa solo si el ejecutivo los pidió o los confirmó.
 29 No realiza protocolo de cierre.
    Criterio: incumple SOLO si no hay ningún resumen final de la gestión: el ejecutivo
    termina sin repasar qué se hizo con el seguro. Si hay un resumen, aunque no siga el
@@ -193,7 +206,8 @@ aclaraciones del cliente para aplicar el motivo.
  6 No maneja información del producto o coberturas.
    Criterio: el ejecutivo siempre tiene la información y debe darla. Incumple si, ante
    preguntas del cliente sobre el producto, responde con datos que contradicen la ficha,
-   con vaguedad, no responde, o niega la información o la desvía a otro canal.
+   con vaguedad ("eso lo ve la compañía", "depende de su póliza"), no la da, o la niega
+   o la desvía a otro canal. Mide si el cliente recibió la información correcta.
    Excepción: las fechas de pago no se manejan en el call center.
  5 No informa que la permanencia la maneja cliente ante consulta directa.
    Criterio: el ejecutivo puede sugerir fechas para renunciar, pero no puede decir que esa
@@ -222,22 +236,33 @@ aclaraciones del cliente para aplicar el motivo.
    Criterio: sugiere o propone renunciar un seguro que el cliente no pidió cancelar (por
    ejemplo, uno que no era el motivo de la consulta).
 32 Predispone al cliente para la aceptación del seguro, condiciona la respuesta a un Si.
-   Criterio: ej. "¿Usted está de acuerdo en mantenerlo, cierto?". Las preguntas del
-   script NO son este motivo: "¿le parece entonces que mantengamos vigente su seguro?",
-   "¿Confirma que desea renunciar?", "¿eso es un Sí?", ni una pregunta neutra como
-   "¿Está de acuerdo con la gestión?".
+   Criterio: preguntas que dan por hecha la respuesta, normalmente con una coletilla:
+   "¿Usted está de acuerdo en mantenerlo, cierto?", "lo dejamos vigente, ¿verdad?",
+   "¿no es cierto que le conviene?". NO son este motivo: las preguntas del script
+   ("¿le parece entonces que mantengamos vigente su seguro?", "¿Confirma que desea
+   renunciar?", "¿eso es un Sí?"), una pregunta neutra ("¿Está de acuerdo con la
+   gestión?") ni las preguntas que ofrecen una alternativa como argumento de retención
+   ("¿no prefiere mantenerlo un tiempo más?"): esas son argumentos (motivo 3).
  7 No realiza derivación correcta.
    Criterio: la situación requiere orientar al cliente a otro canal (ver "Derivar") y el
    ejecutivo no lo hace, lo orienta a un canal equivocado o transfiere la llamada.
 26 No se impactan todas las gestiones solicitadas por el cliente.
-   Criterio: en la grabación el cliente pide gestionar un seguro que no se gestionó.
+   Criterio: el cliente pide renunciar (o gestionar) un seguro y en la grabación esa
+   gestión no se ve realizada: no hay cierre de ese seguro (no se nombra en el resumen
+   final ni se confirma con el cliente). NO basta con que el ejecutivo diga "quedó todo
+   listo": revisa seguro por seguro que cada solicitud tenga su cierre. Si además falta
+   en la tipificación, marca también el 25.
 
 ### D. Trato y comunicación
  1 Deja en espera por tiempo excesivo.
    Criterio: más de umbral_espera_seg (30 s) sin hablarle al cliente: una espera de
    esperas_seg o un silencio del ejecutivo entre timestamps.
  8 No responde de forma directa al cliente. Elude las preguntas.
-   Criterio: el cliente hace una pregunta directa y el ejecutivo responde otra cosa.
+   Criterio: el cliente hace una pregunta directa y el ejecutivo no la contesta: cambia
+   de tema, responde otra cosa o sigue con su discurso (ej. el cliente pregunta qué cubre
+   y el ejecutivo le propone renunciar o le habla de mantener el seguro). Mide la
+   conducta de eludir; si la pregunta era sobre el producto, marca además el 6.
+   Responder directo aunque con un dato errado NO es 8 (es 6, 28 u otro).
 11 Descalifica a los pares, a BancoEstado o a la competencia.
    Criterio: hablar mal de ejecutivos de venta, ejecutivos del banco, otros ejecutivos,
    BancoEstado, la compañía o la competencia.
@@ -267,7 +292,8 @@ Y todos los motivos de renuncia que expresa el cliente. Luego compara con lo tip
 22 Tipifica retención de seguro no mencionado.
 23 Tipifica retención que corresponde a otro seguro.
 25 No tipifica todas las gestiones.
-   Criterio: quedan renuncias o retenciones de la grabación sin tipificar.
+   Criterio: un seguro que el cliente pidió renunciar (se haya gestionado o no en la
+   llamada) o que se retuvo no aparece en la tipificación.
 
 ## Motivos de renuncia válidos (los que exprese el cliente; si no da ninguno, "No informado")
 No desea contraer más obligaciones | Problemas Económicos | Cliente posee otros Seguros |
@@ -303,30 +329,44 @@ umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
 ### Seguro 1: DESEMPLEO ITT CRE. CONSUMO
+Datos de la llamada (BancoEstado):
 - N° de seguro (MUS A Neto): 48213304
 - N° de póliza: 498213304
 - inicio de vigencia: 2025-03-15
+- medio de pago: CRE (Crédito de Consumo (Asociado a un crédito de consumo))
+
+Ficha del producto (P30: Desempleo e Incapacidad Temporal – Créditos de Consumo):
 - compañía: BNP Paribas Cardif
-- categoría: RETENIBLE. Seguro retenible: si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
-- tipo de prima: prima única asociada a un crédito. Devolución: al renunciar, la devolución de la prima no devengada es automática.
-- medio de pago: CRE (Está asociado a un Crédito de Consumo.)
-- ficha del producto:
-SEGURO | COBERTURAS | Qué hacer en caso de Siniestro. | En caso de Siniestro Desempleo | En caso de Siniestro Incapacidad Temporal
-Seguro Desempleo e Incapacidad Temporal " Creditos Consumo - Prima Única | DESEMPLEO: 4 cuotas del crèdito (pagadas de dos en dos), màs un 3,5% de dicha(s) cuota(s) en razòn de gastos administrativos del contratante. INCAPACIDAD TEMPORAL: Hasta 4 cuotas del crèdito (pagadas de una en una) por cada 30 días de incapacidad temporal, màs 3,5% de dicha(s) cuota(s) en razon de gastos administrativos del contratante. Incapacidad en caso de accidente o enfermedad de origen infeccioso. SUSPENSIÓN LABORAL: Hasta 4 cuotas del crédito proporcional a la Pérdida de ingresos del asegurado. Se indemnizarà, sòlo si el cliente tiene la obligaciòn de pago de cuotas del crèdito pendiente. NOTA IMPORTANTE: Suspensión solo aplica para contrataciones anteriores al 12 de octubre. Contrataciones posteriores ya no cuentan con esta cobertura. | El asegurado, cuando requiera hacer uso del seguro, podrà denunciar el siniestro ingresando al sitio www.segurosbancoestado.cl, llamando al FonoSeguros 6006601212. | Desempleo Involuntario: Para el pago de las primeras dos cuotas:. En caso de que el asegurado sea empleado por una persona natural o empresa privada, deberà presentar; Fotocopia simple del finiquito firmado por el trabajador ante notario. En caso de ser miembros de las Ferzas Armadas y Fuerzas de Ordn y Seguridad Publica, Funcionarios Pùblicos (funcionarios de planta o personal a contrata), deberàn presentar docuentaciòn que acredite su condicion respectiva y antiguiedad. Para el pago de las ultimas dos cuotas; Certificado de los ultimos 6 neses de cotizaciones del sistema previsional o AFP, con fecha de emisiòn al dia 25 del mes siguiente de cumplidos los 60 dìas de Desempleo Involuntario. Plazo para denunciar el siniestro. Los asegurados o interesados, deberàn informar y denunciar la ocurrencia de un siniestro, dentro de un perìodo maxio de 180 dias corridos, contados una vez tomado conocimiento de la ocurrencia del siniestro. | Incapacidad: *) Fotocopia Cedula de Identidad del Asegurado por ambos lados. *) Certificado o Licencia Medica que acredite los dias de reposo de dicha Incapacidad por mas de 30 dìas (desde Fecha de Inicio hasta Fecha de Termino de Incapacidad) (*) Con Diagnostico. *) Certificado de ingresos o declaraciòn de impuesto a la renta. *) Documentaciòn que acredite su calidad de trabajador independiente, como por ejemplo: a) Declaraciòn de Impuestro (IVA) de los ultimos tres meses antes de caer en estado de Incpacidad. b) Declaracion de impuestro a la Renta adjuntando las ultimas tres boletas de honorarios antes de caer en estado de Incapacidad. *) Certificado Medico o Licencia que acredite la continuaciòn de la incapacidad por mas de 30 dìas. *) En caso de ser funcionarios de las Fuerzas Armadas, Carabineros y de Investigaciones, funcionarios publicos (funcionarios de planta o personal a contrata), deberan presentar documentaciòn que acredite su condicion respectiva y antiguedad, para los jubilados adjuntar fotocopia del ultimo pago de pension o jubilacion. | Cobertura Desempleo Involuntario
-PÓLIZAS | Para trabajadores o empleados Dependientes: Aquellas personas que de acuerdo a la legislaciòn laboral chilena, prestan servicios o desempeñan funciones para un empleador, bajo vinculo de subordinaciòn y dependencia, en virtud de un contrato de trabajo indefinido sujeto al Còdigo del Trabajo. Los Empleados Dependientes con contrato a plazo fijo mayor a 1 año estaràn cubiertos, excepto en caso de desempleo por vencimiento del plazo. La cobertura solo se otorgarà cuando el despido tenga por causa u origen las siguientes causales contempladas en el Còdigo del Trabajo: Artículo 159 Nº1 Mutuo Acuerdo de las partes, pero solo en la medida que en el finiquito respectivo, se hubiere pactado el pago de un monto indemnizatorio a favor del asegurado. Artículo 159 N°6 del Código del Trabajo, caso fortuito o fuerza mayor. Artículo Nº161, Necesidades de la Empresa y desahucio del empleador. Artículo 163 bis, en caso que el empleador fuere sometido a un procedimiento concursal de liquidación que afecte al empleador. Funcionarios Fuerzas Armadas y Fuerzas de Orden y Seguridad Pùblica: El Desempleo Involuntario solo sera cubierto si se produce por alguna causal de retiro temporal o aabsoluto contempladas en sus respectivas Leyes Organicas, Estatutos y Reglamentos de Personal, pero unica y exclusivamente en la medida que la causal de retiro temporaal o absoluto invocada cumpla con los siguientes requisitos: Que el retiro o baja se deba a causa no imputable a la voluntad o a la conducta del miembro de las Fuerzas Armadas y Fuerzas de Orden y Seguridad Publica; y Que el retiro o baja no imolique para el integrante retirado o dado de baja el pago de una pensiòn o jubilizaciòn por dicho concepto. Profesores: Tratandose de profesores que prestan servicios en establecimientos de educaciòn de administraciòn particular, quedaràn cubiertos en los misos terminos que los Trabajadores Dependientes. Se deja expresamente establecido que en el evento que el profesor estuviera contratado por dos o màs establecimientos de educaciòn particular, se obtendrà la cobertura en el evento que fuera despedido de cualquiera de ellos por alguna de las causales preecdentes. Para el caso de profesionales de la educaciòn vinculados laboralmente y bajo regimen de subordinaciòn y dependencia a la educaciòn municipalizada, sometidos al Estatuto Docente, solo serà cubierto el Desempleo Involuntario derivado del cese de sus funciones cuando este debido a causas que no sean imputables a su actuar o a su voluntad y que impliquen la privacion total de ingresos por conceptos laborales, y tenga su origen en alguna de las siguientes causales: 1) Por termino del periodo por el cual se efectuo el contrato; 2) Remociòn en el cargo por obtencion de desempeño basico en tres evaluaciones consecutivas o en forma alternada con desempeño basico o insatisfactorio durante tres evaluaciones consecutivas. 3) Por salud irrecuperable o incompatible con el desempeño de su funcion. 4) Por perdida sobreviniente de alguno de los requisitos de incorporacion a una dotacion docente. 5) Por supresiòn de las horas que sirvan. Funcionarios Públicos Estarán cubiertos única y exclusivamente, empleados vinculados laboralmente, bajo régimen de subordinación y dependencia, a la Administración Pública centralizada o descentralizada y sometidos al régimen del Estatuto Administrativo y si el desempleo se produce por alguna de las siguientes causales: Funcionarios de Planta: Supresion del empleo, Termino del periodo legal o Remocion del Cargo. Personal a Contrata: No renovación del contrato una vez finalizado el plazo. Los Funcionarios Publicos, que se encuentren sometidos al Còdigo del Trabajo y leyes complementarias, quedaran cubiertos en los mismos terminoss que los Trabajadores Dependientes. los servicios para los cuales fue contratado o llegado el plazo máximo de contratación. Los Funcionarios Públicos, que se encuentren sometidos al Código del Trabajo y leyes complementarias, quedarán cubiertos en los mismos términos que los Trabajadores o Empleados Dependientes. Empleados Dependientes o Funcionarios Pùblicos que esten Jubilados: Quedaran cubiertos los jubilados y pensionados, que tengan contrato de trabajo como empleados dependientes o funcionarios publicos.
-ASEGURADOS | PRIMA DEL SEGURO | PLAZO PARA DENUNCIAR EL SINIESTRO
-Esta póliza contempla cobertura para las personas naturales que contrataron el seguro Desempleo e Incapacidad Temporal Crèdito de Consumo, deudores de créditos de consumo emitidos por la entidad contratante. | La prima de este seguro es ùnica y anticipada y va en funciòn de dos variales, plazo y monto del crèdito | El plazo para denunciar el siniestro son 180 dias corridos, contados desde la fecha en que se toma conocimiento de la ocurrencia del respectivo siniestro.
-DESEMPLEO | Asistencia Laboral personalizada
-Cobertura en caso que el asegurado quede desempleado por alguna de las causales de cesantia involuntaria (detalle en tabla de la derecha). Puedes solicitarlo si eres trabajador dependiente e independiente, funcionario público, jubilado, pensionado, o si eres miembro de las Fuerzas Armadas y Fuerzas de Orden y Seguridad Pública. | En caso cumplir condiciones para cobertura de desempleo: Asistencia de asesoramiento al cliente en proceso de reinserción laboral: análisis de aptitudes laborales, capacitacion sobre herramientas de busqueda de trabajo y seguimiento del proceso. Servicio entregado por empresa especializada externa a la compañía. Consultas con respecto a este servicio a los nùmeros telefònicos 800362100 o desde celulares al 224293507 de Lunes a Viernes de 9:00 a 21 horas, excepto festivos. | Cobertura Incapacidad Temporal | Se acogen a esta cobertura: Rentistas (personas cuya ùnica fuente de ingresos consiste en rentas que provengan de contratos de arriendo sobre bienes propios, de su cònyge o conviviente civil), Trabajadores Independientes, Trabajadores Dependientes con Contrato Plazo Fijo (en que la duraciòn de su contrato de trabajo no excea de un año). Miembros de las Fuerzas Armadas; y Fuerzas de Orden y Seguridad Pùblica, Funcionarios Pùblicos, Jubilados y Pensionados, Vendedores Comisionistas que sean trabajdores independientes. En los Casos precedentemenente citados, la cobertura operarà en caso que el accidente o enfermedad de origen infeccioso que origina la incapacidad afecte al Asdegurado para el ejercicio de sus actividades habituales, independientemente que la situaciòn origine o no una merma en sus ingresos. Adicionalmente, para el caso de los Jubilados, Pensionados y Rentistas, no serà requisito de cobertura que el asegurado estè desarrollando algun trabajo o funcion remunerada al momento del siniestro. Se entiende por Enfermedad de Origen Infeccioso; Aquella alteraciòn que sufre la salud del Asegurado provocada directamente por un agente infeccioso; esto es, microorganismos que invaden el cuerpo y se multiplican en su interior, tales como virus, bacterias, hongos y priones. Ejemplos: Tifoidea, Hepatitis A-B-C. Artirits septica, osteomielitis, etc. Se entiende por Accidente: Todo suceso imprevisto, involuntario, repentino y fortuito, causado por medios externo y de un modo violento que afecte el organismo del Asegurado, ocasionandole una mas lesiones que se manifiesten por contusiones o examenes correspondientes. Se considera como accidente las consecuencias que puedan resultar al tratar de salvar vidas humanas. Para efectos de la presente pòliza, no se consideran como accidentes los suceso que sean consecuencia de ataques cardiacos, epilepticos, enfermedades vasculares, transtornos mentales, desvanecimientos o sonambulismo, que afecten al asegurado. Numero de dìas en estado de incapacidad necesarios para hacer efectiva la cobertura: 30 dìas corridos desde el inicio de la incapacidad, comenzando a operar la cobertura a partir del dìa 31.
-Período de Activo Mínimo: Podrá aplicarse nuevamente cobertura en caso que cuente con nuevo empleo. Debe mantenerse en nuevo empleo por un período mínimo de 6 meses para poder invocar seguro nuevamente en caso de quedar desempleado.
-INCAPACIDAD TEMPORAL
-Opera en caso que asegurado se vea afectado por una incapacidad a consecuencia de un accidente o enfermedad de origen infeccioso que le impida ejercer total o parcialmente su actividad en forma independiente que la situaciòn origine o no una merma en sus ingresos. Para el caso de los Jubilados, Pensionados y Rentistas, no serà requisito de cobertura que el asegurado estè desarrollando algun trabajo o funcion remunerada al momento del siniestro. | Se indemnizará, sólo si el cliente tiene la obligación de pago de cuotas del crédito. Es decir y de manera ejemplar, si un cliente queda incapacitado por más de 120 días faltando dos cuotas del crédito por pagar, se indemnizará sólo esas dos cuotas pendientes. Período de Activo Mínimo: Podrá aplicarse nuevamente cobertura en caso que cliente vuelva a incapacitarse temporalmente, debiendo pasar 6 meses contados desde el término de la incapacidad temporal ya indemnizada. Fecha de término anterior acreditada por ùltimo certificado o licencia mèdica correspondiente.
-REQUISITO DE ASEGURABILIDAD
-Edad de ingreso: Al momento de contratar el crédito, la edad actual del asegurable sumada al plazo total del crédito deberá ser inferior a 75 años y 364 días de edad,
-Dado que el seguro es de prima única y se pagó al inicio de la contratación , el cliente no debe pagar nada adicional y contará con la cobertura durante el tiempo de vigencia del crèdito en origen.
-Suspensió Laboral
-Compañía pagará hasta 4 cuotas del crédito proporcional a la Pérdida de ingresos del asegurado. | Indemnización se calculará comparando: a) El promedio de las remuneraciones brutas devengadas en los ùltimos tres meses previos al evento de Suspensiòn Laboral o Reducciòn de la Jornada. b)Subvención beneficios o pagos realizados por la Administradora de Fondos de Cesantìa (AFC), o de aquel organismoque lo sustituya o reemplace. Para estos efectos no se considerara como suma a agregar a este calculo el pago de cotizaciones previsionales o de seguridad social.
-Es posible hacer uso del seguro cuando asegurado se encuentre en situación de Reducción de Jornada o Suspensión Laboral (Ley de protección del empleo), debiendo estar mínimo 30 días en esta situación para activar el seguro.
+- categoría: RETENIBLE. Si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
+- tipo de prima: prima única asociada a un crédito (cobro anticipado). Modalidad: Prima única y anticipada (según plazo y monto del crédito)
+- devolución de prima al renunciar: corresponde devolución automática de la prima no devengada, en 10 días hábiles desde que la compañía toma conocimiento.
+- retracto: sin dato en el catálogo
+- capital asegurado: Hasta 4 cuotas del crédito + 3,5% gastos administrativos
+- edad máxima de ingreso: Edad + plazo del crédito < 75 años y 364 días
+- plazo para denunciar siniestros (días): 180
+- fono asistencias: Asistencia laboral: 800362100 / 224293507
+- notas: Dado que el seguro es de prima única y se pagó al inicio de la contratación , el cliente no debe pagar nada adicional y contará con la cobertura durante el tiempo de vigencia del crèdito en origen.
+Coberturas:
+- Resumen de coberturas. DESEMPLEO: 4 cuotas del crèdito (pagadas de dos en dos), màs un 3,5% de dicha(s) cuota(s) en razòn de gastos administrativos del contratante. INCAPACIDAD TEMPORAL: Hasta 4 cuotas del crèdito (pagadas de una en una) por cada 30 días de incapacidad temporal, màs 3,5% de dicha(s) cuota(s) en razon de gastos administrativos del contratante. Incapacidad en caso de accidente o enfermedad de origen infeccioso. SUSPENSIÓN LABORAL: Hasta 4 cuotas del crédito proporcional a la Pérdida de ingresos del asegurado. Se indemnizarà, sòlo si el cliente tiene la obligaciòn de pago de cuotas del crèdito pendiente. NOTA IMPORTANTE: Suspensión solo aplica para contrataciones anteriores al 12 de octubre. Contrataciones posteriores ya no cuentan con esta cobertura
+- Desempleo involuntario. monto: Hasta 4 cuotas + 3,5%. Cobertura en caso que el asegurado quede desempleado por alguna de las causales de cesantia involuntaria (detalle en tabla de la derecha). Puedes solicitarlo si eres trabajador dependiente e independiente, funcionario público, jubilado, pensionado, o si eres miembro de las Fuerzas Armadas y Fuerzas de Orden y Seguridad Pública. Período de Activo Mínimo: Podrá aplicarse nuevamente cobertura en caso que cuente con nuevo empleo. Debe mantenerse en nuevo empleo por un período mínimo de 6 meses para poder invocar seguro nuevamente en caso de quedar desempleado
+- Desempleo involuntario – causales y tipos de trabajador cubiertos. Para trabajadores o empleados Dependientes: Aquellas personas que de acuerdo a la legislaciòn laboral chilena, prestan servicios o desempeñan funciones para un empleador, bajo vinculo de subordinaciòn y dependencia, en virtud de un contrato de trabajo indefinido sujeto al Còdigo del Trabajo. Los Empleados Dependientes con contrato a plazo fijo mayor a 1 año estaràn cubiertos, excepto en caso de desempleo por vencimiento del plazo. La cobertura solo se otorgarà cuando el despido tenga por causa u origen las siguientes causales contempladas en el Còdigo del Trabajo: Artículo 159 Nº1 Mutuo Acuerdo de las partes, pero solo en la medida que en el finiquito respectivo, se hubiere pactado el pago de un monto indemnizatorio a favor del asegurado. Artículo 159 N°6 del Código del Trabajo, caso fortuito o fuerza mayor. Artículo Nº161, Necesidades de la Empresa y desahucio del empleador. Artículo (...)
+- Incapacidad temporal. monto: Hasta 4 cuotas + 3,5%. Opera en caso que asegurado se vea afectado por una incapacidad a consecuencia de un accidente o enfermedad de origen infeccioso que le impida ejercer total o parcialmente su actividad en forma independiente que la situaciòn origine o no una merma en sus ingresos. Para el caso de los Jubilados, Pensionados y Rentistas, no serà requisito de cobertura que el asegurado estè desarrollando algun trabajo o funcion remunerada al momento del siniestro. Se indemnizará, sólo si el cliente tiene la obligación de pago de cuotas del crédito. Es decir y de manera ejemplar, si un cliente queda incapacitado por más de 120 días faltando dos cuotas del crédito por pagar, se indemnizará sólo esas dos cuotas pendientes. Período de Activo Mínimo: Podrá aplicarse nuevamente cobertura en caso que cliente vuelva a incapacitarse temporalmente, debiendo pasar 6 meses contados desde el término de la incapacidad (...)
+- Incapacidad temporal – quiénes se acogen y definiciones. Se acogen a esta cobertura: Rentistas (personas cuya ùnica fuente de ingresos consiste en rentas que provengan de contratos de arriendo sobre bienes propios, de su cònyge o conviviente civil), Trabajadores Independientes, Trabajadores Dependientes con Contrato Plazo Fijo (en que la duraciòn de su contrato de trabajo no excea de un año). Miembros de las Fuerzas Armadas; y Fuerzas de Orden y Seguridad Pùblica, Funcionarios Pùblicos, Jubilados y Pensionados, Vendedores Comisionistas que sean trabajdores independientes. En los Casos precedentemenente citados, la cobertura operarà en caso que el accidente o enfermedad de origen infeccioso que origina la incapacidad afecte al Asdegurado para el ejercicio de sus actividades habituales, independientemente que la situaciòn origine o no una merma en sus ingresos. Adicionalmente, para el caso de los Jubilados, Pensionados y Rentistas, no serà (...)
+- Suspensión laboral / reducción de jornada. monto: Hasta 4 cuotas, proporcional a la pérdida de ingresos. Compañía pagará hasta 4 cuotas del crédito proporcional a la Pérdida de ingresos del asegurado. Es posible hacer uso del seguro cuando asegurado se encuentre en situación de Reducción de Jornada o Suspensión Laboral (Ley de protección del empleo), debiendo estar mínimo 30 días en esta situación para activar el seguro. Indemnización se calculará comparando: a) El promedio de las remuneraciones brutas devengadas en los ùltimos tres meses previos al evento de Suspensiòn Laboral o Reducciòn de la Jornada. b)Subvención beneficios o pagos realizados por la Administradora de Fondos de Cesantìa (AFC), o de aquel organismoque lo sustituya o reemplace. Para estos efectos no se considerara como suma a agregar a este calculo el pago de cotizaciones previsionales o de seguridad social
+Asistencias y beneficios:
+- Asistencia laboral personalizada. En caso cumplir condiciones para cobertura de desempleo: Asistencia de asesoramiento al cliente en proceso de reinserción laboral: análisis de aptitudes laborales, capacitacion sobre herramientas de busqueda de trabajo y seguimiento del proceso. Servicio entregado por empresa especializada externa a la compañía. Consultas con respecto a este servicio a los nùmeros telefònicos 800362100 o desde (...). fono: 800362100 / desde celulares 224293507 (L-V 9:00–21:00, excepto festivos)
+Primas:
+- sin dato en el catálogo
+Indemnización por incapacidad temporal:
+- días 31 a 60: Hasta 103,5% de 1 cuota mensual
+- días 61 a 90: Hasta 103,5% de 2 cuotas mensuales
+- días 91 a 120: Hasta 103,5% de 3 cuotas mensuales
+- días 121 a más: Hasta 103,5% de 4 cuotas mensuales
+Siniestros (cómo usar el seguro):
+- Desempleo. plazo: 180 días corridos desde que se toma conocimiento. canal: Web www.segurosbancoestado.cl o FonoSeguros 600 660 1212. documentos: Desempleo Involuntario: Para el pago de las primeras dos cuotas:. En caso de que el asegurado sea empleado por una persona natural o empresa privada, deberà presentar; Fotocopia simple del finiquito firmado por el trabajador ante notario. En caso de ser miembros de las Ferzas Armadas y Fuerzas de (...)
+- Incapacidad temporal. plazo: 180 días corridos desde que se toma conocimiento. canal: Web www.segurosbancoestado.cl o FonoSeguros 600 660 1212. documentos: Incapacidad: *) Fotocopia Cedula de Identidad del Asegurado por ambos lados. *) Certificado o Licencia Medica que acredite los dias de reposo de dicha Incapacidad por mas de 30 dìas (desde Fecha de Inicio hasta Fecha de Termino de Incapacidad) (*) Con Diagnostico. *) Certificado de ingresos o (...)
+Observaciones del catálogo (inconsistencias del original):
+- Coberturas: La cobertura de suspensión laboral solo aplica a contrataciones anteriores al 12 de octubre (sin año).
 
 ## Tipificación registrada por el ejecutivo
 - seguro: 48213304 | gestion: RENUNCIA | motivo: Cambio de situación laboral

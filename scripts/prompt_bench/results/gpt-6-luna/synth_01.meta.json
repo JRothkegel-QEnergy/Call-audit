@@ -5,10 +5,10 @@
   "returned_model": "gpt-6-luna",
   "settings": {},
   "usage": {
-    "input_tokens": 10206,
-    "output_tokens": 5334
+    "input_tokens": 9507,
+    "output_tokens": 6160
   },
-  "cost_usd": 0.003688,
-  "latency_ms": 37853,
-  "run_at": "2026-10-13T14:09:07+00:00"
+  "cost_usd": 0.004031,
+  "latency_ms": 54850,
+  "run_at": "2026-10-13T14:42:47+00:00"
 }

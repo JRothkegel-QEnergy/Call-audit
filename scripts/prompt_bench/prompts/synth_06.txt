@@ -8,23 +8,45 @@ umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
 ### Seguro 1: SALE SEGURO PLUS (Sucursales)
+Datos de la llamada (BancoEstado):
 - N° de seguro (MUS A Neto): 48213306
 - N° de póliza: 498213306
 - inicio de vigencia: 2025-03-15
+- medio de pago: CTV (Cuenta Vista (CuentaRUT) (Se paga con la cuenta vista))
+
+Ficha del producto (P34: Sale Seguro Plus (sucursales)):
 - compañía: BNP Paribas Cardif
-- categoría: RETENIBLE. Seguro retenible: si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
-- tipo de prima: prima mensual. Devolución: no hay devolución automática; si el cliente la pide por cobros incorrectos o desconocimiento, se le invita a ingresar un requerimiento al 600 660 1212, opción 2.
-- medio de pago: CTV (Se paga con la Cuenta vista (Cuenta rut))
-- ficha del producto:
-SEGURO | Cobertura Sale Seguro
-Seguro Sale Seguro Plus - Prima Recurrente | 1.-Utilización Forzada por Robo en ATM, Sucursales y BancoEstado Express :Utilización forzada de tarjetas bancarias por giros realizados en cajeros automáticos y en ventanilla: cubre perdida patrimonial que pueda sufrir el asegurado cuando este sea victima de un robo con el objeto de lograr la sustracción del dinero después de haber fectuado la transacción en el cajero automático mediante la utilización forzada de la tarjeta bancaria y transacciones efectuadas en la ventanilla de la sucursal bancaria. 2.-Engaño o extorsión; Cubre las pérdidas patrimoniales que pueda sufrir el Asegurado a causa de un Engaño o Extorsión cometido dentro del territorio nacional, por un tercero desconocido en contra de: el propio Asegurado o,sus padres, cónyuge, conviviente civil, pareja de hecho o hijos (ya sea de ambos, o solo de uno de ellos), que vivan en su mismo domicilio o (iii) un tercero que preste servicios en dicho domicilio. Se entenderá por: “Extorsión”, la amenaza de daño a la integridad física, reputación, mascota, o bienes, de alguna de las personas individualizadas en las condiciones particulares, sin que exista el uso de fuerza física o armas por parte del tercero para realizar el amedrentamiento, obligándolo a actuar de determinada manera y obtener así dinero u otro beneficio patrimonial. “Engaño”, la: suplantación de identidad o invención de alguna situación falsa por parte de un tercero desconocido que induce a alguna de las personas individualizadas en el párrafo primero de este literal, a realizar algún tipo de transacción o traspaso de bienes o dinero. El asegurado está sujeto a una defraudación, mediante el engaño o la extorsión, donde el cliente ve un daño patrimonial producto de esta acción ilícita. 3.-Robo con Violencia o Intimidación en las Personas. En el evento que el Asegurado reporte pérdidas patrimoniales (bienes muebles) a causa de un robo con violencia o Intimidación del que sea víctima, siempre que este ocurra dentro de los límites del Territorio Nacional, la Compañía indemnizará el monto de la pérdida con tope en el monto asegurado según el plan contratado. Para los efectos de esta cobertura se entenderá por Robo con “Violencia” el uso de la fuerza física contra la persona del Asegurado, o por Robo con “Intimidación”, el anuncio o amenaza dirigido al Asegurado en orden a causarle un mal o daño inminente. La compañía cubrirá todo tipo de aparatos y/o accesorios electrónicos, todo tipo de artículos de uso personal, inclusive silla, coche de bebé y/o similar. Esta cobertura se activara siempre que exista el hecho de robo, y esta sea con violencia, entendiéndose por violencia el uso de fuerza física contra la persona asegurada; o intimidación, que hace referencia a anuncios o amenazas dirigidas al asegurado, mientras se cumpla alguna de estas condiciones estará cubierto. 4.-Robo, Hurto o Extravío de Cheques. En el evento que el Asegurado reporte pérdidas en dinero como consecuencia de robo, hurto o extravío de uno o más talonarios de cheques o de cheques individuales emitidos por BancoEstado, la Compañía indemnizará el monto de los cheques pagados, siempre que se cumplan todos los requisitos y obligaciones. 5.-Compra Protegida. Esta cobertura cubre, pérdidas patrimoniales que pueda sufrir el asegurado, quien siendo víctima de la perpetración de un delito de robo o asalto, sufra la pérdida de algún bien adquirido de Forma Presencial dentro del territorio nacional, a través de los medios de pago provistos por BancoEstado. La indemnización se expresará en dinero según el monto de la pérdida con tope en el monto asegurado del plan contratado.
-PÓLIZAS
-COBERTURAS
-Este seguro ofrece la tranquilidad de tener cubiertas las perdidas patrimoniales que pueda sufrir el asegurado, cuando este sea victima de: - Utilización forzada de tarjetas bancarias en cajero automático o giros realizados sucursal BancoEstado y BancoEstado Express - Robo con violencia e intimidación en las personas - Engaño o extorsión. - Robo, hurto o extravío de cheques. - Robo de productos adquiridos utilizando una tarjeta bancaria BancoEstado (Compra protegida).
-Beneficio y Asistencias (600 6000 570) Seguro: | REQUISITO DE ASEGURABILIDAD
-Podrán ser Asegurados, los clientes mayores de 18 años, personas naturales, con o sin giro comercial, que tengan la calidad de titulares y/o adicionales autorizado por el primero de tarjetas emitidas por el Banco Estado, que en forma voluntaria se adhieran a esta Póliza.
-Qué hacer en caso de Siniestro.
-El asegurado, cuando requiera hacer uso del seguro, podrà denunciar el siniestro ingresando al sitio www.segurosbancoestado.cl, llamando al FonoSeguros 6006601212.
+- categoría: RETENIBLE. Si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
+- tipo de prima: prima mensual. Modalidad: Mensual y vencida, asociada a medio de pago (TC, Cuenta Vista, Chequera Electrónica)
+- devolución de prima al renunciar: no hay devolución automática; si el cliente la pide por cobros incorrectos o desconocimiento, se le invita a ingresar un requerimiento al 600 660 1212, opción 2.
+- retracto: sin dato en el catálogo
+- capital asegurado: Según plan (ver Coberturas)
+- edad mínima de ingreso: 18 años
+- plazo para denunciar siniestros (días): 180
+- fono asistencias: Beneficios y asistencias 600 6000 570
+- notas: No cubre clonación (eso es parte de la ley).
+Coberturas:
+- Utilización forzada por robo en ATM, sucursales y ServiEstado. monto: Plan 1 UF 10 / Plan 2 UF 15
+- Engaño o extorsión. monto: Plan 1 UF 5 / Plan 2 UF 15
+- Robo con violencia e intimidación en las personas. monto: Plan 1 UF 5 + UF 1,4116 / Plan 2 UF 7 + UF 1,4116. (*) UF 1,4116: monto de libre disposición en caso de siniestro (gastos legales, transporte u otros), 1 evento al año
+- Robo, hurto o extravío de cheques. monto: Plan 1 UF 5 / Plan 2 UF 7
+- Compra protegida. monto: Plan 1 UF 100 / Plan 2 UF 200
+- Detalle de coberturas. 1.-Utilización Forzada por Robo en ATM, Sucursales y BancoEstado Express :Utilización forzada de tarjetas bancarias por giros realizados en cajeros automáticos y en ventanilla: cubre perdida patrimonial que pueda sufrir el asegurado cuando este sea victima de un robo con el objeto de lograr la sustracción del dinero después de haber fectuado la transacción en el cajero automático mediante la utilización forzada de la tarjeta bancaria y transacciones efectuadas en la ventanilla de la sucursal bancaria. 2.-Engaño o extorsión; Cubre las pérdidas patrimoniales que pueda sufrir el Asegurado a causa de un Engaño o Extorsión cometido dentro del territorio nacional, por un tercero desconocido en contra de: el propio Asegurado o,sus padres, cónyuge, conviviente civil, pareja de hecho o hijos (ya sea de ambos, o solo de uno de ellos), que vivan en su mismo domicilio o (iii) un tercero que preste (...)
+- Resumen. Este seguro ofrece la tranquilidad de tener cubiertas las perdidas patrimoniales que pueda sufrir el asegurado, cuando este sea victima de: - Utilización forzada de tarjetas bancarias en cajero automático o giros realizados sucursal BancoEstado y BancoEstado Express - Robo con violencia e intimidación en las personas - Engaño o extorsión. - Robo, hurto o extravío de cheques. - Robo de productos adquiridos utilizando una tarjeta bancaria BancoEstado (Compra protegida)
+Asistencias y beneficios:
+- Monto de libre disposición en caso de siniestro. UF 1,4116 para gastos legales, de transporte u otros derivados de un siniestro de la cobertura. eventos: 1 al año (12 meses de vigencia). tope: UF 1,4116. fono: 600 6000 570
+- Traslado en taxi post robo o fraude. En caso de robo al titular en Chile, automóvil con conductor desde el lugar del robo hasta la dirección indicada. Si excede los límites se cobra un adicional. eventos: 1 al año. tope: 20 km o 1 hora de conducción. fono: 600 6000 570
+Primas:
+- Plan 1. Titular. monto asegurado: Ver Coberturas. prima UF: 0.1023. prima $ aprox.: 3000. Mensual y vencida
+- Plan 2. Titular. monto asegurado: Ver Coberturas. prima UF: 0.1535. prima $ aprox.: 4400. Mensual y vencida
+Siniestros (cómo usar el seguro):
+- Utilización forzada por robo en ATM, sucursales y ServiEstado. plazo: 180 días desde que el asegurado tomó conocimiento del hecho. canal: Web www.segurosbancoestado.cl o FonoSeguros 600 660 1212. documentos: • Constancia policial dentro de 24 horas. Si no tiene comprobante de giro, denuncia policial ratificada en Fiscalía. • Comprobante del giro en el cajero u otro documento que acredite la transacción. • Declaración de los hechos con detalle de objetos y montos robados
+- Engaño o extorsión. plazo: 180 días desde que el asegurado tomó conocimiento del hecho. canal: Web www.segurosbancoestado.cl o FonoSeguros 600 660 1212. documentos: • Constancia policial dentro de 48 horas (folio y número de la unidad policial). • Declaración de los hechos con detalle de objetos y montos robados
+- Robo con violencia e intimidación en las personas. plazo: 180 días desde que el asegurado tomó conocimiento del hecho. canal: Web www.segurosbancoestado.cl o FonoSeguros 600 660 1212. documentos: • Constancia policial dentro de 48 horas (folio y número). • Declaración de los hechos
+- Robo, hurto o extravío de cheques. plazo: 180 días desde que el asegurado tomó conocimiento del hecho. canal: Web www.segurosbancoestado.cl o FonoSeguros 600 660 1212. documentos: • Constancia policial dentro de 48 horas (folio y número). • Declaración de los hechos con detalle de documentos y montos. • Orden de no pago de los cheques. • Fotocopia legible de los cheques cobrados. • Fotocopia de cédula por ambos lados. • Si la cuenta es bipersonal, informarlo al denunciar
+- Compra protegida. plazo: 180 días desde que el asegurado tomó conocimiento del hecho. canal: Web www.segurosbancoestado.cl o FonoSeguros 600 660 1212. documentos: • Constancia policial dentro de 48 horas (folio y número). • Original del justificante de compra (fecha y precio). • Original del justificante de pago con la tarjeta usada
+Observaciones del catálogo (inconsistencias del original):
+- Pólizas: No se indica número de póliza en el original.
 
 ## Tipificación registrada por el ejecutivo
 - (sin tipificación registrada)

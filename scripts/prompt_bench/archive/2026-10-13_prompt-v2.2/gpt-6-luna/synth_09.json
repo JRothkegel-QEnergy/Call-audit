@@ -1,0 +1,456 @@
+{
+  "resumen": "El cliente solicitó renunciar a los seguros de desempleo asociado al crédito e Incendio Hogar, por cambio de situación laboral y problemas económicos, respectivamente. El ejecutivo intentó retener ambos y afirmó que las dos renuncias quedaron listas, pero solo tipificó la renuncia del seguro de desempleo; en el cierre tampoco informó el número de seguro ni el medio de pago de Incendio Hogar.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar a dos seguros: el de desempleo del crédito y el de incendio de la casa.",
+    "timestamp": "00:44"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con agradecimiento y despedida del ejecutivo a las 03:08."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213309",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+        "Cambio de situación laboral"
+      ],
+      "n_objeciones": 1,
+      "cliente_tajante": true,
+      "argumentos_retencion": [
+        {
+          "t": "01:13",
+          "tipo": "COBERTURA",
+          "cita": "como trabajador independiente, este seguro igual lo cubre por incapacidad temporal: si un accidente o una enfermedad infecciosa no lo deja trabajar, le paga hasta cuatro cuotas del crédito."
+        },
+        {
+          "t": "01:13",
+          "tipo": "BENEFICIO",
+          "cita": "Y como la prima ya está pagada, no le cuesta nada mantenerlo."
+        }
+      ],
+      "evidencia": "El cliente pidió renunciar a este seguro a las 00:44 y reiteró «igual lo quiero sacar» a las 01:31. A las 02:34 el ejecutivo dijo que quedaba ingresada la renuncia."
+    },
+    {
+      "mus_a_neto": "48213310",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+        "Problemas Económicos"
+      ],
+      "n_objeciones": 2,
+      "cliente_tajante": true,
+      "argumentos_retencion": [
+        {
+          "t": "01:41",
+          "tipo": "COBERTURA",
+          "cita": "ese seguro protege su vivienda ante incendio, daños por agua y eventos de la naturaleza, y le da asistencias de plomería y cerrajería. Ahora que va a trabajar desde la casa, puede ser todavía más importante tenerlo."
+        },
+        {
+          "t": "02:07",
+          "tipo": "OTRO",
+          "cita": "Mientras se acomoda con su nuevo trabajo, ¿no prefiere mantenerlo un tiempo más?"
+        }
+      ],
+      "evidencia": "El cliente pidió renunciar a este seguro a las 00:44 y reiteró «Lo quiero sacar igual» a las 01:59. A las 02:55, ante la pregunta de si también había quedado listo el de incendio, el ejecutivo contestó «Sí, don Felipe, quedó todo listo»."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No se observa una espera ni un silencio del ejecutivo superior a 30 segundos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213309",
+      "comentario": "La descripción espontánea de la cobertura por incapacidad temporal es compatible con la ficha del seguro de desempleo.",
+      "evidencia": [
+        {
+          "t": "01:13",
+          "hablante": "AGENTE",
+          "cita": "como trabajador independiente, este seguro igual lo cubre por incapacidad temporal: si un accidente o una enfermedad infecciosa no lo deja trabajar, le paga hasta cuatro cuotas del crédito."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "",
+      "comentario": "No excede tres objeciones para ninguno de los seguros; hubo una intervención de retención para desempleo y dos para Incendio Hogar.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.93
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213309",
+      "comentario": "El ejecutivo informó como característica la cobertura de incapacidad temporal y el pago de hasta cuatro cuotas.",
+      "evidencia": [
+        {
+          "t": "01:13",
+          "hablante": "AGENTE",
+          "cita": "este seguro igual lo cubre por incapacidad temporal: si un accidente o una enfermedad infecciosa no lo deja trabajar, le paga hasta cuatro cuotas del crédito."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "",
+      "comentario": "El cliente no consultó directamente quién decide cuándo renunciar ni si la renuncia estaba condicionada a una fecha.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "",
+      "comentario": "El cliente no hizo preguntas sobre coberturas o características que el ejecutivo dejara sin responder o contestara incorrectamente.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.96
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "",
+      "comentario": "No se presentó una situación que requiriera derivar al cliente a otro canal.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo responde directamente a la consulta del cliente sobre si el seguro de incendio también quedó listo.",
+      "evidencia": [
+        {
+          "t": "02:51",
+          "hablante": "CLIENTE",
+          "cita": "¿Y el de incendio quedó listo también?"
+        },
+        {
+          "t": "02:55",
+          "hablante": "AGENTE",
+          "cita": "Sí, don Felipe, quedó todo listo."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "",
+      "comentario": "Ninguno de los seguros gestionados se identifica como no renunciable.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "No se observa maltrato, lenguaje agresivo, grosero o impaciente hacia el cliente.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo no descalifica a BancoEstado, las compañías ni a otros ejecutivos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "",
+      "comentario": "El cliente solicitó cancelar ambos seguros; el ejecutivo no propuso renunciar a un seguro que no hubiera pedido cancelar.",
+      "evidencia": [
+        {
+          "t": "00:44",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar a dos seguros: el de desempleo del crédito y el de incendio de la casa."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213309",
+      "comentario": "En el resumen del cierre el ejecutivo informa los cuatro últimos dígitos del número de seguro de desempleo.",
+      "evidencia": [
+        {
+          "t": "02:34",
+          "hablante": "AGENTE",
+          "cita": "número de seguro cuatro ocho dos uno tres tres cero nueve"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213309",
+      "comentario": "El ejecutivo intentó retener el seguro retenible antes de gestionar la renuncia.",
+      "evidencia": [
+        {
+          "t": "01:13",
+          "hablante": "AGENTE",
+          "cita": "como trabajador independiente, este seguro igual lo cubre por incapacidad temporal"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213309",
+      "comentario": "En el cierre indicó que el seguro de desempleo se descuenta del crédito de consumo, que es su medio de pago.",
+      "evidencia": [
+        {
+          "t": "02:34",
+          "hablante": "AGENTE",
+          "cita": "cuyo medio de pago es su crédito de consumo."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "",
+      "comentario": "El cliente expresó explícitamente que quería renunciar a los dos seguros antes de los intentos de retención.",
+      "evidencia": [
+        {
+          "t": "00:44",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar a dos seguros: el de desempleo del crédito y el de incendio de la casa."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "",
+      "comentario": "No se intentó retener ni se registró como retenido un seguro no retenible.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213309",
+      "comentario": "El motivo tipificado, «Cambio de situación laboral», es compatible con el cambio laboral que expresó el cliente.",
+      "evidencia": [
+        {
+          "t": "00:44",
+          "hablante": "CLIENTE",
+          "cita": "me quedé sin pega hace un mes, me voy a trabajar independiente, y quiero ordenar mis gastos."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213309",
+      "comentario": "La tipificación registra renuncia y, según la grabación, el cliente pidió renunciar y el ejecutivo afirmó que quedó ingresada.",
+      "evidencia": [
+        {
+          "t": "02:34",
+          "hablante": "AGENTE",
+          "cita": "queda ingresada la renuncia de su seguro de desempleo de crédito de consumo"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "",
+      "comentario": "La tipificación registrada no corresponde a un seguro no mencionado en la llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "",
+      "comentario": "La tipificación de renuncia corresponde al seguro de desempleo que se mencionó y gestionó.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "",
+      "comentario": "No se registró una retención de un seguro no mencionado en la llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "",
+      "comentario": "No se registró una retención asociada a un seguro equivocado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "",
+      "comentario": "La gestión tipificada no es retención cuando la grabación refleja renuncia del seguro de desempleo.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "48213310",
+      "comentario": "La grabación indica que también se gestionó la renuncia de Incendio Hogar, pero la tipificación solo incluye el seguro 48213309 y omite esta gestión.",
+      "evidencia": [
+        {
+          "t": "02:51",
+          "hablante": "CLIENTE",
+          "cita": "¿Y el de incendio quedó listo también?"
+        },
+        {
+          "t": "02:55",
+          "hablante": "AGENTE",
+          "cita": "Sí, don Felipe, quedó todo listo."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.91
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "",
+      "comentario": "El cliente pidió gestionar ambos seguros y el ejecutivo afirmó que quedaron listos, por lo que la grabación no muestra una solicitud pendiente sin gestión.",
+      "evidencia": [
+        {
+          "t": "02:55",
+          "hablante": "AGENTE",
+          "cita": "Sí, don Felipe, quedó todo listo."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.91
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "",
+      "comentario": "La llamada es atendida con la persona que se identificó como el titular; no interviene un tercero.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213309",
+      "comentario": "El ejecutivo informó que la devolución de la prima no devengada de esta prima única es automática y ocurre dentro de diez días hábiles.",
+      "evidencia": [
+        {
+          "t": "02:55",
+          "hablante": "AGENTE",
+          "cita": "la devolución de la prima no devengada del seguro de desempleo es automática, dentro de diez días hábiles."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "",
+      "comentario": "Hay un resumen final de gestión, por lo que cumple el motivo; como observación, el resumen detallado identifica solo desempleo y no especifica para Incendio Hogar su número de seguro, medio de pago, vigencia, póliza ni los demás datos del protocolo.",
+      "evidencia": [
+        {
+          "t": "02:34",
+          "hablante": "AGENTE",
+          "cita": "Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo"
+        },
+        {
+          "t": "02:55",
+          "hablante": "AGENTE",
+          "cita": "Sí, don Felipe, quedó todo listo."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "",
+      "comentario": "Ante la pregunta de conformidad con la gestión, el cliente respondió «Sí», una respuesta permitida que no requería repregunta.",
+      "evidencia": [
+        {
+          "t": "02:34",
+          "hablante": "AGENTE",
+          "cita": "¿Está de acuerdo con la gestión?"
+        },
+        {
+          "t": "02:51",
+          "hablante": "CLIENTE",
+          "cita": "Sí."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicitó y corroboró el RUT, el nombre completo y la fecha de nacimiento del cliente.",
+      "evidencia": [
+        {
+          "t": "00:10",
+          "hablante": "AGENTE",
+          "cita": "para validar su identidad, ¿me indica su RUT?"
+        },
+        {
+          "t": "00:21",
+          "hablante": "AGENTE",
+          "cita": "¿Nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:39",
+          "hablante": "AGENTE",
+          "cita": "Gracias, don Felipe, datos validados."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo no condicionó ni predispusó una respuesta afirmativa para que el cliente aceptara mantener los seguros.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.96
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicitó al cliente su correo electrónico y teléfono de contacto.",
+      "evidencia": [
+        {
+          "t": "00:29",
+          "hablante": "AGENTE",
+          "cita": "¿Su correo y teléfono de contacto?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    }
+  ]
+}

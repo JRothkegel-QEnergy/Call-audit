@@ -8,15 +8,16 @@ umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
 ### Seguro 1: SEGURO DE DESEMPLEO CONSUMO
+Datos de la llamada (BancoEstado):
 - N° de seguro (MUS A Neto): 48213313
 - N° de póliza: 498213313
 - inicio de vigencia: 2025-03-15
+- medio de pago: CRE (Crédito de Consumo (Asociado a un crédito de consumo))
+
+Ficha del producto: no hay ficha en el catálogo para este seguro.
+- nombre real: SEGURO DE DESEMPLEO CONSUMO
 - compañía: BNP Paribas Cardif
-- categoría: NO_RETENIBLE. Seguro NO retenible: se puede renunciar, pero no se debe intentar retener.
-- tipo de prima: sin dato en el catálogo. Devolución: sin dato.
-- medio de pago: CRE (Está asociado a un Crédito de Consumo.)
-- ficha del producto:
-No disponible: el Excel de apoyo no tiene ficha para este seguro.
+- categoría: NO_RETENIBLE. Se puede renunciar, pero no se debe intentar retener (motivo 17).
 
 ## Tipificación registrada por el ejecutivo
 - seguro: 48213313 | gestion: RETENCION | motivo: Cambio de situación laboral

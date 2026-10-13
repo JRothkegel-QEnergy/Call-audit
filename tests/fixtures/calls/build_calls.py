@@ -311,6 +311,7 @@ call(
             {"criterion_id": 8, "status": "non_compliant", "note": "La clienta pregunta dos veces si el robo está cubierto y el ejecutivo no responde."},
             {"criterion_id": 6, "status": "uncertain", "note": "La ficha dice que cubre robo con violencia o intimidación; el ejecutivo no lo informa ('eso lo ve la compañía'). Se superpone con el motivo 8."},
             {"criterion_id": 29, "status": "uncertain", "note": "El ejecutivo da el seguro por retenido sin solicitud. Si eso cuenta como gestión, falta el protocolo de cierre (TBD con el cliente)."},
+            {"criterion_id": 30, "status": "uncertain", "note": "'Eh... sí, supongo' no es una respuesta válida según el script y el ejecutivo no repregunta. Aplica si la 'retención' cuenta como gestión con cierre."},
             {"criterion_id": 13, "status": "uncertain", "note": "Igual que 29."},
             {"criterion_id": 15, "status": "uncertain", "note": "Igual que 29."},
             {"criterion_id": 25, "status": "uncertain", "note": "No hay tipificación. Si la consulta (o la 'retención') debía tipificarse, falta."},

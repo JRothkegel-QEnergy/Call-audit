@@ -1,0 +1,319 @@
+{
+  "resumen": "El cliente titular solicita la renuncia de su seguro de Hospitalización indicando no querer más compromisos y transfiere la llamada a su cónyuge. La ejecutiva entrega información sobre el costo y las coberturas a la tercera y procede a formalizar la renuncia directamente con ella, sin intentar retener el seguro ni retomar la comunicación con el titular.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar al seguro de hospitalización, no quiero más compromisos. Pero mire, mi señora es la que ve estas cosas, le paso con ella.",
+    "timestamp": "00:41"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada finaliza de forma habitual con la despedida de ambas partes tras la confirmación de la renuncia."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213305",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+        "No desea contraer más obligaciones",
+        "Problemas Económicos"
+      ],
+      "n_objeciones": 0,
+      "cliente_tajante": false,
+      "argumentos_retencion": [],
+      "evidencia": "El titular manifiesta su intención de renuncia y pasa el teléfono a su cónyuge; tras responder dudas informativas, la ejecutiva cursa la renuncia sin presentar argumentos de retención."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No se registraron tiempos de espera ni silencios que superen el umbral permitido.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213305",
+      "comentario": "La descripción de las coberturas y montos entregada coincide con la ficha del producto Hospitalización TLMK.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213305",
+      "comentario": "No se excedió el número máximo de objeciones para retención.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213305",
+      "comentario": "La ejecutiva indicó características del seguro como el valor de la prima mensual y la cobertura diaria por hospitalización.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213305",
+      "comentario": "No hubo consultas sobre restricciones de permanencia o fechas límite para renunciar.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213305",
+      "comentario": "La ejecutiva manejó correctamente los datos de cobro y coberturas del producto ante las consultas realizadas.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "",
+      "comentario": "La llamada no requería derivación a otro canal.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "",
+      "comentario": "La ejecutiva respondió directamente a las consultas planteadas.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213305",
+      "comentario": "El seguro gestionado es de categoría retenible y permite su renuncia telefónica.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "La atención se mantuvo con un trato respetuoso y profesional.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "No se emitieron descalificaciones hacia pares, BancoEstado o la aseguradora.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213305",
+      "comentario": "La intención de renuncia surgió espontáneamente del titular sin ser inducida por la ejecutiva.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213305",
+      "comentario": "La ejecutiva mencionó el número de seguro completo en el protocolo de cierre.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213305",
+      "comentario": "Tratándose de un seguro retenible, la ejecutiva no realizó ningún intento de retención; se limitó a responder consultas informativas de la tercera y tramitó la renuncia de inmediato sin rebatir ni proponer alternativas para mantener vigente la póliza.",
+      "evidencia": [
+        {
+          "t": "01:32",
+          "hablante": "CLIENTE",
+          "cita": "No, igual lo queremos sacar. Ya tenemos muchas cuentas."
+        },
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "Perfecto, señora Marcela. Entonces le confirmo: queda ingresada la renuncia del seguro de Hospitalización, número de seguro cuatro ocho dos uno tres tres cero cinco, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213305",
+      "comentario": "Se indicó la cuenta vista como medio de pago en el cierre.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213305",
+      "comentario": "Hubo intención explícita de renuncia por parte del titular.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213305",
+      "comentario": "El seguro corresponde a la categoría retenible.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213305",
+      "comentario": "El motivo tipificado 'No desea contraer más obligaciones' concuerda con lo expresado por el cliente.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213305",
+      "comentario": "La gestión por grabación fue efectivamente renuncia, coincidiendo con la tipificación.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "48213305",
+      "comentario": "El seguro tipificado fue el mencionado y tratado en la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "48213305",
+      "comentario": "La renuncia tipificada corresponde al producto gestionado.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "",
+      "comentario": "No se tipificó retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "",
+      "comentario": "No se tipificó retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213305",
+      "comentario": "No se tipificó retención siendo renuncia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "",
+      "comentario": "Se tipificó la gestión del seguro tratado en la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "",
+      "comentario": "Se gestionó el único producto solicitado por el cliente.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "48213305",
+      "comentario": "La ejecutiva entregó información sobre el seguro (prima, medio de pago, vigencia y coberturas) a una tercera persona (la cónyuge Marcela) y procedió a realizar el cierre y confirmación de la renuncia con ella sin retomar la comunicación con el titular Jorge Ramírez.",
+      "evidencia": [
+        {
+          "t": "00:51",
+          "hablante": "CLIENTE",
+          "cita": "Hola, buenas, habla Marcela, la señora de Jorge. ¿Cuánto es lo que estamos pagando por ese seguro y desde cuándo?"
+        },
+        {
+          "t": "00:59",
+          "hablante": "AGENTE",
+          "cita": "Hola, señora Marcela. El seguro de Hospitalización tiene una prima mensual de seis mil trescientos pesos, que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado."
+        },
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "Perfecto, señora Marcela. Entonces le confirmo: queda ingresada la renuncia del seguro de Hospitalización, número de seguro cuatro ocho dos uno tres tres cero cinco, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213305",
+      "comentario": "El seguro es de prima mensual y no se solicitó devolución de primas.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213305",
+      "comentario": "Existe un resumen final de la gestión con mención del seguro, N° de seguro y medio de pago, aunque se realizó con un tercero y se omitieron datos complementarios del script.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213305",
+      "comentario": "La respuesta de confirmación fue 'Sí, de acuerdo', la cual es válida dentro del protocolo.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "Se validaron correctamente el RUT, nombre completo y fecha de nacimiento del titular al inicio de la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "",
+      "comentario": "No se condicionaron respuestas ni se predispuso al cliente.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "Se solicitaron y validaron el correo electrónico y teléfono del titular.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    }
+  ]
+}

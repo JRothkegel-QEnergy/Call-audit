@@ -10,11 +10,15 @@ Tu tarea: revisar la transcripción y detectar cuáles de los 33 "motivos de no 
 de la pauta ocurrieron. La pauta se evalúa por cada seguro sobre el que hubo gestión.
 
 ## Datos que recibes
-- Por cada seguro del cliente consultado en la llamada: nombre, N° de seguro (MUS A Neto,
-  único por seguro), N° de póliza, inicio de vigencia, compañía, categoría (retenible /
-  no retenible / no renunciable), tipo de prima con su regla de devolución, medio de pago
-  y la FICHA del producto.
-  Estos datos vienen de BancoEstado y el ejecutivo no los puede editar: son la verdad.
+- Por cada seguro del cliente consultado en la llamada: los datos de BancoEstado (nombre,
+  N° de seguro MUS A Neto, N° de póliza, inicio de vigencia, medio de pago) y la FICHA
+  estándar del producto: compañía, categoría (retenible / no retenible / no renunciable),
+  tipo de prima con su regla de devolución, retracto, coberturas con montos, asistencias,
+  primas por plan y cómo se usa el seguro.
+  Estos datos vienen de BancoEstado y del catálogo oficial: son la verdad. Los datos
+  personales del cliente (RUT, fecha de nacimiento, correo, teléfono) NO vienen: asume
+  que los que da el cliente coinciden con los registrados, salvo que el ejecutivo diga
+  que no coinciden.
 - La tipificación que registró el ejecutivo.
 - Las esperas y la transcripción con timestamps.
 Identifica de qué seguro se habla por su nombre, su N° de seguro o lo que describe el
@@ -30,7 +34,12 @@ CONSUMO" no es "DESEMPLEO ITT CRE. CONSUMO"): usa siempre el de los metadatos.
    (ej. "cierre 06:40–07:48: no menciona el N° de seguro").
 4. "no_aplica": la situación del motivo no se dio (ej. no hubo tercero → 27 no aplica).
 5. "indeterminado": la transcripción es ambigua, está cortada, es ininteligible en el
-   tramo relevante, o falta un dato necesario (ej. no hay ficha). Explica por qué.
+   tramo relevante, o falta un dato que CAMBIARÍA el resultado (ej. el ejecutivo describe
+   coberturas concretas y no hay ficha para contrastarlas). Explica por qué.
+   Si falta un dato pero la situación del motivo no se dio (ej. no hay tipo de prima,
+   pero nadie habló de devolución), el estado es "no_aplica", no "indeterminado".
+   Cada "indeterminado" manda la llamada a un auditor: úsalo solo cuando de verdad no
+   puedas decidir.
 6. La transcripción viene de reconocimiento de voz: no penalices palabras mal transcritas
    si el sentido es claro. Los números se pueden decir dígito a dígito.
 7. "confianza" va de 0 a 1.
@@ -38,7 +47,10 @@ CONSUMO" no es "DESEMPLEO ITT CRE. CONSUMO"): usa siempre el de los metadatos.
    el comentario concluye que no ocurrió o no aplica, el estado NO puede ser "incumple".
    Comentario de 1 frase si cumple o no aplica; detallado si incumple o es indeterminado.
 9. Marca cada conducta en el motivo MÁS ESPECÍFICO que la describa. No la repitas en
-   otro motivo más general.
+   otro motivo más general. Excepciones (pares que SÍ se marcan juntos porque miden cosas
+   distintas): 8 y 6 (eludir una pregunta y no dar la información del producto),
+   26 y 25 (no gestionar un seguro pedido y no tipificarlo), 9 y 7 (renunciar un no
+   renunciable y no orientar al canal correcto).
 10. Omitir información del seguro (no mencionar todas las coberturas) se corrige con
     retroalimentación y NO es incumplimiento, salvo lo que exige el motivo 4. Lo que sí es
     incumplimiento es dar información INCORRECTA (motivos 2 y 6): genera reclamos.
@@ -158,7 +170,8 @@ aclaraciones del cliente para aplicar el motivo.
    atención cuando alguno de esos datos no coincide.
 33 No valida correctamente al cliente, (Email, Fono). Protocolo de acreditación titularidad.
    Criterio: debe preguntarlos o mencionarlos. Si el dato que da el cliente es distinto
-   al registrado, es solo una observación, no incumple.
+   al registrado, es solo una observación, no incumple. Tú no tienes los datos
+   registrados: evalúa solo si el ejecutivo los pidió o los confirmó.
 29 No realiza protocolo de cierre.
    Criterio: incumple SOLO si no hay ningún resumen final de la gestión: el ejecutivo
    termina sin repasar qué se hizo con el seguro. Si hay un resumen, aunque no siga el
@@ -193,7 +206,8 @@ aclaraciones del cliente para aplicar el motivo.
  6 No maneja información del producto o coberturas.
    Criterio: el ejecutivo siempre tiene la información y debe darla. Incumple si, ante
    preguntas del cliente sobre el producto, responde con datos que contradicen la ficha,
-   con vaguedad, no responde, o niega la información o la desvía a otro canal.
+   con vaguedad ("eso lo ve la compañía", "depende de su póliza"), no la da, o la niega
+   o la desvía a otro canal. Mide si el cliente recibió la información correcta.
    Excepción: las fechas de pago no se manejan en el call center.
  5 No informa que la permanencia la maneja cliente ante consulta directa.
    Criterio: el ejecutivo puede sugerir fechas para renunciar, pero no puede decir que esa
@@ -222,22 +236,33 @@ aclaraciones del cliente para aplicar el motivo.
    Criterio: sugiere o propone renunciar un seguro que el cliente no pidió cancelar (por
    ejemplo, uno que no era el motivo de la consulta).
 32 Predispone al cliente para la aceptación del seguro, condiciona la respuesta a un Si.
-   Criterio: ej. "¿Usted está de acuerdo en mantenerlo, cierto?". Las preguntas del
-   script NO son este motivo: "¿le parece entonces que mantengamos vigente su seguro?",
-   "¿Confirma que desea renunciar?", "¿eso es un Sí?", ni una pregunta neutra como
-   "¿Está de acuerdo con la gestión?".
+   Criterio: preguntas que dan por hecha la respuesta, normalmente con una coletilla:
+   "¿Usted está de acuerdo en mantenerlo, cierto?", "lo dejamos vigente, ¿verdad?",
+   "¿no es cierto que le conviene?". NO son este motivo: las preguntas del script
+   ("¿le parece entonces que mantengamos vigente su seguro?", "¿Confirma que desea
+   renunciar?", "¿eso es un Sí?"), una pregunta neutra ("¿Está de acuerdo con la
+   gestión?") ni las preguntas que ofrecen una alternativa como argumento de retención
+   ("¿no prefiere mantenerlo un tiempo más?"): esas son argumentos (motivo 3).
  7 No realiza derivación correcta.
    Criterio: la situación requiere orientar al cliente a otro canal (ver "Derivar") y el
    ejecutivo no lo hace, lo orienta a un canal equivocado o transfiere la llamada.
 26 No se impactan todas las gestiones solicitadas por el cliente.
-   Criterio: en la grabación el cliente pide gestionar un seguro que no se gestionó.
+   Criterio: el cliente pide renunciar (o gestionar) un seguro y en la grabación esa
+   gestión no se ve realizada: no hay cierre de ese seguro (no se nombra en el resumen
+   final ni se confirma con el cliente). NO basta con que el ejecutivo diga "quedó todo
+   listo": revisa seguro por seguro que cada solicitud tenga su cierre. Si además falta
+   en la tipificación, marca también el 25.
 
 ### D. Trato y comunicación
  1 Deja en espera por tiempo excesivo.
    Criterio: más de umbral_espera_seg (30 s) sin hablarle al cliente: una espera de
    esperas_seg o un silencio del ejecutivo entre timestamps.
  8 No responde de forma directa al cliente. Elude las preguntas.
-   Criterio: el cliente hace una pregunta directa y el ejecutivo responde otra cosa.
+   Criterio: el cliente hace una pregunta directa y el ejecutivo no la contesta: cambia
+   de tema, responde otra cosa o sigue con su discurso (ej. el cliente pregunta qué cubre
+   y el ejecutivo le propone renunciar o le habla de mantener el seguro). Mide la
+   conducta de eludir; si la pregunta era sobre el producto, marca además el 6.
+   Responder directo aunque con un dato errado NO es 8 (es 6, 28 u otro).
 11 Descalifica a los pares, a BancoEstado o a la competencia.
    Criterio: hablar mal de ejecutivos de venta, ejecutivos del banco, otros ejecutivos,
    BancoEstado, la compañía o la competencia.
@@ -267,7 +292,8 @@ Y todos los motivos de renuncia que expresa el cliente. Luego compara con lo tip
 22 Tipifica retención de seguro no mencionado.
 23 Tipifica retención que corresponde a otro seguro.
 25 No tipifica todas las gestiones.
-   Criterio: quedan renuncias o retenciones de la grabación sin tipificar.
+   Criterio: un seguro que el cliente pidió renunciar (se haya gestionado o no en la
+   llamada) o que se retuvo no aparece en la tipificación.
 
 ## Motivos de renuncia válidos (los que exprese el cliente; si no da ninguno, "No informado")
 No desea contraer más obligaciones | Problemas Económicos | Cliente posee otros Seguros |
@@ -303,46 +329,57 @@ umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
 ### Seguro 1: HOSPITALIZACION TLMK
+Datos de la llamada (BancoEstado):
 - N° de seguro (MUS A Neto): 48213305
 - N° de póliza: 498213305
 - inicio de vigencia: 2025-03-15
+- medio de pago: CTV (Cuenta Vista (CuentaRUT) (Se paga con la cuenta vista))
+
+Ficha del producto (P05: Hospitalización TLMK):
 - compañía: MetLife
-- categoría: RETENIBLE. Seguro retenible: si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
-- tipo de prima: prima mensual. Devolución: no hay devolución automática; si el cliente la pide por cobros incorrectos o desconocimiento, se le invita a ingresar un requerimiento al 600 660 1212, opción 2.
-- medio de pago: CTV (Se paga con la Cuenta vista (Cuenta rut))
-- ficha del producto:
-Nombre en sistema | HOSPITALIZACIÓN TLMK
-SEGURO | COBERTURAS
-HOSPITALIZACIÓN | $ DE LIBRE DISPOSICIÓN
-POR ENFERMEDAD O ACCIDENTE
-SALA COMUN, UTI O UCI | desde UF 2
-Tope máximo de días | 180 días
-PRIMA DEL SEGURO PARA ASEGURADO TITULAR
-PLAN | PRIMA EN $ aprox | COBERTURA
-Plan 1 UF 0,1950 | 6300 | Plan 1 2 UF
-Plan 2 UF 0,2230 | 7200 | Plan 2 4 UF
-Plan 3 UF 0,2500 | 8100 | Plan 3 6 UF
-PRIMA ASEGURADO TITULAR + 1 ADICIONAL | PRIMA ASEGURADO TITULAR + 1 ADICIONAL
-Plan 1 UF 0,2380 | $ 6.800 | Plan 1 2 UF x asegurado adicional
-Plan 2 UF 0,2970 | $ 8.500 | Plan 1 4 UF x asegurado adicional
-Plan 3 UF 0,3570 | $ 10.200 | Plan 1 6 UF x asegurado adicional
-PRIMA ASEGURADO TITULAR + 2 ADICIONALES | PRIMA ASEGURADO TITULAR + 2 ADICIONALES
-Plan 1 UF 0,2680 | $ 7.700 | Plan 1 2 UF x asegurado adicional
-Plan 2 UF 0,3620 | $ 10.400 | Plan 1 4 UF x asegurado adicional
-Plan 3 UF 0,4540 | $ 13.000 | Plan 1 6 UF x asegurado adicional
-PRIMA ASEGURADO TITULAR + 3 ADICIONALES | PRIMA ASEGURADO TITULAR + 3 ADICIONALES
-Plan 1 UF 0,2970 | $ 8.500 | Plan 1 2 UF x asegurado adicional
-Plan 2 UF 0,4230 | $ 12.100 | Plan 1 4 UF x asegurado adicional
-Plan 3 UF 0,5530 | $ 15.900 | Plan 1 6 UF x asegurado adicional
-PRIMA ASEGURADO TITULAR + 4 ADICIONALES | PRIMA ASEGURADO TITULAR + 4 ADICIONALES
-Plan 1 UF 0,3270 | $ 9.400 | Plan 1 2 UF x asegurado adicional
-Plan 2 UF 0,4890 | $ 14.000 | Plan 1 4 UF x asegurado adicional
-Plan 3 UF 0,6510 | $ 18.700 | Plan 1 6 UF x asegurado adicional
-PRIMA ASEGURADO TITULAR + 5 ADICIONALES | PRIMA ASEGURADO TITULAR + 5 ADICIONALES
-Plan 1 UF 0,3570 | $ 10.200 | Plan 1 2 UF x asegurado adicional
-Plan 2 UF 0,5550 | $ 15.900 | Plan 1 4 UF x asegurado adicional
-Plan 3 UF 0,749 | $ 21.500 | Plan 1 6 UF x asegurado adicional
-Asistencia Renta Hospitalización
+- categoría: RETENIBLE. Si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
+- tipo de prima: prima mensual. Modalidad: Mensual
+- devolución de prima al renunciar: no hay devolución automática; si el cliente la pide por cobros incorrectos o desconocimiento, se le invita a ingresar un requerimiento al 600 660 1212, opción 2.
+- retracto: Sí, 10 días desde que recibe la póliza
+- capital asegurado: $ de libre disposición desde UF 2 (sala común, UTI o UCI); tope 180 días por evento
+- edad máxima de permanencia: 79 años y 364 días
+- inicio de cobertura: Desde que se contrata
+- apoyo solidario: Contrataciones desde el 01/01/2023 NO cuentan con apoyo solidario
+- plazo para denunciar siniestros (días): 180
+- fono asistencias: Hospitalización / IGS 226115423
+- notas: Mínimo 24 h hospitalizado. Capital de libre disposición independiente del tipo de sala. Asistencias donables a padres, cónyuge/conviviente civil e hijos.
+Coberturas:
+- Hospitalización por enfermedad o accidente. monto: Desde UF 2 (sala común, UTI o UCI). Mínimo 24 horas hospitalizado, máximo 180 días por evento; capital de libre disposición independiente del tipo de sala (común, UTI o UCI). beneficiario: Asegurado
+Asistencias y beneficios:
+- Batería de hipertensión. Exámenes: potasio, sodio, creatinina, colesterol total, glucosa en ayuna. La batería se toma completa. eventos: 1 por año de vigencia. tope: Sin límite. fono: IGS 226115423
+- Batería de diabetes. Exámenes: glicemia en ayuno, prueba de tolerancia a la glucosa. La batería se toma completa. eventos: 1 por año de vigencia. tope: Sin límite. fono: IGS 226115423
+- Examen de RX. RX de huesos. Requiere orden médica. eventos: 2 por año de vigencia. tope: Sin límite. fono: IGS 226115423
+- Telemedicina. Médico general; documentos solo si el médico lo estima necesario; servicio 24 horas. eventos: 6 por año de vigencia. tope: Sin límite. fono: IGS 226115423
+- Servicio de ambulancia. Pólizas 340018199 – 340013825. En caso de accidente del titular. eventos: 1 por año de vigencia. tope: UF 10. fono: IGS 226115423
+- Convenio Farmacias Cruz Verde. 10% de descuento en medicamentos y productos en Farmacias Cruz Verde, tope de descuento acumulado $10.000 mensuales. Excluye medicamentos oncológicos, inmunológicos, vacunas, medicina reproductiva y alimento para mascotas. Aplica aun con promociones y sin receta (salvo disposición S.N.S.). Presentar tarjeta de descuento + cédula de identidad; tarjeta intransferible. No es cobertura de seguro; (...). eventos: Mensual. tope: $10.000 de descuento al mes. fono: 600 660 1212
+Primas:
+- Plan 1. Titular solo. monto asegurado: UF 2. prima UF: 0.195. prima $ aprox.: 6300. Mensual
+- Plan 2. Titular solo. monto asegurado: UF 4. prima UF: 0.223. prima $ aprox.: 7200. Mensual
+- Plan 3. Titular solo. monto asegurado: UF 6. prima UF: 0.25. prima $ aprox.: 8100. Mensual
+- Plan 1. Titular + 1 adicional. monto asegurado: UF 2 por asegurado adicional. prima UF: 0.238. prima $ aprox.: 6800. Mensual
+- Plan 2. Titular + 1 adicional. monto asegurado: UF 4 por asegurado adicional. prima UF: 0.297. prima $ aprox.: 8500. Mensual
+- Plan 3. Titular + 1 adicional. monto asegurado: UF 6 por asegurado adicional. prima UF: 0.357. prima $ aprox.: 10200. Mensual
+- Plan 1. Titular + 2 adicionales. monto asegurado: UF 2 por asegurado adicional. prima UF: 0.268. prima $ aprox.: 7700. Mensual
+- Plan 2. Titular + 2 adicionales. monto asegurado: UF 4 por asegurado adicional. prima UF: 0.362. prima $ aprox.: 10400. Mensual
+- Plan 3. Titular + 2 adicionales. monto asegurado: UF 6 por asegurado adicional. prima UF: 0.454. prima $ aprox.: 13000. Mensual
+- Plan 1. Titular + 3 adicionales. monto asegurado: UF 2 por asegurado adicional. prima UF: 0.297. prima $ aprox.: 8500. Mensual
+- Plan 2. Titular + 3 adicionales. monto asegurado: UF 4 por asegurado adicional. prima UF: 0.423. prima $ aprox.: 12100. Mensual
+- Plan 3. Titular + 3 adicionales. monto asegurado: UF 6 por asegurado adicional. prima UF: 0.553. prima $ aprox.: 15900. Mensual
+- Plan 1. Titular + 4 adicionales. monto asegurado: UF 2 por asegurado adicional. prima UF: 0.327. prima $ aprox.: 9400. Mensual
+- Plan 2. Titular + 4 adicionales. monto asegurado: UF 4 por asegurado adicional. prima UF: 0.489. prima $ aprox.: 14000. Mensual
+- Plan 3. Titular + 4 adicionales. monto asegurado: UF 6 por asegurado adicional. prima UF: 0.651. prima $ aprox.: 18700. Mensual
+- Plan 1. Titular + 5 adicionales. monto asegurado: UF 2 por asegurado adicional. prima UF: 0.357. prima $ aprox.: 10200. Mensual
+- Plan 2. Titular + 5 adicionales. monto asegurado: UF 4 por asegurado adicional. prima UF: 0.555. prima $ aprox.: 15900. Mensual
+- Plan 3. Titular + 5 adicionales. monto asegurado: UF 6 por asegurado adicional. prima UF: 0.749. prima $ aprox.: 21500. Mensual
+Siniestros (cómo usar el seguro):
+- sin dato en el catálogo
+Observaciones del catálogo (inconsistencias del original):
+- Primas: En la hoja Hospitalización, las filas de adicionales dicen "Plan 1" para los planes 2 y 3 en la columna de cobertura; se interpretó por posición (2/4/6 UF).
 
 ## Tipificación registrada por el ejecutivo
 - seguro: 48213305 | gestion: RENUNCIA | motivo: No desea contraer más obligaciones

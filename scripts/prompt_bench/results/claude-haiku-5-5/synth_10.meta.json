@@ -8,12 +8,12 @@
     "max_tokens": 20000
   },
   "usage": {
-    "input_tokens": 1072,
-    "output_tokens": 8285,
+    "input_tokens": 1103,
+    "output_tokens": 7663,
     "cache_write_tokens": 0,
-    "cache_read_tokens": 9599
+    "cache_read_tokens": 10497
   },
-  "cost_usd": 0.004346,
-  "latency_ms": 31318,
-  "run_at": "2026-10-13T14:15:13+00:00"
+  "cost_usd": 0.004047,
+  "latency_ms": 29138,
+  "run_at": "2026-10-13T14:48:18+00:00"
 }
