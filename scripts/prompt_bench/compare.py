@@ -27,6 +27,15 @@ BATCH_DISCOUNT = 0.5
 GOAL_FALSE_ALARMS = 0.05
 GOAL_MISSED = 0.20
 
+PLATFORMS = {
+    "anthropic": "Anthropic API (directo)",
+    "openai": "OpenAI API (directo)",
+    "gemini": "Google Gemini API (directo)",
+    "groq": "Groq",
+    "openrouter": "OpenRouter (intermediario)",
+    "ollama": "Ollama (local)",
+}
+
 STATUS_MAP = {"incumple": "non_compliant", "cumple": "compliant", "no_aplica": "not_applicable", "indeterminado": "uncertain"}
 
 
@@ -159,8 +168,8 @@ def main() -> None:
         "",
         "## Resumen por IA",
         "",
-        "| IA | Modelo (según API) | Llamadas respondidas | Precisión motivos | Recall motivos | FP llamadas | FN llamadas | Gestiones correctas | Motivo de renuncia | Objeciones correctas | Orden de argumentos | Latencia prom. |",
-        "|---|---|---|---|---|---|---|---|---|---|---|---|",
+        "| IA | Plataforma | Modelo (según API) | Llamadas respondidas | Precisión motivos | Recall motivos | FP llamadas | FN llamadas | Gestiones correctas | Motivo de renuncia | Objeciones correctas | Orden de argumentos | Latencia prom. |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     configs = {c["name"]: c for c in tomllib.loads((Path(__file__).resolve().parent / "models.toml").read_text(encoding="utf-8"))["models"]}
     cost_lines = [
@@ -170,8 +179,8 @@ def main() -> None:
         f"Calculado con los tokens reales de cada respuesta y los precios de `models.toml`. La proyección usa {cl(MONTHLY_CALLS)} llamadas al mes"
         + " y el costo promedio por llamada de estas pruebas. Ojo: estas llamadas duran ~2 min y las reales más de 10 (ver Notas).",
         "",
-        f"| IA | Precio input / output (USD por M tokens) | Tokens prom. por llamada (in / out) | Costo por llamada USD | Costo de las {len(calls)} pruebas USD | Mensual USD | Mensual con batch (-50 %) USD |",
-        "|---|---|---|---|---|---|---|",
+        f"| IA | Plataforma | Precio input / output (USD por M tokens) | Tokens prom. por llamada (in / out) | Costo por llamada USD | Costo de las {len(calls)} pruebas USD | Mensual USD | Mensual con batch (-50 %) USD |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     grid: dict[str, dict[str, str]] = {stem: {} for stem in calls}
     quality_rows: list[str] = []
@@ -182,6 +191,7 @@ def main() -> None:
         outcome_ok = outcome_total = obj_ok = obj_total = reason_ok = reason_total = order_ok = order_total = 0
         returned_models, costs, latencies, tokens_in, tokens_out = set(), [], [], [], []
         cfg = configs.get(model, {})
+        platform = PLATFORMS.get(cfg.get("provider"), "manual")
         for stem, call in calls.items():
             path = model_dir / f"{stem}.json"
             if not path.exists():
@@ -245,12 +255,12 @@ def main() -> None:
             f1 = 2 * p_val * r_val / (p_val + r_val) if p_val + r_val else 0
             goal = "sí" if 1 - p_val <= GOAL_FALSE_ALARMS and 1 - r_val <= GOAL_MISSED else "no"
             quality_rows.append(
-                f"| {model} | {tp} | {fp} | {fn} | {p_val:.0%} | {1 - p_val:.0%} | {r_val:.0%} | {1 - r_val:.0%} | {f1:.0%} | {unc} ({unc - unc_ok} sin motivo) | {goal} |"
+                f"| {model} | {platform} | {tp} | {fp} | {fn} | {p_val:.0%} | {1 - p_val:.0%} | {r_val:.0%} | {1 - r_val:.0%} | {f1:.0%} | {unc} ({unc - unc_ok} sin motivo) | {goal} |"
             )
         model_cell = ", ".join(sorted(returned_models)) or ("(manual)" if answered else "—")
         latency_cell = f"{sum(latencies) / len(latencies) / 1000:.1f} s" if latencies else "—"
         lines.append(
-            f"| {model} | {model_cell} | {answered}/{len(calls)} | {precision} | {recall} | {call_fp}/{call_neg} | {call_fn}/{call_pos} "
+            f"| {model} | {platform} | {model_cell} | {answered}/{len(calls)} | {precision} | {recall} | {call_fp}/{call_neg} | {call_fn}/{call_pos} "
             f"| {outcome_ok}/{outcome_total} | {reason_ok}/{reason_total} | {obj_ok}/{obj_total} | {order_ok}/{order_total} | {latency_cell} |"
         )
         price = f"{cl(cfg['price_input_per_mtok'], 2)} / {cl(cfg['price_output_per_mtok'], 2)}" if "price_input_per_mtok" in cfg else "sin precio"
@@ -259,10 +269,10 @@ def main() -> None:
             per_call = sum(costs) / len(costs)
             monthly = per_call * MONTHLY_CALLS
             cost_lines.append(
-                f"| {model} | {price} | {tok} | {cl(per_call, 4)} | {cl(per_call * len(calls), 3)} | {cl(monthly)} | {cl(monthly * BATCH_DISCOUNT)} |"
+                f"| {model} | {platform} | {price} | {tok} | {cl(per_call, 4)} | {cl(per_call * len(calls), 3)} | {cl(monthly)} | {cl(monthly * BATCH_DISCOUNT)} |"
             )
         else:
-            cost_lines.append(f"| {model} | {price} | {tok} | — | — | — | — |")
+            cost_lines.append(f"| {model} | {platform} | {price} | {tok} | — | — | — | — |")
 
     lines += [
         "",
@@ -276,8 +286,8 @@ def main() -> None:
         "**Indeterminados** van a revisión humana: no son error, pero cuestan horas de auditor. \"Sin motivo\" = indeterminados en motivos que no se esperaban ni como inciertos.",
         f"Ojo con el tamaño: hay {sum(len(expected(c)[0]) for c in calls.values())} incumplimientos esperados en {len(calls)} llamadas; un solo motivo de diferencia mueve la precisión o el recall en ~4 puntos.",
         "",
-        "| IA | TP | FP | FN | Precisión | Falsas alarmas | Recall | Omisiones | F1 | Indeterminados | Cumple meta |",
-        "|---|---|---|---|---|---|---|---|---|---|---|",
+        "| IA | Plataforma | TP | FP | FN | Precisión | Falsas alarmas | Recall | Omisiones | F1 | Indeterminados | Cumple meta |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|",
     ] + quality_rows
     lines += cost_lines
     lines += errors_section(models)

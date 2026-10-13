@@ -9,13 +9,13 @@
 
 ## Resumen por IA
 
-| IA | Modelo (según API) | Llamadas respondidas | Precisión motivos | Recall motivos | FP llamadas | FN llamadas | Gestiones correctas | Motivo de renuncia | Objeciones correctas | Orden de argumentos | Latencia prom. |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| claude-sonnet-5-5 | claude-sonnet-5-5 | 13/13 | 100% | 96% | 0/1 | 0/11 | 14/14 | 14/14 | 13/14 | 2/2 | 17.3 s |
-| gemini-3-5-flash-lite | gemini-3.5-flash-lite | 13/13 | 86% | 69% | 0/1 | 1/11 | 13/14 | 14/14 | 11/14 | 1/2 | 67.4 s |
-| or-deepseek-v4-1-flash | deepseek/deepseek-v4.1-flash | 13/13 | 96% | 92% | 0/1 | 0/11 | 14/14 | 14/14 | 12/14 | 2/2 | 52.1 s |
-| or-gemini-3-8-flash | google/gemini-3.8-flash | 13/13 | 100% | 85% | 0/1 | 0/11 | 14/14 | 14/14 | 12/14 | 2/2 | 51.2 s |
-| or-gpt-6-luna | openai/gpt-6-luna | 13/13 | 96% | 88% | 0/1 | 0/11 | 14/14 | 14/14 | 12/14 | 2/2 | 57.5 s |
+| IA | Plataforma | Modelo (según API) | Llamadas respondidas | Precisión motivos | Recall motivos | FP llamadas | FN llamadas | Gestiones correctas | Motivo de renuncia | Objeciones correctas | Orden de argumentos | Latencia prom. |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| claude-sonnet-5-5 | Anthropic API (directo) | claude-sonnet-5-5 | 13/13 | 100% | 96% | 0/1 | 0/11 | 14/14 | 14/14 | 13/14 | 2/2 | 17.3 s |
+| gemini-3-5-flash-lite | Google Gemini API (directo) | gemini-3.5-flash-lite | 13/13 | 86% | 69% | 0/1 | 1/11 | 13/14 | 14/14 | 11/14 | 1/2 | 67.4 s |
+| or-deepseek-v4-1-flash | OpenRouter (intermediario) | deepseek/deepseek-v4.1-flash | 13/13 | 96% | 92% | 0/1 | 0/11 | 14/14 | 14/14 | 12/14 | 2/2 | 52.1 s |
+| or-gemini-3-8-flash | OpenRouter (intermediario) | google/gemini-3.8-flash | 13/13 | 100% | 85% | 0/1 | 0/11 | 14/14 | 14/14 | 12/14 | 2/2 | 51.2 s |
+| or-gpt-6-luna | OpenRouter (intermediario) | openai/gpt-6-luna | 13/13 | 96% | 88% | 0/1 | 0/11 | 14/14 | 14/14 | 12/14 | 2/2 | 57.5 s |
 
 ## Detalle de precisión
 
@@ -27,25 +27,25 @@ El recall pesa en riesgo: cada omisión es un incumplimiento real que no llega a
 **Indeterminados** van a revisión humana: no son error, pero cuestan horas de auditor. "Sin motivo" = indeterminados en motivos que no se esperaban ni como inciertos.
 Ojo con el tamaño: hay 26 incumplimientos esperados en 13 llamadas; un solo motivo de diferencia mueve la precisión o el recall en ~4 puntos.
 
-| IA | TP | FP | FN | Precisión | Falsas alarmas | Recall | Omisiones | F1 | Indeterminados | Cumple meta |
-|---|---|---|---|---|---|---|---|---|---|---|
-| claude-sonnet-5-5 | 25 | 0 | 1 | 100% | 0% | 96% | 4% | 98% | 1 (0 sin motivo) | sí |
-| gemini-3-5-flash-lite | 18 | 3 | 8 | 86% | 14% | 69% | 31% | 77% | 0 (0 sin motivo) | no |
-| or-deepseek-v4-1-flash | 24 | 1 | 2 | 96% | 4% | 92% | 8% | 94% | 5 (1 sin motivo) | sí |
-| or-gemini-3-8-flash | 22 | 0 | 4 | 100% | 0% | 85% | 15% | 92% | 0 (0 sin motivo) | sí |
-| or-gpt-6-luna | 23 | 1 | 3 | 96% | 4% | 88% | 12% | 92% | 5 (1 sin motivo) | sí |
+| IA | Plataforma | TP | FP | FN | Precisión | Falsas alarmas | Recall | Omisiones | F1 | Indeterminados | Cumple meta |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| claude-sonnet-5-5 | Anthropic API (directo) | 25 | 0 | 1 | 100% | 0% | 96% | 4% | 98% | 1 (0 sin motivo) | sí |
+| gemini-3-5-flash-lite | Google Gemini API (directo) | 18 | 3 | 8 | 86% | 14% | 69% | 31% | 77% | 0 (0 sin motivo) | no |
+| or-deepseek-v4-1-flash | OpenRouter (intermediario) | 24 | 1 | 2 | 96% | 4% | 92% | 8% | 94% | 5 (1 sin motivo) | sí |
+| or-gemini-3-8-flash | OpenRouter (intermediario) | 22 | 0 | 4 | 100% | 0% | 85% | 15% | 92% | 0 (0 sin motivo) | sí |
+| or-gpt-6-luna | OpenRouter (intermediario) | 23 | 1 | 3 | 96% | 4% | 88% | 12% | 92% | 5 (1 sin motivo) | sí |
 
 ## Costos por IA
 
 Calculado con los tokens reales de cada respuesta y los precios de `models.toml`. La proyección usa 100.000 llamadas al mes y el costo promedio por llamada de estas pruebas. Ojo: estas llamadas duran ~2 min y las reales más de 10 (ver Notas).
 
-| IA | Precio input / output (USD por M tokens) | Tokens prom. por llamada (in / out) | Costo por llamada USD | Costo de las 13 pruebas USD | Mensual USD | Mensual con batch (-50 %) USD |
-|---|---|---|---|---|---|---|
-| claude-sonnet-5-5 | 2,00 / 10,00 | 14.241 / 2.994 | 0,0428 | 0,557 | 4.284 | 2.142 |
-| gemini-3-5-flash-lite | 0,30 / 2,50 | 9.703 / 2.105 | 0,0082 | 0,106 | 817 | 409 |
-| or-deepseek-v4-1-flash | 0,30 / 1,20 | 9.607 / 9.528 | 0,0143 | 0,186 | 1.432 | 716 |
-| or-gemini-3-8-flash | 0,75 / 3,75 | 8.923 / 7.400 | 0,0344 | 0,448 | 3.444 | 1.722 |
-| or-gpt-6-luna | 0,10 / 0,50 | 8.537 / 5.685 | 0,0037 | 0,048 | 370 | 185 |
+| IA | Plataforma | Precio input / output (USD por M tokens) | Tokens prom. por llamada (in / out) | Costo por llamada USD | Costo de las 13 pruebas USD | Mensual USD | Mensual con batch (-50 %) USD |
+|---|---|---|---|---|---|---|---|
+| claude-sonnet-5-5 | Anthropic API (directo) | 2,00 / 10,00 | 14.241 / 2.994 | 0,0428 | 0,557 | 4.284 | 2.142 |
+| gemini-3-5-flash-lite | Google Gemini API (directo) | 0,30 / 2,50 | 9.703 / 2.105 | 0,0082 | 0,106 | 817 | 409 |
+| or-deepseek-v4-1-flash | OpenRouter (intermediario) | 0,30 / 1,20 | 9.607 / 9.528 | 0,0143 | 0,186 | 1.432 | 716 |
+| or-gemini-3-8-flash | OpenRouter (intermediario) | 0,75 / 3,75 | 8.923 / 7.400 | 0,0344 | 0,448 | 3.444 | 1.722 |
+| or-gpt-6-luna | OpenRouter (intermediario) | 0,10 / 0,50 | 8.537 / 5.685 | 0,0037 | 0,048 | 370 | 185 |
 
 ## Llamadas con error
 
