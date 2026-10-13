@@ -1,0 +1,317 @@
+```json
+{
+  "resumen": "Cliente llama para consultar si su seguro Sale Seguro Plus cubre un robo de cartera con tarjeta ocurrido el fin de semana. El ejecutivo valida datos de titularidad, intenta retener el seguro sin que el cliente haya expresado intención de renuncia, y orienta al cliente sobre cómo hacer el reclamo. La llamada termina sin protocolo de cierre formal.",
+  "intencion_renuncia": {
+    "expresada": false,
+    "cita": "",
+    "timestamp": ""
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con una despedida del ejecutivo ('Que tenga buen día, señora Sofía') tras resolver la consulta del cliente."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213306",
+      "resultado_grabacion": "CONSULTA",
+      "motivos_renuncia": [],
+      "n_objeciones": 0,
+      "cliente_tajante": false,
+      "argumentos_retencion": [
+        {
+          "t": "01:07",
+          "tipo": "BENEFICIO",
+          "cita": "es una protección muy completa para usted y su familia"
+        }
+      ],
+      "evidencia": "El cliente consulta sobre cobertura de un siniestro (robo) sin expresar intención de renunciar. El ejecutivo intenta retener el seguro de forma proactiva."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hay esperas registradas en los metadatos y la transcripción no muestra silencios prolongados sin comunicación del ejecutivo.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo no describe coberturas específicas del seguro por iniciativa propia; solo orienta al cliente a contactar a la compañía para el reclamo.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "comentario": "No aplica; el cliente no expresó intención de renuncia, por lo que no hay objeciones de retención.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo no indica ninguna característica del seguro (cobertura, beneficio, asistencia, prima) al cliente. Solo dice que es 'una protección muy completa' sin especificar qué cubre.",
+      "estado": "incumple",
+      "confianza": 0.95,
+      "evidencia": [
+        {
+          "t": "01:07",
+          "hablante": "AGENTE",
+          "cita": "es una protección muy completa para usted y su familia"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "comentario": "No aplica; el cliente no consultó sobre fechas de renuncia ni condiciones de permanencia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "comentario": "El cliente pregunta directamente si el robo está cubierto ('¿me cubre el robo o no?'). El ejecutivo responde de forma vaga ('eso lo ve la compañía') sin proporcionar información del producto. Según la ficha, la cobertura 3 (Robo con Violencia o Intimidación en las Personas) cubre robos con violencia o intimidación, lo que aplica al caso del cliente. El ejecutivo debería haber informado esto.",
+      "estado": "incumple",
+      "confianza": 0.9,
+      "evidencia": [
+        {
+          "t": "01:19",
+          "hablante": "CLIENTE",
+          "cita": "¿me cubre el robo o no?"
+        },
+        {
+          "t": "01:24",
+          "hablante": "AGENTE",
+          "cita": "Para el robo, eso lo ve la compañía; usted haga la denuncia en Carabineros y llame al FonoSeguros"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "comentario": "El ejecutivo orienta correctamente al cliente a contactar al FonoSeguros (600 660 1212) para hacer el reclamo, que es el canal adecuado para siniestros según las definiciones de derivación.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 8,
+      "comentario": "El cliente pregunta sobre cobertura del robo y el ejecutivo responde sobre la importancia de mantener el seguro, eludiendo la pregunta directa del cliente.",
+      "estado": "incumple",
+      "confianza": 0.95,
+      "evidencia": [
+        {
+          "t": "01:07",
+          "hablante": "CLIENTE",
+          "cita": "Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo."
+        },
+        {
+          "t": "01:13",
+          "hablante": "AGENTE",
+          "cita": "Sí, claro, pero es importante que lo mantenga."
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "comentario": "No aplica; el seguro es RETENIBLE y no se ingresó renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "comentario": "El tono del ejecutivo es respetuoso y profesional; no hay evidencia de mal trato, lenguaje soez, agresividad o impaciencia hostil.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "comentario": "No hay descalificaciones a pares, BancoEstado, la compañía o la competencia.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "comentario": "No aplica; el ejecutivo no sugiere renunciar a un seguro que el cliente no pidió cancelar. El cliente solo consulta sobre cobertura.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "comentario": "No aplica; no hay protocolo de cierre (motivo 29 incumple). El motivo 13 se evalúa dentro del protocolo de cierre, que no se realizó.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "comentario": "El seguro es RETENIBLE pero el cliente no expresó intención de renuncia. El ejecutivo intenta retener de forma proactiva sin que haya solicitud de cancelación, lo que corresponde al motivo 16, no al 14.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "comentario": "No aplica; no hay protocolo de cierre.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "comentario": "El ejecutivo intenta retener el seguro sin que el cliente haya expresado intención de renuncia. El cliente solo consulta sobre cobertura de un siniestro. El ejecutivo dice 'antes de eso le quiero recordar lo importante que es mantener este seguro' y luego pregunta 'Usted está de acuerdo en mantenerlo, ¿cierto?', intentando retener un seguro que el cliente nunca pidió cancelar.",
+      "estado": "incumple",
+      "confianza": 0.95,
+      "evidencia": [
+        {
+          "t": "00:40",
+          "hablante": "CLIENTE",
+          "cita": "Tengo el Sale Seguro y el fin de semana me asaltaron y me robaron la cartera con la tarjeta. Quería saber si eso lo cubre y cómo hago el reclamo."
+        },
+        {
+          "t": "00:52",
+          "hablante": "AGENTE",
+          "cita": "Señora Sofía, antes de eso le quiero recordar lo importante que es mantener este seguro."
+        },
+        {
+          "t": "01:13",
+          "hablante": "AGENTE",
+          "cita": "Usted está de acuerdo en mantenerlo, ¿cierto?"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "comentario": "No aplica; el seguro es RETENIBLE.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "comentario": "No aplica; no hay tipificación registrada y el cliente no expresó intención de renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "comentario": "No aplica; no hay tipificación registrada y el resultado según la grabación es CONSULTA, no RENUNCIA.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "comentario": "No aplica; no hay tipificación registrada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "comentario": "No aplica; no hay tipificación registrada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "comentario": "No aplica; no hay tipificación registrada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "comentario": "No aplica; no hay tipificación registrada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "comentario": "No aplica; no hay tipificación registrada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "comentario": "No aplica; no hay tipificación registrada y el cliente solo consultó sobre un seguro.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "comentario": "El cliente solicitó una gestión (consulta sobre cobertura de robo) que fue resuelta con orientación al FonoSeguros.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "comentario": "No aplica; no hay terceros en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "comentario": "No aplica; el cliente no pidió devolución de prima ni se discutió este tema.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "comentario": "No se realiza protocolo de cierre. La llamada termina con una despedida simple ('Que tenga buen día, señora Sofía') sin resumen de gestión, identificación del seguro por N° de seguro, medio de pago ni confirmación de conformidad del cliente. Aunque la gestión fue una consulta (no renuncia ni retención), el protocolo de cierre aplica cuando hubo gestión de renuncia o retención. En este caso, el ejecutivo intentó retener sin intención de renuncia del cliente, por lo que técnicamente no hay gestión de retención válida. Sin embargo, la ausencia de cierre es evidente.",
+      "estado": "incumple",
+      "confianza": 0.85,
+      "evidencia": [
+        {
+          "t": "01:37",
+          "hablante": "AGENTE",
+          "cita": "Que tenga buen día, señora Sofía."
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "comentario": "No aplica; no hay protocolo de cierre.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida correctamente los 3 datos de titularidad: RUT (16.666.666-6), nombre completo (Sofía Ignacia Tapia Rojas) y fecha de nacimiento (11 de agosto de 1992).",
+      "estado": "cumple",
+      "confianza": 1.0,
+      "evidencia": [
+        {
+          "t": "00:10",
+          "hablante": "AGENTE",
+          "cita": "¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:15",
+          "hablante": "CLIENTE",
+          "cita": "Dieciséis millones seiscientos sesenta y seis mil seiscientos sesenta y seis guion seis. Sofía Ignacia Tapia Rojas, once de agosto del noventa y dos."
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "comentario": "El ejecutivo pregunta 'Usted está de acuerdo en mantenerlo, ¿cierto?' de forma que predispone al cliente a responder afirmativamente, condicionando la respuesta a un 'sí'. Esta es una pregunta sesgada que no es neutra.",
+      "estado": "incumple",
+      "confianza": 0.95,
+      "evidencia": [
+        {
+          "t": "01:13",
+          "hablante": "AGENTE",
+          "cita": "Usted está de acuerdo en mantenerlo, ¿cierto?"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo valida correctamente email (sofia.tapia@correoejemplo.cl) y teléfono (9 3 3 3 2 2 2 1 1) del cliente.",
+      "estado": "cumple",
+      "confianza": 1.0,
+      "evidencia": [
+        {
+          "t": "00:25",
+          "hablante": "AGENTE",
+          "cita": "¿Su correo y un teléfono de contacto?"
+        },
+        {
+          "t": "00:28",
+          "hablante": "CLIENTE",
+          "cita": "sofia punto tapia arroba correo ejemplo punto cl, nueve tres tres tres dos dos dos uno uno."
+        }
+      ]
+    }
+  ]
+}
+```

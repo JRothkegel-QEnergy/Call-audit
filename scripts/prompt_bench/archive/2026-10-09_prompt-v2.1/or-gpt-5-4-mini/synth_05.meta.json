@@ -1,0 +1,17 @@
+{
+  "name": "or-gpt-5-4-mini",
+  "provider": "openrouter",
+  "requested_model": "openai/gpt-5.4-mini",
+  "returned_model": "openai/gpt-5.4-mini",
+  "settings": {
+    "tool_mode": true,
+    "max_tokens": 16000
+  },
+  "usage": {
+    "input_tokens": 7670,
+    "output_tokens": 3364
+  },
+  "cost_usd": 0.02089,
+  "latency_ms": 16036,
+  "run_at": "2026-10-09T22:26:56+00:00"
+}

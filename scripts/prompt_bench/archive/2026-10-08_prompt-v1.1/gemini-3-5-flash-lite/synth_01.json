@@ -1,0 +1,217 @@
+{
+  "resumen": "El cliente Pedro Soto llama para renunciar a su seguro de desempleo por problemas económicos. La agente Camila Rojas valida sus datos correctamente, le explica las características del seguro (prima única ya pagada) y realiza un intento de retención. El cliente decide mantener el seguro tras comprender que no tiene cobros mensuales y que puede renunciar cuando quiera. La agente realiza el protocolo de cierre completo y la gestión finaliza en retención.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Mire, quiero dar de baja el seguro de desempleo que tengo con el crédito de consumo. La verdad ando medio apretado con las lucas.",
+    "timestamp": "00:54"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "DES-CONS-0001",
+      "resultado_grabacion": "RETENCION",
+      "motivo_renuncia": "Problemas Económicos",
+      "n_objeciones": 1,
+      "evidencia": "Cliente indica que prefiere no tener nada extra (01:52). La agente argumenta que cubre hasta cinco cuotas (01:57). Cliente acepta mantenerlo (02:21)."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hay esperas en la llamada (esperas_seg vacío).",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "comentario": "La agente describe correctamente el seguro de desempleo asociado al crédito de consumo de acuerdo con la ficha de producto.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "comentario": "La agente realiza solo 1 objeción/argumento de retención, por lo que no excede el límite de 3.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "comentario": "La agente indica características del seguro en [01:17].",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "comentario": "El cliente no consulta directamente sobre quién maneja la permanencia, aunque la agente lo aclara de todas formas.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "comentario": "La agente maneja adecuadamente la información de coberturas y prima única sin errores.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 7,
+      "comentario": "El seguro es retenible y renunciable en el canal, por lo que no requería derivación.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "comentario": "La agente responde de forma directa y clara a las consultas del cliente.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro es renunciable en este canal.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "comentario": "La atención se ajusta a la política de BancoEstado.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "comentario": "La agente no descalifica a pares, BancoEstado ni competencia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "comentario": "La agente no induce a la renuncia; el cliente la solicita inicialmente.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "comentario": "La agente indica el número de seguro en el cierre (02:28).",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "comentario": "La agente realiza intento de retención en [01:57].",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "comentario": "La agente informa el medio de pago en el protocolo de cierre (02:28).",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "comentario": "El cliente expresó explícitamente intención de renuncia en [00:54], por lo que la retención sí cuenta con intención previa.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro es retenible.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "comentario": "La tipificación registrada indica motivo 'Problemas Económicos', lo cual coincide con lo expresado por el cliente en [00:54].",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "comentario": "La grabación es retención y la tipificación registrada es retención.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "comentario": "No aplica, la gestión registrada no es renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "comentario": "No aplica, la gestión registrada no es renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "comentario": "Se tipificó retención para el seguro DES-CONS-0001, que es exactamente el seguro consultado y gestionado.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "comentario": "Corresponde al seguro correcto.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "comentario": "La tipificación registrada es retención y por grabación es retención.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "comentario": "Se tipificó correctamente la única gestión realizada.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "comentario": "Se impactó la gestión solicitada.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "comentario": "No intervino ningún tercero en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "comentario": "El campo devolucion_prima está como 'sin dato' en los metadatos, por lo que no aplica evaluar negación de devolución.",
+      "estado": "indeterminado",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "comentario": "La agente realiza el protocolo de cierre completo en [02:28].",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 30,
+      "comentario": "El cliente acepta claramente la gestión en [02:50] ('Sí, conforme'), por lo que no hubo respuesta no permitida.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "comentario": "La agente valida correctamente RUT, nombre y fecha de nacimiento entre [00:10] y [00:30].",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "comentario": "La agente realiza una pregunta neutra de confirmación al cierre ('¿Está conforme con la gestión realizada?'), sin predisponer ni condicionar la respuesta a un sí.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "comentario": "La agente valida correctamente el correo electrónico y teléfono en [00:34].",
+      "estado": "cumple",
+      "confianza": 1.0
+    }
+  ]
+}

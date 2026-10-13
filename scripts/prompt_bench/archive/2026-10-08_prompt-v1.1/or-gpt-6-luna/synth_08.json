@@ -1,0 +1,277 @@
+{
+  "resumen": "La clienta consultó qué cubría el Sale Seguro, sin pedir inicialmente su renuncia. El ejecutivo recomendó darlo de baja y la clienta aceptó; luego el ejecutivo informó que ingresó la renuncia, pero negó la devolución de primas pese a que los metadatos indican que corresponde.",
+  "intencion_renuncia": {
+    "expresada": false,
+    "cita": "La clienta pregunta qué cubre el seguro; la propuesta de darlo de baja la formula el ejecutivo y la clienta responde después: «Eh... bueno, ya, si usted dice».",
+    "timestamp": "00:37–01:01"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "SALE-0008",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "No informado",
+      "n_objeciones": 0,
+      "evidencia": "El ejecutivo propone dar de baja el seguro y después informa que ingresó la renuncia: [00:46] AGENTE: «Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?»; [01:17] AGENTE: «Quedó ingresada la renuncia de su Sale Seguro, póliza número SALE-0008»."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hubo esperas registradas y la transcripción no muestra una espera prolongada.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo describe el seguro como contratado con el crédito, pero la ficha de producto está pendiente y no permite contrastar si esa descripción corresponde a otro seguro.",
+      "estado": "indeterminado",
+      "confianza": 0.99
+    },
+    {
+      "id": 3,
+      "comentario": "No hubo gestión de retención ni objeciones de retención que pudieran exceder el máximo permitido.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 4,
+      "comentario": "Ante la consulta sobre qué cubre el seguro, no se informa ninguna característica o cobertura; la ficha no está disponible.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Me apareció un cobro en la cuenta que dice Sale Seguro y no me acuerdo bien qué es. Quería saber qué cubre."
+        },
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Ah, sí, es un seguro que se contrató con su crédito. La verdad, si no se acuerda de él, seguramente no lo usa."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 5,
+      "comentario": "La clienta no consulta quién maneja la permanencia del seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 6,
+      "comentario": "La clienta pregunta directamente por las coberturas y el ejecutivo no responde qué cubre el seguro; en su lugar recomienda cancelarlo.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Quería saber qué cubre."
+        },
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "La verdad, si no se acuerda de él, seguramente no lo usa. Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 7,
+      "comentario": "No se presenta una solicitud de renuncia que corresponda derivar a otra área o canal; además, los metadatos indican que el seguro es renunciable en este canal.",
+      "estado": "no_aplica",
+      "confianza": 0.97
+    },
+    {
+      "id": 8,
+      "comentario": "La falta de respuesta sobre las coberturas está evaluada en el motivo específico 6; no se identifica una evasión distinta que corresponda duplicar aquí.",
+      "estado": "no_aplica",
+      "confianza": 0.91
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro consultado figura como renunciable en este canal, no como irrenunciable.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 10,
+      "comentario": "La recomendación no solicitada de cancelar el seguro se evalúa específicamente en el motivo 12; no se identifica una conducta residual distinta.",
+      "estado": "no_aplica",
+      "confianza": 0.94
+    },
+    {
+      "id": 11,
+      "comentario": "No se descalifica a pares, a BancoEstado ni a la competencia.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 12,
+      "comentario": "La clienta solo consulta qué cubre el seguro; antes de que exprese intención de renunciar, el ejecutivo propone darlo de baja.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Quería saber qué cubre."
+        },
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 13,
+      "comentario": "En el cierre el ejecutivo menciona el número de póliza SALE-0008.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 14,
+      "comentario": "El seguro es retenible y termina renunciado; pese a ello, el ejecutivo no intenta conservarlo y, en cambio, sugiere darlo de baja.",
+      "evidencia": [
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        },
+        {
+          "t": "01:17",
+          "hablante": "AGENTE",
+          "cita": "Quedó ingresada la renuncia de su Sale Seguro"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 15,
+      "comentario": "En el cierre informa que el seguro tenía cargo a la cuenta RUT.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 16,
+      "comentario": "No se realiza un intento de retención; el ejecutivo propone cancelar el seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 17,
+      "comentario": "No se retiene el seguro; los metadatos indican que es retenible.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 18,
+      "comentario": "La tipificación registrada indica «No informado». La clienta no declara un motivo para renunciar; solo consulta la cobertura y dice que no recuerda bien qué es el seguro.",
+      "estado": "cumple",
+      "confianza": 0.94
+    },
+    {
+      "id": 19,
+      "comentario": "La tipificación registra RENUNCIA y la grabación termina con la renuncia ingresada; no se registra retención.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 20,
+      "comentario": "La renuncia registrada corresponde al Sale Seguro mencionado en la llamada.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 21,
+      "comentario": "La renuncia se refiere al seguro Sale Seguro consultado, no a otro seguro.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 22,
+      "comentario": "No se registra una tipificación de retención.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 23,
+      "comentario": "No se registra una tipificación de retención.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 24,
+      "comentario": "La tipificación registrada es RENUNCIA, no RETENCIÓN.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 25,
+      "comentario": "Se registra una gestión para el único seguro consultado y la llamada informa que su renuncia fue ingresada; no se identifica otra gestión solicitada que haya quedado sin tipificar.",
+      "estado": "cumple",
+      "confianza": 0.93
+    },
+    {
+      "id": 26,
+      "comentario": "No se identifica una solicitud explícita de renuncia ni varias gestiones solicitadas que hayan quedado sin ejecutar. La consulta sobre coberturas se evalúa en el motivo específico 6.",
+      "estado": "no_aplica",
+      "confianza": 0.88
+    },
+    {
+      "id": 27,
+      "comentario": "La llamada transcurre entre la titular y el ejecutivo; no interviene un tercero.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 28,
+      "comentario": "Los metadatos indican que la devolución de prima corresponde, pero el ejecutivo niega que se devuelva lo ya cobrado.",
+      "evidencia": [
+        {
+          "t": "01:06",
+          "hablante": "CLIENTE",
+          "cita": "Y lo que ya me cobraron, ¿me lo devuelven?"
+        },
+        {
+          "t": "01:11",
+          "hablante": "AGENTE",
+          "cita": "No, eso no se devuelve. Lo pagado, pagado."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 29,
+      "comentario": "El cierre resume que se ingresó la renuncia, identifica la póliza y el medio de pago, y solicita confirmación a la clienta.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 30,
+      "comentario": "La clienta responde «Sí» a la confirmación del cierre, por lo que no era necesario reiterarlo.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo solicita RUT, nombre completo y fecha de nacimiento; la clienta entrega esos datos y el ejecutivo confirma que fueron validados.",
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 32,
+      "comentario": "El ejecutivo condiciona la aceptación de la baja, no la aceptación de mantener el seguro; no se observa una pregunta que predisponga a aceptar el seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.97
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo solicita correo y teléfono, la clienta los entrega y el ejecutivo confirma que los datos fueron validados.",
+      "estado": "cumple",
+      "confianza": 0.97
+    }
+  ]
+}

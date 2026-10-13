@@ -1,0 +1,352 @@
+{
+  "resumen": "La cliente solicita sacar un seguro de desgravamen asociado a su crédito hipotecario. El ejecutivo valida a la titular, anuncia la baja e ingresa una renuncia, pese a que el seguro es NO_RENUNCIABLE_SUCURSAL y no puede gestionarse por teléfono. No deriva a sucursal y realiza un cierre con aceptación de la cliente.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Lo quiero sacar.",
+    "timestamp": "00:35"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con despedida cordial tras el cierre y la conformidad de la cliente."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213311",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+       "Desconoce contratación del seguro"
+      ],
+      "n_objeciones": 0,
+      "cliente_tajante": false,
+      "argumentos_retencion": [],
+      "evidencia": "La cliente pide sacar el seguro; el ejecutivo dice 'Se lo doy de baja' y luego 'Quedó ingresada la renuncia de su seguro de desgravamen'."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No se registran esperas y la transcripción no muestra silencios mayores a 30 segundos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213311",
+      "comentario": "La única descripción ('seguro de desgravamen de su crédito hipotecario') coincide con el seguro identificado en los metadatos y no corresponde a otro.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.75
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213311",
+      "comentario": "No hubo objeciones de retención porque el ejecutivo no intentó retener el seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213311",
+      "comentario": "Indica al menos una característica al asociarlo al crédito hipotecario.",
+      "evidencia": [
+       {
+       },
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.6
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213311",
+      "comentario": "El cliente no consultó sobre fecha de permanencia o renovación.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213311",
+      "comentario": "El cliente no hizo preguntas sobre producto o coberturas.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "48213311",
+      "comentario": "El seguro es NO_RENUNCIABLE_SUCURSAL y debía orientarse a sucursal como consulta; el ejecutivo no deriva y en su lugar anuncia e ingresa una renuncia.",
+      "evidencia": [
+       {
+       },
+       {
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "",
+      "comentario": "Responde directamente a la solicitud de baja sin eludir preguntas.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213311",
+      "comentario": "Se renuncia por teléfono un seguro NO_RENUNCIABLE_SUCURSAL, que no puede renunciar en este canal.",
+      "evidencia": [
+       {
+       },
+       {
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "El trato es cordial y no hay tono agresivo, soez o impaciencia hostil.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "No se descalifica a pares, BancoEstado ni competencia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213311",
+      "comentario": "La renuncia fue solicitada explícitamente por el cliente; no hay inducción a renunciar.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213311",
+      "comentario": "En el cierre indica el número de seguro 48213311.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213311",
+      "comentario": "El seguro no es retenible, por lo que no aplica el intento de retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213311",
+      "comentario": "Informa el medio de pago HIP al decir que tiene cargo en el crédito hipotecario.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.8
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213311",
+      "comentario": "No se realizó retención; hubo intención de renuncia del cliente.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213311",
+      "comentario": "No se retuvo el seguro, por lo que no aplica retención de un no retenible.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213311",
+      "comentario": "El motivo tipificado 'Desconoce contratación del seguro' es compatible con 'yo no me acuerdo de haberlo contratado'.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213311",
+      "comentario": "Tipifica renuncia y la grabación muestra una renuncia ingresada, no una retención.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.85
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "48213311",
+      "comentario": "El seguro tipificado sí fue mencionado en la grabación.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "48213311",
+      "comentario": "La renuncia tipificada corresponde al mismo seguro de la gestión, 48213311.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "48213311",
+      "comentario": "No se tipificó retención, por lo que no aplica seguro no mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "48213311",
+      "comentario": "No se tipificó retención, por lo que no aplica seguro distinto.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213311",
+      "comentario": "La tipificación es renuncia, no retención; no aplica error inverso.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "48213311",
+      "comentario": "La única gestión mencionada en la grabación aparece tipificada como renuncia del seguro 48213311.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.8
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "48213311",
+      "comentario": "El cliente pidió sacar el seguro y el ejecutivo afirma haber ingresado la renuncia; la gestión solicitada fue impactada, aunque incorrectamente por canal.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.75
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "",
+      "comentario": "No intervino un tercero; la acreditación y gestión fueron con la titular.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213311",
+      "comentario": "No se habló de devolución de primas.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213311",
+      "comentario": "Realiza cierre con gestión, número, medio de pago y conformidad del cliente.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213311",
+      "comentario": "El cliente responde con aceptación clara del cierre, por lo que no era necesario reiterar el protocolo.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "Solicita y recibe RUT, nombre completo y fecha de nacimiento antes de la gestión.",
+      "evidencia": [
+       {
+       },
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "48213311",
+      "comentario": "La pregunta de cierre es neutral para confirmar la gestión, no predispone a mantener el seguro.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "Solicita y recibe correo y teléfono de la titular.",
+      "evidencia": [
+       {
+       },
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    }
+  ]
+}

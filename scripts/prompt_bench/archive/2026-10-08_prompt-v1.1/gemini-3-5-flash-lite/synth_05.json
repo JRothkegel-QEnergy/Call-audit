@@ -1,0 +1,217 @@
+{
+  "resumen": "El cliente Jorge Ramírez llama para renunciar al seguro de salud MYPE y cede la llamada a su esposa Marcela. La agente valida los datos de titularidad, atiende la consulta sobre la prima y coberturas, realiza un intento de retención que es rechazado, y finalmente procesa la renuncia aplicando el protocolo de cierre.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar al seguro de salud de la pyme, no quiero más compromisos.",
+    "timestamp": "00:41"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "MYPE-0005",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "No desea contraer más obligaciones",
+      "n_objeciones": 1,
+      "evidencia": "El cliente solicita la renuncia por tener muchas cuentas y rechaza el argumento de cobertura."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hubo tiempos de espera registrados en la llamada (esperas_seg vacía).",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "comentario": "La agente describe correctamente el seguro de salud MYPE y su cobertura de incapacidad.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "comentario": "La agente realizó solo 1 objeción/intento de retención (01:19), por lo que no excede el máximo de 3.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "comentario": "La agente indica características del seguro al responder a la tercera (01:19).",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "comentario": "No hubo consulta directa sobre permanencia manejada por el cliente.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "comentario": "La agente maneja adecuadamente la información del producto y coberturas ante la consulta.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 7,
+      "comentario": "La solicitud correspondía a este canal y se gestionó directamente, sin requerir derivación.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "comentario": "La agente responde de forma directa a las preguntas de la cliente sobre la prima y las consecuencias de la renuncia.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro es renunciable en canal según metadatos.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "comentario": "La atención se ajusta a la política de BancoEstado sin conductas residuales negativas.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "comentario": "La agente no descalifica a pares, BancoEstado ni competencia.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "comentario": "La agente no induce a la renuncia; la iniciativa parte del cliente.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "comentario": "La agente indica el número de seguro (póliza número MYPE-0005) en el protocolo de cierre.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "comentario": "La agente realiza un intento de retención explicando la cobertura de incapacidad (01:19).",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "comentario": "La agente informa el medio de pago (cargo a la cuenta vista) en el protocolo de cierre.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "comentario": "El cliente expresó explícitamente la intención de renuncia, por lo que la retención se hizo con intención de renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro es retenible según los metadatos.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "comentario": "El ejecutivo tipificó 'No desea contraer más obligaciones', lo cual coincide perfectamente con el motivo expresado por el cliente ('no quiero más compromisos').",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "comentario": "La grabación muestra una renuncia y la tipificación registrada es RENUNCIA.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "comentario": "Se tipificó el seguro correcto mencionado en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "comentario": "La renuncia tipificada corresponde exactamente al seguro gestionado en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "comentario": "La gestión fue renuncia y no retención, por lo que este motivo no aplica.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "comentario": "La gestión fue renuncia, no retención.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "comentario": "La grabación es renuncia y la tipificación es RENUNCIA.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "comentario": "Se tipificó correctamente la única gestión solicitada.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "comentario": "Se impactó la única gestión solicitada por el cliente.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "comentario": "Si bien interviene un tercero (la esposa Marcela), la agente valida previamente al titular y la llamada continúa con la autorización del titular presente en línea.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "comentario": "El campo devolucion_prima en metadatos es 'sin dato', por lo que no es posible contrastar si se negó indebidamente.",
+      "estado": "indeterminado",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "comentario": "La agente realiza el protocolo de cierre informando la gestión, póliza y medio de pago (01:35).",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 30,
+      "comentario": "El cliente respondió una aceptación clara ('Sí, de acuerdo') a la primera, por lo que no aplica reiteración.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "comentario": "La agente valida correctamente RUT, nombre completo y fecha de nacimiento al inicio de la llamada.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "comentario": "La pregunta de cierre ('¿Están de acuerdo?') es una confirmación neutra y estándar, no condiciona la respuesta a un sí de forma impositiva.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "comentario": "La agente solicita y valida correctamente el correo y teléfono del cliente (00:26).",
+      "estado": "cumple",
+      "confianza": 1.0
+    }
+  ]
+}

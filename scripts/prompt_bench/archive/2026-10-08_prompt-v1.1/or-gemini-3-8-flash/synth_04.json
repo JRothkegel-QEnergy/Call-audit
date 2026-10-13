@@ -1,0 +1,313 @@
+{
+  "resumen": "La clienta llama para renunciar a su Seguro de Desempleo asociado a un crédito de consumo por problemas económicos. El ejecutivo intenta retenerla en dos ocasiones, entregando información errónea sobre la cobertura de cuotas, y finalmente procesa la renuncia con el protocolo de cierre completo. Sin embargo, tipifica erróneamente el motivo de renuncia como cambio de situación laboral.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero sacar el seguro de desempleo del crédito. Es que ahora no me alcanza, ando corta de plata con todo lo que está subiendo.",
+    "timestamp": "00:43"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "DES-CONS-0004",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "Problemas Económicos",
+      "n_objeciones": 2,
+      "evidencia": "Bueno, señora Andrea, procedo con la renuncia. Le resumo: se ingresó la renuncia de su seguro de desempleo, póliza número DES-CONS-0004..."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hubo tiempos de espera durante la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo describe el seguro de desempleo correspondiente a la póliza del cliente y no otro producto.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "comentario": "El ejecutivo realiza 2 objeciones tras la solicitud de renuncia de la clienta (en 01:04 y 01:23), sin superar el límite de 3 objeciones.",
+      "evidencia": [
+        {
+          "t": "01:04",
+          "hablante": "AGENTE",
+          "cita": "Le cuento que este seguro le sirve justamente si pierde la pega, porque le paga cuotas de su crédito."
+        },
+        {
+          "t": "01:23",
+          "hablante": "AGENTE",
+          "cita": "Piense que la prima ya está pagada, no es un cobro mensual."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo indica características del seguro al explicar el pago de cuotas y que la prima es única.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "comentario": "La clienta no realizó consultas directas sobre la permanencia del seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "comentario": "El ejecutivo entrega información errónea sobre las coberturas del producto: señala que paga 3 cuotas apenas presenta el finiquito, cuando la ficha técnica estipula que paga hasta 5 cuotas (2 contra finiquito y 3 tras acreditar 60 días de desempleo).",
+      "evidencia": [
+        {
+          "t": "01:15",
+          "hablante": "AGENTE",
+          "cita": "Le paga tres cuotas, y se pagan apenas presenta el finiquito."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 7,
+      "comentario": "El seguro es renunciable en este canal, por lo que no correspondía derivar la atención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde de manera directa y clara a las consultas planteadas por la clienta.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro gestionado es renunciable en este canal según los metadatos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "comentario": "La atención general se ajusta a las pautas y las faltas observadas se evalúan en criterios específicos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "comentario": "No se emiten comentarios descalificatorios hacia BancoEstado, pares o competencia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "comentario": "El ejecutivo no induce a la renuncia; fue la clienta quien solicitó la baja desde el inicio de la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "comentario": "El ejecutivo menciona explícitamente el número de póliza DES-CONS-0004 en el protocolo de cierre.",
+      "evidencia": [
+        {
+          "t": "01:37",
+          "hablante": "AGENTE",
+          "cita": "Le resumo: se ingresó la renuncia de su seguro de desempleo, póliza número DES-CONS-0004, asociado a su crédito de consumo con cargo único en el crédito. ¿Está de acuerdo?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "comentario": "El ejecutivo realiza intentos válidos de retención para el seguro retenible.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "comentario": "El ejecutivo indica en el protocolo de cierre el medio de pago asociado al seguro ('con cargo único en el crédito').",
+      "evidencia": [
+        {
+          "t": "01:37",
+          "hablante": "AGENTE",
+          "cita": "asociado a su crédito de consumo con cargo único en el crédito."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "comentario": "La clienta expresó explícitamente su intención de renuncia antes de los argumentos de retención.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro es retenible y además no resultó retenido.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "comentario": "El ejecutivo tipificó como motivo 'Cambio de situación laboral', pero la clienta señaló expresamente que renunciaba por problemas económicos y que continuaba en el mismo trabajo.",
+      "evidencia": [
+        {
+          "t": "00:43",
+          "hablante": "CLIENTE",
+          "cita": "Es que ahora no me alcanza, ando corta de plata con todo lo que está subiendo."
+        },
+        {
+          "t": "00:57",
+          "hablante": "CLIENTE",
+          "cita": "Sí, sigo en la misma pega, no es eso. Es que los gastos me tienen ahogada."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "comentario": "La tipificación registrada coincide con el resultado de la grabación (renuncia).",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "comentario": "El seguro tipificado en renuncia fue efectivamente consultado y gestionado en la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "comentario": "La renuncia tipificada corresponde exactamente al seguro gestionado.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "comentario": "No se tipificó retención en esta llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "comentario": "No se tipificó retención en esta llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "comentario": "No se tipificó retención cuando por grabación fue renuncia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "comentario": "Se tipificó la única gestión solicitada y realizada en la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "comentario": "Se tramitó la renuncia solicitada por la titular.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "comentario": "La llamada fue atendida exclusivamente por la titular del seguro, sin intervención de terceros.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "comentario": "No hubo consulta sobre devolución de primas ni el ejecutivo realizó afirmaciones negándola.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "comentario": "El ejecutivo realiza el protocolo de cierre resumiendo la renuncia, indicando póliza, medio de pago y solicitando aceptación.",
+      "evidencia": [
+        {
+          "t": "01:37",
+          "hablante": "AGENTE",
+          "cita": "Le resumo: se ingresó la renuncia de su seguro de desempleo, póliza número DES-CONS-0004, asociado a su crédito de consumo con cargo único en el crédito. ¿Está de acuerdo?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 30,
+      "comentario": "La clienta respondió con una aceptación clara ('Sí, de acuerdo') al protocolo de cierre.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida correctamente el RUT, nombre completo y fecha de nacimiento de la clienta al inicio de la llamada.",
+      "evidencia": [
+        {
+          "t": "00:09",
+          "hablante": "AGENTE",
+          "cita": "Señora Andrea, para comenzar necesito validar su identidad. ¿Me indica su RUT?"
+        },
+        {
+          "t": "00:20",
+          "hablante": "AGENTE",
+          "cita": "¿Su nombre completo y fecha de nacimiento?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "comentario": "El ejecutivo formula una pregunta neutra de confirmación ('¿Está de acuerdo?') sin condicionar ni predisponer la respuesta.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo valida correctamente el correo electrónico y teléfono de contacto de la titular.",
+      "evidencia": [
+        {
+          "t": "00:29",
+          "hablante": "AGENTE",
+          "cita": "¿Y su correo y teléfono de contacto?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    }
+  ]
+}

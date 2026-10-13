@@ -1,0 +1,353 @@
+{
+  "resumen": "La clienta consulta por cobertura y reclamo del Sale Seguro Plus tras un asalto, sin expresar intención de renuncia. El ejecutivo intenta retener el seguro sin que corresponda, usa una pregunta inducida, no responde la cobertura y cierra sin protocolo ni tipificación registrada.",
+  "intencion_renuncia": {
+    "expresada": false,
+    "cita": "",
+    "timestamp": ""
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada finaliza con despedida tras la consulta, sin interrupción ni corte."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213306",
+      "resultado_grabacion": "CONSULTA",
+      "motivos_renuncia": [],
+      "n_objeciones": 0,
+      "cliente_tajante": false,
+      "argumentos_retencion": [
+       {
+       "T": "00:52",
+       "T": "00:52",
+       "T": "01:13"
+       }
+      ],
+      "evidencia": "La clienta pregunta si el robo está cubierto y cómo reclamar; no solicita renunciar. El ejecutivo realiza dos intentos de retención y luego orienta el siniestro a FonoSeguros."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No se registran esperas ni silencios de más de 30 segundos en la transcripción.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica: no hubo una descripción del seguro por iniciativa propia que pudiera corresponder a otro producto.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica: no hubo intención de renuncia, por lo que no se computan objeciones ni puede excederse el máximo de 3.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica: no se gestionó una renuncia; la falta de características en la retención indebida se evalúa en motivos más específicos.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.8
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica: el cliente no consultó cuándo puede renunciar ni cómo se maneja la permanencia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213306",
+      "comentario": "Ante la pregunta directa sobre si el robo/asalto está cubierto, el ejecutivo no responde ni entrega información de la ficha; dice que 'eso lo ve la compañía' y deriva el siniestro, lo que constituye falta de manejo de información del producto.",
+      "evidencia": [
+       {
+       "T": "00:40",
+       "T": "01:19",
+       "T": "01:24"
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "48213306",
+      "comentario": "Para la solicitud de reclamo/siniestro, el ejecutivo orienta a FonoSeguros, canal correcto; la falta de respuesta sobre cobertura se evalúa en motivo 6.",
+      "evidencia": [
+       {
+       "T": "01:24",
+       "T": "01:24"
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.8
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "48213306",
+      "comentario": "No se aplica como hallazgo independiente: la elusión de la pregunta directa sobre cobertura se imputa al motivo 6, más específico.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.8
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica: no se ingresó renuncia de un seguro irrenunciable.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "No se evidencia mal trato, tono agresivo, lenguaje soez o impaciencia hostil.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "No aplica: no hay descalificaciones a pares, BancoEstado, compañía o competencia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica: el ejecutivo no induce a renunciar; induce a mantener el seguro, conducta evaluada en motivos 16 y 32.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213306",
+      "comentario": "En el cierre de la gestión no se indica el N° de seguro ni sus últimos dígitos; el ejecutivo solo dice que queda vigente.",
+      "evidencia": [
+       {
+       "T": "01:24",
+       "T": "01:24"
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica: no se renuncia un seguro retenible; además hubo un intento de retención, por lo que no corresponde este motivo.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213306",
+      "comentario": "No se informa el medio de pago CTV en el cierre de la gestión.",
+      "evidencia": [
+       {
+       "T": "01:24",
+       "T": "01:24"
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213306",
+      "comentario": "El cliente nunca pidió renunciar; incluso lo negó expresamente, y el ejecutivo intentó retener el seguro.",
+      "evidencia": [
+       {
+       "T": "00:40",
+       "T": "00:52",
+       "T": "01:07",
+       "T": "01:13"
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica: el seguro es RETENIBLE, no no retenible.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "",
+      "comentario": "No aplica: no hay tipificación registrada de renuncia que pueda ser incorrecta.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "",
+      "comentario": "No aplica: no se tipificó una renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "",
+      "comentario": "No aplica: no se tipificó renuncia de seguro no mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "",
+      "comentario": "No aplica: no se tipificó renuncia que corresponda a otro seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "",
+      "comentario": "No aplica: no se tipificó retención de seguro no mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "",
+      "comentario": "No aplica: no se tipificó retención que corresponda a otro seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "",
+      "comentario": "No aplica: no se tipificó retención que por grabación sea renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "48213306",
+      "comentario": "Los metadatos indican que no se registró tipificación; la llamada tuvo una gestión sobre el seguro y no quedó tipificada.",
+      "evidencia": [
+       {
+       "T": "01:37",
+       "T": "01:37"
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 0.7
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica: no queda una solicitud de gestión de un seguro sin gestionar; la falta de información de cobertura se evalúa en motivo 6.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.8
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "",
+      "comentario": "No aplica: no se identifica un tercero distinto del titular.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica: no se niega devolución de prima y el seguro es de prima mensual sin devolución automática.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213306",
+      "comentario": "Tras el intento de retención y la respuesta ambigua, el ejecutivo no realiza protocolo de cierre: no resume fecha, seguro, MUS, vigencia, póliza ni medio de pago, y despide.",
+      "evidencia": [
+       {
+       "T": "01:24",
+       "T": "01:37"
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213306",
+      "comentario": "El cliente responde 'sí, supongo', que no es una respuesta válida; el ejecutivo no repregunta '¿eso es un Sí?' y da por hecho la vigencia.",
+      "evidencia": [
+       {
+       "T": "01:19",
+       "T": "01:24"
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 0.8
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo pidió y recibió RUT, nombre completo y fecha de nacimiento; no hay evidencia de discrepancia.",
+      "evidencia": [
+       {
+       "T": "00:10",
+       "T": "00:15"
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "48213306",
+      "comentario": "El ejecutivo usa una pregunta inducida: 'Usted está de acuerdo en mantenerlo, ¿cierto?', predispone al cliente a aceptar la retención.",
+      "evidencia": [
+       {
+       "T": "01:13",
+       "T": "01:13"
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo pidió y recibió email y teléfono de contacto.",
+      "evidencia": [
+       {
+       "T": "00:25",
+       "T": "00:28"
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    }
+  ]
+}

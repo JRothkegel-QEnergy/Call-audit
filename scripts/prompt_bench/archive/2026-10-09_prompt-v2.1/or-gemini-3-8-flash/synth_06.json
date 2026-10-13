@@ -1,0 +1,322 @@
+{
+  "resumen": "La cliente llama para consultar por coberturas y el procedimiento de denuncio de siniestro tras haber sufrido un asalto. El ejecutivo, sin mediar intención de renuncia, intenta retener el seguro condicionando la respuesta de la cliente y no aclara las coberturas del producto, derivándola a denunciar al FonoSeguros.",
+  "intencion_renuncia": {
+    "expresada": false,
+    "cita": "",
+    "timestamp": ""
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada finaliza con despedida cordial tras orientar a la cliente al FonoSeguros."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213306",
+      "resultado_grabacion": "CONSULTA",
+      "motivos_renuncia": [],
+      "n_objeciones": 0,
+      "cliente_tajante": false,
+      "argumentos_retencion": [],
+      "evidencia": "[00:40] CLIENTE: Tengo el Sale Seguro y el fin de semana me asaltaron y me robaron la cartera con la tarjeta. Quería saber si eso lo cubre y cómo hago el reclamo. [...] [01:07] CLIENTE: Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No hubo tiempos de espera ni silencios prolongados durante la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213306",
+      "comentario": "El ejecutivo no describió características correspondientes a otro seguro.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica conteo de objeciones dado que la cliente no presentó intención de renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica ya que no hubo un proceso de renuncia en la llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213306",
+      "comentario": "La cliente no consultó sobre plazos de permanencia ni fechas para renunciar.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213306",
+      "comentario": "El ejecutivo no maneja la información de coberturas del producto y ante la pregunta directa de la cliente sobre si el seguro cubre el robo con intimidación/asalto, no responde ni explica la cobertura de la póliza, desviando la respuesta con que eso lo ve la compañía.",
+      "evidencia": [
+        {
+          "t": "01:19",
+          "hablante": "CLIENTE",
+          "cita": "Eh... sí, supongo. Pero ¿me cubre el robo o no?"
+        },
+        {
+          "t": "01:24",
+          "hablante": "AGENTE",
+          "cita": "Perfecto, entonces queda vigente. Para el robo, eso lo ve la compañía; usted haga la denuncia en Carabineros y llame al FonoSeguros, seiscientos seiscientos sesenta, doce doce."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "48213306",
+      "comentario": "Orienta correctamente al FonoSeguros 600 660 1212 para la denuncia del siniestro.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "",
+      "comentario": "La evasión de la consulta sobre coberturas se sanciona específicamente en el motivo 6.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213306",
+      "comentario": "No se gestionó la renuncia de ningún seguro irrenunciable.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "El trato del ejecutivo fue respetuoso y formal.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "No hubo descalificaciones a pares, banco ni compañías.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213306",
+      "comentario": "El ejecutivo no indujo a la renuncia del seguro.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica protocolo de cierre de retención ni renuncia al tratarse de una consulta.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica debido a que el seguro no fue renunciado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica protocolo de cierre al no haberse concretado una renuncia o retención válida.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213306",
+      "comentario": "El ejecutivo realiza argumentos de retención y fuerza la mantención del seguro a pesar de que la cliente llamó solo por una consulta de cobertura por robo y explícitamente aclaró que no deseaba dar de baja el producto.",
+      "evidencia": [
+        {
+          "t": "00:52",
+          "hablante": "AGENTE",
+          "cita": "Señora Sofía, antes de eso le quiero recordar lo importante que es mantener este seguro. Mucha gente lo da de baja y después se arrepiente, porque es una protección muy completa para usted y su familia."
+        },
+        {
+          "t": "01:07",
+          "hablante": "CLIENTE",
+          "cita": "Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo."
+        },
+        {
+          "t": "01:13",
+          "hablante": "AGENTE",
+          "cita": "Sí, claro, pero es importante que lo mantenga. Usted está de acuerdo en mantenerlo, ¿cierto?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213306",
+      "comentario": "El producto es retenible, por lo que no aplica retención sobre seguro no retenible.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica ya que no se tipificó renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica puesto que no se tipificó renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica ya que no se registró renuncia de ningún producto.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica al no tipificarse renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica ya que no se tipificó retención de seguro no mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica al no existir tipificación registrada de retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica ya que no hubo renuncia en la llamada ni tipificación de retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica puesto que no quedaron renuncias ni retenciones legítimas sin tipificar (la gestión por grabación fue una consulta).",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "48213306",
+      "comentario": "La cliente solo solicitó orientación sobre su seguro por un siniestro ocurrido.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "",
+      "comentario": "No hubo intervención de terceras personas en la llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213306",
+      "comentario": "No se solicitó devolución de primas ni aplica a la consulta.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica protocolo de cierre estructurado de retención/renuncia al corresponder a una atención de consulta.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213306",
+      "comentario": "No aplica repregunta de cierre formal al tratarse de una consulta.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "Valida correctamente RUT, nombre completo y fecha de nacimiento de la titular.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "48213306",
+      "comentario": "El ejecutivo predispone directamente a la cliente condicionando su respuesta afirmativa con la frase explícita sancionada por pauta: 'Usted está de acuerdo en mantenerlo, ¿cierto?'.",
+      "evidencia": [
+        {
+          "t": "01:13",
+          "hablante": "AGENTE",
+          "cita": "Sí, claro, pero es importante que lo mantenga. Usted está de acuerdo en mantenerlo, ¿cierto?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "Solicita y valida correctamente el correo electrónico y teléfono de contacto.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    }
+  ]
+}

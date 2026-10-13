@@ -1,0 +1,294 @@
+```json
+{
+  "resumen": "Cliente llama para renunciar a Protección Global MYPE porque contrató otro seguro en otra compañía que cubre más y es más barato. El ejecutivo intenta retener con argumentos de cobertura, consulta con supervisor, y finalmente procesa la renuncia. La llamada termina con un cierre incompleto.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Ya contraté uno en otra compañía que cubre más y es más barato, así que quiero renunciar a este.",
+    "timestamp": "00:46"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con despedida del ejecutivo y cliente, aunque falta información en el cierre."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213307",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+        "Cliente posee otros Seguros"
+      ],
+      "n_objeciones": 1,
+      "cliente_tajante": true,
+      "argumentos_retencion": [
+        {
+          "t": "02:28",
+          "tipo": "COBERTURA",
+          "cita": "Nuestro seguro le cubre el local y también sus mercaderías, maquinarias y equipos ante incendio, sismo, robo y daños materiales"
+        }
+      ],
+      "evidencia": "Cliente expresa intención clara de renuncia en 00:46. Ejecutivo da un argumento de retención (cobertura) en 02:28. Cliente rechaza en 02:41 ('el otro igual cubre más, la verdad. Quiero sacar este'). Ejecutivo consulta con supervisor (02:46-06:24). Cliente reitera decisión de forma tajante en 06:32 ('Ya, entonces hágame la renuncia, por favor'). Se procesa la renuncia en 06:38."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "Hay dos esperas: 01:00-01:52 (52 segundos) y 02:46-06:24 (218 segundos). Ambas superan el umbral de 30 segundos.",
+      "estado": "incumple",
+      "confianza": 1,
+      "evidencia": [
+        {
+          "t": "01:00-01:52",
+          "hablante": "AGENTE",
+          "cita": "Permítame revisar el detalle de su póliza. Lo dejo un momento en espera. [espera de 52 segundos]"
+        },
+        {
+          "t": "02:46-06:24",
+          "hablante": "AGENTE",
+          "cita": "Déjeme consultar con mi supervisor si hay alguna alternativa para usted. Lo dejo en espera nuevamente. [espera de 218 segundos]"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo describe correctamente las coberturas del seguro (incendio, sismo, robo, daños materiales, cobertura de local, mercaderías, maquinarias y equipos), que coinciden con la ficha del producto.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 3,
+      "comentario": "El ejecutivo da solo 1 objeción (argumento de retención en 02:28) después de que el cliente expresó su intención de renuncia en 00:46. El cliente es tajante en 06:32 ('Ya, entonces hágame la renuncia, por favor'), lo que cierra la conversación de retención. No se exceden las 3 objeciones máximas.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo menciona características del seguro: cobertura de local, mercaderías, maquinarias y equipos ante incendio, sismo, robo y daños materiales, y que el cargo es automático.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 5,
+      "comentario": "El cliente no consulta explícitamente sobre fechas de renuncia. El ejecutivo no condiciona la renuncia a una fecha específica; procesa la renuncia cuando el cliente la solicita.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 6,
+      "comentario": "El cliente no hace preguntas directas sobre coberturas o características del producto que requieran respuestas detalladas. El ejecutivo maneja la información disponible de forma correcta.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 7,
+      "comentario": "No hay situación que requiera derivación. El cliente solicita renuncia de un seguro retenible, que se procesa en la llamada. La consulta sobre fecha de cargo se orienta correctamente al 600 660 1212.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde de forma directa a las preguntas del cliente. Cuando el cliente pregunta sobre cobros futuros (06:43), el ejecutivo responde sobre la fecha de cargo y orienta al número de teléfono.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro es RETENIBLE, no no renunciable. Se puede renunciar por teléfono. No aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 10,
+      "comentario": "El ejecutivo descalifica a la competencia: 'esa otra compañía es una estafa. Siempre ponen letra chica y después no pagan nada. Los que se cambian a ellos después vuelven llorando.' Esto viola la política de BancoEstado.",
+      "estado": "incumple",
+      "confianza": 1,
+      "evidencia": [
+        {
+          "t": "02:12",
+          "hablante": "AGENTE",
+          "cita": "Mire, don Cristián, le soy honesta: esa otra compañía es una estafa. Siempre ponen letra chica y después no pagan nada. Los que se cambian a ellos después vuelven llorando."
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "comentario": "El ejecutivo descalifica a la competencia (motivo 10), lo que también constituye una violación de la política de no descalificar a otros actores del mercado.",
+      "estado": "incumple",
+      "confianza": 1,
+      "evidencia": [
+        {
+          "t": "02:12",
+          "hablante": "AGENTE",
+          "cita": "esa otra compañía es una estafa. Siempre ponen letra chica y después no pagan nada."
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "comentario": "El ejecutivo no induce a renuncia. El cliente es quien expresa la intención de renunciar desde el inicio (00:46).",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 13,
+      "comentario": "El ejecutivo menciona el número de seguro en el cierre: 'número de seguro cuatro ocho dos uno tres tres cero siete' (07:03), que corresponde a los 10 dígitos del MUS A Neto 48213307. Se menciona el número completo, no solo los 4 últimos dígitos, pero cumple el requisito.",
+      "estado": "cumple",
+      "confianza": 1,
+      "evidencia": [
+        {
+          "t": "07:03",
+          "hablante": "AGENTE",
+          "cita": "se ingresó la renuncia de su seguro Protección Global MYPE, número de seguro cuatro ocho dos uno tres tres cero siete"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "comentario": "El seguro es RETENIBLE. El ejecutivo intenta retener con un argumento de cobertura en 02:28. Cumple el requisito de realizar al menos un intento de retención.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 15,
+      "comentario": "El ejecutivo menciona el medio de pago en el cierre: 'que se cargaba mensualmente a su cuenta corriente' (07:03). El medio de pago es CCT (Cuenta Corriente), no 'OTRO', por lo que debe mencionarse.",
+      "estado": "cumple",
+      "confianza": 1,
+      "evidencia": [
+        {
+          "t": "07:03",
+          "hablante": "AGENTE",
+          "cita": "que se cargaba mensualmente a su cuenta corriente"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "comentario": "El cliente expresa intención de renuncia en 00:46. El ejecutivo intenta retener solo después de esa expresión. No retiene sin intención de renuncia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro es RETENIBLE, no no retenible. El ejecutivo intenta retenerlo, lo que es correcto.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 18,
+      "comentario": "El cliente expresa el motivo 'Cliente posee otros Seguros' en 00:46 ('Ya contraté uno en otra compañía que cubre más y es más barato'). El ejecutivo tipifica 'Cliente posee otros Seguros', que coincide con lo expresado.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 19,
+      "comentario": "Según la grabación, se procesa una RENUNCIA (06:38: 'Procedo con la renuncia'). El ejecutivo tipifica RENUNCIA. No hay discrepancia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 20,
+      "comentario": "El ejecutivo tipifica la renuncia del seguro 48213307 (Protección Global MYPE), que es el seguro mencionado en la llamada. No tipifica renuncia de seguro no mencionado.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 21,
+      "comentario": "El ejecutivo tipifica la renuncia del seguro 48213307, que es el seguro del que el cliente habla en toda la llamada. No hay confusión de seguros.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 22,
+      "comentario": "No hay tipificación de retención. El resultado es RENUNCIA. No aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 23,
+      "comentario": "No hay tipificación de retención. No aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 24,
+      "comentario": "Según la grabación, se procesa una RENUNCIA. El ejecutivo tipifica RENUNCIA. No hay discrepancia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 25,
+      "comentario": "Se menciona un solo seguro en la llamada (Protección Global MYPE, MUS A Neto 48213307). Se tipifica su renuncia. No quedan gestiones sin tipificar.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 26,
+      "comentario": "El cliente solicita la renuncia del seguro Protección Global MYPE en 00:46 y reitera en 06:32. Se procesa la renuncia en 06:38. Se impacta la gestión solicitada.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 27,
+      "comentario": "No hay tercero en la llamada. El cliente es el titular (Cristián Felipe Molina Araya, RUT 17.777.777-7). No aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 28,
+      "comentario": "El seguro tiene prima mensual. Según las reglas, no hay devolución automática en seguros de prima mensual. El cliente no pregunta por devolución de prima. El ejecutivo no niega devolución. No aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 29,
+      "comentario": "El ejecutivo realiza un protocolo de cierre en 07:03, pero incompleto. Falta: (a) la fecha de la renuncia ('hoy con fecha [fecha]'), (b) el número de póliza completo, (c) la confirmación explícita de renuncia ('¿Confirma que desea renunciar?'), (d) el número de renuncia (ID de la llamada), (e) información sobre posibles últimos cobros y plazo de actualización de sistemas, (f) la despedida con FonoSeguros y nombre del ejecutivo. El cierre es parcial.",
+      "estado": "incumple",
+      "confianza": 1,
+      "evidencia": [
+        {
+          "t": "07:03",
+          "hablante": "AGENTE",
+          "cita": "Le resumo la gestión, don Cristián: se ingresó la renuncia de su seguro Protección Global MYPE, número de seguro cuatro ocho dos uno tres tres cero siete, que se cargaba mensualmente a su cuenta corriente. ¿Está de acuerdo con la gestión realizada?"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "comentario": "El ejecutivo pregunta '¿Está de acuerdo con la gestión realizada?' en 07:03. El cliente responde 'Sí, de acuerdo' en 07:20, que es una respuesta válida. No requiere repreguntar.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida RUT (17.777.777-7), nombre (Cristián Felipe Molina Araya) y fecha de nacimiento (28 de febrero de 1981) en los primeros 30 segundos. Los tres datos coinciden con los metadatos. Cumple el protocolo de acreditación.",
+      "estado": "cumple",
+      "confianza": 1,
+      "evidencia": [
+        {
+          "t": "00:10-00:27",
+          "hablante": "AGENTE",
+          "cita": "¿me puede indicar su RUT? [cliente: Diecisiete millones setecientos setenta y siete mil setecientos setenta y siete guion siete] ¿Nombre completo? [cliente: Cristián Felipe Molina Araya] ¿Fecha de nacimiento? [cliente: Veintiocho de febrero del ochenta y uno]"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "comentario": "El ejecutivo pregunta '¿Está de acuerdo con la gestión realizada?' en 07:03, que es una pregunta neutra sobre la gestión, no una pregunta que predisponga al cliente a aceptar el seguro. No es el motivo 32.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo valida email (cristian.molina@correoejemplo.cl) y teléfono (977711122) en 00:31-00:34. Ambos datos se mencionan. Cumple el protocolo de acreditación.",
+      "estado": "cumple",
+      "confianza": 1,
+      "evidencia": [
+        {
+          "t": "00:31-00:34",
+          "hablante": "AGENTE",
+          "cita": "¿Me confirma su correo y teléfono? [cliente: cristian punto molina arroba correo ejemplo punto cl, y el nueve siete siete siete uno uno uno dos dos]"
+        }
+      ]
+    }
+  ]
+}
+```

@@ -1,0 +1,367 @@
+{
+  "resumen": "La cliente solicita renunciar al seguro de desempleo asociado a un crédito de consumo. El ejecutivo realiza validación de titularidad, efectúa cinco intentos de retención pese a la negativa tajante de la cliente y finalmente ingresa la renuncia. El cierre informa la gestión y el medio de pago, pero omite el N° de seguro.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar al seguro de desempleo. Es que no me alcanza, tengo muchas deudas y no quiero nada más.",
+    "timestamp": "00:44"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada finaliza con despedida luego de confirmar la renuncia y la conformidad de la cliente."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213302",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+       "Problemas Económicos"
+      ],
+      "n_objeciones": 5,
+      "cliente_tajante": true,
+      "argumentos_retencion": [
+       {
+       },
+       {
+       },
+       {
+       },
+       {
+       },
+       {
+       }
+      ],
+      "evidencia": "00:44 cliente pide renuncia; 00:53 a 01:39 ejecutivo realiza cinco objeciones; 01:50 acepta gestión; 01:54 confirma renuncia."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No se registraron esperas ni silencios superiores a 30 segundos.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213302",
+      "comentario": "La descripción de cuatro cuotas por cesantía involuntaria coincide con la ficha del seguro.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213302",
+      "comentario": "El ejecutivo realizó cinco objeciones pese a que la cliente fue tajante y reiteró su negativa, excediendo el máximo de tres objeciones.",
+      "evidencia": [
+       {
+       },
+       {
+       },
+       {
+       },
+       {
+       },
+       {
+       },
+       {
+       },
+       {
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213302",
+      "comentario": "Indicó al menos una característica del seguro: el pago de cuatro cuotas por cesantía involuntaria.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213302",
+      "comentario": "La cliente no consultó directamente cuándo podía renunciar, por lo que no se activó la obligación de informar que la permanencia la decide el cliente.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213302",
+      "comentario": "No hubo preguntas de la cliente sobre el producto o coberturas que el ejecutivo debiera resolver; la información entregada fue correcta.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "48213302",
+      "comentario": "No se presentó una situación que requiriera derivación a otro canal.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo respondió directamente la solicitud de renuncia y no eludió preguntas.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213302",
+      "comentario": "El seguro es RETENIBLE y renunciable por este canal, por lo que no corresponde el motivo.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "El trato fue respetuoso y acorde a la política de BancoEstado.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "No se descalificaron pares, BancoEstado, la compañía ni la competencia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213302",
+      "comentario": "La renuncia fue solicitada por la cliente; no hubo inducción a renunciar.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213302",
+      "comentario": "En el cierre no se identificó el seguro con su N° MUS A Neto 48213302; solo lo denominó seguro de desempleo.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213302",
+      "comentario": "El ejecutivo sí intentó retener el seguro mediante varios argumentos.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213302",
+      "comentario": "Informó el medio de pago asociado al crédito de consumo, que corresponde al dato registrado.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213302",
+      "comentario": "Hubo intención de renuncia explícita de la cliente, por lo que no corresponde retención sin intención.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213302",
+      "comentario": "El seguro es RETENIBLE, por lo que no se retuvo un seguro no retenible.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213302",
+      "comentario": "La tipificación de Problemas Económicos es compatible con el motivo expresado por la cliente.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213302",
+      "comentario": "Se tipificó renuncia y en la grabación efectivamente se concretó una renuncia, no una retención.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "48213302",
+      "comentario": "La renuncia tipificada corresponde al seguro 48213302, que sí fue mencionado en la llamada.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "48213302",
+      "comentario": "No se equivocó de seguro al tipificar la renuncia; solo había un seguro gestionado.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "48213302",
+      "comentario": "No se tipificó retención, por lo que no aplica.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "48213302",
+      "comentario": "No se tipificó retención, por lo que no aplica.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213302",
+      "comentario": "No se tipificó retención, por lo que no aplica.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "48213302",
+      "comentario": "La única gestión solicitada y realizada, la renuncia, fue tipificada.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "48213302",
+      "comentario": "La gestión solicitada por la cliente, renunciar al seguro, fue impactada.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "",
+      "comentario": "No se identificó un tercero; se habló con la titular.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213302",
+      "comentario": "El ejecutivo no negó la devolución de primas; no hubo una consulta o situación que generara ese incumplimiento.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213302",
+      "comentario": "Realizó cierre informando la renuncia, el medio de pago y pidiendo conformidad; la omisión del N° se evalúa en motivo 13.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213302",
+      "comentario": "La cliente respondió con aceptación clara, por lo que no correspondía reiterar el cierre.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "Validó RUT, nombre completo y fecha de nacimiento.",
+      "evidencia": [
+       {
+       },
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "48213302",
+      "comentario": "La pregunta de cierre es neutral para obtener conformidad y no condiciona la respuesta a un sí.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "Pidió y la cliente confirmó correo y teléfono registrados.",
+      "evidencia": [
+       {
+       }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    }
+  ]
+}

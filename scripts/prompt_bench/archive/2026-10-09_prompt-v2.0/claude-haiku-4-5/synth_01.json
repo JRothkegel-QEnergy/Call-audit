@@ -1,0 +1,259 @@
+```json
+{
+  "resumen": "Pedro Soto llama para dar de baja su seguro de Desempleo e Incapacidad Temporal asociado a su crédito de consumo por problemas económicos. El ejecutivo valida sus datos, presenta las coberturas del seguro, informa que es prima única sin cargos mensuales, y mediante argumentos de retención (cobertura, beneficio de asistencia laboral y aclaración sobre la prima) logra que el cliente mantenga el seguro. Se realiza protocolo de cierre completo.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "quiero dar de baja el seguro de desempleo que tengo con el crédito de consumo",
+    "timestamp": "00:54"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con despedida clara del ejecutivo y cliente. Se resuelve la gestión de retención y se confirma la conformidad del cliente."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213301",
+      "resultado_grabacion": "RETENCION",
+      "motivos_renuncia": [
+        "Problemas Económicos"
+      ],
+      "n_objeciones": 2,
+      "cliente_tajante": false,
+      "argumentos_retencion": [
+        {
+          "t": "01:18",
+          "tipo": "COBERTURA",
+          "cita": "Si queda desempleado de forma involuntaria, el seguro le paga cuatro cuotas de su crédito, de dos en dos, más un tres coma cinco por ciento. Y si tiene una incapacidad temporal por accidente o enfermedad infecciosa, le paga hasta cuatro cuotas, una por cada treinta días de incapacidad."
+        },
+        {
+          "t": "01:43",
+          "tipo": "BENEFICIO",
+          "cita": "es de prima única: se pagó una sola vez junto con el crédito"
+        },
+        {
+          "t": "01:58",
+          "tipo": "BENEFICIO",
+          "cita": "si queda desempleado, el seguro le da asistencia laboral personalizada para volver a encontrar trabajo: le analizan su perfil y lo capacitan en la búsqueda. Justo cuando me cuenta que está apretado, es cuando más le sirve."
+        }
+      ],
+      "evidencia": "El cliente expresa intención de renuncia por problemas económicos (00:54). El ejecutivo presenta 3 argumentos de retención: coberturas de desempleo e incapacidad (01:18), prima única ya pagada (01:43), y beneficio de asistencia laboral (01:58). El cliente no es tajante; duda y pregunta si puede renunciar después (02:15), lo que permite continuar la conversación. Finalmente acepta mantener el seguro (02:26)."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hay esperas registradas en los metadatos (esperas_seg: []). La llamada fluye sin pausas excesivas.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo describe correctamente las coberturas del seguro según la ficha: desempleo (4 cuotas de dos en dos más 3,5%), incapacidad temporal (hasta 4 cuotas, una por cada 30 días), y asistencia laboral personalizada. Todos los datos coinciden con la ficha del producto.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213301",
+      "comentario": "El ejecutivo presenta 3 argumentos de retención (coberturas, prima única, asistencia laboral). El cliente no es tajante; duda y pregunta si puede renunciar después (02:15), lo que permite continuar conversando sin exceder el máximo de 3 objeciones. El cliente finalmente acepta mantener el seguro.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213301",
+      "comentario": "El ejecutivo indica múltiples características del seguro: cobertura de desempleo involuntario (4 cuotas), cobertura de incapacidad temporal (hasta 4 cuotas), prima única, asistencia laboral personalizada, y ausencia de cargos mensuales.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213301",
+      "comentario": "Cuando el cliente pregunta si puede renunciar después (02:15), el ejecutivo responde claramente: 'La permanencia en el seguro la decide usted; puede renunciar cuando quiera' (02:20). Informa que el cliente decide, sin condicionar la renuncia a una fecha específica.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213301",
+      "comentario": "El cliente pregunta si le cobran mensualmente (01:43). El ejecutivo responde correctamente: 'No, don Pedro, es prima única, ya está pagado junto con su crédito' (01:48). La información es precisa según la ficha.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 7,
+      "comentario": "No aplica derivación. El seguro es retenible y se gestiona completamente en la llamada. No hay situaciones que requieran orientar al cliente a otro canal.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde de forma directa a todas las preguntas del cliente: sobre cobros mensuales (01:48), sobre renuncias futuras (02:20), y sobre las coberturas (01:18).",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213301",
+      "comentario": "El seguro es RETENIBLE, no no-renunciable. No aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 10,
+      "comentario": "El tono del ejecutivo es profesional, amable y paciente. No hay lenguaje soez, agresividad, burlas ni impaciencia hostil.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 11,
+      "comentario": "El ejecutivo no descalifica a pares, BancoEstado, la compañía ni la competencia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 12,
+      "comentario": "El cliente expresó intención de renuncia (00:54). El ejecutivo no induce a renunciar ningún otro seguro; solo intenta retener el que el cliente pidió cancelar.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213301",
+      "comentario": "En el protocolo de cierre (02:32), el ejecutivo menciona el número de seguro: 'número de seguro cuatro ocho dos uno tres tres cero uno' (que corresponde a 48213301).",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213301",
+      "comentario": "El seguro es RETENIBLE y el cliente pidió renunciar. El ejecutivo realiza 3 intentos de retención: presenta coberturas (01:18), aclara que es prima única sin cargos (01:48), y destaca el beneficio de asistencia laboral (01:58). Logra retener el seguro.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213301",
+      "comentario": "El medio de pago es 'CRE' (Crédito de Consumo), no 'OTRO'. En el cierre (02:32), el ejecutivo menciona: 'El medio de pago es su crédito de consumo, donde se cargó la prima única'. Cumple con informar el medio de pago.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213301",
+      "comentario": "El cliente expresó intención de renuncia (00:54). El ejecutivo solo intenta retener este seguro, no realiza retención sin intención de renuncia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213301",
+      "comentario": "El seguro es RETENIBLE. El ejecutivo intenta retenerlo, lo cual es correcto.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213301",
+      "comentario": "El cliente expresa motivo de renuncia: 'Problemas Económicos' (00:54: 'ando medio apretado con las lucas'). La tipificación registrada es 'Problemas Económicos', que coincide con lo expresado.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213301",
+      "comentario": "Según la grabación, el resultado es RETENCION (el cliente finalmente mantiene el seguro). La tipificación registrada es RETENCION. Coinciden.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 20,
+      "comentario": "No aplica. La tipificación registrada corresponde al seguro mencionado en la llamada (48213301).",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 21,
+      "comentario": "No aplica. La tipificación registrada corresponde al seguro correcto (48213301 - Desempleo ITT Crédito Consumo).",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 22,
+      "comentario": "No aplica. La tipificación registrada corresponde a un seguro mencionado en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 23,
+      "comentario": "No aplica. La tipificación registrada corresponde al seguro correcto.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213301",
+      "comentario": "Según la grabación, el resultado es RETENCION. La tipificación registrada es RETENCION. No hay discrepancia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 25,
+      "comentario": "Se menciona un solo seguro en la llamada (48213301). Se tipifica su gestión (RETENCION). No quedan gestiones sin tipificar.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 26,
+      "comentario": "El cliente solicita dar de baja un seguro (00:54). Se gestiona la retención de ese seguro. Se impacta la gestión solicitada.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 27,
+      "comentario": "No hay terceros en la llamada. El cliente es el titular y se validan sus datos. No aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213301",
+      "comentario": "El seguro tiene prima única asociada a un crédito. Según la regla, al renunciar hay devolución automática de la prima no devengada. El cliente no renuncia (se retiene el seguro), por lo que no se aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213301",
+      "comentario": "El ejecutivo realiza protocolo de cierre completo (02:32-02:57): resume la gestión ('mantenemos vigente su seguro'), identifica el seguro con su número (48213301), informa el medio de pago (crédito de consumo), y pide conformidad ('¿Está conforme con la gestión realizada?'). El cliente responde 'Sí, conforme' (02:57).",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213301",
+      "comentario": "El ejecutivo pregunta '¿Está conforme con la gestión realizada?' (02:56). El cliente responde 'Sí, conforme' (02:57), que es una aceptación clara. No hay respuesta ambigua que requiera reiterar.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida los 3 datos requeridos: RUT (00:17: 'once millones ciento once mil ciento once guion uno'), nombre completo (00:25: 'Pedro Andrés Soto Muñoz'), y fecha de nacimiento (00:30: 'catorce de marzo del ochenta y cinco'). El cliente confirma cada dato.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 32,
+      "comentario": "El ejecutivo pregunta '¿Está conforme con la gestión realizada?' (02:56), que es una pregunta neutra que no predispone la respuesta. No condiciona con un 'cierto' ni presupone un 'sí'.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo pregunta y valida email (00:39: 'pedro punto soto arroba correo ejemplo punto cl') y teléfono (00:39: 'nueve uno dos tres cuatro cinco seis siete ocho'). Ambos datos se mencionan y el cliente los proporciona.",
+      "estado": "cumple",
+      "confianza": 1
+    }
+  ]
+}
+```

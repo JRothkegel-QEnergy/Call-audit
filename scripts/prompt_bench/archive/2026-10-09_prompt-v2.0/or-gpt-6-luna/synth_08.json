@@ -1,0 +1,457 @@
+{
+  "resumen": "La cliente consultó qué cubría un seguro porque no reconocía el cobro, pero no expresó intención de renunciar. El ejecutivo propuso darlo de baja, la cliente aceptó y el ejecutivo ingresó la renuncia; además, negó una devolución que correspondía evaluar por tratarse de una prima anual.",
+  "intencion_renuncia": {
+    "expresada": false,
+    "cita": "La cliente preguntó qué cubría el seguro y luego aceptó la propuesta de baja del ejecutivo; no solicitó renunciar por iniciativa propia.",
+    "timestamp": "00:37–01:01"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "El ejecutivo se despidió y la llamada terminó normalmente."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213308",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [],
+      "n_objeciones": 0,
+      "cliente_tajante": false,
+      "argumentos_retencion": [],
+      "evidencia": "El ejecutivo informó que ingresó la renuncia del seguro. La aceptación de la cliente fue posterior a la propuesta de baja del ejecutivo; la cliente no expresó un motivo de renuncia."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No hubo esperas ni silencios superiores a 30 segundos.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213308",
+      "comentario": "El ejecutivo no describió coberturas ni condiciones que contradigan la ficha del seguro.",
+      "evidencia": [
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Ah, sí, es un seguro que se contrató con su cuenta."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213308",
+      "comentario": "La cliente no manifestó intención de renunciar ni reiteró una decisión tajante, por lo que no hubo objeciones de retención que excedieran el máximo.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Me apareció un cobro en la cuenta por un seguro y no me acuerdo bien qué es. Quería saber qué cubre."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213308",
+      "comentario": "Aunque la cliente consultó qué cubría el seguro, antes de ingresar la renuncia el ejecutivo no mencionó ninguna característica, cobertura, beneficio, asistencia ni prima; nombrar el seguro en el cierre no satisface el criterio.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Quería saber qué cubre."
+        },
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "La verdad, si no se acuerda de él, seguramente no lo usa. Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213308",
+      "comentario": "La cliente no consultó quién decide cuándo renunciar ni planteó una fecha de renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213308",
+      "comentario": "Ante la pregunta directa sobre qué cubría el seguro, el ejecutivo no respondió sobre el producto y desvió la conversación hacia una baja.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Quería saber qué cubre."
+        },
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "La verdad, si no se acuerda de él, seguramente no lo usa. Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "",
+      "comentario": "La consulta y la gestión se realizaron por teléfono; no se requería orientar a otro canal.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "48213308",
+      "comentario": "La única pregunta eludida fue sobre las coberturas del producto y queda evaluada específicamente en el motivo 6.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Quería saber qué cubre."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213308",
+      "comentario": "El seguro es retenible, no no renunciable.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "No se observa maltrato, agresividad, lenguaje grosero ni impaciencia hostil.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo no descalificó a BancoEstado, a la compañía, a la competencia ni a otros ejecutivos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213308",
+      "comentario": "La cliente solo consultó por el cobro y las coberturas; el ejecutivo propuso dar de baja el seguro sin que ella hubiera pedido renunciar.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Me apareció un cobro en la cuenta por un seguro y no me acuerdo bien qué es. Quería saber qué cubre."
+        },
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213308",
+      "comentario": "En el cierre, el ejecutivo identificó el seguro con el número 48213308.",
+      "evidencia": [
+        {
+          "t": "01:16",
+          "hablante": "AGENTE",
+          "cita": "Quedó ingresada la renuncia de su seguro de Accidentes Personales, número de seguro cuatro ocho dos uno tres tres cero ocho"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213308",
+      "comentario": "La cliente no pidió renunciar al seguro; el ejecutivo propuso la baja, por lo que no se configura la situación de una solicitud de renuncia a retener.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Quería saber qué cubre."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.97
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213308",
+      "comentario": "En el cierre, el ejecutivo informó el cargo a la Cuenta RUT, correspondiente al medio de pago registrado.",
+      "evidencia": [
+        {
+          "t": "01:16",
+          "hablante": "AGENTE",
+          "cita": "con cargo a su cuenta RUT."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213308",
+      "comentario": "No hubo retención del seguro; el ejecutivo propuso e ingresó una renuncia sin intención previa de renuncia de la cliente, conducta evaluada en el motivo 12.",
+      "evidencia": [
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.96
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213308",
+      "comentario": "El seguro es retenible, no no retenible.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213308",
+      "comentario": "La tipificación señala «No informado» y la cliente no expresó motivo de renuncia, por lo que no se tipificó un motivo incompatible.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Me apareció un cobro en la cuenta por un seguro y no me acuerdo bien qué es. Quería saber qué cubre."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213308",
+      "comentario": "La grabación confirma que el ejecutivo ingresó una renuncia, coincidente con la tipificación registrada.",
+      "evidencia": [
+        {
+          "t": "01:16",
+          "hablante": "AGENTE",
+          "cita": "Quedó ingresada la renuncia de su seguro de Accidentes Personales"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "",
+      "comentario": "La tipificación no registra renuncia de un seguro no mencionado en la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "48213308",
+      "comentario": "La renuncia tipificada corresponde al seguro de Accidentes Personales mencionado y gestionado en la llamada.",
+      "evidencia": [
+        {
+          "t": "01:16",
+          "hablante": "AGENTE",
+          "cita": "Quedó ingresada la renuncia de su seguro de Accidentes Personales"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "",
+      "comentario": "No se tipificó retención de un seguro no mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "",
+      "comentario": "No se tipificó una retención de seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213308",
+      "comentario": "La grabación confirma que se ingresó una renuncia, no una retención.",
+      "evidencia": [
+        {
+          "t": "01:16",
+          "hablante": "AGENTE",
+          "cita": "Quedó ingresada la renuncia de su seguro de Accidentes Personales"
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "48213308",
+      "comentario": "La única gestión tipificada fue la renuncia del seguro mencionado y gestionado; no quedó otra renuncia o retención solicitada sin tipificar.",
+      "evidencia": [
+        {
+          "t": "01:16",
+          "hablante": "AGENTE",
+          "cita": "Quedó ingresada la renuncia de su seguro de Accidentes Personales"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "",
+      "comentario": "La cliente no pidió gestionar la renuncia de ningún seguro; la baja fue propuesta por el ejecutivo.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Quería saber qué cubre."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.96
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "",
+      "comentario": "La persona que llamó se identificó como la titular y no hubo intervención de un tercero.",
+      "evidencia": [
+        {
+          "t": "00:05",
+          "hablante": "CLIENTE",
+          "cita": "habla Valentina Reyes."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213308",
+      "comentario": "La prima del seguro es anual y corresponde devolución de la prima no devengada; ante la consulta sobre lo cobrado, el ejecutivo negó la devolución sin informar ese derecho.",
+      "evidencia": [
+        {
+          "t": "01:06",
+          "hablante": "CLIENTE",
+          "cita": "Y lo que ya me cobraron, ¿me lo devuelven?"
+        },
+        {
+          "t": "01:10",
+          "hablante": "AGENTE",
+          "cita": "No, eso no se devuelve. Lo pagado, pagado."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213308",
+      "comentario": "El ejecutivo informó que ingresó la renuncia, identificó el seguro y su número, indicó el medio de pago y pidió conformidad.",
+      "evidencia": [
+        {
+          "t": "01:16",
+          "hablante": "AGENTE",
+          "cita": "Quedó ingresada la renuncia de su seguro de Accidentes Personales, número de seguro cuatro ocho dos uno tres tres cero ocho, con cargo a su cuenta RUT. ¿Está de acuerdo?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213308",
+      "comentario": "La cliente respondió con una aceptación clara a la confirmación de cierre, por lo que no correspondía reiterarla.",
+      "evidencia": [
+        {
+          "t": "01:30",
+          "hablante": "CLIENTE",
+          "cita": "Sí."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicitó RUT, nombre completo y fecha de nacimiento, y la cliente entregó los tres datos.",
+      "evidencia": [
+        {
+          "t": "00:08",
+          "hablante": "AGENTE",
+          "cita": "¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:13",
+          "hablante": "CLIENTE",
+          "cita": "Dieciocho millones ochocientos ochenta y ocho mil ochocientos ochenta y ocho guion ocho. Valentina Paz Reyes Ortiz, cinco de diciembre del noventa y cinco."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo no condicionó la aceptación de mantener el seguro; propuso darlo de baja.",
+      "evidencia": [
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo pidió el correo y el teléfono y la cliente proporcionó ambos datos.",
+      "evidencia": [
+        {
+          "t": "00:24",
+          "hablante": "AGENTE",
+          "cita": "¿Su correo y teléfono?"
+        },
+        {
+          "t": "00:26",
+          "hablante": "CLIENTE",
+          "cita": "valentina punto reyes arroba correo ejemplo punto cl, nueve dos dos dos tres tres tres cuatro cuatro."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    }
+  ]
+}

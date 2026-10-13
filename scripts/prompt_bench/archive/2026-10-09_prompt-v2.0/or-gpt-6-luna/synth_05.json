@@ -1,0 +1,485 @@
+{
+  "resumen": "El titular solicitó renunciar al seguro HOSPITALIZACION TLMK porque no quería más compromisos. El ejecutivo respondió a consultas de su esposa, ingresó la renuncia y realizó el cierre con ella, sin retomar el protocolo con el titular. La tipificación de la renuncia y su motivo son compatibles con la grabación.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar al seguro de hospitalización, no quiero más compromisos.",
+    "timestamp": "00:41"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "El ejecutivo y la clienta se despiden y la llamada termina."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213305",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+        "No desea contraer más obligaciones"
+      ],
+      "n_objeciones": 0,
+      "cliente_tajante": true,
+      "argumentos_retencion": [],
+      "evidencia": "El titular solicita renunciar a las 00:41; el ejecutivo ingresa la renuncia a las 01:36 y la clienta la acepta a las 01:52."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No hubo esperas ni silencios prolongados que superen el umbral.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213305",
+      "comentario": "La descripción de la cobertura de hospitalización coincide con la ficha del seguro.",
+      "evidencia": [
+        {
+          "t": "01:17",
+          "hablante": "AGENTE",
+          "cita": "si don Jorge queda hospitalizado por enfermedad o accidente, en sala común, UTI o UCI, el seguro le paga dos UF por día, de libre disposición, hasta por ciento ochenta días."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213305",
+      "comentario": "No se observan más de tres argumentos de retención después de una decisión tajante; la respuesta del ejecutivo fue informativa ante una pregunta directa.",
+      "evidencia": [
+        {
+          "t": "01:13",
+          "hablante": "CLIENTE",
+          "cita": "Ya, ¿y qué pasa si lo sacamos? ¿Pierde algo?"
+        },
+        {
+          "t": "01:17",
+          "hablante": "AGENTE",
+          "cita": "Perdería la cobertura de hospitalización"
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.92
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213305",
+      "comentario": "El ejecutivo indicó características de la cobertura del seguro antes de ingresar la renuncia.",
+      "evidencia": [
+        {
+          "t": "01:17",
+          "hablante": "AGENTE",
+          "cita": "el seguro le paga dos UF por día, de libre disposición, hasta por ciento ochenta días."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213305",
+      "comentario": "El cliente no consultó quién decide la permanencia ni si existe una fecha obligatoria para renunciar.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213305",
+      "comentario": "El ejecutivo contestó las consultas sobre prima y cobertura; los datos entregados no contradicen la ficha ni la información disponible.",
+      "evidencia": [
+        {
+          "t": "00:59",
+          "hablante": "AGENTE",
+          "cita": "El seguro de Hospitalización tiene una prima mensual de seis mil trescientos pesos, que se carga a la cuenta vista de don Jorge"
+        },
+        {
+          "t": "01:17",
+          "hablante": "AGENTE",
+          "cita": "el seguro le paga dos UF por día, de libre disposición, hasta por ciento ochenta días."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.94
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "",
+      "comentario": "La situación no requería derivar al cliente a otro canal.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo respondió directamente las preguntas formuladas por la clienta.",
+      "evidencia": [
+        {
+          "t": "00:51",
+          "hablante": "CLIENTE",
+          "cita": "¿Cuánto es lo que estamos pagando por ese seguro y desde cuándo?"
+        },
+        {
+          "t": "00:59",
+          "hablante": "AGENTE",
+          "cita": "El seguro de Hospitalización tiene una prima mensual de seis mil trescientos pesos"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.94
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213305",
+      "comentario": "El seguro es retenible y la renuncia se ingresó conforme a la solicitud del cliente.",
+      "evidencia": [
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "queda ingresada la renuncia del seguro de Hospitalización"
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "No se observa maltrato, impaciencia hostil ni lenguaje agresivo o grosero.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo no descalificó a BancoEstado, la compañía, la competencia ni a otros ejecutivos.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213305",
+      "comentario": "El ejecutivo no propuso renunciar a un seguro distinto del que el titular pidió cancelar.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213305",
+      "comentario": "En el cierre el ejecutivo identificó el seguro con su número MUS A Neto.",
+      "evidencia": [
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "número de seguro cuatro ocho dos uno tres tres cero cinco"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213305",
+      "comentario": "Aunque el cliente pidió renunciar a un seguro retenible, el ejecutivo solo respondió a la consulta sobre qué perdería al cancelarlo y luego ingresó la renuncia; no presentó un argumento para convencerlo de mantenerlo. En el tramo 00:41–01:36 no se identifica otro intento de retención.",
+      "evidencia": [
+        {
+          "t": "01:13",
+          "hablante": "CLIENTE",
+          "cita": "Ya, ¿y qué pasa si lo sacamos? ¿Pierde algo?"
+        },
+        {
+          "t": "01:17",
+          "hablante": "AGENTE",
+          "cita": "Perdería la cobertura de hospitalización"
+        },
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "queda ingresada la renuncia del seguro de Hospitalización"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.88
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213305",
+      "comentario": "En el cierre informó el medio de pago del seguro, que no es OTRO.",
+      "evidencia": [
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "con cargo a la cuenta vista de don Jorge."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213305",
+      "comentario": "El titular expresó explícitamente su intención de renunciar antes de que el ejecutivo gestionara el seguro.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar al seguro de hospitalización"
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213305",
+      "comentario": "El seguro es retenible, no no-retinible, y el ejecutivo no lo registró como retenido.",
+      "evidencia": [
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "queda ingresada la renuncia del seguro de Hospitalización"
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213305",
+      "comentario": "El motivo tipificado, «No desea contraer más obligaciones», es compatible con que el cliente dijera que no quería más compromisos.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "no quiero más compromisos."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213305",
+      "comentario": "La grabación termina con una renuncia y la tipificación también registra RENUNCIA, no RETENCIÓN.",
+      "evidencia": [
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "queda ingresada la renuncia del seguro de Hospitalización"
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "48213305",
+      "comentario": "La renuncia tipificada corresponde a un seguro mencionado y gestionado en la llamada.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar al seguro de hospitalización"
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "48213305",
+      "comentario": "La renuncia tipificada corresponde al mismo seguro de hospitalización mencionado y gestionado.",
+      "evidencia": [
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "queda ingresada la renuncia del seguro de Hospitalización, número de seguro cuatro ocho dos uno tres tres cero cinco"
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "",
+      "comentario": "No se tipificó una retención de un seguro no mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "",
+      "comentario": "No se tipificó una retención correspondiente a otro seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213305",
+      "comentario": "El resultado de la grabación es RENUNCIA, no RETENCIÓN.",
+      "evidencia": [
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "queda ingresada la renuncia del seguro de Hospitalización"
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "48213305",
+      "comentario": "La única gestión solicitada, la renuncia del seguro 48213305, fue registrada en la tipificación.",
+      "evidencia": [
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "queda ingresada la renuncia del seguro de Hospitalización, número de seguro cuatro ocho dos uno tres tres cero cinco"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "48213305",
+      "comentario": "La renuncia solicitada por el titular fue ingresada durante la llamada.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar al seguro de hospitalización"
+        },
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "queda ingresada la renuncia del seguro de Hospitalización"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "48213305",
+      "comentario": "El ejecutivo entregó información y gestionó la renuncia con la esposa del titular, sin retomar el protocolo de cierre con Jorge. No se menciona que aplique una excepción para atender a un tercero; el cierre ocurre con Marcela, no con el titular, en el tramo 01:36–01:52.",
+      "evidencia": [
+        {
+          "t": "00:51",
+          "hablante": "CLIENTE",
+          "cita": "Hola, buenas, habla Marcela, la señora de Jorge."
+        },
+        {
+          "t": "00:59",
+          "hablante": "AGENTE",
+          "cita": "Hola, señora Marcela. El seguro de Hospitalización tiene una prima mensual de seis mil trescientos pesos"
+        },
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "Entonces le confirmo: queda ingresada la renuncia del seguro de Hospitalización"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213305",
+      "comentario": "El cliente no pidió devolución de primas ni planteó cobros incorrectos o desconocimiento del seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213305",
+      "comentario": "El ejecutivo resumió la gestión, identificó el seguro, informó el medio de pago y pidió conformidad.",
+      "evidencia": [
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "queda ingresada la renuncia del seguro de Hospitalización, número de seguro cuatro ocho dos uno tres tres cero cinco, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213305",
+      "comentario": "La clienta respondió con una aceptación clara al cierre, por lo que no fue necesario reiterarlo.",
+      "evidencia": [
+        {
+          "t": "01:52",
+          "hablante": "CLIENTE",
+          "cita": "Sí, de acuerdo. Gracias, señorita."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.96
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo corroboró RUT, nombre completo y fecha de nacimiento del titular.",
+      "evidencia": [
+        {
+          "t": "00:10",
+          "hablante": "AGENTE",
+          "cita": "Don Jorge, ¿me indica su RUT, nombre completo y fecha de nacimiento para validar?"
+        },
+        {
+          "t": "00:16",
+          "hablante": "CLIENTE",
+          "cita": "Quince millones quinientos cincuenta y cinco mil quinientos cincuenta y cinco guion cinco. Jorge Esteban Ramírez Silva, tres de mayo del setenta y dos."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "48213305",
+      "comentario": "El ejecutivo solicitó una confirmación neutral de la gestión y no condicionó la respuesta a un «sí».",
+      "evidencia": [
+        {
+          "t": "01:36",
+          "hablante": "AGENTE",
+          "cita": "¿Están de acuerdo?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo pidió el correo y el teléfono del titular.",
+      "evidencia": [
+        {
+          "t": "00:26",
+          "hablante": "AGENTE",
+          "cita": "¿Y su correo y teléfono?"
+        },
+        {
+          "t": "00:29",
+          "hablante": "CLIENTE",
+          "cita": "jorge punto ramirez arroba correo ejemplo punto cl, nueve cuatro cuatro cuatro cuatro cinco cinco cinco cinco."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    }
+  ]
+}

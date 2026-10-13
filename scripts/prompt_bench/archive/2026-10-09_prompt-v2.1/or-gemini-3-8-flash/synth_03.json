@@ -1,0 +1,360 @@
+{
+  "resumen": "El cliente se comunica para dar de baja su seguro de Incendio Hogar debido a la venta de su departamento. La ejecutiva acoge la renuncia de inmediato sin validar datos de contacto ni realizar labor de retención sobre el seguro retenible, cerrando la llamada con la confirmación de la baja.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Vendí el departamento y quiero dar de baja el seguro de incendio, porque ya no tiene sentido.",
+    "timestamp": "00:25"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada finaliza de forma habitual tras el protocolo de cierre y despedida de la ejecutiva."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213303",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+        "Cambio de Domicilio o Venta de Propiedad"
+      ],
+      "n_objeciones": 0,
+      "cliente_tajante": false,
+      "argumentos_retencion": [],
+      "evidencia": "El cliente solicita la baja en 00:25 y la ejecutiva confirma el ingreso de la renuncia en 00:38."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No se registraron tiempos de espera ni pausas prolongadas durante la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica, la ejecutiva no realizó descripción de coberturas del producto.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica, la ejecutiva no presentó objeciones de retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213303",
+      "comentario": "La ejecutiva tramita la renuncia directamente sin entregar ninguna característica, beneficio o cobertura del seguro.",
+      "evidencia": [
+        {
+          "t": "00:25",
+          "hablante": "CLIENTE",
+          "cita": "Vendí el departamento y quiero dar de baja el seguro de incendio, porque ya no tiene sentido."
+        },
+        {
+          "t": "00:32",
+          "hablante": "AGENTE",
+          "cita": "Ya, perfecto, se lo doy de baja al tiro."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica, el cliente no realiza consultas directas respecto a la permanencia o fechas para renunciar.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica, el cliente no realizó preguntas sobre el producto o sus coberturas.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica, el trámite solicitado correspondía ser gestionado en el canal telefónico.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "",
+      "comentario": "La ejecutiva responde de manera directa a la petición del cliente.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213303",
+      "comentario": "El seguro Incendio Hogar gestionado es renunciable.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "La atención se mantiene en un marco cordial y respetuoso.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "No se emiten comentarios descalificatorios hacia pares, BancoEstado o la aseguradora.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213303",
+      "comentario": "No hubo inducción a renuncia; el cliente solicitó voluntariamente la baja.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213303",
+      "comentario": "La ejecutiva individualiza el número de seguro completo en el protocolo de cierre.",
+      "evidencia": [
+        {
+          "t": "00:38",
+          "hablante": "AGENTE",
+          "cita": "Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, número de seguro cuatro ocho dos uno tres tres cero tres, que se cargaba a su cuenta corriente. ¿Está de acuerdo con la gestión?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213303",
+      "comentario": "El seguro Incendio Hogar es retenible y la ejecutiva procesa la renuncia de forma inmediata sin realizar ningún intento de retención.",
+      "evidencia": [
+        {
+          "t": "00:25",
+          "hablante": "CLIENTE",
+          "cita": "Vendí el departamento y quiero dar de baja el seguro de incendio, porque ya no tiene sentido."
+        },
+        {
+          "t": "00:32",
+          "hablante": "AGENTE",
+          "cita": "Ya, perfecto, se lo doy de baja al tiro."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213303",
+      "comentario": "La ejecutiva indica la cuenta corriente como medio de pago en el cierre.",
+      "evidencia": [
+        {
+          "t": "00:38",
+          "hablante": "AGENTE",
+          "cita": "Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, número de seguro cuatro ocho dos uno tres tres cero tres, que se cargaba a su cuenta corriente. ¿Está de acuerdo con la gestión?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica, el cliente manifestó explícitamente intención de renuncia y no se efectuó retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica, el seguro es retenible y no se intentó retener.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213303",
+      "comentario": "El motivo tipificado 'Cambio de Domicilio o Venta de Propiedad' coincide con lo expresado por el cliente.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213303",
+      "comentario": "Se tipificó renuncia y en la llamada efectivamente se tramitó la renuncia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "48213303",
+      "comentario": "El seguro tipificado fue debidamente gestionado y mencionado en la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "48213303",
+      "comentario": "La renuncia tipificada corresponde exactamente al seguro tratado en la grabación.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "",
+      "comentario": "No aplica, no se tipificó retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "",
+      "comentario": "No aplica, no se tipificó retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica, se tipificó renuncia acorde a lo ocurrido en la grabación.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "",
+      "comentario": "Se tipificó la única gestión realizada en la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "",
+      "comentario": "Se procesó el único seguro consultado y requerido por el cliente.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "",
+      "comentario": "No aplica, la interacción se llevó a cabo con el titular.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica, no se solicitaron ni denegaron devoluciones de prima.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213303",
+      "comentario": "La ejecutiva efectúa el cierre con nombre del producto, número de seguro, medio de pago y pregunta de confirmación.",
+      "evidencia": [
+        {
+          "t": "00:38",
+          "hablante": "AGENTE",
+          "cita": "Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, número de seguro cuatro ocho dos uno tres tres cero tres, que se cargaba a su cuenta corriente. ¿Está de acuerdo con la gestión?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213303",
+      "comentario": "El cliente respondió 'Sí, de acuerdo', respuesta permitida que no requería reiteración.",
+      "evidencia": [
+        {
+          "t": "00:53",
+          "hablante": "CLIENTE",
+          "cita": "Sí, de acuerdo."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "La ejecutiva corrobora adecuadamente RUT, nombre completo y fecha de nacimiento.",
+      "evidencia": [
+        {
+          "t": "00:08",
+          "hablante": "AGENTE",
+          "cita": "Don Luis, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:13",
+          "hablante": "CLIENTE",
+          "cita": "Trece millones trescientos treinta y tres mil trescientos treinta y tres guion tres. Luis Alberto Contreras Vega, nueve de enero del setenta y ocho."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "48213303",
+      "comentario": "La pregunta de cierre formulada fue neutra y no indujo ni predispuso la respuesta.",
+      "evidencia": [
+        {
+          "t": "00:38",
+          "hablante": "AGENTE",
+          "cita": "¿Está de acuerdo con la gestión?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "Durante la etapa de acreditación (00:08 a 00:23), la ejecutiva omitió solicitar o validar el correo electrónico y el teléfono del cliente.",
+      "evidencia": [
+        {
+          "t": "00:08",
+          "hablante": "AGENTE",
+          "cita": "Don Luis, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    }
+  ]
+}

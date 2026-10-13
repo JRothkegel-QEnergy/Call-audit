@@ -1,0 +1,267 @@
+{
+  "resumen": "La cliente llama consultando por la cobertura de un robo y cómo hacer el reclamo de su seguro Protección Global. El ejecutivo asume erróneamente que la cliente quiere dar de baja el seguro, realiza un intento de retención no solicitado y condiciona la respuesta para mantenerlo vigente, sin efectuar ninguna renuncia real.",
+  "intencion_renuncia": {
+    "expresada": false,
+    "cita": "",
+    "timestamp": ""
+  },
+  "gestiones": [
+    {
+      "n_poliza": "PROT-GLB-0006",
+      "resultado_grabacion": "RETENCION",
+      "motivo_renuncia": "No informado",
+      "n_objeciones": 1,
+      "evidencia": "El ejecutivo asume la baja e insiste en mantener el seguro a pesar de que la cliente aclara que solo consulta por el robo."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No registra tiempos de espera en los metadatos y la llamada fluye sin pausas prolongadas.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "comentario": "No se describe ningún seguro distinto al mencionado.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "comentario": "El ejecutivo realiza solo un intento de retención, por lo que no excede el máximo permitido de 3.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo no detalla características del seguro durante la llamada, pero la cliente ya lo conocía y consultaba por una cobertura.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 5,
+      "comentario": "No hubo consulta directa sobre la permanencia gestionada por el cliente.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "comentario": "El ejecutivo informa sobre el procedimiento para siniestros de manera general indicando el número correspondiente.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 7,
+      "comentario": "No era necesario realizar derivación a otra área o canal.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde a la consulta del siniestro tras insistir en la retención.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro es retenible y renunciable según los metadatos.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "comentario": "No se identifican otras conductas residuales fuera de la pauta.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "comentario": "El ejecutivo no descalifica a pares, BancoEstado ni a la competencia.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "comentario": "El ejecutivo no sugiere ni propone renunciar; por el contrario, intenta retener el producto.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "comentario": "Al no haber una gestión real de renuncia o protocolo de cierre formal de baja, no aplica indicar número de seguro en este contexto.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 14,
+      "comentario": "El ejecutivo realiza un intento de retención a pesar de que la cliente no solicitó la renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "comentario": "No se informó medio de pago en el cierre, pero la llamada no correspondía a una gestión de renuncia solicitada por el cliente.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 16,
+      "comentario": "El ejecutivo realiza un intento de retención (00:50) cuando la cliente nunca expresó intención de renuncia, sino que solo consultó por la cobertura de un robo.",
+      "evidencia": [
+        {
+          "t": "00:40",
+          "hablante": "CLIENTE",
+          "cita": "Quería saber si eso lo cubre y cómo hago el reclamo."
+        },
+        {
+          "t": "00:50",
+          "hablante": "AGENTE",
+          "cita": "Señora Sofía, antes de eso le quiero recordar lo importante que es mantener este seguro..."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro es retenible según los metadatos.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "comentario": "No se tipificó motivo de renuncia porque no hubo renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "comentario": "No se tipificó renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "comentario": "No aplica tipificación de renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "comentario": "No aplica tipificación de renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "comentario": "No aplica tipificación de retención.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "comentario": "No aplica tipificación de retención.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "comentario": "No se registró ninguna tipificación en los metadatos a pesar de haber mantenido el seguro vigente.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 25,
+      "comentario": "No se registra ninguna tipificación en los metadatos.",
+      "estado": "incumple",
+      "evidencia": [
+        {
+          "t": "Metadatos",
+          "hablante": "AGENTE",
+          "cita": "- (sin tipificación registrada)"
+        }
+      ],
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "comentario": "La cliente solicitó información sobre la cobertura de un robo y el ejecutivo se la entregó.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "comentario": "La llamada se atendió directamente con la titular.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "comentario": "No se trató el tema de devolución de primas.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "comentario": "No se realizó un protocolo de cierre formal de baja al no haber existido renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 30,
+      "comentario": "No aplica protocolo de cierre.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida correctamente el RUT, nombre completo y fecha de nacimiento.",
+      "estado": "cumple",
+      "evidencia": [
+        {
+          "t": "00:10",
+          "hablante": "AGENTE",
+          "cita": "¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:15",
+          "hablante": "CLIENTE",
+          "cita": "Dieciséis millones seiscientos sesenta y seis mil seiscientos sesenta y seis guion seis. Sofía Ignacia Tapia Rojas, once de agosto del noventa y dos."
+        }
+      ],
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "comentario": "El ejecutivo predispone al cliente condicionando la respuesta para aceptar la continuidad del seguro de forma inducida ('Usted está de acuerdo en mantenerlo, cierto?').",
+      "evidencia": [
+        {
+          "t": "01:11",
+          "hablante": "AGENTE",
+          "cita": "Usted está de acuerdo en mantenerlo, ¿cierto?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo valida correctamente el correo electrónico y el teléfono de contacto.",
+      "estado": "cumple",
+      "evidencia": [
+        {
+          "t": "00:25",
+          "hablante": "AGENTE",
+          "cita": "¿Su correo y un teléfono de contacto?"
+        },
+        {
+          "t": "00:28",
+          "hablante": "CLIENTE",
+          "cita": "sofia punto tapia arroba correo ejemplo punto cl, nueve tres tres tres dos dos dos uno uno."
+        }
+      ],
+      "confianza": 1.0
+    }
+  ]
+}

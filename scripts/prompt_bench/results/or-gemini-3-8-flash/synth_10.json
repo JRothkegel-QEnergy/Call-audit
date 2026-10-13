@@ -1,70 +1,91 @@
 {
-  "resumen": "La cliente llama para dar de baja un seguro de Incapacidad Temporal asociado a su crédito de consumo que desconoce haber contratado. El ejecutivo valida correctamente su identidad y gestiona la renuncia con protocolo de cierre completo, omitiendo que dicho seguro es irrenunciable por este canal y requería derivación.",
+  "resumen": "La clienta solicita dar de baja el seguro de desgravamen asociado a su crédito hipotecario por desconocer su contratación. El ejecutivo tramita indebidamente la renuncia de un seguro no renunciable por este canal en lugar de orientar a la clienta a sucursal, omitiendo además informar características del producto.",
   "intencion_renuncia": {
     "expresada": true,
-    "cita": "Me sale un seguro de incapacidad temporal en el crédito y yo no me acuerdo de haberlo contratado. Lo quiero sacar.",
+    "cita": "Me sale un seguro de desgravamen en el dividendo del hipotecario y yo no me acuerdo de haberlo contratado. Lo quiero sacar.",
     "timestamp": "00:35"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada finaliza de forma habitual tras la confirmación de la gestión y la despedida del ejecutivo."
   },
   "gestiones": [
     {
-      "n_poliza": "INC-TMP-0010",
+      "mus_a_neto": "48213311",
       "resultado_grabacion": "RENUNCIA",
-      "motivo_renuncia": "Desconoce contratación del seguro",
+      "motivos_renuncia": [
+        "Desconoce contratación del seguro"
+      ],
       "n_objeciones": 0,
-      "evidencia": "[00:35] CLIENTE: Me sale un seguro de incapacidad temporal en el crédito y yo no me acuerdo de haberlo contratado. Lo quiero sacar."
+      "cliente_tajante": false,
+      "argumentos_retencion": [],
+      "evidencia": "El ejecutivo ingresa la renuncia del seguro: '[00:54] AGENTE: Listo. Quedó ingresada la renuncia de su seguro de desgravamen, número de seguro cuatro ocho dos uno tres tres uno uno, con cargo en su crédito hipotecario. ¿Está de acuerdo?'"
     }
   ],
   "criterios": [
     {
       "id": 1,
-      "comentario": "No hubo tiempos de espera durante la llamada.",
+      "mus_a_neto": "",
+      "comentario": "No hubo tiempos de espera durante la atención.",
       "evidencia": [],
       "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 2,
-      "comentario": "El ejecutivo no entrega descripciones erróneas ni confunde el seguro con otro producto.",
+      "mus_a_neto": "48213311",
+      "comentario": "No aplica ya que el ejecutivo no describió coberturas ni condiciones del producto.",
       "evidencia": [],
-      "estado": "cumple",
-      "confianza": 0.95
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 3,
-      "comentario": "El ejecutivo no realiza objeciones de retención, por lo que no excede el límite permitido.",
+      "mus_a_neto": "48213311",
+      "comentario": "No aplica al no haberse realizado objeciones de retención.",
       "evidencia": [],
-      "estado": "cumple",
+      "estado": "no_aplica",
       "confianza": 1.0
     },
     {
       "id": 4,
-      "comentario": "El seguro no era retenible ni renunciable por este canal (debía derivarse), por lo que no correspondía entregar características para retener.",
-      "evidencia": [],
-      "estado": "no_aplica",
-      "confianza": 0.9
+      "mus_a_neto": "48213311",
+      "comentario": "El ejecutivo no menciona ninguna característica, cobertura o beneficio del seguro antes de proceder a la renuncia.",
+      "evidencia": [
+        {
+          "t": "00:44",
+          "hablante": "AGENTE",
+          "cita": "Entiendo, señora Gloria. Es el seguro de desgravamen de su crédito hipotecario. Se lo doy de baja."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
     },
     {
       "id": 5,
-      "comentario": "La cliente no realizó consultas directas sobre la permanencia del seguro.",
+      "mus_a_neto": "48213311",
+      "comentario": "No hubo consultas por parte de la clienta respecto a plazos de permanencia.",
       "evidencia": [],
       "estado": "no_aplica",
       "confianza": 1.0
     },
     {
       "id": 6,
-      "comentario": "No hubo dudas ni preguntas sobre coberturas que hayan sido mal respondidas.",
+      "mus_a_neto": "48213311",
+      "comentario": "No hubo preguntas de coberturas o producto que el ejecutivo eludiera o respondiera erróneamente.",
       "evidencia": [],
       "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 7,
-      "comentario": "El seguro consultado no es renunciable en este canal (renunciable_en_canal: no), por lo que correspondía derivar la solicitud y no tramitar la baja.",
+      "mus_a_neto": "48213311",
+      "comentario": "El seguro corresponde a la categoría NO_RENUNCIABLE_SUCURSAL (asociado a crédito hipotecario), por lo que debía ser derivado a sucursal para reemplazo de póliza en lugar de gestionarse por teléfono.",
       "evidencia": [
         {
           "t": "00:44",
           "hablante": "AGENTE",
-          "cita": "Entiendo, señora Gloria. Es el seguro de Incapacidad Temporal asociado a su crédito de consumo. Se lo doy de baja."
+          "cita": "Entiendo, señora Gloria. Es el seguro de desgravamen de su crédito hipotecario. Se lo doy de baja."
         }
       ],
       "estado": "incumple",
@@ -72,24 +93,21 @@
     },
     {
       "id": 8,
-      "comentario": "El ejecutivo responde directamente a las consultas y peticiones de la cliente.",
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo responde directamente a lo planteado por la clienta.",
       "evidencia": [],
       "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 9,
-      "comentario": "El ejecutivo cursa la renuncia de un seguro catalogado como no renunciable en este canal según los metadatos.",
+      "mus_a_neto": "48213311",
+      "comentario": "El ejecutivo ingresa la renuncia de un seguro con categoría NO_RENUNCIABLE_SUCURSAL, el cual no puede ser cancelado en este canal telefónico.",
       "evidencia": [
         {
-          "t": "00:44",
+          "t": "00:54",
           "hablante": "AGENTE",
-          "cita": "Se lo doy de baja."
-        },
-        {
-          "t": "00:55",
-          "hablante": "AGENTE",
-          "cita": "Listo. Quedó ingresada la renuncia de su seguro de Incapacidad Temporal, póliza número INC-TMP-0010, con prima única cargada en su crédito de consumo."
+          "cita": "Listo. Quedó ingresada la renuncia de su seguro de desgravamen, número de seguro cuatro ocho dos uno tres tres uno uno, con cargo en su crédito hipotecario. ¿Está de acuerdo?"
         }
       ],
       "estado": "incumple",
@@ -97,33 +115,37 @@
     },
     {
       "id": 10,
-      "comentario": "Las desviaciones observadas corresponden a los motivos específicos de renuncia indebida y falta de derivación.",
+      "mus_a_neto": "",
+      "comentario": "La atención se mantiene en un trato cordial y respetuoso.",
       "evidencia": [],
       "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 11,
-      "comentario": "El ejecutivo mantiene un trato formal y no descalifica a pares, al banco ni a competidores.",
+      "mus_a_neto": "",
+      "comentario": "No se emitieron descalificaciones hacia la entidad, pares ni terceros.",
       "evidencia": [],
       "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 12,
-      "comentario": "La renuncia no fue inducida por el ejecutivo; la cliente lo solicitó expresamente en 00:35.",
+      "mus_a_neto": "48213311",
+      "comentario": "El ejecutivo no induce la renuncia, ya que la clienta solicitó expresamente darlo de baja.",
       "evidencia": [],
       "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 13,
-      "comentario": "El ejecutivo indica explícitamente el número de póliza INC-TMP-0010 en el protocolo de cierre.",
+      "mus_a_neto": "48213311",
+      "comentario": "El ejecutivo menciona el número de seguro completo en el protocolo de cierre.",
       "evidencia": [
         {
-          "t": "00:55",
+          "t": "00:54",
           "hablante": "AGENTE",
-          "cita": "póliza número INC-TMP-0010"
+          "cita": "número de seguro cuatro ocho dos uno tres tres uno uno"
         }
       ],
       "estado": "cumple",
@@ -131,19 +153,21 @@
     },
     {
       "id": 14,
-      "comentario": "El seguro tiene el parámetro retenible: no, por lo que no corresponde realizar retención.",
+      "mus_a_neto": "48213311",
+      "comentario": "No aplica debido a que el seguro es NO_RENUNCIABLE_SUCURSAL y no corresponde a la categoría retenible.",
       "evidencia": [],
       "estado": "no_aplica",
       "confianza": 1.0
     },
     {
       "id": 15,
-      "comentario": "El ejecutivo informa el medio de pago asociado en el protocolo de cierre.",
+      "mus_a_neto": "48213311",
+      "comentario": "El ejecutivo indica adecuadamente el medio de pago en el cierre.",
       "evidencia": [
         {
-          "t": "00:55",
+          "t": "00:54",
           "hablante": "AGENTE",
-          "cita": "con prima única cargada en su crédito de consumo"
+          "cita": "con cargo en su crédito hipotecario"
         }
       ],
       "estado": "cumple",
@@ -151,103 +175,117 @@
     },
     {
       "id": 16,
-      "comentario": "Hubo una clara intención de renuncia por parte de la cliente y no se realizó retención.",
+      "mus_a_neto": "48213311",
+      "comentario": "No aplica dado que no se realizó ninguna gestión de retención.",
       "evidencia": [],
       "estado": "no_aplica",
       "confianza": 1.0
     },
     {
       "id": 17,
-      "comentario": "No se retuvo el seguro.",
+      "mus_a_neto": "48213311",
+      "comentario": "El ejecutivo no intentó retener el seguro no retenible.",
       "evidencia": [],
-      "estado": "no_aplica",
+      "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 18,
-      "comentario": "La cliente señala que no recuerda haber contratado el seguro y el ejecutivo tipifica 'Desconoce contratación del seguro', siendo consistente.",
+      "mus_a_neto": "48213311",
+      "comentario": "El motivo tipificado 'Desconoce contratación del seguro' coincide con lo expresado por la clienta.",
       "evidencia": [],
       "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 19,
-      "comentario": "En la grabación se gestionó la renuncia y se tipificó renuncia.",
+      "mus_a_neto": "48213311",
+      "comentario": "No aplica puesto que la gestión efectuada fue renuncia y no retención.",
       "evidencia": [],
-      "estado": "cumple",
+      "estado": "no_aplica",
       "confianza": 1.0
     },
     {
       "id": 20,
-      "comentario": "El seguro tipificado corresponde exactamente al seguro gestionado y mencionado en la llamada.",
+      "mus_a_neto": "48213311",
+      "comentario": "El seguro tipificado en renuncia fue el gestionado durante la llamada.",
       "evidencia": [],
       "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 21,
-      "comentario": "La tipificación de renuncia corresponde al seguro tratado.",
+      "mus_a_neto": "48213311",
+      "comentario": "El seguro tipificado corresponde exactamente al seguro tratado.",
       "evidencia": [],
       "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 22,
-      "comentario": "No se tipificó retención.",
+      "mus_a_neto": "",
+      "comentario": "No se tipificaron retenciones en la llamada.",
       "evidencia": [],
       "estado": "no_aplica",
       "confianza": 1.0
     },
     {
       "id": 23,
-      "comentario": "No se tipificó retención.",
+      "mus_a_neto": "",
+      "comentario": "No se tipificaron retenciones en la llamada.",
       "evidencia": [],
       "estado": "no_aplica",
       "confianza": 1.0
     },
     {
       "id": 24,
-      "comentario": "No se tipificó retención.",
+      "mus_a_neto": "48213311",
+      "comentario": "No aplica ya que el ejecutivo no tipificó retención.",
       "evidencia": [],
       "estado": "no_aplica",
       "confianza": 1.0
     },
     {
       "id": 25,
-      "comentario": "Se tipificó la única gestión tratada en la llamada.",
+      "mus_a_neto": "",
+      "comentario": "Se tipificó la gestión efectuada en la llamada.",
       "evidencia": [],
       "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 26,
-      "comentario": "El ejecutivo impactó la única solicitud que la cliente planteó.",
+      "mus_a_neto": "",
+      "comentario": "Se atendió el seguro consultado por la clienta.",
       "evidencia": [],
       "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 27,
-      "comentario": "No hubo intervención de terceros; la llamada fue atendida íntegramente con la titular.",
+      "mus_a_neto": "",
+      "comentario": "No intervino ningún tercero en la llamada.",
       "evidencia": [],
       "estado": "no_aplica",
       "confianza": 1.0
     },
     {
       "id": 28,
-      "comentario": "No se consultó ni se mencionó la devolución de primas en la llamada.",
+      "mus_a_neto": "48213311",
+      "comentario": "No hubo solicitudes ni comentarios sobre devolución de primas.",
       "evidencia": [],
       "estado": "no_aplica",
       "confianza": 1.0
     },
     {
       "id": 29,
-      "comentario": "El ejecutivo realiza el protocolo de cierre resumiendo la renuncia, indicando póliza, medio de pago y solicitando confirmación.",
+      "mus_a_neto": "48213311",
+      "comentario": "El ejecutivo realiza el protocolo de cierre resumiendo la renuncia con número de seguro y medio de pago, solicitando la confirmación.",
       "evidencia": [
         {
-          "t": "00:55",
+          "t": "00:54",
           "hablante": "AGENTE",
-          "cita": "Listo. Quedó ingresada la renuncia de su seguro de Incapacidad Temporal, póliza número INC-TMP-0010, con prima única cargada en su crédito de consumo. ¿Está de acuerdo?"
+          "cita": "Listo. Quedó ingresada la renuncia de su seguro de desgravamen, número de seguro cuatro ocho dos uno tres tres uno uno, con cargo en su crédito hipotecario. ¿Está de acuerdo?"
         }
       ],
       "estado": "cumple",
@@ -255,24 +293,21 @@
     },
     {
       "id": 30,
-      "comentario": "La respuesta de la cliente ante el cierre fue una aceptación clara ('Sí, de acuerdo').",
+      "mus_a_neto": "48213311",
+      "comentario": "La clienta respondió afirmativamente de forma válida ('Sí, de acuerdo').",
       "evidencia": [],
-      "estado": "no_aplica",
+      "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 31,
-      "comentario": "El ejecutivo solicita y valida correctamente RUT, nombre completo y fecha de nacimiento.",
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo valida correctamente RUT, nombre completo y fecha de nacimiento.",
       "evidencia": [
         {
           "t": "00:09",
           "hablante": "AGENTE",
           "cita": "Señora Gloria, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
-        },
-        {
-          "t": "00:14",
-          "hablante": "CLIENTE",
-          "cita": "Diez millones cien mil cien guion cero. Gloria Inés Fernández Soto, treinta de septiembre del sesenta y cinco."
         }
       ],
       "estado": "cumple",
@@ -280,24 +315,21 @@
     },
     {
       "id": 32,
-      "comentario": "El ejecutivo consulta '¿Está de acuerdo?', formulando una pregunta de confirmación estándar y neutral sin predisponer.",
+      "mus_a_neto": "48213311",
+      "comentario": "No se condicionó la respuesta de la clienta.",
       "evidencia": [],
       "estado": "cumple",
       "confianza": 1.0
     },
     {
       "id": 33,
-      "comentario": "El ejecutivo solicita y valida correo y teléfono correctamente.",
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicita y valida correo electrónico y fono.",
       "evidencia": [
         {
           "t": "00:22",
           "hablante": "AGENTE",
           "cita": "¿Y su correo y teléfono?"
-        },
-        {
-          "t": "00:25",
-          "hablante": "CLIENTE",
-          "cita": "gloria punto fernandez arroba correo ejemplo punto cl, nueve uno uno uno dos dos dos tres tres."
         }
       ],
       "estado": "cumple",

@@ -1,0 +1,439 @@
+{
+  "resumen": "La clienta solicita renunciar al seguro AP PLUS MEDIO DE PAGO por problemas económicos. El ejecutivo afirma incorrectamente que solo puede renunciar en marzo y la clienta decide mantenerlo hasta entonces; la grabación corresponde a una retención, aunque se tipificó como renuncia.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar al seguro de accidentes personales. Está todo muy caro y tengo que recortar gastos.",
+    "timestamp": "00:41"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con una despedida del ejecutivo."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213314",
+      "resultado_grabacion": "RETENCION",
+      "motivos_renuncia": [
+        "Problemas Económicos"
+      ],
+      "n_objeciones": 2,
+      "cliente_tajante": false,
+      "argumentos_retencion": [
+        {
+          "t": "00:47",
+          "tipo": "FECHA_RENOVACION",
+          "cita": "Su seguro se renueva en marzo, y la renuncia solo se puede hacer en la fecha de renovación, así que le conviene esperar a marzo."
+        },
+        {
+          "t": "01:02",
+          "tipo": "COBERTURA",
+          "cita": "Mientras tanto sigue protegida: si fallece por un accidente, en Chile o en el extranjero, sus beneficiarios reciben quinientas UF de una vez."
+        }
+      ],
+      "evidencia": "La clienta solicita la renuncia a las 00:41 y finalmente dice «Entonces lo dejo hasta marzo no más» a las 01:15; el ejecutivo confirma que el seguro se mantiene vigente a las 01:19."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No se registran esperas ni silencios del ejecutivo superiores a 30 segundos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213314",
+      "comentario": "La cobertura que describe el ejecutivo —muerte accidental en Chile o el extranjero por UF 500— coincide con la ficha del seguro.",
+      "evidencia": [
+        {
+          "t": "01:02",
+          "hablante": "AGENTE",
+          "cita": "Si fallece por un accidente, en Chile o en el extranjero, sus beneficiarios reciben quinientas UF de una vez."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213314",
+      "comentario": "La clienta no reitera su decisión tajantemente, por lo que no se activa el máximo de objeciones aplicable a un cliente tajante.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.96
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213314",
+      "comentario": "El ejecutivo informa una característica del seguro al mencionar su cobertura por muerte accidental y el capital de UF 500.",
+      "evidencia": [
+        {
+          "t": "01:02",
+          "hablante": "AGENTE",
+          "cita": "Si fallece por un accidente, en Chile o en el extranjero, sus beneficiarios reciben quinientas UF de una vez."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213314",
+      "comentario": "Ante la consulta directa sobre si podía sacar el seguro antes, el ejecutivo condiciona la renuncia a marzo y no informa que la clienta puede decidir cuándo renunciar.",
+      "evidencia": [
+        {
+          "t": "00:47",
+          "hablante": "AGENTE",
+          "cita": "La renuncia solo se puede hacer en la fecha de renovación, así que le conviene esperar a marzo."
+        },
+        {
+          "t": "00:59",
+          "hablante": "CLIENTE",
+          "cita": "¿Y no lo puedo sacar antes?"
+        },
+        {
+          "t": "01:02",
+          "hablante": "AGENTE",
+          "cita": "No, tiene que esperar a la renovación."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213314",
+      "comentario": "No se observa una respuesta incorrecta a una consulta sobre coberturas o características del producto; la información errónea sobre cuándo puede renunciar se evalúa en el motivo 5.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.96
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "",
+      "comentario": "La gestión de retención se realizó por teléfono y no se requería orientar a la clienta a otro canal.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "48213314",
+      "comentario": "El ejecutivo responde directamente a la pregunta de si podía sacar el seguro antes, aunque la respuesta es incorrecta y se evalúa en el motivo 5.",
+      "evidencia": [
+        {
+          "t": "00:59",
+          "hablante": "CLIENTE",
+          "cita": "¿Y no lo puedo sacar antes?"
+        },
+        {
+          "t": "01:02",
+          "hablante": "AGENTE",
+          "cita": "No, tiene que esperar a la renovación."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213314",
+      "comentario": "El seguro es retenible y no se ingresó su renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "No se observan malos tratos, agresividad, burlas ni impaciencia hostil.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo no descalifica a BancoEstado, la compañía, la competencia ni a otros ejecutivos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo no propone renunciar a un seguro que la clienta no haya solicitado cancelar.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213314",
+      "comentario": "En el cierre el ejecutivo menciona el número de seguro completo, que incluye los cuatro últimos dígitos requeridos.",
+      "evidencia": [
+        {
+          "t": "01:19",
+          "hablante": "AGENTE",
+          "cita": "Número de seguro cuatro ocho dos uno tres tres uno cuatro"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213314",
+      "comentario": "Ante la solicitud de renuncia de un seguro retenible, el ejecutivo intenta mantenerlo mediante argumentos de renovación y cobertura.",
+      "evidencia": [
+        {
+          "t": "00:47",
+          "hablante": "AGENTE",
+          "cita": "Así que le conviene esperar a marzo."
+        },
+        {
+          "t": "01:02",
+          "hablante": "AGENTE",
+          "cita": "Mientras tanto sigue protegida: si fallece por un accidente, en Chile o en el extranjero, sus beneficiarios reciben quinientas UF de una vez."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213314",
+      "comentario": "El medio de pago registrado es OTRO, por lo que no correspondía mencionarlo en el cierre.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213314",
+      "comentario": "La clienta expresó explícitamente que quería renunciar antes de que el ejecutivo intentara retener el seguro.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar al seguro de accidentes personales."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213314",
+      "comentario": "El seguro está clasificado como retenible, no como no retenible.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213314",
+      "comentario": "El motivo tipificado, Problemas Económicos, es compatible con que la clienta diga que todo está muy caro y debe recortar gastos.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "Está todo muy caro y tengo que recortar gastos."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213314",
+      "comentario": "La tipificación registra RENUNCIA, pero la clienta acepta mantener el seguro y el ejecutivo confirma que se mantiene vigente; el resultado de la grabación es RETENCION.",
+      "evidencia": [
+        {
+          "t": "01:15",
+          "hablante": "CLIENTE",
+          "cita": "Entonces lo dejo hasta marzo no más."
+        },
+        {
+          "t": "01:19",
+          "hablante": "AGENTE",
+          "cita": "Su seguro de Accidentes Personales Plan Plus, número de seguro cuatro ocho dos uno tres tres uno cuatro, se mantiene vigente."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "48213314",
+      "comentario": "La tipificación corresponde al seguro mencionado y no se registra una renuncia de otro seguro.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar al seguro de accidentes personales."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "48213314",
+      "comentario": "El único seguro tipificado es el mismo seguro de accidentes personales gestionado en la llamada.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar al seguro de accidentes personales."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "",
+      "comentario": "No se tipifica una retención de un seguro que no haya sido mencionado en la llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "",
+      "comentario": "No se tipifica una retención de un seguro distinto del gestionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213314",
+      "comentario": "La tipificación es RENUNCIA, no RETENCION; el error de tipificación se evalúa en el motivo 19.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "48213314",
+      "comentario": "Solo se gestionó un seguro y este aparece en la tipificación registrada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "48213314",
+      "comentario": "La solicitud de la clienta respecto de este seguro fue atendida y se resolvió como retención.",
+      "evidencia": [
+        {
+          "t": "01:15",
+          "hablante": "CLIENTE",
+          "cita": "Entonces lo dejo hasta marzo no más."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "",
+      "comentario": "La titular participa directamente en la llamada; no se entrega información a un tercero.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213314",
+      "comentario": "La gestión termina en retención y no se solicita ni se tramita una renuncia con devolución de prima.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.97
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213314",
+      "comentario": "El cierre resume el nombre del seguro y el número de seguro, pero omite la fecha, la vigencia y el número de póliza, y no utiliza la pregunta de retención indicada en el protocolo; el medio de pago OTRO no debía mencionarse.",
+      "evidencia": [
+        {
+          "t": "01:19–01:31",
+          "hablante": "AGENTE",
+          "cita": "Le resumo: su seguro de Accidentes Personales Plan Plus, número de seguro cuatro ocho dos uno tres tres uno cuatro, se mantiene vigente. ¿Está de acuerdo?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213314",
+      "comentario": "La clienta responde afirmativamente con expresiones permitidas, por lo que no era necesario repreguntar.",
+      "evidencia": [
+        {
+          "t": "01:31",
+          "hablante": "CLIENTE",
+          "cita": "Sí, de acuerdo."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicita y valida verbalmente el RUT, el nombre completo y la fecha de nacimiento.",
+      "evidencia": [
+        {
+          "t": "00:09",
+          "hablante": "AGENTE",
+          "cita": "Para validar su identidad, ¿me indica su RUT?"
+        },
+        {
+          "t": "00:17",
+          "hablante": "AGENTE",
+          "cita": "¿Su nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:36",
+          "hablante": "AGENTE",
+          "cita": "Gracias, señora Patricia, quedó validada."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "48213314",
+      "comentario": "La pregunta de cierre «¿Está de acuerdo?» no condiciona la respuesta a un sí ni predispone a aceptar la retención.",
+      "evidencia": [
+        {
+          "t": "01:19",
+          "hablante": "AGENTE",
+          "cita": "¿Está de acuerdo?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.96
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicita el correo electrónico y el teléfono de contacto.",
+      "evidencia": [
+        {
+          "t": "00:25",
+          "hablante": "AGENTE",
+          "cita": "¿Y su correo y teléfono de contacto?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    }
+  ]
+}

@@ -1,0 +1,324 @@
+{
+  "resumen": "El cliente pidió dar de baja un seguro de desempleo asociado a crédito de consumo. El ejecutivo intentó retenerlo y registró retención, pese a que la categoría del seguro era NO_RETENIBLE. La llamada cerró con un resumen y confirmación del cliente, aunque faltan elementos del protocolo de cierre.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero dar de baja el seguro de desempleo del crédito de consumo.",
+    "timestamp": "00:41"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con despedida breve; no se entregan canales de FonoSeguros ni web."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213313",
+      "resultado_grabacion": "RETENCION",
+      "motivos_renuncia": [
+       "Cambio de situación laboral"
+      ],
+      "n_objeciones": 2,
+      "cliente_tajante": false,
+      "argumentos_retencion": [
+       {
+       "T": "00:51",
+       "tipo": "COBERTURA",
+       "cita": "Antes de eso, le recomiendo pensarlo: este seguro lo protege si se queda sin ingresos y le ayuda a pagar las cuotas de su crédito."
+       },
+       {
+       "T": "01:06",
+       "tipo": "COBERTURA",
+       "cita": "Es una protección para su crédito, y si vuelve a trabajar con contrato le puede servir mucho. Yo que usted lo mantendría un tiempo más."
+       }
+      ],
+      "evidencia": "00:41 cliente pide baja; 00:51 y 01:06 ejecutivo intenta retener; 01:17 cliente dice 'lo dejo por ahora'; 01:20 ejecutivo resume mantenimiento del seguro."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No se registran esperas ni silencios superiores al umbral de 30 segundos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213313",
+      "comentario": "La descripción entregada es coherente con un seguro de desempleo asociado a crédito de consumo y no se evidencia que corresponda a otro seguro.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.8
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica porque el cliente no fue tajante y se identificaron 2 objeciones.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213313",
+      "comentario": "El ejecutivo sí indica una característica del seguro: protección ante falta de ingresos y ayuda para pagar cuotas del crédito.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica porque el cliente no consultó directamente por fechas de renuncia o permanencia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213313",
+      "comentario": "Ante la pregunta directa del cliente sobre si el seguro sirve siendo independiente, el ejecutivo no confirma si aplica o no en esa situación y responde con generalidad sobre un futuro contrato, lo que constituye vaguedad en información de coberturas.",
+      "evidencia": [
+       {
+       "T": "01:03",
+       "hablante": "CLIENTE",
+       "cita": "Pero si soy independiente, ¿igual me sirve?"
+       },
+       {
+       "T": "01:06",
+       "hablante": "AGENTE",
+       "cita": "Es una protección para su crédito, y si vuelve a trabajar con contrato le puede servir mucho. Yo que usted lo mantendría un tiempo más."
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 0.65
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica porque no se identificó una situación que requiriera derivación a otro canal.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica: la falta de respuesta directa a la pregunta de producto se evalúa en el motivo 6.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.85
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica porque no se ingresó renuncia de un seguro irrenunciable en este canal.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "El trato es cordial y no se evidencia lenguaje soez, agresivo, burlas ni impaciencia hostil.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "No aplica porque no se descalifica a pares, BancoEstado ni a la competencia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica porque el ejecutivo no sugiere ni propone renunciar un seguro que el cliente no pidió cancelar.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213313",
+      "comentario": "El ejecutivo indica el número de seguro completo en el cierre.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica porque el seguro es NO_RETENIBLE y la retención indebida se evalúa en el motivo 17.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213313",
+      "comentario": "El ejecutivo informa el medio de pago asociado: crédito de consumo.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica porque sí existió intención de renuncia expresada por el cliente.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213313",
+      "comentario": "El seguro tiene categoría NO_RETENIBLE y el ejecutivo intenta retenerlo después de que el cliente pide la baja, además de registrar la gestión como retención.",
+      "evidencia": [
+       {
+       "T": "00:51",
+       "hablante": "AGENTE",
+       "cita": "Antes de eso, le recomiendo pensarlo: este seguro lo protege si se queda sin ingresos y le ayuda a pagar las cuotas de su crédito."
+       },
+       {
+       "T": "01:06",
+       "hablante": "AGENTE",
+       "cita": "Yo que usted lo mantendría un tiempo más."
+       }
+      ],
+      "estado": "incumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213313",
+      "comentario": "El motivo tipificado, Cambio de situación laboral, es compatible con que el cliente diga que ahora trabaja de forma independiente.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica porque la tipificación registrada es retención, no renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica porque no se tipificó una renuncia de seguro no mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica porque no se tipificó una renuncia que correspondiera a otro seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "48213313",
+      "comentario": "La retención tipificada corresponde a un seguro sí mencionado en la grabación.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "48213313",
+      "comentario": "La retención tipificada corresponde al seguro gestionado en la llamada, no a otro distinto.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213313",
+      "comentario": "Por grabación el resultado es retención, por lo que no se tipifica retención cuando corresponde renuncia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "48213313",
+      "comentario": "La única gestión visible en la grabación fue retención y quedó tipificada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica: la solicitud fue atendida con una gestión de retención, aunque incorrecta por categoría, y esa conducta se evalúa en el motivo 17; no se identifican otras gestiones solicitadas y no realizadas.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.8
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "",
+      "comentario": "No aplica porque no participó un tercero distinto del titular.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica porque no se pidió ni se negó devolución de prima en la llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213313",
+      "comentario": "Cumple porque realiza resumen y solicita confirmación, aunque faltan fecha, vigencia, póliza y despedida completa como observación.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.75
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213313",
+      "comentario": "No aplica porque el cliente respondió una respuesta válida de confirmación: 'Sí, de acuerdo'.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicita y valida RUT, nombre completo y fecha de nacimiento.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "48213313",
+      "comentario": "La pregunta final es neutral y no se evidencia que condicione la respuesta del cliente a un Sí.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicita correo y teléfono durante la acreditación.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.95
+    }
+  ]
+}

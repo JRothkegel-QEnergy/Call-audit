@@ -4,13 +4,14 @@
   "requested_model": "gemini-3.5-flash-lite",
   "returned_model": "gemini-3.5-flash-lite",
   "settings": {
-    "temperature": 0
+    "temperature": 0,
+    "tool_mode": true
   },
   "usage": {
-    "input_tokens": 3704,
-    "output_tokens": 2997
+    "input_tokens": 11162,
+    "output_tokens": 2110
   },
-  "cost_usd": null,
-  "latency_ms": 21935,
-  "run_at": "2026-10-08T18:39:28+00:00"
+  "cost_usd": 0.008624,
+  "latency_ms": 76497,
+  "run_at": "2026-10-13T13:32:11+00:00"
 }

@@ -1,217 +1,307 @@
 {
-  "resumen": "El cliente solicitó inicialmente dar de baja el seguro de desempleo por estar apretado económicamente. El ejecutivo explicó características y beneficios, aclaró que la prima era única y, tras indicar el cliente que lo mantendría, cerró la gestión como retención de la póliza DES-CONS-0001.",
+  "resumen": "El cliente pidió dar de baja el seguro DESEMPLEO ITT CRE. CONSUMO por problemas económicos. El ejecutivo informó sobre coberturas y prima única, realizó argumentos de retención y el cliente decidió mantenerlo; la tipificación de RETENCION por Problemas Económicos coincide con la llamada.",
   "intencion_renuncia": {
     "expresada": true,
     "cita": "quiero dar de baja el seguro de desempleo que tengo con el crédito de consumo",
     "timestamp": "00:54"
   },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con despedida del ejecutivo y del cliente."
+  },
   "gestiones": [
     {
-      "n_poliza": "DES-CONS-0001",
+      "mus_a_neto": "48213301",
       "resultado_grabacion": "RETENCION",
-      "motivo_renuncia": "Problemas Económicos",
-      "n_objeciones": 2,
-      "evidencia": "[00:54] CLIENTE: «quiero dar de baja el seguro de desempleo que tengo con el crédito de consumo. La verdad ando medio apretado con las lucas»; [01:17] AGENTE: explica prima única y cobertura de hasta cinco cuotas; [01:57] AGENTE: «Considere que si su situación laboral se complica, son hasta cinco cuotas que no tendría que pagar usted. Justo cuando me cuenta que está apretado, es cuando más le sirve»; [02:21] CLIENTE: «Entonces lo mantengo no más po»; [02:28] AGENTE: «hoy mantenemos vigente su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0001»."
+      "motivos_renuncia": [
+        "Problemas Económicos"
+      ],
+      "n_objeciones": 3,
+      "cliente_tajante": false,
+      "argumentos_retencion": [
+        {
+          "t": "01:18",
+          "tipo": "COBERTURA",
+          "cita": "Si queda desempleado de forma involuntaria, el seguro le paga cuatro cuotas de su crédito, de dos en dos, más un tres coma cinco por ciento. Y si tiene una incapacidad temporal por accidente o enfermedad infecciosa, le paga hasta cuatro cuotas, una por cada treinta días de incapacidad."
+        },
+        {
+          "t": "01:48",
+          "tipo": "BENEFICIO",
+          "cita": "No, don Pedro, es prima única, ya está pagado junto con su crédito."
+        },
+        {
+          "t": "01:58",
+          "tipo": "BENEFICIO",
+          "cita": "Considere también que, si queda desempleado, el seguro le da asistencia laboral personalizada para volver a encontrar trabajo: le analizan su perfil y lo capacitan en la búsqueda. Justo cuando me cuenta que está apretado, es cuando más le sirve."
+        }
+      ],
+      "evidencia": "El cliente pidió la baja por estar apretado económicamente y posteriormente manifestó que prefería mantener el seguro; el ejecutivo confirmó la permanencia."
     }
   ],
   "criterios": [
     {
       "id": 1,
-      "comentario": "No hay esperas registradas en los metadatos ni tramos de espera en la llamada.",
+      "mus_a_neto": "",
+      "comentario": "No hubo esperas registradas ni pausas superiores al umbral de 30 segundos.",
+      "evidencia": [],
       "estado": "cumple",
-      "confianza": 0.99
+      "confianza": 1
     },
     {
       "id": 2,
-      "comentario": "La descripción corresponde al Seguro de Desempleo de créditos de consumo: prima única y cobertura de cuotas ante ciertos eventos de desempleo, según la ficha entregada.",
+      "mus_a_neto": "48213301",
+      "comentario": "Las coberturas que el ejecutivo describió coinciden con la ficha del seguro.",
+      "evidencia": [],
       "estado": "cumple",
-      "confianza": 0.99
+      "confianza": 0.98
     },
     {
       "id": 3,
-      "comentario": "Se identifican dos argumentos de retención: la explicación de cobertura posterior a la solicitud y el argumento de beneficios tras reiterar el cliente que prefería no tener el seguro. No excede el máximo de tres.",
+      "mus_a_neto": "48213301",
+      "comentario": "El cliente no fue tajante y el ejecutivo no excedió tres argumentos de retención.",
+      "evidencia": [],
       "estado": "cumple",
-      "confianza": 0.91
+      "confianza": 0.9
     },
     {
       "id": 4,
-      "comentario": "El ejecutivo informa características del seguro, incluyendo la prima única y las cuotas cubiertas.",
+      "mus_a_neto": "48213301",
+      "comentario": "El ejecutivo indicó coberturas y una asistencia laboral del seguro.",
+      "evidencia": [],
       "estado": "cumple",
       "confianza": 0.99
     },
     {
       "id": 5,
-      "comentario": "Ante la consulta sobre si podría sacar el seguro después, informa que la permanencia la decide el cliente y que puede renunciar cuando quiera.",
+      "mus_a_neto": "48213301",
+      "comentario": "Ante la consulta sobre una renuncia posterior, informó que el cliente decide la permanencia y puede renunciar cuando quiera.",
+      "evidencia": [],
       "estado": "cumple",
       "confianza": 0.99
     },
     {
       "id": 6,
-      "comentario": "Responde las consultas sobre cobro mensual y permanencia; la información coincide con los datos de la ficha y los metadatos disponibles.",
+      "mus_a_neto": "48213301",
+      "comentario": "Respondió correctamente que la prima es única y ya fue pagada junto con el crédito.",
+      "evidencia": [],
       "estado": "cumple",
-      "confianza": 0.96
+      "confianza": 0.99
     },
     {
       "id": 7,
-      "comentario": "El seguro es renunciable en este canal y la solicitud no requería derivación.",
+      "mus_a_neto": "",
+      "comentario": "La gestión podía realizarse por teléfono y no requería derivación.",
+      "evidencia": [],
       "estado": "no_aplica",
       "confianza": 0.99
     },
     {
       "id": 8,
-      "comentario": "El ejecutivo responde directamente a las preguntas del cliente, incluida la consulta sobre cobros y la posibilidad de renunciar más adelante.",
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo respondió directamente las consultas del cliente.",
+      "evidencia": [],
       "estado": "cumple",
-      "confianza": 0.96
+      "confianza": 0.97
     },
     {
       "id": 9,
-      "comentario": "El seguro figura como renunciable en este canal y el cliente terminó optando por mantenerlo; no se observa una renuncia de un seguro irrenunciable.",
-      "estado": "cumple",
+      "mus_a_neto": "48213301",
+      "comentario": "El seguro es retenible y se mantuvo vigente, no se ingresó una renuncia irrenunciable.",
+      "evidencia": [],
+      "estado": "no_aplica",
       "confianza": 0.99
     },
     {
       "id": 10,
-      "comentario": "No se observa una conducta contraria a la política que no esté cubierta por otro motivo de la pauta.",
+      "mus_a_neto": "",
+      "comentario": "No se observa mal trato, agresividad ni impaciencia hostil.",
+      "evidencia": [],
       "estado": "cumple",
-      "confianza": 0.91
+      "confianza": 0.96
     },
     {
       "id": 11,
-      "comentario": "No hay descalificaciones a pares, a BancoEstado ni a la competencia.",
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo no descalificó a BancoEstado, la compañía ni a otros ejecutivos.",
+      "evidencia": [],
       "estado": "cumple",
       "confianza": 0.99
     },
     {
       "id": 12,
-      "comentario": "El cliente expresó su intención de renunciar antes de que el ejecutivo presentara argumentos de retención; no se observa que el ejecutivo sugiera la renuncia.",
-      "estado": "cumple",
-      "confianza": 0.99
+      "mus_a_neto": "",
+      "comentario": "El cliente ya había solicitado dar de baja este seguro y el ejecutivo no propuso cancelar otro producto.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
     },
     {
       "id": 13,
-      "comentario": "En el cierre el ejecutivo menciona expresamente la póliza DES-CONS-0001.",
+      "mus_a_neto": "48213301",
+      "comentario": "En el resumen de permanencia indicó el número de seguro terminado en 3301.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213301",
+      "comentario": "Ante la solicitud de renuncia, el ejecutivo presentó argumentos de retención para el seguro retenible.",
+      "evidencia": [],
       "estado": "cumple",
       "confianza": 0.99
     },
     {
-      "id": 14,
-      "comentario": "El seguro es retenible y el ejecutivo realiza intentos de retención mediante información sobre cobertura y beneficios.",
-      "estado": "cumple",
-      "confianza": 0.97
-    },
-    {
       "id": 15,
-      "comentario": "En el cierre informa que el pago fue un cargo único en el crédito de consumo y que no hay cargos mensuales en la cuenta.",
+      "mus_a_neto": "48213301",
+      "comentario": "En el cierre informó que el seguro está asociado al crédito de consumo, que es el medio de pago indicado en los metadatos.",
+      "evidencia": [],
       "estado": "cumple",
       "confianza": 0.99
     },
     {
       "id": 16,
-      "comentario": "Sí hubo intención explícita de renuncia al inicio de la llamada, por lo que no corresponde evaluar una retención sin intención de renuncia.",
+      "mus_a_neto": "48213301",
+      "comentario": "La permanencia se produjo después de que el cliente expresara su intención de renunciar.",
+      "evidencia": [],
       "estado": "no_aplica",
       "confianza": 0.99
     },
     {
       "id": 17,
-      "comentario": "El seguro consta como retenible y la gestión registrada y comunicada es retención.",
-      "estado": "cumple",
-      "confianza": 0.99
+      "mus_a_neto": "48213301",
+      "comentario": "El seguro es retenible, no no retenible.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1
     },
     {
       "id": 18,
-      "comentario": "El motivo tipificado, Problemas Económicos, coincide con lo expresado por el cliente al decir que estaba apretado económicamente.",
-      "estado": "cumple",
-      "confianza": 0.96
+      "mus_a_neto": "48213301",
+      "comentario": "No se ingresó una renuncia, por lo que no hubo un motivo de renuncia mal tipificado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
     },
     {
       "id": 19,
-      "comentario": "La tipificación registrada es RETENCION y el resultado de la grabación también es retención.",
+      "mus_a_neto": "48213301",
+      "comentario": "La grabación y la tipificación indican RETENCION.",
+      "evidencia": [],
       "estado": "cumple",
-      "confianza": 0.99
+      "confianza": 1
     },
     {
       "id": 20,
-      "comentario": "No se tipifica una renuncia; la gestión registrada es retención de la póliza consultada.",
-      "estado": "cumple",
-      "confianza": 0.99
+      "mus_a_neto": "48213301",
+      "comentario": "No se tipificó una renuncia de un seguro no mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1
     },
     {
       "id": 21,
-      "comentario": "No se registra renuncia de un seguro distinto al consultado.",
-      "estado": "cumple",
-      "confianza": 0.99
+      "mus_a_neto": "48213301",
+      "comentario": "No se tipificó una renuncia correspondiente a otro seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1
     },
     {
       "id": 22,
-      "comentario": "La retención tipificada corresponde al seguro mencionado y gestionado en la llamada, DES-CONS-0001.",
+      "mus_a_neto": "48213301",
+      "comentario": "La tipificación de RETENCION corresponde al seguro mencionado y gestionado.",
+      "evidencia": [],
       "estado": "cumple",
-      "confianza": 0.99
+      "confianza": 1
     },
     {
       "id": 23,
-      "comentario": "No se tipifica una retención de un seguro distinto al consultado.",
+      "mus_a_neto": "48213301",
+      "comentario": "La retención tipificada corresponde al seguro mencionado y gestionado.",
+      "evidencia": [],
       "estado": "cumple",
-      "confianza": 0.99
+      "confianza": 1
     },
     {
       "id": 24,
-      "comentario": "La tipificación es RETENCION, concordante con la decisión final expresada por el cliente y el cierre del ejecutivo.",
-      "estado": "cumple",
-      "confianza": 0.99
+      "mus_a_neto": "48213301",
+      "comentario": "La grabación concluye en retención, no en renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1
     },
     {
       "id": 25,
-      "comentario": "Solo se consultó y gestionó un seguro, y este quedó tipificado como retención.",
+      "mus_a_neto": "48213301",
+      "comentario": "La única gestión solicitada quedó resuelta y tipificada como RETENCION.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "48213301",
+      "comentario": "El seguro solicitado fue gestionado y el cliente confirmó que lo mantendría.",
+      "evidencia": [],
       "estado": "cumple",
       "confianza": 0.99
     },
     {
-      "id": 26,
-      "comentario": "La solicitud inicial correspondía a un único seguro. El cliente luego manifestó que lo mantendría, y el cierre registra esa gestión como retención.",
-      "estado": "cumple",
-      "confianza": 0.95
-    },
-    {
       "id": 27,
-      "comentario": "La conversación se realizó con el cliente titular; no intervino un tercero.",
+      "mus_a_neto": "",
+      "comentario": "La llamada fue atendida por el titular y no se entregó información a un tercero.",
+      "evidencia": [],
       "estado": "no_aplica",
       "confianza": 0.99
     },
     {
       "id": 28,
-      "comentario": "El metadato devolucion_prima figura como «sin dato», condición para la que la pauta indica marcar este motivo como indeterminado. No se puede contrastar una afirmación sobre devolución.",
-      "estado": "indeterminado",
+      "mus_a_neto": "48213301",
+      "comentario": "No se gestionó una renuncia ni se abordó una solicitud de devolución de prima.",
+      "evidencia": [],
+      "estado": "no_aplica",
       "confianza": 0.99
     },
     {
       "id": 29,
-      "comentario": "El ejecutivo resume la gestión, identifica la póliza, informa el medio de pago asociado y consulta si el cliente está conforme.",
+      "mus_a_neto": "48213301",
+      "comentario": "El ejecutivo resumió que el cliente permanecería con el seguro y añadió vigencia, póliza y medio de pago; no repitió la fecha actual del cierre.",
+      "evidencia": [],
       "estado": "cumple",
       "confianza": 0.99
     },
     {
       "id": 30,
-      "comentario": "El cliente responde «Sí, conforme», una aceptación clara del cierre; no se requería reiterar la confirmación.",
+      "mus_a_neto": "48213301",
+      "comentario": "Ante «Ya po», el ejecutivo repreguntó «¿eso es un sí?» y obtuvo una respuesta afirmativa válida.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicitó y corroboró RUT, nombre completo y fecha de nacimiento antes de continuar la atención.",
+      "evidencia": [],
       "estado": "cumple",
       "confianza": 0.99
     },
     {
-      "id": 31,
-      "comentario": "El ejecutivo solicita y valida RUT, nombre completo y fecha de nacimiento antes de continuar con la atención.",
+      "id": 32,
+      "mus_a_neto": "48213301",
+      "comentario": "El ejecutivo no condicionó la respuesta del cliente a un sí; utilizó la pregunta prevista en el protocolo de retención.",
+      "evidencia": [],
       "estado": "cumple",
       "confianza": 0.98
     },
     {
-      "id": 32,
-      "comentario": "El ejecutivo no condiciona la respuesta del cliente a un sí ni formula una pregunta inductiva de aceptación; el cliente decide mantener el seguro y luego confirma el cierre.",
-      "estado": "cumple",
-      "confianza": 0.96
-    },
-    {
       "id": 33,
-      "comentario": "El ejecutivo solicita correo electrónico y teléfono de contacto y confirma que los datos quedaron validados.",
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicitó el correo electrónico y el teléfono de contacto del cliente.",
+      "evidencia": [],
       "estado": "cumple",
-      "confianza": 0.97
+      "confianza": 0.99
     }
   ]
 }

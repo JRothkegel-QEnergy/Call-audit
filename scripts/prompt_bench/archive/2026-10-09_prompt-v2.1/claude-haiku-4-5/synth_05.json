@@ -1,0 +1,266 @@
+```json
+{
+  "resumen": "Jorge Ramírez llama para renunciar al seguro de Hospitalización TLMK. Valida su identidad, pasa con su esposa Marcela, quien consulta el monto y cobertura. El ejecutivo informa la prima y la cobertura, Marcela confirma la renuncia, y el ejecutivo registra la gestión sin completar el protocolo de cierre.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar al seguro de hospitalización, no quiero más compromisos.",
+    "timestamp": "00:41"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con despedida del ejecutivo tras registrar la renuncia."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213305",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+        "No desea contraer más obligaciones"
+      ],
+      "n_objeciones": 0,
+      "cliente_tajante": true,
+      "argumentos_retencion": [],
+      "evidencia": "El cliente (Jorge) expresa intención de renuncia en 00:41. Su esposa Marcela reitera la decisión en 01:32 ('No, igual lo queremos sacar. Ya tenemos muchas cuentas.'). El ejecutivo no intenta retención. Se registra la renuncia en 01:36."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hay esperas registradas en los metadatos y la transcripción no muestra silencios prolongados sin comunicación del ejecutivo.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo describe correctamente la cobertura: 'si don Jorge queda hospitalizado por enfermedad o accidente, en sala común, UTI o UCI, el seguro le paga dos UF por día, de libre disposición, hasta por ciento ochenta días.' Coincide con la ficha (Plan 1: 2 UF, sala común/UTI/UCI, 180 días máximo).",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "comentario": "No aplica: el cliente no rechazó argumentos de retención ni fue tajante tras un primer argumento. El ejecutivo no intentó retener, por lo que no hay objeciones.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo indica al menos una característica del seguro: la cobertura de hospitalización (2 UF por día, sala común/UTI/UCI, 180 días) y la prima mensual de $6.300.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "comentario": "No aplica: el cliente no consultó sobre fechas de renuncia ni condiciones de permanencia. La renuncia se solicita sin restricciones de fecha.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "comentario": "El ejecutivo responde correctamente a la pregunta de Marcela sobre qué pasa si sacan el seguro, informando la cobertura que se pierde. No hay contradicción con la ficha.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 7,
+      "comentario": "No aplica: la situación no requiere derivación. Es una renuncia de seguro retenible que se gestiona por teléfono.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde directamente a las preguntas del cliente: sobre el monto y vigencia (01:13-01:17) y sobre las consecuencias de la renuncia (01:17-01:32).",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 9,
+      "comentario": "No aplica: el seguro es RETENIBLE, no no renunciable. Se puede renunciar por teléfono.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "comentario": "El tono del ejecutivo es profesional y respetuoso durante toda la llamada. No hay evidencia de mal trato.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "comentario": "No hay descalificaciones a pares, BancoEstado, la compañía o la competencia.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "comentario": "No aplica: el ejecutivo no induce a renuncia. El cliente (Jorge) expresa la intención de renunciar de forma espontánea.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213305",
+      "comentario": "El ejecutivo menciona el número de seguro en el cierre: 'número de seguro cuatro ocho dos uno tres tres cero cinco' (01:36). Corresponde a los 11 dígitos del MUS A Neto 48213305.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213305",
+      "comentario": "El seguro es RETENIBLE y el cliente pidió renunciar. El ejecutivo no intenta retención de ninguna forma: informa la cobertura en respuesta a la pregunta de Marcela, pero no argumenta para retener. Incumple el motivo 14.",
+      "evidencia": [
+        {
+          "t": "01:17-01:32",
+          "hablante": "AGENTE",
+          "cita": "Perdería la cobertura de hospitalización: si don Jorge queda hospitalizado por enfermedad o accidente, en sala común, UTI o UCI, el seguro le paga dos UF por día, de libre disposición, hasta por ciento ochenta días."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213305",
+      "comentario": "El ejecutivo menciona el medio de pago en el cierre: 'con cargo a la cuenta vista de don Jorge' (01:36). Coincide con los metadatos (CTV).",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "comentario": "No aplica: el cliente expresó intención de renuncia ('Quiero renunciar al seguro de hospitalización'). La retención solo se hace cuando el cliente pide cancelar.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "comentario": "No aplica: el seguro es RETENIBLE, no no retenible. No hay intento de retención de un seguro que no corresponda.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213305",
+      "comentario": "El motivo tipificado es 'No desea contraer más obligaciones', que coincide con lo expresado por Jorge en 00:41 ('no quiero más compromisos') y Marcela en 01:32 ('Ya tenemos muchas cuentas').",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213305",
+      "comentario": "La tipificación registra RENUNCIA, que coincide con la grabación: se ingresa la renuncia en 01:36 y el cliente confirma.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "comentario": "No aplica: el seguro tipificado (48213305, Hospitalización TLMK) fue mencionado en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "comentario": "No aplica: solo se menciona un seguro en la llamada (Hospitalización TLMK, MUS A Neto 48213305) y se tipifica correctamente.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "comentario": "No aplica: no hay tipificación de retención.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "comentario": "No aplica: no hay tipificación de retención.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "comentario": "No aplica: la tipificación es RENUNCIA, que coincide con la grabación.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "comentario": "Se tipifica la renuncia del único seguro mencionado en la llamada (48213305).",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "comentario": "El cliente solicita renunciar al seguro de hospitalización y se gestiona esa renuncia.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "comentario": "Marcela es tercero (esposa del titular Jorge). El ejecutivo entrega información sobre el seguro a Marcela (monto, vigencia, cobertura) sin retomar el protocolo de cierre con el titular Jorge. Incumple el motivo 27.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "Pero mire, mi señora es la que ve estas cosas, le paso con ella."
+        },
+        {
+          "t": "00:51-01:13",
+          "hablante": "AGENTE",
+          "cita": "Hola, señora Marcela. El seguro de Hospitalización tiene una prima mensual de seis mil trescientos pesos, que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado."
+        },
+        {
+          "t": "01:36-01:52",
+          "hablante": "AGENTE",
+          "cita": "Perfecto, señora Marcela. Entonces le confirmo: queda ingresada la renuncia del seguro de Hospitalización, número de seguro cuatro ocho dos uno tres tres cero cinco, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.90
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213305",
+      "comentario": "No aplica: el seguro tiene prima mensual (mes vencido), por lo que no hay devolución automática de prima. El cliente no preguntó sobre devolución de prima.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213305",
+      "comentario": "El protocolo de cierre de renuncia requiere: resumen con fecha, nombre del seguro, N° de seguro (4 últimos dígitos), vigencia, N° de póliza, medio de pago; confirmación de renuncia; información sobre número de renuncia, último cobro y plazo de actualización de sistemas. El ejecutivo en 01:36 dice: 'queda ingresada la renuncia del seguro de Hospitalización, número de seguro cuatro ocho dos uno tres tres cero cinco, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?' Falta: fecha de hoy, N° de póliza, número de renuncia (ID de llamada), información sobre último cobro y plazo de actualización. Incumple el motivo 29.",
+      "evidencia": [
+        {
+          "t": "01:36-01:52",
+          "hablante": "AGENTE",
+          "cita": "Perfecto, señora Marcela. Entonces le confirmo: queda ingresada la renuncia del seguro de Hospitalización, número de seguro cuatro ocho dos uno tres tres cero cinco, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213305",
+      "comentario": "El ejecutivo pregunta '¿Están de acuerdo?' en 01:36. La respuesta del cliente es 'Sí, de acuerdo' en 01:52, que es una respuesta válida. No se requiere repreguntar.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida RUT ('Quince millones quinientos cincuenta y cinco mil quinientos cincuenta y cinco guion cinco'), nombre ('Jorge Esteban Ramírez Silva') y fecha de nacimiento ('tres de mayo del setenta y dos') en 00:10-00:26. Los datos coinciden con el titular.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "comentario": "El ejecutivo pregunta '¿Están de acuerdo?' que es una pregunta neutra sobre la gestión, no una pregunta que predisponga al cliente a aceptar el seguro. No incumple el motivo 32.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo valida email ('jorge punto ramirez arroba correo ejemplo punto cl') y teléfono ('nueve cuatro cuatro cuatro cuatro cinco cinco cinco cinco') en 00:26-00:29. Los datos se mencionan sin contradicción.",
+      "estado": "cumple",
+      "confianza": 1.0
+    }
+  ]
+}
+```

@@ -1,0 +1,314 @@
+```json
+{
+  "resumen": "Gloria Fernández llama por un seguro de desgravamen nominal que aparece en su dividendo hipotecario y que no recuerda haber contratado. El ejecutivo valida sus datos, confirma que procede a dar de baja el seguro y cierra la gestión. Sin embargo, el seguro es NO_RENUNCIABLE por teléfono y debe derivarse a sucursal.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Me sale un seguro de desgravamen en el dividendo del hipotecario y yo no me acuerdo de haberlo contratado. Lo quiero sacar.",
+    "timestamp": "00:35"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con despedida del ejecutivo a los 01:09."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213311",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+        "Desconoce contratación del seguro"
+      ],
+      "n_objeciones": 0,
+      "cliente_tajante": false,
+      "argumentos_retencion": [],
+      "evidencia": "El cliente expresa que no recuerda haber contratado el seguro y pide sacarlo. El ejecutivo registra la renuncia sin intentar retención ni informar que el seguro no es renunciable por teléfono."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hay esperas registradas en la llamada.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 2,
+      "comentario": "No aplica: no hay ficha del producto disponible en los metadatos, por lo que no se puede verificar si la descripción es correcta.",
+      "estado": "indeterminado",
+      "confianza": 0.5
+    },
+    {
+      "id": 3,
+      "comentario": "No aplica: no hay intento de retención, por lo que no hay objeciones.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 4,
+      "comentario": "No aplica: el cliente no pidió información sobre características del seguro; solo pidió darlo de baja por desconocimiento de su contratación.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 5,
+      "comentario": "No aplica: el cliente no consultó sobre fechas de renuncia ni restricciones.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 6,
+      "comentario": "No aplica: el cliente no hizo preguntas sobre coberturas o características del producto.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "48213311",
+      "comentario": "Incumple: el seguro es NO_RENUNCIABLE_SUCURSAL y debe derivarse a sucursal. El ejecutivo procesa la renuncia sin informar que no se puede renunciar por teléfono ni orienta al cliente al canal correcto.",
+      "evidencia": [
+        {
+          "t": "00:44",
+          "hablante": "AGENTE",
+          "cita": "Entiendo, señora Gloria. Es el seguro de desgravamen de su crédito hipotecario. Se lo doy de baja."
+        },
+        {
+          "t": "00:54",
+          "hablante": "AGENTE",
+          "cita": "Listo. Quedó ingresada la renuncia de su seguro de desgravamen, número de seguro cuatro ocho dos uno tres tres uno uno, con cargo en su crédito hipotecario."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 8,
+      "comentario": "Cumple: el ejecutivo responde directamente a la solicitud del cliente.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213311",
+      "comentario": "Incumple: se ingresa la renuncia de un seguro NO_RENUNCIABLE en este canal. El seguro debe derivarse a sucursal para reemplazo de póliza, no para renuncia.",
+      "evidencia": [
+        {
+          "t": "00:54",
+          "hablante": "AGENTE",
+          "cita": "Listo. Quedó ingresada la renuncia de su seguro de desgravamen, número de seguro cuatro ocho dos uno tres tres uno uno, con cargo en su crédito hipotecario."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 10,
+      "comentario": "Cumple: el tono y la comunicación son respetuosos y profesionales.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 11,
+      "comentario": "Cumple: no hay descalificaciones a pares, BancoEstado, la compañía o competencia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 12,
+      "comentario": "No aplica: el cliente fue quien pidió renunciar; el ejecutivo no indujo la renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213311",
+      "comentario": "Cumple: el ejecutivo menciona el número de seguro completo (48213311) en el cierre.",
+      "evidencia": [
+        {
+          "t": "00:54",
+          "hablante": "AGENTE",
+          "cita": "Listo. Quedó ingresada la renuncia de su seguro de desgravamen, número de seguro cuatro ocho dos uno tres tres uno uno, con cargo en su crédito hipotecario."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 14,
+      "comentario": "No aplica: el seguro es NO_RENUNCIABLE, no RETENIBLE, por lo que no aplica el deber de intentar retención.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213311",
+      "comentario": "Cumple: el ejecutivo menciona el medio de pago (crédito hipotecario) en el cierre.",
+      "evidencia": [
+        {
+          "t": "00:54",
+          "hablante": "AGENTE",
+          "cita": "Listo. Quedó ingresada la renuncia de su seguro de desgravamen, número de seguro cuatro ocho dos uno tres tres uno uno, con cargo en su crédito hipotecario."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 16,
+      "comentario": "No aplica: el cliente expresó intención de renuncia; no hay retención sin intención.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 17,
+      "comentario": "No aplica: el seguro no es RETENIBLE.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213311",
+      "comentario": "Cumple: el motivo tipificado 'Desconoce contratación del seguro' coincide con lo expresado por el cliente.",
+      "evidencia": [
+        {
+          "t": "00:35",
+          "hablante": "CLIENTE",
+          "cita": "Me sale un seguro de desgravamen en el dividendo del hipotecario y yo no me acuerdo de haberlo contratado."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213311",
+      "comentario": "Incumple: se tipifica como RENUNCIA, pero según la grabación se ingresó una renuncia de un seguro NO_RENUNCIABLE. La tipificación correcta debería ser CONSULTA con derivación a sucursal.",
+      "evidencia": [
+        {
+          "t": "00:54",
+          "hablante": "AGENTE",
+          "cita": "Listo. Quedó ingresada la renuncia de su seguro de desgravamen, número de seguro cuatro ocho dos uno tres tres uno uno, con cargo en su crédito hipotecario."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 20,
+      "comentario": "No aplica: el seguro tipificado (48213311) fue mencionado en la grabación.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 21,
+      "comentario": "No aplica: solo se menciona un seguro en la grabación.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 22,
+      "comentario": "No aplica: no hay retención tipificada.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 23,
+      "comentario": "No aplica: no hay retención tipificada.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 24,
+      "comentario": "No aplica: no hay retención tipificada.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 25,
+      "comentario": "Cumple: se tipifica la única gestión mencionada en la grabación.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 26,
+      "comentario": "Cumple: el cliente solo solicitó gestionar un seguro y se intentó gestionar.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 27,
+      "comentario": "No aplica: no hay terceros en la llamada; solo el titular.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 28,
+      "comentario": "No aplica: no se consulta sobre devolución de prima ni el cliente la solicita.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213311",
+      "comentario": "Incumple: el protocolo de cierre es incompleto. Falta la fecha de la gestión, la vigencia del seguro, el número de póliza completo y la confirmación explícita de renuncia. Además, no se informa sobre el número de renuncia (ID de la llamada) ni sobre posibles cobros posteriores.",
+      "evidencia": [
+        {
+          "t": "00:54-01:07",
+          "hablante": "AGENTE",
+          "cita": "Listo. Quedó ingresada la renuncia de su seguro de desgravamen, número de seguro cuatro ocho dos uno tres tres uno uno, con cargo en su crédito hipotecario. ¿Está de acuerdo?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213311",
+      "comentario": "Cumple: el cliente responde 'Sí, de acuerdo' a la pregunta de confirmación, que es una respuesta válida.",
+      "evidencia": [
+        {
+          "t": "01:07",
+          "hablante": "CLIENTE",
+          "cita": "Sí, de acuerdo."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 31,
+      "comentario": "Cumple: el ejecutivo valida RUT (10.100.100-0), nombre (Gloria Inés Fernández Soto) y fecha de nacimiento (30 de septiembre de 1965), y todos coinciden.",
+      "evidencia": [
+        {
+          "t": "00:09-00:14",
+          "hablante": "AGENTE",
+          "cita": "Señora Gloria, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:14",
+          "hablante": "CLIENTE",
+          "cita": "Diez millones cien mil cien guion cero. Gloria Inés Fernández Soto, treinta de septiembre del sesenta y cinco."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 33,
+      "comentario": "Cumple: el ejecutivo valida email (gloria.fernandez@correoejemplo.cl) y teléfono (911122233).",
+      "evidencia": [
+        {
+          "t": "00:22-00:25",
+          "hablante": "AGENTE",
+          "cita": "¿Y su correo y teléfono?"
+        },
+        {
+          "t": "00:25",
+          "hablante": "CLIENTE",
+          "cita": "gloria punto fernandez arroba correo ejemplo punto cl, nueve uno uno uno dos dos dos tres tres."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    }
+  ]
+}
+```

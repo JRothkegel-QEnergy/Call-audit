@@ -1,0 +1,17 @@
+{
+  "name": "or-deepseek-v4-1-flash",
+  "provider": "openrouter",
+  "requested_model": "deepseek/deepseek-v4.1-flash",
+  "returned_model": "deepseek/deepseek-v4.1-flash",
+  "settings": {
+    "temperature": 0,
+    "max_tokens": 32000
+  },
+  "usage": {
+    "input_tokens": 7487,
+    "output_tokens": 8368
+  },
+  "cost_usd": 0.012288,
+  "latency_ms": 38204,
+  "run_at": "2026-10-09T22:35:29+00:00"
+}

@@ -1,0 +1,359 @@
+{
+  "resumen": "El cliente titular Jorge Ramírez solicita la renuncia a su seguro de Salud Incapacidad MYPE señalando no querer más compromisos, y transfiere la llamada a su cónyuge Marcela. La ejecutiva entrega información y realiza la retención y el protocolo de cierre con la tercera, sin retomar el contacto con el titular.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar al seguro de salud de la pyme, no quiero más compromisos.",
+    "timestamp": "00:41"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "MYPE-0005",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "No desea contraer más obligaciones",
+      "n_objeciones": 1,
+      "evidencia": "[01:19] AGENTE: Perdería la cobertura de incapacidad para su negocio: si don Jorge queda incapacitado temporalmente, el seguro le paga una renta diaria. Es una buena protección para un emprendedor."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hubo tiempos de espera durante la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "comentario": "No se dispone de la ficha de producto en los metadatos para contrastar si la descripción entregada corresponde efectivamente a este seguro.",
+      "evidencia": [],
+      "estado": "indeterminado",
+      "confianza": 0.95
+    },
+    {
+      "id": 3,
+      "comentario": "La ejecutiva realizó un único argumento de retención tras la negativa, sin exceder el máximo de 3 objeciones permitidas.",
+      "evidencia": [
+        {
+          "t": "01:19",
+          "hablante": "AGENTE",
+          "cita": "Perdería la cobertura de incapacidad para su negocio: si don Jorge queda incapacitado temporalmente, el seguro le paga una renta diaria. Es una buena protección para un emprendedor."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "comentario": "La ejecutiva informa características clave del seguro como la cobertura de incapacidad temporal, renta diaria y monto de la prima.",
+      "evidencia": [
+        {
+          "t": "01:01",
+          "hablante": "AGENTE",
+          "cita": "El seguro de Salud Incapacidad MYPE tiene una prima mensual de doce mil cuatrocientos pesos, que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado."
+        },
+        {
+          "t": "01:19",
+          "hablante": "AGENTE",
+          "cita": "Perdería la cobertura de incapacidad para su negocio: si don Jorge queda incapacitado temporalmente, el seguro le paga una renta diaria."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "comentario": "No se realizaron consultas directas sobre la permanencia mínima del seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "comentario": "La ejecutiva responde con precisión y fluidez a las dudas planteadas respecto a valores, vigencia y cobertura.",
+      "evidencia": [
+        {
+          "t": "01:01",
+          "hablante": "AGENTE",
+          "cita": "El seguro de Salud Incapacidad MYPE tiene una prima mensual de doce mil cuatrocientos pesos, que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 7,
+      "comentario": "El seguro es gestionable en este canal de retención, por lo que no correspondía derivar.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "comentario": "La ejecutiva responde en forma directa y clara a todas las preguntas formuladas.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro es renunciable en este canal según los metadatos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "comentario": "La desviación en el protocolo con terceros está tipificada de manera específica en el motivo 27, por lo que no se utiliza este motivo residual.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "comentario": "No existen expresiones descalificatorias hacia pares, el banco ni la competencia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "comentario": "La intención de renuncia provino del cliente titular desde el inicio, sin inducción de la ejecutiva.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar al seguro de salud de la pyme, no quiero más compromisos."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "comentario": "En el cierre se entrega el número de póliza gestionada.",
+      "evidencia": [
+        {
+          "t": "01:35",
+          "hablante": "AGENTE",
+          "cita": "póliza número MYPE-0005"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "comentario": "Tratándose de un seguro retenible, la ejecutiva realizó una argumentación de retención destacando la cobertura de renta diaria por incapacidad.",
+      "evidencia": [
+        {
+          "t": "01:19",
+          "hablante": "AGENTE",
+          "cita": "Perdería la cobertura de incapacidad para su negocio: si don Jorge queda incapacitado temporalmente, el seguro le paga una renta diaria. Es una buena protección para un emprendedor."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "comentario": "La ejecutiva especificó el medio de pago en el cierre de la llamada.",
+      "evidencia": [
+        {
+          "t": "01:35",
+          "hablante": "AGENTE",
+          "cita": "con cargo a la cuenta vista de don Jorge"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "comentario": "El cliente titular expresó explícitamente su intención de renuncia en 00:41, por lo que la retención fue pertinente.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar al seguro de salud de la pyme, no quiero más compromisos."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro es catalogado como retenible según los metadatos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "comentario": "El cliente indicó 'no quiero más compromisos', lo cual corresponde exactamente al motivo tipificado 'No desea contraer más obligaciones'.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar al seguro de salud de la pyme, no quiero más compromisos."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "comentario": "La gestión resultó en renuncia tanto en la grabación como en la tipificación.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "comentario": "El seguro tipificado en renuncia fue debidamente mencionado y gestionado.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "comentario": "El seguro tipificado en renuncia corresponde al Seguro de Salud Incapacidad MYPE tratado en la llamada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "comentario": "No se tipificó retención en esta llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "comentario": "No se tipificó retención en esta llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "comentario": "No se tipificó retención; se tipificó renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "comentario": "Se tipificó la única gestión tratada y solicitada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "comentario": "Se gestionó e ingresó la renuncia al seguro solicitado.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "comentario": "El cliente titular transfirió la llamada a su cónyuge Marcela; la ejecutiva le entregó información del seguro, argumentó la retención y completó el protocolo de cierre con la tercera sin retomar la comunicación con el titular para validar o formalizar el cierre.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "Pero mire, mi señora es la que ve estas cosas, le paso con ella."
+        },
+        {
+          "t": "01:01",
+          "hablante": "AGENTE",
+          "cita": "Hola, señora Marcela. El seguro de Salud Incapacidad MYPE tiene una prima mensual de doce mil cuatrocientos pesos, que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado."
+        },
+        {
+          "t": "01:35",
+          "hablante": "AGENTE",
+          "cita": "Perfecto, señora Marcela. Entonces le confirmo: queda ingresada la renuncia del seguro Salud Incapacidad MYPE, póliza número MYPE-0005, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "comentario": "No hubo mención ni consulta sobre devolución de primas, por lo que no se negó dicho concepto.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "comentario": "La ejecutiva emitió el protocolo de confirmación de cierre con los elementos requeridos (gestión, producto, póliza y medio de pago), aunque lo dirigió a un tercero (evaluado en motivo 27).",
+      "evidencia": [
+        {
+          "t": "01:35",
+          "hablante": "AGENTE",
+          "cita": "queda ingresada la renuncia del seguro Salud Incapacidad MYPE, póliza número MYPE-0005, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 30,
+      "comentario": "La interlocutora respondió afirmativamente de forma clara ('Sí, de acuerdo'), no requiriendo reiteración.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "comentario": "La ejecutiva solicitó y validó correctamente RUT, nombre completo y fecha de nacimiento del titular al inicio de la llamada.",
+      "evidencia": [
+        {
+          "t": "00:10",
+          "hablante": "AGENTE",
+          "cita": "Don Jorge, ¿me indica su RUT, nombre completo y fecha de nacimiento para validar?"
+        },
+        {
+          "t": "00:16",
+          "hablante": "CLIENTE",
+          "cita": "Quince millones quinientos cincuenta y cinco mil quinientos cincuenta y cinco guion cinco. Jorge Esteban Ramírez Silva, tres de mayo del setenta y dos."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "comentario": "La pregunta de cierre fue neutral ('¿Están de acuerdo?'), sin predisponer ni condicionar la respuesta.",
+      "evidencia": [
+        {
+          "t": "01:35",
+          "hablante": "AGENTE",
+          "cita": "¿Están de acuerdo?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "comentario": "La ejecutiva solicitó y validó el correo electrónico y el número telefónico del titular.",
+      "evidencia": [
+        {
+          "t": "00:26",
+          "hablante": "AGENTE",
+          "cita": "¿Y su correo y teléfono?"
+        },
+        {
+          "t": "00:29",
+          "hablante": "CLIENTE",
+          "cita": "jorge punto ramirez arroba correo ejemplo punto cl, nueve cuatro cuatro cuatro cuatro cinco cinco cinco cinco."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    }
+  ]
+}

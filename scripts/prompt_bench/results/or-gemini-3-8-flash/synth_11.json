@@ -1,169 +1,182 @@
 {
-  "resumen": "El cliente se comunica para solicitar la baja de su seguro de desempleo. La ejecutiva valida su identidad y comienza la primera objeción de retención informando coberturas, pero la llamada experimenta fallas técnicas y se corta abruptamente sin concluir la gestión.",
+  "resumen": "El cliente se comunica solicitando la renuncia de su seguro de desempleo asociado a un crédito de consumo. La ejecutiva valida la titularidad e inicia un argumento de retención informando coberturas, pero la llamada se corta abruptamente por problemas de audio antes de concluir la gestión.",
   "intencion_renuncia": {
     "expresada": true,
     "cita": "Quiero dar de baja el seguro de desempleo, no quiero más compromisos.",
     "timestamp": "00:36"
   },
+  "termino_llamada": {
+    "tipo": "CORTADA",
+    "comentario": "La comunicación presenta fallas de audio y se corta a los 01:00 mientras la ejecutiva intentaba retomar el contacto con el cliente."
+  },
   "gestiones": [
     {
-      "n_poliza": "DES-CONS-0011",
+      "mus_a_neto": "48213312",
       "resultado_grabacion": "SIN_GESTION",
-      "motivo_renuncia": "No desea contraer más obligaciones",
+      "motivos_renuncia": [
+        "No desea contraer más obligaciones"
+      ],
       "n_objeciones": 1,
-      "evidencia": "A las 00:42 la ejecutiva inicia la retención argumentando coberturas, pero a partir de las 00:51 el audio se entrecorta y la llamada se interrumpe a las 01:00 sin concretar renuncia ni retención."
+      "cliente_tajante": false,
+      "argumentos_retencion": [
+        {
+          "t": "00:42",
+          "tipo": "COBERTURA",
+          "cita": "Le cuento que este seguro le paga cuatro cuotas de su crédito si queda sin trabajo de forma involuntaria, y además..."
+        }
+      ],
+      "evidencia": "A las 00:36 el cliente solicita dar de baja el seguro, la ejecutiva entrega una cobertura a las 00:42 y la llamada se interrumpe a las 00:54-01:00 sin finalizar la renuncia ni realizar el cierre."
     }
   ],
   "criterios": [
     {
       "id": 1,
-      "comentario": "No hubo tiempos de espera durante la llamada.",
+      "mus_a_neto": "",
+      "comentario": "No se registraron tiempos de espera ni silencios prolongados durante la llamada.",
       "evidencia": [],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 2,
-      "comentario": "La descripción entregada por la ejecutiva ('cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la...') coincide exactamente con la ficha del producto de desempleo.",
+      "mus_a_neto": "48213312",
+      "comentario": "La cobertura de pago de 4 cuotas ante desempleo involuntario descrita coincide con la ficha técnica del seguro.",
       "evidencia": [
         {
           "t": "00:42",
           "hablante": "AGENTE",
-          "cita": "Le cuento que este seguro le cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la..."
+          "cita": "Le cuento que este seguro le paga cuatro cuotas de su crédito si queda sin trabajo de forma involuntaria"
         }
       ],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 3,
-      "comentario": "La ejecutiva realizó solo 1 intento de retención antes de que se cortara la comunicación, dentro del límite de 3 objeciones.",
+      "mus_a_neto": "48213312",
+      "comentario": "La ejecutiva presentó un solo argumento de retención antes de que la llamada se cortara.",
       "evidencia": [
         {
           "t": "00:42",
           "hablante": "AGENTE",
-          "cita": "Le cuento que este seguro le cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la..."
+          "cita": "Le cuento que este seguro le paga cuatro cuotas de su crédito si queda sin trabajo de forma involuntaria, y además..."
         }
       ],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 4,
-      "comentario": "La ejecutiva mencionó coberturas clave del seguro (hasta 5 cuotas del crédito ante desempleo por necesidades de la empresa).",
+      "mus_a_neto": "48213312",
+      "comentario": "La ejecutiva informó la cobertura de desempleo involuntario que paga hasta 4 cuotas del crédito.",
       "evidencia": [
         {
           "t": "00:42",
           "hablante": "AGENTE",
-          "cita": "Le cuento que este seguro le cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la..."
+          "cita": "Le cuento que este seguro le paga cuatro cuotas de su crédito si queda sin trabajo de forma involuntaria"
         }
       ],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 5,
-      "comentario": "El cliente no realizó consulta directa sobre la permanencia del seguro.",
+      "mus_a_neto": "48213312",
+      "comentario": "El cliente no realizó consultas directas sobre la fecha o permanencia de la renuncia.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 6,
-      "comentario": "La ejecutiva manejó adecuadamente la información del producto y coberturas según la ficha técnica.",
-      "evidencia": [
-        {
-          "t": "00:42",
-          "hablante": "AGENTE",
-          "cita": "Le cuento que este seguro le cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la..."
-        }
-      ],
+      "mus_a_neto": "48213312",
+      "comentario": "La ejecutiva manejó correctamente la información del producto expuesta en la llamada.",
+      "evidencia": [],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 7,
-      "comentario": "El seguro es gestionable en este canal, no requería derivación.",
+      "mus_a_neto": "",
+      "comentario": "La llamada no requería derivación a otro canal.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 8,
-      "comentario": "La ejecutiva respondió directamente al cliente y gestionó la llamada con claridad hasta el corte del audio.",
+      "mus_a_neto": "",
+      "comentario": "La ejecutiva respondió oportunamente sin eludir planteamientos del cliente.",
       "evidencia": [],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 9,
-      "comentario": "El seguro era renunciable en el canal y además la renuncia no llegó a concretarse.",
+      "mus_a_neto": "48213312",
+      "comentario": "El producto es retenible y no irrenunciable.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 10,
-      "comentario": "La ejecutiva tipificó la llamada como RENUNCIA cuando la comunicación se cortó abruptamente y no se completó la renuncia ni el consentimiento final en la grabación, contraviniendo la política de registro fidedigno de BancoEstado.",
-      "evidencia": [
-        {
-          "t": "00:54",
-          "hablante": "AGENTE",
-          "cita": "¿Aló? Don Manuel, se está cortando. ¿Me escucha?"
-        },
-        {
-          "t": "01:00",
-          "hablante": "AGENTE",
-          "cita": "¿Aló? Don Manuel..."
-        }
-      ],
-      "estado": "incumple",
-      "confianza": 0.9
+      "mus_a_neto": "",
+      "comentario": "El trato fue respetuoso y apegado a la política del banco.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 1.0
     },
     {
       "id": 11,
+      "mus_a_neto": "",
       "comentario": "No hubo descalificaciones hacia pares, la institución o terceros.",
       "evidencia": [],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 12,
-      "comentario": "La ejecutiva no indujo a la renuncia; por el contrario, realizó retención tras la manifestación del cliente.",
+      "mus_a_neto": "48213312",
+      "comentario": "La ejecutiva intentó retener y no indujo la renuncia del seguro.",
       "evidencia": [],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 13,
-      "comentario": "No aplica protocolo de cierre dado que la llamada se cortó por problemas técnicos antes de llegar a esa etapa.",
+      "mus_a_neto": "48213312",
+      "comentario": "No aplica protocolo de cierre dado que la llamada se cortó antes de finalizar la atención.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 14,
-      "comentario": "La ejecutiva sí realizó intento de retención argumentando coberturas del seguro.",
+      "mus_a_neto": "48213312",
+      "comentario": "La ejecutiva realizó el intento de retención correspondiente indicando coberturas.",
       "evidencia": [
         {
           "t": "00:42",
           "hablante": "AGENTE",
-          "cita": "Le cuento que este seguro le cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la..."
+          "cita": "Entiendo. Le cuento que este seguro le paga cuatro cuotas de su crédito si queda sin trabajo de forma involuntaria, y además..."
         }
       ],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 15,
-      "comentario": "No aplica protocolo de cierre debido a la caída de la llamada.",
+      "mus_a_neto": "48213312",
+      "comentario": "No aplica protocolo de cierre por corte abrupto de la llamada.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 16,
-      "comentario": "El cliente manifestó explícitamente su intención de renuncia antes del intento de retención.",
+      "mus_a_neto": "48213312",
+      "comentario": "La retención se efectuó tras la manifestación explícita de dar de baja por parte del cliente.",
       "evidencia": [
         {
           "t": "00:36",
@@ -172,18 +185,20 @@
         }
       ],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 17,
-      "comentario": "El seguro es retenible según metadatos.",
+      "mus_a_neto": "48213312",
+      "comentario": "El seguro consultado pertenece a la categoría retenible.",
       "evidencia": [],
-      "estado": "cumple",
-      "confianza": 1
+      "estado": "no_aplica",
+      "confianza": 1.0
     },
     {
       "id": 18,
-      "comentario": "El motivo indicado por el cliente fue 'no quiero más compromisos', lo que coincide con la opción tipificada 'No desea contraer más obligaciones'.",
+      "mus_a_neto": "48213312",
+      "comentario": "El motivo tipificado 'No desea contraer más obligaciones' coincide con lo expresado por el cliente.",
       "evidencia": [
         {
           "t": "00:36",
@@ -192,101 +207,108 @@
         }
       ],
       "estado": "cumple",
-      "confianza": 0.95
+      "confianza": 1.0
     },
     {
       "id": 19,
-      "comentario": "Por grabación no fue retención, sino llamada caída/sin gestión completada.",
+      "mus_a_neto": "48213312",
+      "comentario": "Por grabación el resultado es llamada cortada (sin gestión), no retención.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 20,
-      "comentario": "El seguro tipificado sí fue mencionado explícitamente en la llamada.",
-      "evidencia": [
-        {
-          "t": "00:36",
-          "hablante": "CLIENTE",
-          "cita": "Quiero dar de baja el seguro de desempleo, no quiero más compromisos."
-        }
-      ],
+      "mus_a_neto": "48213312",
+      "comentario": "El seguro tipificado sí fue abordado en la llamada.",
+      "evidencia": [],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 21,
-      "comentario": "El seguro correspondía al contratado y mencionado, no a otro seguro.",
+      "mus_a_neto": "48213312",
+      "comentario": "La tipificación corresponde al seguro gestionado.",
       "evidencia": [],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 22,
+      "mus_a_neto": "",
       "comentario": "No se tipificó retención.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 23,
+      "mus_a_neto": "",
       "comentario": "No se tipificó retención.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 24,
+      "mus_a_neto": "",
       "comentario": "No se tipificó retención.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 25,
-      "comentario": "Se tipificó la gestión del único seguro consultado.",
+      "mus_a_neto": "",
+      "comentario": "No quedaron gestiones pendientes de tipificar respecto de los productos consultados.",
       "evidencia": [],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 26,
-      "comentario": "La llamada se interrumpió por problemas técnicos imprevistos antes de poder concretar el trámite.",
+      "mus_a_neto": "",
+      "comentario": "No aplica dado que la llamada se cortó antes de concretar las solicitudes.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 0.95
+      "confianza": 1.0
     },
     {
       "id": 27,
-      "comentario": "No intervino un tercero en la llamada.",
+      "mus_a_neto": "",
+      "comentario": "La atención se realizó con el titular.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 28,
-      "comentario": "No se habló ni se consultó sobre devolución de primas.",
+      "mus_a_neto": "48213312",
+      "comentario": "No se trató la devolución de primas antes del corte de llamada.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 29,
-      "comentario": "No aplica realizar protocolo de cierre debido a que la llamada se cortó por caída de audio en el segundo 60 sin finalizar la atención.",
+      "mus_a_neto": "48213312",
+      "comentario": "No aplica protocolo de cierre debido a que la llamada se cortó abruptamente.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 30,
-      "comentario": "No se llegó a la fase de cierre debido al corte de la llamada.",
+      "mus_a_neto": "48213312",
+      "comentario": "No se alcanzó la instancia de confirmación de cierre.",
       "evidencia": [],
       "estado": "no_aplica",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 31,
-      "comentario": "La ejecutiva validó correctamente RUT, nombre completo y fecha de nacimiento al inicio de la llamada.",
+      "mus_a_neto": "",
+      "comentario": "La ejecutiva solicitó y validó RUT, nombre completo y fecha de nacimiento.",
       "evidencia": [
         {
           "t": "00:09",
@@ -300,18 +322,20 @@
         }
       ],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 32,
-      "comentario": "La ejecutiva no predispuso ni condicionó respuestas del cliente.",
+      "mus_a_neto": "48213312",
+      "comentario": "No se observó predisposición o inducción de respuestas.",
       "evidencia": [],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     },
     {
       "id": 33,
-      "comentario": "La ejecutiva validó correctamente el correo electrónico y el teléfono del cliente.",
+      "mus_a_neto": "",
+      "comentario": "La ejecutiva solicitó y validó correo electrónico y teléfono de contacto.",
       "evidencia": [
         {
           "t": "00:23",
@@ -325,7 +349,7 @@
         }
       ],
       "estado": "cumple",
-      "confianza": 1
+      "confianza": 1.0
     }
   ]
 }

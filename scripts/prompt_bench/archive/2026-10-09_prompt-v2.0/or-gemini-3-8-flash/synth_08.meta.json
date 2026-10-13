@@ -1,0 +1,17 @@
+{
+  "name": "or-gemini-3-8-flash",
+  "provider": "openrouter",
+  "requested_model": "google/gemini-3.8-flash",
+  "returned_model": "google/gemini-3.8-flash",
+  "settings": {
+    "temperature": 0,
+    "max_tokens": 32000
+  },
+  "usage": {
+    "input_tokens": 6014,
+    "output_tokens": 11700
+  },
+  "cost_usd": 0.048385,
+  "latency_ms": 71933,
+  "run_at": "2026-10-09T18:37:49+00:00"
+}

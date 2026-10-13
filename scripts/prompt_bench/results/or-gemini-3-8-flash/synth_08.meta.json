@@ -5,13 +5,13 @@
   "returned_model": "google/gemini-3.8-flash",
   "settings": {
     "temperature": 0,
-    "max_tokens": 16000
+    "max_tokens": 32000
   },
   "usage": {
-    "input_tokens": 3275,
-    "output_tokens": 6520
+    "input_tokens": 7283,
+    "output_tokens": 8625
   },
-  "cost_usd": 0.026906,
-  "latency_ms": 42075,
-  "run_at": "2026-10-08T20:21:49+00:00"
+  "cost_usd": 0.037806,
+  "latency_ms": 64378,
+  "run_at": "2026-10-13T13:32:30+00:00"
 }

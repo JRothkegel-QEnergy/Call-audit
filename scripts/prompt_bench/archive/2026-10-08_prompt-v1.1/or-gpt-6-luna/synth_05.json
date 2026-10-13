@@ -1,0 +1,239 @@
+{
+  "resumen": "El titular expresó explícitamente que quería renunciar al Seguro de Salud Incapacidad MYPE y la ejecutiva ingresó la renuncia, con un intento de retención previo. La ejecutiva entregó información y confirmó el cierre con la esposa del titular, sin retomar el protocolo con Jorge. La tipificación registrada coincide con la gestión y el motivo expresado.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar al seguro de salud de la pyme, no quiero más compromisos.",
+    "timestamp": "00:41"
+  },
+  "gestiones": [
+    {
+      "n_poliza": "MYPE-0005",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "No desea contraer más obligaciones",
+      "n_objeciones": 1,
+      "evidencia": "[00:41] CLIENTE: «Quiero renunciar al seguro de salud de la pyme, no quiero más compromisos.» Intento de retención: [01:19] AGENTE: «Perdería la cobertura de incapacidad para su negocio: si don Jorge queda incapacitado temporalmente, el seguro le paga una renta diaria. Es una buena protección para un emprendedor.» La renuncia se confirma en [01:35] y la gestión se ingresa."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hay esperas registradas en los metadatos y la conversación no evidencia una espera excesiva.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 2,
+      "comentario": "La ejecutiva describe una cobertura de incapacidad con renta diaria, pero la ficha de producto está indicada como no disponible; no es posible contrastar si esa descripción corresponde a otro seguro.",
+      "estado": "indeterminado",
+      "confianza": 0.98
+    },
+    {
+      "id": 3,
+      "comentario": "Se identifica un argumento de retención después de la solicitud de renuncia, dentro del máximo permitido de tres objeciones.",
+      "estado": "cumple",
+      "confianza": 0.96
+    },
+    {
+      "id": 4,
+      "comentario": "La ejecutiva indica como característica la cobertura de incapacidad temporal y el pago de una renta diaria.",
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 5,
+      "comentario": "El cliente no consulta quién maneja la permanencia del seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 6,
+      "comentario": "La ejecutiva responde qué se perdería al renunciar, indicando la cobertura de incapacidad y la renta diaria. No se observa falta de respuesta ni vaguedad evidente; la ficha no está disponible para contrastar más detalles.",
+      "estado": "cumple",
+      "confianza": 0.78
+    },
+    {
+      "id": 7,
+      "comentario": "El seguro es renunciable en este canal y la ejecutiva ingresó la renuncia; no correspondía derivar la solicitud.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 8,
+      "comentario": "La ejecutiva responde directamente las consultas sobre el costo, la vigencia y lo que se perdería al renunciar.",
+      "estado": "cumple",
+      "confianza": 0.94
+    },
+    {
+      "id": 9,
+      "comentario": "Según los metadatos, el seguro es renunciable en este canal.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 10,
+      "comentario": "No se observa una conducta contraria a la política que no esté cubierta por otro motivo de la pauta.",
+      "estado": "cumple",
+      "confianza": 0.86
+    },
+    {
+      "id": 11,
+      "comentario": "La ejecutiva no descalifica a sus pares, al banco ni a la competencia.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 12,
+      "comentario": "El titular solicita la renuncia antes de que la ejecutiva intervenga; no se observa que ella la sugiera o induzca.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 13,
+      "comentario": "En el cierre, la ejecutiva menciona expresamente la póliza MYPE-0005.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 14,
+      "comentario": "El seguro es retenible y la ejecutiva realiza un intento de retención antes de ingresar la renuncia.",
+      "estado": "cumple",
+      "confianza": 0.96
+    },
+    {
+      "id": 15,
+      "comentario": "En el cierre, la ejecutiva informa que el cargo es a la cuenta vista de Jorge.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 16,
+      "comentario": "El titular expresó explícitamente su intención de renunciar antes del argumento de retención.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 17,
+      "comentario": "Los metadatos indican que el seguro es retenible, no no-retensible.",
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 18,
+      "comentario": "La tipificación registra «No desea contraer más obligaciones», coherente con lo expresado por el titular: «no quiero más compromisos».",
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 19,
+      "comentario": "La tipificación es RENUNCIA y la grabación también muestra que se ingresa una renuncia, no una retención.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 20,
+      "comentario": "La renuncia tipificada corresponde al seguro MYPE-0005, que fue mencionado y gestionado en la llamada.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 21,
+      "comentario": "No se tipifica la renuncia de un seguro distinto del mencionado; la gestión registrada corresponde a MYPE-0005.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 22,
+      "comentario": "No se tipifica una retención de un seguro no mencionado; la tipificación registrada es RENUNCIA para MYPE-0005.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 23,
+      "comentario": "No se tipifica retención de otro seguro; la tipificación registrada corresponde a la renuncia de MYPE-0005.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 24,
+      "comentario": "La tipificación registrada es RENUNCIA y la gestión observada en la grabación también es RENUNCIA.",
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 25,
+      "comentario": "Se solicitó gestionar la renuncia de MYPE-0005 y la ejecutiva ingresó esa gestión; no se observa otra gestión pendiente.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 26,
+      "comentario": "La única gestión solicitada fue renunciar al seguro MYPE-0005 y se ingresó durante la llamada.",
+      "estado": "cumple",
+      "confianza": 0.94
+    },
+    {
+      "id": 27,
+      "comentario": "La ejecutiva entrega información del seguro y confirma la renuncia con Marcela, esposa del titular. Tras la intervención de la tercera persona no retoma el protocolo de cierre con Jorge, el titular.",
+      "evidencia": [
+        {
+          "t": "00:41",
+          "hablante": "CLIENTE",
+          "cita": "«Pero mire, mi señora es la que ve estas cosas, le paso con ella.»"
+        },
+        {
+          "t": "01:01",
+          "hablante": "AGENTE",
+          "cita": "«Hola, señora Marcela. El seguro de Salud Incapacidad MYPE tiene una prima mensual de doce mil cuatrocientos pesos, que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado.»"
+        },
+        {
+          "t": "01:35",
+          "hablante": "AGENTE",
+          "cita": "«Perfecto, señora Marcela. Entonces le confirmo: queda ingresada la renuncia del seguro Salud Incapacidad MYPE, póliza número MYPE-0005, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?»"
+        },
+        {
+          "t": "01:48",
+          "hablante": "CLIENTE",
+          "cita": "«Sí, de acuerdo. Gracias, señorita.»"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 28,
+      "comentario": "Los metadatos indican devolucion_prima: «sin dato»; conforme al criterio, no es posible determinar si hubo una negación indebida.",
+      "estado": "indeterminado",
+      "confianza": 0.99
+    },
+    {
+      "id": 29,
+      "comentario": "La ejecutiva resume la gestión realizada y menciona el número de póliza y el medio de pago asociado. El defecto de no retomar el protocolo con el titular se evalúa específicamente en el motivo 27.",
+      "estado": "cumple",
+      "confianza": 0.93
+    },
+    {
+      "id": 30,
+      "comentario": "La respuesta al cierre es una aceptación clara («Sí, de acuerdo»), por lo que no se requería reiterar la confirmación.",
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 31,
+      "comentario": "La ejecutiva solicita RUT, nombre completo y fecha de nacimiento, recibe los datos y comunica que el cliente quedó validado.",
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 32,
+      "comentario": "La pregunta de cierre solicita confirmación de la gestión y no condiciona la respuesta a un «sí» ni predispone al cliente a mantener el seguro.",
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 33,
+      "comentario": "La ejecutiva solicita correo y teléfono, recibe ambos datos y luego indica que el cliente quedó validado.",
+      "estado": "cumple",
+      "confianza": 0.97
+    }
+  ]
+}

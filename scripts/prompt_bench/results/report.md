@@ -4,67 +4,70 @@
 - **FP**: la IA marcó `incumple` un motivo que no se esperaba (excluye los esperados inciertos).
 - **FN**: motivo esperado como incumplido que la IA no marcó `incumple`.
 - **Veredicto de llamada**: `no cumple` si hay al menos un `incumple`. Las llamadas esperadas `uncertain` no cuentan.
+- **Precisión** = TP / (TP + FP): de los motivos que la IA marcó `incumple`, qué % era correcto. 100 % − precisión = falsas alarmas.
+- **Recall** (sensibilidad) = TP / (TP + FN): de los incumplimientos reales, qué % encontró la IA. 100 % − recall = incumplimientos que se le escapan.
 
 ## Resumen por IA
 
-| IA | Modelo (según API) | Llamadas respondidas | Precisión motivos | Recall motivos | FP llamadas | FN llamadas | Gestiones correctas | Objeciones correctas | Latencia prom. |
-|---|---|---|---|---|---|---|---|---|---|
-| claude-haiku-4-5 | claude-haiku-4-5-20251001 | 11/11 | 67% | 75% | 0/1 | 1/9 | 12/12 | 8/12 | 33.3 s |
-| claude-haiku-5-5 | claude-haiku-5-5 | 11/11 | 81% | 71% | 0/1 | 0/9 | 11/12 | 10/12 | 35.7 s |
-| claude-sonnet-5-5 | claude-sonnet-5-5 | 11/11 | 92% | 92% | 0/1 | 0/9 | 12/12 | 10/12 | 17.6 s |
-| gemini-3-5-flash-lite | gemini-3.5-flash-lite | 11/11 | 88% | 62% | 0/1 | 2/9 | 10/12 | 8/12 | 34.1 s |
-| gemini-3-8-flash | gemini-3.8-flash | 1/11 | 100% | 100% | 0/0 | 0/1 | 1/1 | 1/1 | 39.9 s |
-| groq-gpt-oss-120b | openai/gpt-oss-120b | 10/11 | 83% | 71% | 0/1 | 0/8 | 11/11 | 8/11 | 33.2 s |
-| or-deepseek-v4-1-flash | deepseek/deepseek-v4.1-flash | 11/11 | 91% | 88% | 0/1 | 0/9 | 11/12 | 12/12 | 50.3 s |
-| or-gemini-3-8-flash | google/gemini-3.8-flash | 11/11 | 90% | 79% | 0/1 | 0/9 | 12/12 | 11/12 | 40.7 s |
-| or-gpt-5-4-mini | openai/gpt-5.4-mini | 11/11 | 58% | 29% | 0/1 | 3/9 | 11/12 | 5/12 | 15.4 s |
-| or-gpt-6-luna | openai/gpt-6-luna | 11/11 | 83% | 83% | 0/1 | 0/9 | 11/12 | 11/12 | 35.7 s |
-| or-llama-4-maverick | meta-llama/llama-4-maverick | 10/11 | 67% | 50% | 0/1 | 3/9 | 9/11 | 7/11 | 190.4 s |
-| or-mistral-small-2603 | mistralai/mistral-small-2603 | 5/11 | 57% | 36% | 0/1 | 1/4 | 6/6 | 4/6 | 17.6 s |
-| or-qwen3-8-flash | qwen/qwen3.8-flash | 8/11 | 76% | 72% | 0/1 | 1/7 | 7/8 | 6/8 | 217.0 s |
+| IA | Modelo (según API) | Llamadas respondidas | Precisión motivos | Recall motivos | FP llamadas | FN llamadas | Gestiones correctas | Motivo de renuncia | Objeciones correctas | Orden de argumentos | Latencia prom. |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| claude-sonnet-5-5 | claude-sonnet-5-5 | 13/13 | 100% | 96% | 0/1 | 0/11 | 14/14 | 14/14 | 13/14 | 2/2 | 17.3 s |
+| gemini-3-5-flash-lite | gemini-3.5-flash-lite | 13/13 | 86% | 69% | 0/1 | 1/11 | 13/14 | 14/14 | 11/14 | 1/2 | 67.4 s |
+| or-deepseek-v4-1-flash | deepseek/deepseek-v4.1-flash | 13/13 | 96% | 92% | 0/1 | 0/11 | 14/14 | 14/14 | 12/14 | 2/2 | 52.1 s |
+| or-gemini-3-8-flash | google/gemini-3.8-flash | 13/13 | 100% | 85% | 0/1 | 0/11 | 14/14 | 14/14 | 12/14 | 2/2 | 51.2 s |
+| or-gpt-6-luna | openai/gpt-6-luna | 13/13 | 96% | 88% | 0/1 | 0/11 | 14/14 | 14/14 | 12/14 | 2/2 | 57.5 s |
+
+## Detalle de precisión
+
+Cómo leerla: la meta del proyecto es **hasta 5 % de falsos positivos y hasta 20 % de falsos negativos** (`docs/context.md`).
+A nivel de motivo, eso equivale a **precisión ≥ 95 %** (falsas alarmas ≤ 5 %) y **recall ≥ 80 %** (omisiones ≤ 20 %).
+La precisión es la que más pesa en costo operativo: cada falsa alarma es una llamada que un auditor revisa sin necesidad.
+El recall pesa en riesgo: cada omisión es un incumplimiento real que no llega a revisión.
+**F1** resume ambas en un número (media armónica); sirve para ordenar, pero la decisión se toma con la meta.
+**Indeterminados** van a revisión humana: no son error, pero cuestan horas de auditor. "Sin motivo" = indeterminados en motivos que no se esperaban ni como inciertos.
+Ojo con el tamaño: hay 26 incumplimientos esperados en 13 llamadas; un solo motivo de diferencia mueve la precisión o el recall en ~4 puntos.
+
+| IA | TP | FP | FN | Precisión | Falsas alarmas | Recall | Omisiones | F1 | Indeterminados | Cumple meta |
+|---|---|---|---|---|---|---|---|---|---|---|
+| claude-sonnet-5-5 | 25 | 0 | 1 | 100% | 0% | 96% | 4% | 98% | 1 (0 sin motivo) | sí |
+| gemini-3-5-flash-lite | 18 | 3 | 8 | 86% | 14% | 69% | 31% | 77% | 0 (0 sin motivo) | no |
+| or-deepseek-v4-1-flash | 24 | 1 | 2 | 96% | 4% | 92% | 8% | 94% | 5 (1 sin motivo) | sí |
+| or-gemini-3-8-flash | 22 | 0 | 4 | 100% | 0% | 85% | 15% | 92% | 0 (0 sin motivo) | sí |
+| or-gpt-6-luna | 23 | 1 | 3 | 96% | 4% | 88% | 12% | 92% | 5 (1 sin motivo) | sí |
 
 ## Costos por IA
 
 Calculado con los tokens reales de cada respuesta y los precios de `models.toml`. La proyección usa 100.000 llamadas al mes y el costo promedio por llamada de estas pruebas. Ojo: estas llamadas duran ~2 min y las reales más de 10 (ver Notas).
 
-| IA | Precio input / output (USD por M tokens) | Tokens prom. por llamada (in / out) | Costo por llamada USD | Costo de las 11 pruebas USD | Mensual USD | Mensual con batch (-50 %) USD |
+| IA | Precio input / output (USD por M tokens) | Tokens prom. por llamada (in / out) | Costo por llamada USD | Costo de las 13 pruebas USD | Mensual USD | Mensual con batch (-50 %) USD |
 |---|---|---|---|---|---|---|
-| claude-haiku-4-5 | 1,00 / 5,00 | 4.247 / 4.376 | 0,0261 | 0,287 | 2.613 | 1.306 |
-| claude-haiku-5-5 | 0,10 / 0,50 | 5.585 / 8.985 | 0,0047 | 0,052 | 472 | 236 |
-| claude-sonnet-5-5 | 2,00 / 10,00 | 5.585 / 3.228 | 0,0368 | 0,405 | 3.680 | 1.840 |
-| gemini-3-5-flash-lite | 0,30 / 2,50 | 3.509 / 2.744 | 0,0079 | 0,087 | 791 | 396 |
-| gemini-3-8-flash | 0,75 / 3,75 | 3.704 / 3.759 | 0,0169 | 0,186 | 1.687 | 844 |
-| groq-gpt-oss-120b | 0,15 / 0,60 | 3.647 / 4.387 | 0,0032 | 0,035 | 318 | 159 |
-| or-deepseek-v4-1-flash | 0,30 / 1,20 | 3.716 / 9.093 | 0,0120 | 0,132 | 1.203 | 601 |
-| or-gemini-3-8-flash | 0,75 / 3,75 | 3.506 / 6.190 | 0,0258 | 0,284 | 2.584 | 1.292 |
-| or-gpt-5-4-mini | 0,75 / 4,50 | 3.536 / 2.894 | 0,0157 | 0,172 | 1.567 | 784 |
-| or-gpt-6-luna | 0,10 / 0,50 | 3.305 / 4.557 | 0,0026 | 0,029 | 261 | 130 |
-| or-llama-4-maverick | 0,19 / 0,65 | 3.953 / 1.694 | 0,0019 | 0,020 | 185 | 93 |
-| or-mistral-small-2603 | 0,15 / 0,60 | 3.617 / 2.972 | 0,0023 | 0,026 | 233 | 116 |
-| or-qwen3-8-flash | 0,15 / 0,47 | 3.586 / 14.696 | 0,0074 | 0,082 | 744 | 372 |
+| claude-sonnet-5-5 | 2,00 / 10,00 | 14.241 / 2.994 | 0,0428 | 0,557 | 4.284 | 2.142 |
+| gemini-3-5-flash-lite | 0,30 / 2,50 | 9.703 / 2.105 | 0,0082 | 0,106 | 817 | 409 |
+| or-deepseek-v4-1-flash | 0,30 / 1,20 | 9.607 / 9.528 | 0,0143 | 0,186 | 1.432 | 716 |
+| or-gemini-3-8-flash | 0,75 / 3,75 | 8.923 / 7.400 | 0,0344 | 0,448 | 3.444 | 1.722 |
+| or-gpt-6-luna | 0,10 / 0,50 | 8.537 / 5.685 | 0,0037 | 0,048 | 370 | 185 |
 
 ## Llamadas con error
 
-- **gemini-3-8-flash**: 429 cuota del plan agotada (no se arregla reintentando) en 10 llamada(s): synth_01, synth_03, synth_04, synth_05, synth_06, synth_07, synth_08, synth_09, synth_10, synth_11
-- **groq-gpt-oss-120b**: JSON que no cumple el esquema en 1 llamada(s): synth_06
-- **or-mistral-small-2603**: RateLimitError: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'mis en 6 llamada(s): synth_02, synth_05, synth_07, synth_08, synth_10, synth_11
-- **or-qwen3-8-flash**: RuntimeError: finish_reason=length (respuesta cortada) en 1 llamada(s): synth_09
+Ninguna.
 
 ## Detalle por llamada
 
-| Llamada | Esperado | claude-haiku-4-5 | claude-haiku-5-5 | claude-sonnet-5-5 | gemini-3-5-flash-lite | gemini-3-8-flash | groq-gpt-oss-120b | or-deepseek-v4-1-flash | or-gemini-3-8-flash | or-gpt-5-4-mini | or-gpt-6-luna | or-llama-4-maverick | or-mistral-small-2603 | or-qwen3-8-flash |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| synth-01 · Retención exitosa, llamada modelo | incumple: — | incumple: — · indet.: 28 | incumple: — · indet.: 28 | incumple: — | incumple: — · indet.: 28 | (sin respuesta) | incumple: — · indet.: 28 | incumple: — · indet.: 28 | incumple: — | incumple: — · indet.: 28 | incumple: — · indet.: 28 | incumple: — · indet.: 28 | incumple: — | incumple: — · indet.: 28 |
-| synth-02 · Exceso de objeciones y cierre sin N° de póliza | incumple: 3, 13 | incumple: 3, 13 · indet.: 28 | incumple: 3, 13 · indet.: 28 | incumple: 3, 13 · indet.: 28 | incumple: 3 · indet.: 28 | incumple: 3, 13 | incumple: 3, 13 · indet.: 28 | incumple: 3, 13 · indet.: 28 | incumple: 3, 13 | incumple: 3, 13, 14 · indet.: 28 | incumple: 3, 6, 13 · indet.: 28 | incumple: 3, 13 · indet.: 28 | (sin respuesta) | incumple: — |
-| synth-03 · Llamada corta sin intento de retención | incumple: 4, 14, 33 | incumple: 14, 33 · indet.: 2, 28 | incumple: 14, 33 · indet.: 2, 28 | incumple: 4, 14, 33 · indet.: 28 | incumple: 14, 33 · indet.: 28 | (sin respuesta) | incumple: 4, 14, 33 | incumple: 4, 14, 33 · indet.: 28 | incumple: 4, 14, 33 | incumple: — · indet.: 28, 33 | incumple: 4, 14, 33 · indet.: 2, 28 | incumple: 4, 6, 14, 33 · indet.: 2, 28 | incumple: — · indet.: 18 | respuesta inválida: la respuesta no trae una auditoría con 'criterios' (¿devolvió el esquema?) |
-| synth-04 · Información errónea del producto y tipificación incorrecta | incumple: 6, 18 | incumple: 6, 18 · indet.: 28 | incumple: 6, 18 · indet.: 28 | incumple: 6, 18 | incumple: 6, 18 | (sin respuesta) | incumple: 18 | incumple: 6, 18 · indet.: 28 | incumple: 6, 18 | incumple: — · indet.: 28 | incumple: 6, 18 · indet.: 28 | incumple: — | incumple: 18 | incumple: 6, 13, 15, 18, 29 · indet.: 28 |
-| synth-05 · Información entregada a un tercero | incumple: 27 | incumple: — | incumple: 27 · indet.: 2, 28 | incumple: 27 · indet.: 2, 28 | incumple: — · indet.: 28 | (sin respuesta) | incumple: 27 · indet.: 2, 28 | incumple: 27 · indet.: 28 | incumple: 27 · indet.: 2 | incumple: 14 · indet.: 28 | incumple: 27 · indet.: 2, 28 | incumple: — | (sin respuesta) | incumple: 27 · indet.: 2, 6, 28 |
-| synth-06 · Retención sin intención de renuncia y pregunta predispuesta | incumple: 8, 16, 32 · inciertos: 13, 15, 25, 29 | incumple: 13, 15, 16, 29, 32 | incumple: 6, 13, 15, 16, 29, 30, 32 · indet.: 2, 25 | incumple: 6, 8, 16, 32 · indet.: 2, 25, 29 | incumple: 16, 25, 32 | (sin respuesta) | (sin respuesta) | incumple: 8, 13, 15, 16, 29, 32 · indet.: 6, 28 | incumple: 16, 32 · indet.: 2, 6 | incumple: — · indet.: 2, 28 | incumple: 6, 13, 15, 16, 25, 29, 30, 32 · indet.: 28 | incumple: 13, 15, 18, 19, 25, 29, 32 · indet.: 2 | incumple: 4, 6, 10, 16, 32 · indet.: 2, 28 | incumple: 8, 13, 15, 16, 25, 29, 32 · indet.: 2, 6, 28 |
-| synth-07 · Llamada larga con esperas excesivas y descalificación de la competencia | incumple: 11 · inciertos: 1 | incumple: 1, 11 | incumple: 1, 11 · indet.: 2, 28 | incumple: 1, 11 · indet.: 2 | incumple: 1, 11 · indet.: 28 | (sin respuesta) | incumple: 1, 10, 11 · indet.: 28 | incumple: 1, 11 · indet.: 2, 28 | incumple: 1, 11 · indet.: 2, 6, 28 | incumple: 1, 11, 14 · indet.: 2 | incumple: 1, 11 · indet.: 2, 6, 28 | incumple: 1, 4, 11 · indet.: 2 | (sin respuesta) | incumple: 1, 11 · indet.: 2, 6, 28 |
-| synth-08 · Inducción a la renuncia y negación de devolución de prima | incumple: 4, 6, 8, 12, 14, 28 | incumple: 4, 5, 6, 8, 12, 18, 26, 28 · indet.: 2 | incumple: 6, 12, 14, 28 | incumple: 4, 6, 12, 14, 28 · indet.: 2, 18 | incumple: 4, 6, 12, 14, 16, 28 · indet.: 2 | (sin respuesta) | incumple: 4, 8, 12, 14, 26, 28 | incumple: 4, 6, 12, 14, 18, 28 | incumple: 4, 12, 14, 28 · indet.: 2 | incumple: 6, 12, 28, 32 | incumple: 4, 6, 12, 14, 28 · indet.: 2 | incumple: 3, 4, 6, 12, 14, 16 · indet.: 2 | (sin respuesta) | incumple: 6, 12, 14, 18, 28 · indet.: 2 |
-| synth-09 · Dos seguros: gestiona y tipifica solo uno | incumple: 13, 25, 26 | incumple: 13, 15, 22, 25, 29, 30 · indet.: 2 | incumple: 13, 15, 25, 32 · indet.: 2, 26, 28 | incumple: 25, 26, 29 · indet.: 28 | incumple: 13, 15, 25 | (sin respuesta) | incumple: 25 · indet.: 28 | incumple: 13, 15, 25 · indet.: 26, 28 | incumple: 13, 15, 25 | incumple: 14 · indet.: 25, 28 | incumple: 13, 15, 25 · indet.: 2, 28 | incumple: — | incumple: 25 | (sin respuesta) |
-| synth-10 · Renuncia de un seguro irrenunciable en el canal | incumple: 4, 7, 9 | incumple: 7, 9 · indet.: 2 | incumple: 9 · indet.: 2, 28 | incumple: 4, 7, 9 · indet.: 2, 28 | incumple: — · indet.: 28 | (sin respuesta) | incumple: 9 · indet.: 28 | incumple: 7, 9 · indet.: 28 | incumple: 7, 9 | incumple: 7 · indet.: 2, 6, 28 | incumple: 7, 9 · indet.: 2, 28 | incumple: 9 · indet.: 2, 28 | (sin respuesta) | incumple: 7, 9 · indet.: 28 |
-| synth-11 · Llamada cortada con audio ininteligible | incumple: — · inciertos: 13, 15, 26, 29 | incumple: 13, 15, 19, 24, 29 · indet.: 28 | incumple: 13, 15, 29 · indet.: 6, 26, 28 | incumple: — · indet.: 19, 26, 28, 29 | incumple: 13, 15, 29 · indet.: 28 | (sin respuesta) | incumple: 13, 14, 15, 26, 29 · indet.: 28 | incumple: — · indet.: 13, 15, 28, 29 | incumple: 10 | incumple: 13, 15, 29 · indet.: 5, 28 | incumple: — · indet.: 13, 15, 26, 28, 29 | respuesta inválida: la respuesta no trae una auditoría con 'criterios' (¿devolvió el esquema?) | (sin respuesta) | respuesta inválida: la respuesta no trae una auditoría con 'criterios' (¿devolvió el esquema?) |
+| Llamada | Esperado | claude-sonnet-5-5 | gemini-3-5-flash-lite | or-deepseek-v4-1-flash | or-gemini-3-8-flash | or-gpt-6-luna |
+|---|---|---|---|---|---|---|
+| synth-01 · Retención exitosa, llamada modelo | incumple: — | incumple: — | incumple: — | incumple: — | incumple: — | incumple: — |
+| synth-02 · Exceso de objeciones y cierre sin N° de seguro | incumple: 3, 13 | incumple: 3, 13 | incumple: 3, 13 | incumple: 3, 13 | incumple: 3, 13 | incumple: 3, 13 |
+| synth-03 · Llamada corta sin intento de retención | incumple: 4, 14, 33 | incumple: 4, 14, 33 | incumple: 14 | incumple: 4, 14, 33 | incumple: 4, 14, 33 | incumple: 4, 14, 33 |
+| synth-04 · Información errónea del producto y tipificación incorrecta | incumple: 6, 18 | incumple: 6, 18 | incumple: 2, 6, 18 | incumple: 6, 18 | incumple: 6, 18 | incumple: 6, 18 |
+| synth-05 · Información entregada a un tercero | incumple: 27 · inciertos: 14 | incumple: 27 | incumple: — | incumple: 27 | incumple: 14, 27 | incumple: 27 |
+| synth-06 · Retención sin intención de renuncia y pregunta predispuesta | incumple: 8, 16, 32 · inciertos: 6, 13, 15, 25, 29 | incumple: 6, 16, 32 | incumple: 3, 16, 25, 32 | incumple: 6, 8, 13, 15, 16, 30, 32 | incumple: 6, 16, 32 | incumple: 6, 13, 15, 16, 30, 32 |
+| synth-07 · Llamada larga con esperas excesivas y descalificación de la competencia | incumple: 1, 11 | incumple: 1, 11 | incumple: 1, 11 | incumple: 1, 11 | incumple: 1, 11 | incumple: 1, 11 |
+| synth-08 · Inducción a la renuncia y negación de devolución de prima | incumple: 4, 6, 8, 12, 14, 28 · inciertos: 18 | incumple: 4, 6, 8, 12, 14, 28 | incumple: 4, 14, 28 | incumple: 4, 6, 12, 14, 28 | incumple: 4, 6, 12, 28 | incumple: 4, 6, 12, 14, 28 |
+| synth-09 · Dos seguros: gestiona y tipifica solo uno | incumple: 25, 26 · inciertos: 13, 15, 29 | incumple: 13, 15, 25, 26 | incumple: 25 | incumple: 13, 15, 25 | incumple: 13, 15, 25 | incumple: 13, 15, 25, 29 |
+| synth-10 · Renuncia de un seguro no renunciable | incumple: 7, 9 · inciertos: 4 | incumple: 7, 9 | incumple: 7, 9 | incumple: 4, 7, 9 | incumple: 4, 7, 9 | incumple: 4, 7, 9 |
+| synth-11 · Llamada cortada con audio ininteligible | incumple: — · inciertos: 13, 15, 26, 29 | incumple: — | incumple: 13, 15, 29 | incumple: — · indet.: 13, 15, 26, 29, 30 | incumple: — | incumple: — · indet.: 13, 15, 26, 29 |
+| synth-12 · Retiene un seguro no retenible | incumple: 17 · inciertos: 6, 8 | incumple: 8, 17 · indet.: 6 | incumple: 14, 17 | incumple: 17 | incumple: 17 | incumple: 6, 17 · indet.: 2 |
+| synth-13 · Tipifica renuncia cuando fue retención y limita la permanencia | incumple: 5, 19 | incumple: 5, 19 | incumple: 5, 19 | incumple: 5, 19 | incumple: 5, 19 | incumple: 5, 19 |
 
 Ojo: los esperados los definimos nosotros, no auditores del cliente. Esto mide consistencia entre IA, no precisión real.
 
@@ -77,7 +80,8 @@ o un 413/429 por tokens por minuto son temporales: `run.py` los reintenta solo y
 **Cómo leer los costos.**
 - **Duración de las llamadas:** las sintéticas duran en promedio ~2 minutos (entre 1 y 7), mientras que las reales
   duran más de 10. La transcripción real es unas 5 veces más larga, así que el input por llamada va a ser bastante
-  mayor (el system prompt, de ~3.500 tokens, es fijo) y el output probablemente también, por las citas y comentarios.
+  mayor (el system prompt, de ~5.000 tokens, es fijo; la ficha del seguro suma entre 0 y ~4.000 tokens según el
+  producto) y el output probablemente también, por las citas y comentarios.
   Los costos de esta tabla subestiman el costo por llamada real.
 - **Volumen:** la proyección usa 100.000 llamadas al mes, que sale de ~400.000 minutos con llamadas de ~4 min. Si las
   llamadas duran más de 10 minutos, esos mismos minutos son ~40.000 llamadas: menos llamadas, pero más caras cada una.

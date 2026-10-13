@@ -1,0 +1,324 @@
+{
+  "resumen": "El cliente solicitó renunciar a PROTECCION GLOBAL MYPE porque contrató otro seguro que considera más amplio y económico. El ejecutivo intentó retenerlo y finalmente ingresó la renuncia, pero incurrió en esperas superiores al umbral y descalificó a la compañía competidora.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Ya contraté uno en otra compañía que cubre más y es más barato, así que quiero renunciar a este.",
+    "timestamp": "00:46"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "El ejecutivo y el cliente se despiden al finalizar la gestión."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213307",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+        "Cliente posee otros Seguros"
+      ],
+      "n_objeciones": 3,
+      "cliente_tajante": true,
+      "argumentos_retencion": [
+        {
+          "t": "02:12",
+          "tipo": "OTRO",
+          "cita": "esa otra compañía es una estafa. Siempre ponen letra chica y después no pagan nada. Los que se cambian a ellos después vuelven llorando."
+        },
+        {
+          "t": "02:28",
+          "tipo": "COBERTURA",
+          "cita": "Nuestro seguro le cubre el local y también sus mercaderías, maquinarias y equipos ante incendio, sismo, robo y daños materiales"
+        },
+        {
+          "t": "02:28",
+          "tipo": "BENEFICIO",
+          "cita": "y el cargo es automático, no se tiene que preocupar."
+        }
+      ],
+      "evidencia": "El cliente solicita renunciar en 00:46 y reitera que quiere sacar el seguro en 02:41; finalmente la renuncia se ingresa, según el ejecutivo, en 06:38 y se resume en 07:03."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "Ambas esperas superan el umbral de 30 segundos: entre 01:00 y 01:52 transcurren 52 segundos, y entre 02:46 y 06:24 transcurren 218 segundos sin intervención del ejecutivo.",
+      "evidencia": [
+        {
+          "t": "01:00–01:52",
+          "hablante": "AGENTE",
+          "cita": "Lo dejo un momento en espera. / Gracias por esperar."
+        },
+        {
+          "t": "02:46–06:24",
+          "hablante": "AGENTE",
+          "cita": "Lo dejo en espera nuevamente. / Disculpe la demora, don Cristián."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213307",
+      "comentario": "La descripción iniciada por el ejecutivo coincide con coberturas indicadas en la ficha del seguro.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213307",
+      "comentario": "Aunque el cliente reitera su decisión, el ejecutivo entrega tres argumentos de retención y no excede el máximo de tres objeciones.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213307",
+      "comentario": "El ejecutivo indica características del seguro, incluidas sus coberturas y el cargo automático.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213307",
+      "comentario": "El cliente no consulta cuándo puede renunciar ni si la permanencia depende de una fecha.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213307",
+      "comentario": "Ante la consulta sobre el cargo mensual, el ejecutivo indica que no ve la fecha en su sistema y orienta a consultarla por teléfono, conforme a la excepción para fechas de pago.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.91
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "48213307",
+      "comentario": "La renuncia de este seguro puede gestionarse por teléfono y no se presenta una situación que requiera orientar a otro canal.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.97
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "48213307",
+      "comentario": "El ejecutivo responde directamente que no ve la fecha del cargo mensual y orienta al cliente a consultarla por teléfono.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213307",
+      "comentario": "El seguro está categorizado como retenible, no como no renunciable.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "No se observan malos tratos, lenguaje agresivo, burlas ni impaciencia hostil.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo descalifica a la compañía competidora, afirmando sin respaldo que es una estafa y que no paga sus siniestros.",
+      "evidencia": [
+        {
+          "t": "02:12",
+          "hablante": "AGENTE",
+          "cita": "esa otra compañía es una estafa. Siempre ponen letra chica y después no pagan nada. Los que se cambian a ellos después vuelven llorando."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213307",
+      "comentario": "El cliente ya había solicitado renunciar a este seguro y el ejecutivo no propone cancelar otro producto.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213307",
+      "comentario": "En el cierre el ejecutivo identifica el seguro y dice el número 48213307.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213307",
+      "comentario": "Ante la solicitud de renuncia de un seguro retenible, el ejecutivo ofrece argumentos para que el cliente lo mantenga.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213307",
+      "comentario": "En el cierre el ejecutivo informa que el seguro se cargaba mensualmente a la cuenta corriente, que es el medio de pago registrado.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213307",
+      "comentario": "El cliente expresa claramente su intención de renunciar antes de que el ejecutivo intente retenerlo.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213307",
+      "comentario": "El seguro es retenible y el ejecutivo finalmente ingresa la renuncia; no lo registra como retenido.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213307",
+      "comentario": "El motivo tipificado, «Cliente posee otros Seguros», es compatible con que el cliente contrató uno en otra compañía.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213307",
+      "comentario": "La grabación concluye con una renuncia ingresada, no con una retención tipificada como renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "",
+      "comentario": "La tipificación no registra la renuncia de un seguro que no haya sido mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "48213307",
+      "comentario": "La renuncia tipificada corresponde al seguro mencionado y gestionado en la llamada, identificado como 48213307.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "",
+      "comentario": "No se tipifica una retención de un seguro no mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "",
+      "comentario": "No se tipifica una retención correspondiente a otro seguro.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213307",
+      "comentario": "La tipificación y la gestión de la grabación son ambas de renuncia, no de retención.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "48213307",
+      "comentario": "La única gestión solicitada por el cliente, la renuncia de 48213307, está tipificada.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "48213307",
+      "comentario": "El cliente solicita gestionar la renuncia de este seguro y el ejecutivo indica que procede con ella.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "",
+      "comentario": "La llamada es atendida por el titular y no interviene un tercero.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213307",
+      "comentario": "El cliente no solicita devolución de primas y el ejecutivo no niega una devolución.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213307",
+      "comentario": "El ejecutivo resume la gestión, identifica el seguro, informa el medio de pago y pide la conformidad del cliente.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213307",
+      "comentario": "El cliente responde con una aceptación clara a la pregunta de conformidad, por lo que no se requiere reiterar el cierre.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo valida RUT, nombre completo y fecha de nacimiento del cliente.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "48213307",
+      "comentario": "La pregunta de conformidad del cierre es neutra y no condiciona la respuesta a un sí.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicita al cliente confirmar su correo electrónico y teléfono.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    }
+  ]
+}

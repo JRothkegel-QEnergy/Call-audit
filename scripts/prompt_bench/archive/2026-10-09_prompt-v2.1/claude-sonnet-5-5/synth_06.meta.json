@@ -1,0 +1,18 @@
+{
+  "name": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "requested_model": "claude-sonnet-5-5",
+  "returned_model": "claude-sonnet-5-5",
+  "settings": {
+    "effort": "medium"
+  },
+  "usage": {
+    "input_tokens": 3144,
+    "output_tokens": 3340,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 9287
+  },
+  "cost_usd": 0.041545,
+  "latency_ms": 18617,
+  "run_at": "2026-10-09T22:35:09+00:00"
+}

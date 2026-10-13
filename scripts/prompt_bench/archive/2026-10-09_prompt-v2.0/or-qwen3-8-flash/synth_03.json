@@ -1,0 +1,282 @@
+{
+  "resumen": "Llamada breve en la que el ejecutivo solicita acreditación de RUT, nombre completo y fecha de nacimiento, y el cliente los entrega. No se expresa intención de renuncia, no se menciona ni se gestiona el seguro en la transcripción. La tipificación registrada de renuncia no se corresponde con lo dicho en la llamada.",
+  "intencion_renuncia": {
+    "expresada": false,
+    "cita": "",
+    "timestamp": ""
+  },
+  "termino_llamada": {
+    "tipo": "CORTADA",
+    "comentario": "La transcripción finaliza tras la respuesta del cliente a la acreditación, sin cierre, despedida ni gestión visible; parece interrumpida antes de resolver."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213303",
+      "resultado_grabacion": "SIN_GESTION",
+      "motivos_renuncia": [],
+      "n_objeciones": 0,
+      "cliente_tajante": false,
+      "argumentos_retencion": [],
+      "evidencia": "00:01-00:13: solo saludo y acreditación de RUT, nombre y fecha; no se menciona el seguro ni se expresa renuncia."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No se registran esperas ni silencios del ejecutivo superiores a 30 segundos en la transcripción.",
+      "estado": "no_aplica",
+      "confianza": 0.8
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213303",
+      "comentario": "No hubo descripción del seguro en la transcripción.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213303",
+      "comentario": "No hubo objeciones de retención.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213303",
+      "comentario": "No hubo renuncia gestionada en la transcripción, por lo que no aplica indicar características del seguro a renunciar.",
+      "estado": "no_aplica",
+      "confianza": 0.85
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213303",
+      "comentario": "No hubo consulta directa sobre la permanencia o fecha de renuncia.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213303",
+      "comentario": "No hubo preguntas del cliente sobre producto o coberturas.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "48213303",
+      "comentario": "No se presentó una situación que requiriera derivación a otro canal.",
+      "estado": "no_aplica",
+      "confianza": 0.85
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "",
+      "comentario": "No hubo preguntas directas del cliente que el ejecutivo eludiera.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213303",
+      "comentario": "El seguro es retenible y no se renuncia en la transcripción.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "No se observa mal trato, tono agresivo, lenguaje soez o impaciencia hostil.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "No se observan descalificaciones a pares, BancoEstado, compañía o competencia.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213303",
+      "comentario": "No se sugiere ni propone renunciar a un seguro que el cliente no pidió cancelar.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica el protocolo de cierre porque no se realizó gestión de renuncia o retención en la transcripción.",
+      "estado": "no_aplica",
+      "confianza": 0.85
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213303",
+      "comentario": "No hubo renuncia de seguro retenible, por lo que no aplica el intento de retención.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica informar medio de pago porque no hubo protocolo de cierre por gestión de renuncia o retención.",
+      "estado": "no_aplica",
+      "confianza": 0.85
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213303",
+      "comentario": "No hubo retención de seguro sin intención de renuncia.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213303",
+      "comentario": "El seguro es retenible y no se retiene en la transcripción.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica evaluar el motivo de renuncia tipificado porque no hubo renuncia en la grabación; la tipificación se evalúa en el motivo 20.",
+      "estado": "no_aplica",
+      "confianza": 0.75
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213303",
+      "comentario": "No hubo retención en la grabación.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "48213303",
+      "comentario": "El ejecutivo tipifica una renuncia del seguro 48213303, pero en la transcripción no se menciona ese seguro ni se expresa renuncia; la ausencia en el tramo completo es la evidencia.",
+      "evidencia": [
+       {
+      "t": "00:01-00:13",
+      "hablante": "AGENTE",
+      "cita": "Tramo revisado: no menciona el seguro 48213303 ni expresa renuncia."
+    }
+      ],
+      "estado": "incumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "48213303",
+      "comentario": "No se tipifica una renuncia que corresponda a otro seguro mencionado.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "48213303",
+      "comentario": "No hubo tipificación de retención de seguro no mencionado.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "48213303",
+      "comentario": "No hubo tipificación de retención que corresponda a otro seguro.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213303",
+      "comentario": "No hubo tipificación de retención frente a una renuncia en la grabación.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "48213303",
+      "comentario": "No quedan gestiones visibles sin tipificar; el error de tipificación corresponde al motivo 20.",
+      "estado": "no_aplica",
+      "confianza": 0.8
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "48213303",
+      "comentario": "No se observa que el cliente haya solicitado gestionar un seguro y no se haya impactado.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "",
+      "comentario": "No hubo tercero en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213303",
+      "comentario": "No se negó ni se mencionó devolución de primas.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica protocolo de cierre porque no hubo gestión de renuncia o retención en la transcripción.",
+      "estado": "no_aplica",
+      "confianza": 0.85
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213303",
+      "comentario": "No aplica reiterar cierre porque no hubo protocolo de cierre.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo pregunta RUT, nombre completo y fecha de nacimiento, y el cliente los entrega.",
+      "evidencia": [
+       {
+      "t": "00:08",
+      "hablante": "AGENTE",
+      "cita": "Don Luis, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+    },
+    {
+      "t": "00:13",
+      "hablante": "CLIENTE",
+      "cita": "Trece millones trescientos treinta y tres mil trescientos treinta y tres guion tres. Luis Alberto Contreras Vega, nueve de enero del setenta y ocho."
+    }
+      ],
+      "estado": "cumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "",
+      "comentario": "No se observa una pregunta que condicione la respuesta del cliente a un sí.",
+      "estado": "no_aplica",
+      "confianza": 0.9
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo no pregunta ni menciona email ni teléfono; solo solicita RUT, nombre completo y fecha de nacimiento.",
+      "evidencia": [
+       {
+      "t": "00:08",
+      "hablante": "AGENTE",
+      "cita": "Don Luis, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+    }
+      ],
+      "estado": "incumple",
+      "confianza": 0.9
+    }
+  ]
+}

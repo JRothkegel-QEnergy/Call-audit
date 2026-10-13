@@ -1,0 +1,17 @@
+{
+  "name": "or-qwen3-8-flash",
+  "provider": "openrouter",
+  "requested_model": "qwen/qwen3.8-flash",
+  "returned_model": "qwen/qwen3.8-flash",
+  "settings": {
+    "temperature": 0,
+    "max_tokens": 32000
+  },
+  "usage": {
+    "input_tokens": 12473,
+    "output_tokens": 29518
+  },
+  "cost_usd": 0.015744,
+  "latency_ms": 449952,
+  "run_at": "2026-10-09T23:39:11+00:00"
+}

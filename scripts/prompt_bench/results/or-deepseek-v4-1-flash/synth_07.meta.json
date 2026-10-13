@@ -5,13 +5,13 @@
   "returned_model": "deepseek/deepseek-v4.1-flash",
   "settings": {
     "temperature": 0,
-    "max_tokens": 16000
+    "max_tokens": 32000
   },
   "usage": {
-    "input_tokens": 3993,
-    "output_tokens": 7644
+    "input_tokens": 10283,
+    "output_tokens": 8882
   },
-  "cost_usd": 0.010371,
-  "latency_ms": 89651,
-  "run_at": "2026-10-08T20:23:00+00:00"
+  "cost_usd": 0.013743,
+  "latency_ms": 54404,
+  "run_at": "2026-10-13T13:32:18+00:00"
 }

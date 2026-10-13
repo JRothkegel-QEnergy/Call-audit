@@ -1,0 +1,18 @@
+{
+  "name": "claude-haiku-4-5",
+  "provider": "anthropic",
+  "requested_model": "claude-haiku-4-5",
+  "returned_model": "claude-haiku-4-5-20251001",
+  "settings": {
+    "temperature": 0
+  },
+  "usage": {
+    "input_tokens": 2408,
+    "output_tokens": 3971,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 7157
+  },
+  "cost_usd": 0.022979,
+  "latency_ms": 34381,
+  "run_at": "2026-10-09T22:19:59+00:00"
+}

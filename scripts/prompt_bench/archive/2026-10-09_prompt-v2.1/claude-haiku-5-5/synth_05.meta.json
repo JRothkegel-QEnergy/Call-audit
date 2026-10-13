@@ -1,0 +1,19 @@
+{
+  "name": "claude-haiku-5-5",
+  "provider": "anthropic",
+  "requested_model": "claude-haiku-5-5",
+  "returned_model": "claude-haiku-5-5",
+  "settings": {
+    "effort": "medium",
+    "max_tokens": 20000
+  },
+  "usage": {
+    "input_tokens": 2611,
+    "output_tokens": 12643,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 9287
+  },
+  "cost_usd": 0.006675,
+  "latency_ms": 48307,
+  "run_at": "2026-10-09T22:27:27+00:00"
+}

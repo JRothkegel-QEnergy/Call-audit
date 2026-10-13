@@ -7,10 +7,10 @@
     "max_tokens": 16000
   },
   "usage": {
-    "input_tokens": 3623,
-    "output_tokens": 3440
+    "input_tokens": 10206,
+    "output_tokens": 4332
   },
-  "cost_usd": 0.002082,
-  "latency_ms": 27166,
-  "run_at": "2026-10-08T20:17:25+00:00"
+  "cost_usd": 0.003187,
+  "latency_ms": 47608,
+  "run_at": "2026-10-13T13:26:37+00:00"
 }

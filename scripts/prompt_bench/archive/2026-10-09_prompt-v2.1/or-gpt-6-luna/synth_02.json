@@ -1,0 +1,476 @@
+{
+  "resumen": "La clienta solicita renunciar al seguro por problemas económicos y el ejecutivo realiza varios intentos de retención antes de ingresar la renuncia. Informa correctamente la devolución automática de la prima única, pero omite elementos del protocolo de cierre, incluido el número de seguro.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar al seguro de desempleo. Es que no me alcanza, tengo muchas deudas y no quiero nada más.",
+    "timestamp": "00:44"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "El ejecutivo se despide diciendo «Que tenga un buen día» y la transcripción termina."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213302",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+        "Problemas Económicos"
+      ],
+      "n_objeciones": 5,
+      "cliente_tajante": true,
+      "argumentos_retencion": [
+        {
+          "t": "00:53",
+          "tipo": "COBERTURA",
+          "cita": "Le comento que este seguro le paga cuatro cuotas de su crédito si queda cesante de forma involuntaria."
+        },
+        {
+          "t": "01:06",
+          "tipo": "COBERTURA",
+          "cita": "Pero piense que son cuatro cuotas. Hoy el trabajo está difícil, nunca se sabe."
+        },
+        {
+          "t": "01:16",
+          "tipo": "BENEFICIO",
+          "cita": "Mire, la prima ya está pagada, no le cobran todos los meses. Mantenerlo no le cuesta nada extra."
+        },
+        {
+          "t": "01:27",
+          "tipo": "COBERTURA",
+          "cita": "Le entiendo, pero imagínese si la despiden el próximo mes. Son cuatro cuotas que no va a tener que pagar."
+        },
+        {
+          "t": "01:39",
+          "tipo": "OTRO",
+          "cita": "¿Y si lo mantiene un mes más y después lo vemos? Así no queda desprotegida."
+        }
+      ],
+      "evidencia": "La clienta solicita renunciar en 00:44 y 01:46; el ejecutivo confirma que procede con la renuncia en 01:50 y comunica que quedó ingresada en 01:54."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No hay esperas registradas ni tramos de silencio superiores a 30 segundos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213302",
+      "comentario": "La descripción de cuatro cuotas del crédito por desempleo involuntario coincide con la ficha del seguro.",
+      "evidencia": [
+        {
+          "t": "00:53",
+          "hablante": "AGENTE",
+          "cita": "este seguro le paga cuatro cuotas de su crédito si queda cesante de forma involuntaria."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213302",
+      "comentario": "La clienta se muestra tajante y, después de reiterar que no quiere el seguro, el ejecutivo continúa con dos argumentos de retención adicionales, excediendo el máximo de tres objeciones.",
+      "evidencia": [
+        {
+          "t": "01:24",
+          "hablante": "CLIENTE",
+          "cita": "Ya le dije que no. Quiero renunciarlo."
+        },
+        {
+          "t": "01:27",
+          "hablante": "AGENTE",
+          "cita": "imagínese si la despiden el próximo mes. Son cuatro cuotas que no va a tener que pagar."
+        },
+        {
+          "t": "01:36",
+          "hablante": "CLIENTE",
+          "cita": "Oiga, ya le dije tres veces que no."
+        },
+        {
+          "t": "01:39",
+          "hablante": "AGENTE",
+          "cita": "¿Y si lo mantiene un mes más y después lo vemos? Así no queda desprotegida."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213302",
+      "comentario": "El ejecutivo informa al menos una característica del seguro: la cobertura de cuatro cuotas del crédito por desempleo involuntario.",
+      "evidencia": [
+        {
+          "t": "00:53",
+          "hablante": "AGENTE",
+          "cita": "este seguro le paga cuatro cuotas de su crédito si queda cesante de forma involuntaria."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213302",
+      "comentario": "La clienta no pregunta si puede elegir cuándo renunciar.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213302",
+      "comentario": "La clienta no formula preguntas sobre el producto que el ejecutivo deje sin respuesta o responda incorrectamente.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.97
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "48213302",
+      "comentario": "La renuncia puede gestionarse por teléfono y no se presenta una situación que requiera derivación.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "",
+      "comentario": "No se observa una pregunta directa de la clienta que el ejecutivo eluda.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.94
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213302",
+      "comentario": "El seguro es retenible, no no renunciable, y su renuncia se procesa en la llamada.",
+      "evidencia": [
+        {
+          "t": "01:50",
+          "hablante": "AGENTE",
+          "cita": "procedo con la renuncia."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "El trato se mantiene respetuoso y no se aprecia lenguaje agresivo, grosero o impaciente de forma hostil.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo no descalifica a BancoEstado, la compañía, otros ejecutivos ni la competencia.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "",
+      "comentario": "La clienta pidió expresamente renunciar al seguro que el ejecutivo gestiona; no se le induce a cancelar otro producto.",
+      "evidencia": [
+        {
+          "t": "00:44",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar al seguro de desempleo."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213302",
+      "comentario": "En el cierre revisado, 01:50–02:09, el ejecutivo no menciona el número de seguro ni sus últimos cuatro dígitos; informar el crédito de consumo como medio de pago no lo reemplaza.",
+      "evidencia": [
+        {
+          "t": "01:50–02:09",
+          "hablante": "AGENTE",
+          "cita": "Tramo de cierre: no se menciona el N° de seguro ni sus últimos cuatro dígitos."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213302",
+      "comentario": "El ejecutivo intenta retener el seguro retenible antes de procesar la renuncia.",
+      "evidencia": [
+        {
+          "t": "00:53",
+          "hablante": "AGENTE",
+          "cita": "este seguro le paga cuatro cuotas de su crédito si queda cesante de forma involuntaria."
+        },
+        {
+          "t": "01:16",
+          "hablante": "AGENTE",
+          "cita": "la prima ya está pagada, no le cobran todos los meses."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213302",
+      "comentario": "En el cierre el ejecutivo indica que el medio de pago es el crédito de consumo, concordante con los metadatos.",
+      "evidencia": [
+        {
+          "t": "01:54",
+          "hablante": "AGENTE",
+          "cita": "El medio de pago es su crédito de consumo"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213302",
+      "comentario": "La clienta expresa claramente su intención de renunciar antes de que el ejecutivo intente retener el seguro.",
+      "evidencia": [
+        {
+          "t": "00:44",
+          "hablante": "CLIENTE",
+          "cita": "Quiero renunciar al seguro de desempleo."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213302",
+      "comentario": "El seguro es retenible y el ejecutivo no lo registra como retenido.",
+      "evidencia": [
+        {
+          "t": "01:54",
+          "hablante": "AGENTE",
+          "cita": "quedó ingresada la renuncia de su seguro de desempleo."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213302",
+      "comentario": "La clienta menciona que no le alcanza y tiene muchas deudas, por lo que el motivo tipificado Problemas Económicos es compatible.",
+      "evidencia": [
+        {
+          "t": "00:44",
+          "hablante": "CLIENTE",
+          "cita": "no me alcanza, tengo muchas deudas"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213302",
+      "comentario": "La grabación termina con la renuncia ingresada y la tipificación registrada también es RENUNCIA.",
+      "evidencia": [
+        {
+          "t": "01:54",
+          "hablante": "AGENTE",
+          "cita": "quedó ingresada la renuncia de su seguro de desempleo."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "",
+      "comentario": "La tipificación no registra la renuncia de un seguro distinto o no mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "",
+      "comentario": "La renuncia tipificada corresponde al único seguro gestionado en la llamada.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "",
+      "comentario": "No se tipifica una retención de un seguro que no haya sido mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "",
+      "comentario": "No se tipifica una retención de un seguro distinto al mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213302",
+      "comentario": "El resultado de la grabación es RENUNCIA y coincide con la tipificación, no RETENCIÓN.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "48213302",
+      "comentario": "La única gestión solicitada, la renuncia de este seguro, queda ingresada y tipificada.",
+      "evidencia": [
+        {
+          "t": "01:54",
+          "hablante": "AGENTE",
+          "cita": "quedó ingresada la renuncia de su seguro de desempleo."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "48213302",
+      "comentario": "La clienta solicita la renuncia de un seguro y el ejecutivo confirma que la ingresó.",
+      "evidencia": [
+        {
+          "t": "01:46",
+          "hablante": "CLIENTE",
+          "cita": "hágame la renuncia no más."
+        },
+        {
+          "t": "01:54",
+          "hablante": "AGENTE",
+          "cita": "quedó ingresada la renuncia de su seguro de desempleo."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "",
+      "comentario": "La llamada se realiza con la titular y no hay un tercero involucrado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213302",
+      "comentario": "El ejecutivo informa correctamente que, al ser prima única, la devolución de la prima no devengada es automática y ocurre dentro de diez días hábiles desde que la compañía toma conocimiento.",
+      "evidencia": [
+        {
+          "t": "02:09",
+          "hablante": "AGENTE",
+          "cita": "Como es de prima única, la devolución de la prima no devengada es automática y la hace la compañía dentro de diez días hábiles desde que toma conocimiento de la renuncia."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213302",
+      "comentario": "El cierre es incompleto: tras indicar que la renuncia quedó ingresada, el ejecutivo no resume la voluntad de renunciar con el nombre y datos del seguro ni pide confirmar expresamente la renuncia; también omite número de póliza, vigencia, número de renuncia, posible último cobro, plazo de actualización de sistemas y canales de contacto.",
+      "evidencia": [
+        {
+          "t": "01:54",
+          "hablante": "AGENTE",
+          "cita": "Listo. Le confirmo que quedó ingresada la renuncia de su seguro de desempleo. El medio de pago es su crédito de consumo, así que no tendrá más movimientos asociados. ¿Está de acuerdo?"
+        },
+        {
+          "t": "02:09",
+          "hablante": "AGENTE",
+          "cita": "Que tenga un buen día."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213302",
+      "comentario": "La clienta responde «Sí, de acuerdo», una respuesta permitida que no requería repregunta.",
+      "evidencia": [
+        {
+          "t": "02:07",
+          "hablante": "CLIENTE",
+          "cita": "Sí, de acuerdo, gracias."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicita RUT, nombre completo y fecha de nacimiento antes de continuar, y declara los datos validados; no se aporta información que permita identificar una discrepancia.",
+      "evidencia": [
+        {
+          "t": "00:10",
+          "hablante": "AGENTE",
+          "cita": "¿me indica su RUT, por favor?"
+        },
+        {
+          "t": "00:20",
+          "hablante": "AGENTE",
+          "cita": "¿Su nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:40",
+          "hablante": "AGENTE",
+          "cita": "Perfecto, datos validados."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.95
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "48213302",
+      "comentario": "El ejecutivo no condiciona la respuesta de la clienta a aceptar la permanencia del seguro.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicita confirmar el correo y teléfono registrados y la clienta proporciona ambos datos.",
+      "evidencia": [
+        {
+          "t": "00:28",
+          "hablante": "AGENTE",
+          "cita": "¿Me confirma su correo y teléfono registrados?"
+        },
+        {
+          "t": "00:32",
+          "hablante": "CLIENTE",
+          "cita": "carolina punto paredes arroba correo ejemplo punto cl, y el nueve ocho siete seis cinco cuatro tres dos uno."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.98
+    }
+  ]
+}

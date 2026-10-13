@@ -1,0 +1,16 @@
+{
+  "name": "or-gpt-6-luna",
+  "provider": "openrouter",
+  "requested_model": "openai/gpt-6-luna",
+  "returned_model": "openai/gpt-6-luna",
+  "settings": {
+    "max_tokens": 16000
+  },
+  "usage": {
+    "input_tokens": 8886,
+    "output_tokens": 6076
+  },
+  "cost_usd": 0.003927,
+  "latency_ms": 48614,
+  "run_at": "2026-10-09T18:31:53+00:00"
+}

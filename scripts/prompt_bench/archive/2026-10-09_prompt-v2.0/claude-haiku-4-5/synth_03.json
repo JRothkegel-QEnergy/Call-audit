@@ -1,0 +1,248 @@
+```json
+{
+  "resumen": "Cliente Luis Contreras llama para renunciar al seguro Incendio Hogar tras vender su departamento. El ejecutivo valida identidad, ingresa la renuncia y realiza cierre con confirmación del cliente.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Vendí el departamento y quiero dar de baja el seguro de incendio, porque ya no tiene sentido.",
+    "timestamp": "00:25"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con despedida normal tras confirmación del cliente."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213303",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+        "Cambio de Domicilio o Venta de Propiedad"
+      ],
+      "n_objeciones": 0,
+      "cliente_tajante": false,
+      "argumentos_retencion": [],
+      "evidencia": "Cliente expresa intención clara de renunciar por venta de propiedad. Ejecutivo no intenta retención (seguro retenible sin gestión de retención). Renuncia se ingresa inmediatamente."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hay esperas registradas en los metadatos; la llamada fluye sin pausas excesivas.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo no describe características del seguro por iniciativa propia; no hay información que contradicer.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 3,
+      "comentario": "No hay objeciones de retención; el cliente no es tajante porque no hubo intento de retención.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo no indica ninguna característica del seguro (cobertura, beneficio, asistencia, prima). Solo menciona el nombre en el cierre.",
+      "estado": "incumple",
+      "confianza": 0.95,
+      "evidencia": [
+        {
+          "t": "00:38",
+          "hablante": "AGENTE",
+          "cita": "Quedó ingresada la renuncia de su seguro Incendio Hogar, número de seguro cuatro ocho dos uno tres tres cero tres, que se cargaba a su cuenta corriente."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "comentario": "El cliente no consulta sobre fechas de renuncia; no aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 6,
+      "comentario": "El cliente no hace preguntas sobre el producto o coberturas; no hay información que manejar.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 7,
+      "comentario": "No hay situación que requiera derivación; la renuncia se gestiona directamente en el call center.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde de forma directa a cada solicitud del cliente.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro Incendio Hogar es RETENIBLE, no NO RENUNCIABLE; la renuncia es válida en este canal.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 10,
+      "comentario": "El tono y lenguaje del ejecutivo son profesionales y respetuosos.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 11,
+      "comentario": "No hay descalificaciones a pares, BancoEstado, compañía o competencia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 12,
+      "comentario": "El ejecutivo no induce renuncia; el cliente es quien solicita la baja.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 13,
+      "comentario": "El ejecutivo menciona el N° de seguro en el cierre: 'número de seguro cuatro ocho dos uno tres tres cero tres'.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 14,
+      "comentario": "El seguro es RETENIBLE y el cliente pidió renunciar, pero el ejecutivo no realiza ningún intento de retención. Dice 'Se lo doy de baja al tiro' sin argumentos de retención.",
+      "estado": "incumple",
+      "confianza": 0.95,
+      "evidencia": [
+        {
+          "t": "00:32",
+          "hablante": "AGENTE",
+          "cita": "Ya, perfecto, se lo doy de baja al tiro."
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "comentario": "El medio de pago es CCT (Cuenta Corriente), no 'OTRO'; el ejecutivo lo menciona correctamente en el cierre.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 16,
+      "comentario": "El cliente expresó intención clara de renuncia; no hay retención sin solicitud.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro es RETENIBLE; no se intenta retener un seguro no retenible.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 18,
+      "comentario": "El motivo tipificado es 'Cambio de Domicilio o Venta de Propiedad', que coincide con lo expresado por el cliente: 'Vendí el departamento'.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 19,
+      "comentario": "La tipificación registra RENUNCIA y la grabación confirma renuncia; no hay discrepancia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 20,
+      "comentario": "El seguro tipificado (48213303 - Incendio Hogar) fue mencionado en la grabación.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 21,
+      "comentario": "El seguro tipificado corresponde al mencionado en la grabación.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 22,
+      "comentario": "No aplica; no hay tipificación de retención.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 23,
+      "comentario": "No aplica; no hay tipificación de retención.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 24,
+      "comentario": "No aplica; la tipificación es RENUNCIA y la grabación confirma renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 25,
+      "comentario": "Se tipifica la única gestión mencionada en la grabación: la renuncia del Incendio Hogar.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 26,
+      "comentario": "El cliente solicita una única gestión (dar de baja el seguro de incendio) y se impacta.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 27,
+      "comentario": "No hay tercero en la llamada; el cliente es el titular.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 28,
+      "comentario": "El cliente no consulta sobre devolución de prima; no hay información sobre el tipo de prima en los metadatos ('sin dato en el catálogo'). No aplica.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 29,
+      "comentario": "El ejecutivo realiza protocolo de cierre: resume la gestión (renuncia ingresada), identifica el seguro con su N° (48213303), informa el medio de pago (cuenta corriente) y pide confirmación ('¿Está de acuerdo con la gestión?').",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 30,
+      "comentario": "El cliente responde con aceptación clara ('Sí, de acuerdo'); no hay respuesta no permitida que requiera reiteración.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida los 3 datos requeridos: RUT (13.333.333-3), nombre completo (Luis Alberto Contreras Vega) y fecha de nacimiento (9 de enero de 1978).",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 32,
+      "comentario": "La pregunta de cierre es neutra: '¿Está de acuerdo con la gestión?'. No condiciona la respuesta a un 'sí'.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo no pregunta ni menciona email ni teléfono del cliente. No hay validación de estos datos.",
+      "estado": "incumple",
+      "confianza": 0.9,
+      "evidencia": [
+        {
+          "t": "00:08-00:23",
+          "hablante": "AGENTE",
+          "cita": "¿Me indica su RUT, nombre completo y fecha de nacimiento? [Cliente responde]. Gracias. ¿Qué necesita?"
+        }
+      ]
+    }
+  ]
+}
+```

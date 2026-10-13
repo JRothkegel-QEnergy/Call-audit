@@ -1,0 +1,297 @@
+{
+  "resumen": "La cliente Valentina Reyes llama consultando sobre el Sale Seguro y sus coberturas. El ejecutivo induce directamente la renuncia sin explicar coberturas, niega la devolución de primas a pesar de que correspondía según metadatos, y realiza un cierre omitiendo información clave como el medio de pago.",
+  "intencion_renuncia": {
+    "expresada": false,
+    "cita": "",
+    "timestamp": ""
+  },
+  "gestiones": [
+    {
+      "n_poliza": "SALE-0008",
+      "resultado_grabacion": "RENUNCIA",
+      "motivo_renuncia": "No informado",
+      "n_objeciones": 0,
+      "evidencia": "El ejecutivo sugiere dar de baja el seguro y la cliente acepta."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hubo esperas en la llamada.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 2,
+      "comentario": "Ficha de producto no disponible en metadatos para contrastar descripción.",
+      "estado": "indeterminado",
+      "confianza": 1.0
+    },
+    {
+      "id": 3,
+      "comentario": "El ejecutivo no realizó argumentos de retención, por lo tanto no excede el límite de objeciones.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo no indicó ninguna característica del seguro ante la consulta de la cliente.",
+      "evidencia": [
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Ah, sí, es un seguro que se contrató con su crédito. La verdad, si no se acuerda de él, seguramente no lo usa. Mejor se lo doy de baja altiro"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 5,
+      "comentario": "La cliente no consultó sobre la permanencia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 6,
+      "comentario": "La cliente preguntó qué cubre y el ejecutivo omitió entregar información del producto.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Quería saber qué cubre."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 7,
+      "comentario": "No se requería derivación.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde directamente a lo que plantea la cliente, aunque elude explicar coberturas para inducir la baja.",
+      "estado": "cumple",
+      "confianza": 0.9
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro es renunciable en canal según metadatos.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 10,
+      "comentario": "Conductas cubiertas por otros motivos específicos como inducción a renuncia y negación de devolución.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 11,
+      "comentario": "No hay descalificaciones a pares, banco o competencia.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 12,
+      "comentario": "El ejecutivo induce la renuncia sin que la cliente la haya solicitado explícitamente.",
+      "evidencia": [
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 13,
+      "comentario": "El ejecutivo sí indicó el número de seguro en el protocolo de cierre.",
+      "evidencia": [
+        {
+          "t": "00:17",
+          "hablante": "AGENTE",
+          "cita": "póliza número SALE-0008"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 14,
+      "comentario": "Al ser un seguro retenible y gestionarse la renuncia, el ejecutivo debía intentar retener, pero indujo la baja.",
+      "evidencia": [
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 15,
+      "comentario": "El ejecutivo menciona el medio de pago en el cierre ('con cargo a su cuenta RUT').",
+      "evidencia": [
+        {
+          "t": "00:17",
+          "hablante": "AGENTE",
+          "cita": "con cargo a su cuenta RUT."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 16,
+      "comentario": "El ejecutivo gestionó una renuncia sin que el cliente tuviera intención previa, induciéndola.",
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro es retenible.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 18,
+      "comentario": "Tipificó motivo 'No informado' y en la grabación la cliente tampoco entregó un motivo específico de renuncia (fue inducida). Motivo correcto.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 19,
+      "comentario": "La gestión registrada fue renuncia y en grabación fue renuncia.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 20,
+      "comentario": "El seguro tipificado coincide con el mencionado.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 21,
+      "comentario": "Corresponde al seguro mencionado.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 22,
+      "comentario": "No aplica, fue renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 23,
+      "comentario": "No aplica, fue renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 24,
+      "comentario": "Tipificó renuncia y fue renuncia.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 25,
+      "comentario": "Se tipificó la única gestión realizada.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 26,
+      "comentario": "Se impactó la gestión solicitada/inducida.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 27,
+      "comentario": "No intervino ningún tercero en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 28,
+      "comentario": "El campo devolucion_prima indica 'corresponde' y el ejecutivo niega tajantemente la devolución.",
+      "evidencia": [
+        {
+          "t": "01:11",
+          "hablante": "AGENTE",
+          "cita": "No, eso no se devuelve. Lo pagado, pagado."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 29,
+      "comentario": "El ejecutivo realiza el protocolo de cierre resumiendo la gestión, póliza y consulta si está de acuerdo.",
+      "evidencia": [
+        {
+          "t": "01:17",
+          "hablante": "AGENTE",
+          "cita": "Listo, señora Valentina. Quedó ingresada la renuncia de su Sale Seguro, póliza número SALE-0008, con cargo a su cuenta RUT. ¿Está de acuerdo?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 30,
+      "comentario": "La cliente respondió afirmativamente al cierre ('Sí'), por lo que no hubo respuesta no permitida.",
+      "estado": "no_aplica",
+      "confianza": 1.0
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida correctamente RUT, nombre completo y fecha de nacimiento.",
+      "evidencia": [
+        {
+          "t": "00:08",
+          "hablante": "AGENTE",
+          "cita": "Señora Valentina, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:13",
+          "hablante": "CLIENTE",
+          "cita": "Dieciocho millones..."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 32,
+      "comentario": "La pregunta de cierre ('¿Está de acuerdo?') es neutra y estándar.",
+      "estado": "cumple",
+      "confianza": 1.0
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo valida correctamente email y teléfono.",
+      "evidencia": [
+        {
+          "t": "00:24",
+          "hablante": "AGENTE",
+          "cita": "¿Su correo y teléfono?"
+        },
+        {
+          "t": "00:26",
+          "hablante": "CLIENTE",
+          "cita": "valentina punto reyes..."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1.0
+    }
+  ]
+}

@@ -1,0 +1,241 @@
+```json
+{
+  "resumen": "Gloria Fernández llama por un seguro de desgravamen nominal que aparece en su dividendo hipotecario y que no recuerda haber contratado. El ejecutivo valida sus datos, confirma que es un seguro de desgravamen del crédito hipotecario, ingresa la renuncia y cierra la llamada. Sin embargo, el seguro es NO_RENUNCIABLE por teléfono y solo se puede reemplazar en sucursal; la renuncia no debería haberse ingresado.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Me sale un seguro de desgravamen en el dividendo del hipotecario y yo no me acuerdo de haberlo contratado. Lo quiero sacar.",
+    "timestamp": "00:35"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con despedida del ejecutivo tras la confirmación del cliente."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213311",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [
+        "Desconoce contratación del seguro"
+      ],
+      "n_objeciones": 0,
+      "cliente_tajante": false,
+      "argumentos_retencion": [],
+      "evidencia": "El cliente expresa que no recuerda haber contratado el seguro y pide sacarlo. El ejecutivo ingresa la renuncia sin informar que el seguro es no renunciable por teléfono ni derivar a sucursal."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hay esperas registradas en los metadatos y la transcripción no muestra silencios prolongados sin comunicación.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo no describe coberturas ni características del seguro por iniciativa propia; solo confirma que es 'el seguro de desgravamen de su crédito hipotecario'. No hay descripción incorrecta de otro seguro.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 3,
+      "comentario": "No hay objeciones de retención; el cliente no es tajante (no reitera su decisión) pero tampoco hay intentos de retención que superen 3 objeciones.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo menciona que es 'el seguro de desgravamen de su crédito hipotecario', lo que identifica el tipo de seguro. Aunque no detalla coberturas específicas, menciona al menos una característica (desgravamen, asociado a crédito hipotecario).",
+      "estado": "cumple",
+      "confianza": 0.8
+    },
+    {
+      "id": 5,
+      "comentario": "No aplica: el cliente no consulta sobre fechas de renuncia ni permanencia. El ejecutivo no condiciona la renuncia a una fecha específica.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 6,
+      "comentario": "El cliente no hace preguntas sobre coberturas o características del producto. El ejecutivo no necesita proporcionar información adicional del producto.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 7,
+      "comentario": "El seguro es NO_RENUNCIABLE_SUCURSAL y debe derivarse a sucursal para reemplazo. El ejecutivo no informa esto ni deriva al cliente; ingresa la renuncia directamente, lo que es incorrecto.",
+      "evidencia": [
+        {
+          "t": "00:44",
+          "hablante": "AGENTE",
+          "cita": "Entiendo, señora Gloria. Es el seguro de desgravamen de su crédito hipotecario. Se lo doy de baja."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde directamente a la solicitud del cliente de sacar el seguro.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro 48213311 es NO_RENUNCIABLE por teléfono (categoría NO_RENUNCIABLE_SUCURSAL). El ejecutivo ingresa la renuncia, lo que incumple este motivo.",
+      "evidencia": [
+        {
+          "t": "00:54",
+          "hablante": "AGENTE",
+          "cita": "Listo. Quedó ingresada la renuncia de su seguro de desgravamen, número de seguro cuatro ocho dos uno tres tres uno uno, con cargo en su crédito hipotecario."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 10,
+      "comentario": "El tono y lenguaje del ejecutivo son profesionales y respetuosos; no hay mal trato.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 11,
+      "comentario": "No hay descalificaciones a pares, BancoEstado, la compañía o competencia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 12,
+      "comentario": "El cliente expresó intención de renuncia; el ejecutivo no indujo a renunciar un seguro que el cliente no pidió.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 13,
+      "comentario": "El ejecutivo menciona el número de seguro en el cierre: 'número de seguro cuatro ocho dos uno tres tres uno uno' (48213311).",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 14,
+      "comentario": "No aplica: el seguro es NO_RENUNCIABLE, no RETENIBLE. No corresponde intentar retención.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 15,
+      "comentario": "El medio de pago es HIP (Asociado a Crédito Hipotecario), no 'OTRO'. El ejecutivo menciona 'con cargo en su crédito hipotecario', lo que informa el medio de pago.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 16,
+      "comentario": "No aplica: el cliente expresó intención de renuncia ('Lo quiero sacar'), por lo que la gestión es apropiada en ese sentido (aunque el seguro no sea renunciable por teléfono).",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 17,
+      "comentario": "No aplica: el seguro no es RETENIBLE; es NO_RENUNCIABLE_SUCURSAL.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 18,
+      "comentario": "El motivo tipificado es 'Desconoce contratación del seguro', que coincide con lo que expresa el cliente: 'yo no me acuerdo de haberlo contratado'.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 19,
+      "comentario": "El ejecutivo tipifica RENUNCIA y en la grabación se ingresa una renuncia (aunque incorrectamente, porque el seguro no es renunciable por teléfono). La tipificación coincide con la acción registrada.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 20,
+      "comentario": "El seguro tipificado (48213311) se menciona en la grabación: 'Me sale un seguro de desgravamen en el dividendo del hipotecario'.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 21,
+      "comentario": "El seguro tipificado (48213311) es el único mencionado en la grabación; no hay confusión de seguro.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 22,
+      "comentario": "No aplica: no hay tipificación de retención.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 23,
+      "comentario": "No aplica: no hay tipificación de retención.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 24,
+      "comentario": "No aplica: el ejecutivo tipifica RENUNCIA y en la grabación se ingresa una renuncia (aunque incorrecta).",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 25,
+      "comentario": "El único seguro mencionado (48213311) está tipificado como RENUNCIA.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 26,
+      "comentario": "El cliente solicita sacar el seguro de desgravamen; el ejecutivo intenta gestionar esa solicitud (aunque de forma incorrecta).",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 27,
+      "comentario": "No hay terceros en la llamada; el cliente es el titular y se valida correctamente.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 28,
+      "comentario": "El cliente no pregunta sobre devolución de prima. El tipo de prima del seguro no está disponible en los metadatos, por lo que no se puede evaluar si hay negación de devolución.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 29,
+      "comentario": "El ejecutivo realiza un protocolo de cierre: resume la gestión ('Quedó ingresada la renuncia de su seguro de desgravamen'), menciona el número de seguro, informa el medio de pago y pide confirmación ('¿Está de acuerdo?'). El cliente confirma ('Sí, de acuerdo').",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 30,
+      "comentario": "El cliente responde con aceptación clara ('Sí, de acuerdo') al cierre; no hay respuesta no permitida que requiera reiteración.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida RUT ('Diez millones cien mil cien guion cero'), nombre completo ('Gloria Inés Fernández Soto') y fecha de nacimiento ('treinta de septiembre del sesenta y cinco'). Los 3 datos se corroboran.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 32,
+      "comentario": "El ejecutivo pregunta 'Está de acuerdo?' de forma neutra, sin condicionar la respuesta a un 'sí'. No es una pregunta predispuesta.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo pregunta y valida email ('gloria punto fernandez arroba correo ejemplo punto cl') y teléfono ('nueve uno uno uno dos dos dos tres tres').",
+      "estado": "cumple",
+      "confianza": 1
+    }
+  ]
+}
+```
