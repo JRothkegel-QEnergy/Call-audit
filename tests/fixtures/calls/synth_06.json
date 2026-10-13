@@ -2,19 +2,19 @@
   "call_id": "synth-06",
   "synthetic": true,
   "title": "Retención sin intención de renuncia y pregunta predispuesta",
-  "description": "El cliente solo consulta cómo usar su seguro Protección Global. El ejecutivo igual hace un discurso de retención y le pide un 'sí' condicionado.",
+  "description": "La clienta solo consulta si su Sale Seguro cubre un robo. El ejecutivo igual hace un discurso de retención, le pide un 'sí' condicionado y no responde si el robo está cubierto.",
   "metadata": {
     "date": "2026-09-08",
     "agent_id": "EJ-0106",
-    "duration_sec": 113,
+    "duration_sec": 102,
     "holds_sec": [],
     "policies": [
       {
-        "name": "Protección Global",
-        "policy_number": "PROT-GLB-0006",
-        "retainable": true,
-        "cancellable_in_channel": true,
-        "premium_refund": null
+        "name": "SALE SEGURO PLUS (Sucursales)",
+        "mus_a_neto": "48213306",
+        "policy_number": "498213306",
+        "start_date": "2025-03-15",
+        "payment_method": "CTV"
       }
     ],
     "typification": []
@@ -65,61 +65,49 @@
     {
       "channel": "customer",
       "start_ms": 40161,
-      "end_ms": 49776,
-      "text": "Tengo el seguro Protección Global y me robaron la billetera el fin de semana. Quería saber si eso lo cubre y cómo hago el reclamo."
+      "end_ms": 51699,
+      "text": "Tengo el Sale Seguro y el fin de semana me asaltaron y me robaron la cartera con la tarjeta. Quería saber si eso lo cubre y cómo hago el reclamo."
     },
     {
       "channel": "agent",
-      "start_ms": 50776,
-      "end_ms": 64623,
+      "start_ms": 52699,
+      "end_ms": 66546,
       "text": "Señora Sofía, antes de eso le quiero recordar lo importante que es mantener este seguro. Mucha gente lo da de baja y después se arrepiente, porque es una protección muy completa para usted y su familia."
     },
     {
       "channel": "customer",
-      "start_ms": 65423,
-      "end_ms": 70807,
+      "start_ms": 67346,
+      "end_ms": 72730,
       "text": "Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo."
     },
     {
       "channel": "agent",
-      "start_ms": 71407,
-      "end_ms": 77176,
+      "start_ms": 73330,
+      "end_ms": 79100,
       "text": "Sí, claro, pero es importante que lo mantenga. Usted está de acuerdo en mantenerlo, ¿cierto?"
     },
     {
       "channel": "customer",
-      "start_ms": 78076,
-      "end_ms": 81923,
+      "start_ms": 79999,
+      "end_ms": 83846,
       "text": "Eh... sí, supongo. Pero ¿me cubre el robo o no?"
     },
     {
       "channel": "agent",
-      "start_ms": 82423,
-      "end_ms": 96653,
-      "text": "Perfecto, entonces queda vigente. Para el robo de la billetera, la cobertura depende de las condiciones de su póliza; tiene que hacer la denuncia en Carabineros y llamar al número de siniestros que le voy a dar."
+      "start_ms": 84346,
+      "end_ms": 94730,
+      "text": "Perfecto, entonces queda vigente. Para el robo, eso lo ve la compañía; usted haga la denuncia en Carabineros y llame al FonoSeguros, seiscientos seiscientos sesenta, doce doce."
     },
     {
       "channel": "customer",
-      "start_ms": 97853,
-      "end_ms": 99776,
-      "text": "Ya, ¿cuál es el número?"
-    },
-    {
-      "channel": "agent",
-      "start_ms": 100476,
-      "end_ms": 106630,
-      "text": "Es el seiscientos, cero, cero, cero, cero, cero, cero. Ahí le van a pedir la denuncia."
-    },
-    {
-      "channel": "customer",
-      "start_ms": 107630,
-      "end_ms": 108830,
+      "start_ms": 95930,
+      "end_ms": 97130,
       "text": "Ya, gracias."
     },
     {
       "channel": "agent",
-      "start_ms": 109630,
-      "end_ms": 111938,
+      "start_ms": 97830,
+      "end_ms": 100138,
       "text": "Que tenga buen día, señora Sofía."
     }
   ],
@@ -128,9 +116,9 @@
     "cancellation_intent": false,
     "outcomes": [
       {
-        "policy_number": "PROT-GLB-0006",
-        "outcome": "SIN_GESTION",
-        "cancellation_reason": "No informado",
+        "mus_a_neto": "48213306",
+        "outcome": "CONSULTA",
+        "cancellation_reasons": [],
         "objections": 0
       }
     ],
@@ -148,7 +136,12 @@
       {
         "criterion_id": 8,
         "status": "non_compliant",
-        "note": "Elude la pregunta sobre la cobertura de robo para insistir en la retención."
+        "note": "La clienta pregunta dos veces si el robo está cubierto y el ejecutivo no responde."
+      },
+      {
+        "criterion_id": 6,
+        "status": "uncertain",
+        "note": "La ficha dice que cubre robo con violencia o intimidación; el ejecutivo no lo informa ('eso lo ve la compañía'). Se superpone con el motivo 8."
       },
       {
         "criterion_id": 29,
@@ -168,9 +161,9 @@
       {
         "criterion_id": 25,
         "status": "uncertain",
-        "note": "Igual que 29: si la retención cuenta como gestión, no está tipificada."
+        "note": "No hay tipificación. Si la consulta (o la 'retención') debía tipificarse, falta."
       }
     ],
-    "notes": "No hay tipificación porque no hubo gestión de renuncia ni de retención solicitada por la clienta."
+    "notes": "No hubo solicitud de renuncia: por grabación es una consulta."
   }
 }

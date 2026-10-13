@@ -6,20 +6,20 @@
   "metadata": {
     "date": "2026-09-05",
     "agent_id": "EJ-0105",
-    "duration_sec": 115,
+    "duration_sec": 118,
     "holds_sec": [],
     "policies": [
       {
-        "name": "Seguro de Salud Incapacidad MYPE",
-        "policy_number": "MYPE-0005",
-        "retainable": true,
-        "cancellable_in_channel": true,
-        "premium_refund": null
+        "name": "HOSPITALIZACION TLMK",
+        "mus_a_neto": "48213305",
+        "policy_number": "498213305",
+        "start_date": "2025-03-15",
+        "payment_method": "CTV"
       }
     ],
     "typification": [
       {
-        "policy_number": "MYPE-0005",
+        "mus_a_neto": "48213305",
         "outcome": "RENUNCIA",
         "reason": "No desea contraer más obligaciones"
       }
@@ -71,55 +71,55 @@
     {
       "channel": "customer",
       "start_ms": 41315,
-      "end_ms": 51699,
-      "text": "Quiero renunciar al seguro de salud de la pyme, no quiero más compromisos. Pero mire, mi señora es la que ve estas cosas, le paso con ella."
+      "end_ms": 50546,
+      "text": "Quiero renunciar al seguro de hospitalización, no quiero más compromisos. Pero mire, mi señora es la que ve estas cosas, le paso con ella."
     },
     {
       "channel": "customer",
-      "start_ms": 52399,
-      "end_ms": 60092,
+      "start_ms": 51246,
+      "end_ms": 58938,
       "text": "Hola, buenas, habla Marcela, la señora de Jorge. ¿Cuánto es lo que estamos pagando por ese seguro y desde cuándo?"
     },
     {
       "channel": "agent",
-      "start_ms": 61092,
-      "end_ms": 74938,
-      "text": "Hola, señora Marcela. El seguro de Salud Incapacidad MYPE tiene una prima mensual de doce mil cuatrocientos pesos, que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado."
+      "start_ms": 59938,
+      "end_ms": 73015,
+      "text": "Hola, señora Marcela. El seguro de Hospitalización tiene una prima mensual de seis mil trescientos pesos, que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado."
     },
     {
       "channel": "customer",
-      "start_ms": 75738,
-      "end_ms": 79200,
+      "start_ms": 73815,
+      "end_ms": 77276,
       "text": "Ya, ¿y qué pasa si lo sacamos? ¿Pierde algo?"
     },
     {
       "channel": "agent",
-      "start_ms": 79800,
-      "end_ms": 90569,
-      "text": "Perdería la cobertura de incapacidad para su negocio: si don Jorge queda incapacitado temporalmente, el seguro le paga una renta diaria. Es una buena protección para un emprendedor."
+      "start_ms": 77876,
+      "end_ms": 91723,
+      "text": "Perdería la cobertura de hospitalización: si don Jorge queda hospitalizado por enfermedad o accidente, en sala común, UTI o UCI, el seguro le paga dos UF por día, de libre disposición, hasta por ciento ochenta días."
     },
     {
       "channel": "customer",
-      "start_ms": 91469,
-      "end_ms": 94930,
+      "start_ms": 92623,
+      "end_ms": 96084,
       "text": "No, igual lo queremos sacar. Ya tenemos muchas cuentas."
     },
     {
       "channel": "agent",
-      "start_ms": 95430,
-      "end_ms": 106969,
-      "text": "Perfecto, señora Marcela. Entonces le confirmo: queda ingresada la renuncia del seguro Salud Incapacidad MYPE, póliza número MYPE-0005, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?"
+      "start_ms": 96584,
+      "end_ms": 110815,
+      "text": "Perfecto, señora Marcela. Entonces le confirmo: queda ingresada la renuncia del seguro de Hospitalización, número de seguro cuatro ocho dos uno tres tres cero cinco, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?"
     },
     {
       "channel": "customer",
-      "start_ms": 108169,
-      "end_ms": 110092,
+      "start_ms": 112015,
+      "end_ms": 113938,
       "text": "Sí, de acuerdo. Gracias, señorita."
     },
     {
       "channel": "agent",
-      "start_ms": 110792,
-      "end_ms": 113100,
+      "start_ms": 114638,
+      "end_ms": 116946,
       "text": "A usted, que tengan buena tarde."
     }
   ],
@@ -128,9 +128,11 @@
     "cancellation_intent": true,
     "outcomes": [
       {
-        "policy_number": "MYPE-0005",
+        "mus_a_neto": "48213305",
         "outcome": "RENUNCIA",
-        "cancellation_reason": "No desea contraer más obligaciones",
+        "cancellation_reasons": [
+          "No desea contraer más obligaciones"
+        ],
         "objections": 1
       }
     ],
@@ -139,6 +141,11 @@
         "criterion_id": 27,
         "status": "non_compliant",
         "note": "Entrega información y cierra la gestión con la cónyuge (tercero) sin retomar el protocolo de cierre con el titular."
+      },
+      {
+        "criterion_id": 14,
+        "status": "uncertain",
+        "note": "El único argumento de retención se le da a la cónyuge (tercero), no al titular: se puede leer como que no hubo intento de retención válido."
       }
     ],
     "notes": "En el canal del cliente hablan dos personas distintas; útil para probar detección de terceros."

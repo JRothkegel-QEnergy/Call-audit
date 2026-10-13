@@ -1,0 +1,56 @@
+## Metadatos
+llamada_id: synth-13
+fecha: 2026-09-17
+ejecutivo: EJ-0113
+duracion_seg: 96
+esperas_seg: []
+umbral_espera_seg: 30
+
+## Seguros del cliente consultados en la llamada
+### Seguro 1: AP PLUS MEDIO DE PAGO
+- N° de seguro (MUS A Neto): 48213314
+- N° de póliza: 498213314
+- inicio de vigencia: 2025-03-15
+- compañía: MetLife
+- categoría: RETENIBLE. Seguro retenible: si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
+- tipo de prima: prima anual. Devolución: tiene devolución de la prima no devengada.
+- medio de pago: OTRO (otro medio de pago)
+- ficha del producto:
+SEGURO | COBERTURAS
+ACCIDENTES PERSONALES PLAN PLUS Póliza 492000170 | UF 500
+MUERTE ACCIDENTAL
+En caso de muerte accidental del Asegurado en Chile o en el extranjero, la Compañía pagará al beneficiario, de una sola vez; el capital asegurado según el plan contratado
+BENEFICIARIOS
+Serán beneficiarios de esta póliza todas aquellas personas naturales que el Asegurado designe al momento de la contratación del presente seguro, y que figuren individualizadas en la respectiva Propuesta de Seguro Muerte Accidental Plan Individual. En caso de no haber designado beneficiarios, serán los herederos legales (según posesión efectiva).
+APOYO SOLIDARIO | UF 5
+En caso de fallecimiento del Asegurado, sea cual sea la causa, la Compañía Aseguradora pagará al Reclamante del siniestro, de una sola vez, un monto total de UF 5. Dicho monto se pagará adicionalmente al capital asegurado por fallecimiento. | 1 evento
+Pólizas N° 490000149, 491000149, 492000149, 490000170, 491000170 y 492000170.
+REQUISITOS DE ASEGURABILIDAD
+Edad mínima de Ingreso | 18 años
+Edad máxima de Ingreso | 78 años y 364 días
+Edad máxima de permanencia | 79 años y 364 días
+PRIMA DEL SEGURO
+UF 0,42
+PRIMA ANUAL
+
+## Tipificación registrada por el ejecutivo
+- seguro: 48213314 | gestion: RENUNCIA | motivo: Problemas Económicos
+
+## Transcripción (canal separado, timestamps mm:ss)
+[00:01] AGENTE: Buenas tardes, BancoEstado Corredores de Seguros, le saluda Marcela Ortiz. ¿Con quién hablo?
+[00:07] CLIENTE: Buenas tardes, habla Patricia León.
+[00:09] AGENTE: Señora Patricia, para validar su identidad, ¿me indica su RUT?
+[00:14] CLIENTE: Nueve millones novecientos mil novecientos guion nueve.
+[00:17] AGENTE: ¿Su nombre completo y fecha de nacimiento?
+[00:20] CLIENTE: Patricia Elena León Fuentes, veinticinco de junio del setenta.
+[00:25] AGENTE: ¿Y su correo y teléfono de contacto?
+[00:29] CLIENTE: patricia punto leon arroba correo ejemplo punto cl, nueve siete cero cero cero uno dos tres cuatro.
+[00:36] AGENTE: Gracias, señora Patricia, quedó validada. ¿En qué la puedo ayudar?
+[00:41] CLIENTE: Quiero renunciar al seguro de accidentes personales. Está todo muy caro y tengo que recortar gastos.
+[00:47] AGENTE: Entiendo, señora Patricia. Su seguro se renueva en marzo, y la renuncia solo se puede hacer en la fecha de renovación, así que le conviene esperar a marzo.
+[00:59] CLIENTE: ¿Y no lo puedo sacar antes?
+[01:02] AGENTE: No, tiene que esperar a la renovación. Además, mientras tanto sigue protegida: si fallece por un accidente, en Chile o en el extranjero, sus beneficiarios reciben quinientas UF de una vez.
+[01:15] CLIENTE: Ya, bueno. Entonces lo dejo hasta marzo no más.
+[01:19] AGENTE: Perfecto. Le resumo: su seguro de Accidentes Personales Plan Plus, número de seguro cuatro ocho dos uno tres tres uno cuatro, se mantiene vigente. ¿Está de acuerdo?
+[01:31] CLIENTE: Sí, de acuerdo.
+[01:33] AGENTE: Gracias, que tenga buena tarde.

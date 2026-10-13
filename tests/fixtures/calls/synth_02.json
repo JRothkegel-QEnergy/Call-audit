@@ -1,25 +1,25 @@
 {
   "call_id": "synth-02",
   "synthetic": true,
-  "title": "Exceso de objeciones y cierre sin N° de póliza",
-  "description": "El cliente insiste en renunciar; el ejecutivo da 5 argumentos de retención (1 tras la solicitud y 4 tras negativas). Procesa la renuncia, pero en el cierre no menciona el número de seguro.",
+  "title": "Exceso de objeciones y cierre sin N° de seguro",
+  "description": "La clienta insiste en renunciar de forma tajante; el ejecutivo da 5 argumentos de retención (1 tras la solicitud y 4 tras negativas). Procesa la renuncia, pero en el cierre no menciona el número de seguro.",
   "metadata": {
     "date": "2026-09-02",
     "agent_id": "EJ-0102",
-    "duration_sec": 135,
+    "duration_sec": 147,
     "holds_sec": [],
     "policies": [
       {
-        "name": "Seguro de Desempleo - Créditos de consumo",
-        "policy_number": "DES-CONS-0002",
-        "retainable": true,
-        "cancellable_in_channel": true,
-        "premium_refund": null
+        "name": "DESEMPLEO ITT CRE. CONSUMO",
+        "mus_a_neto": "48213302",
+        "policy_number": "498213302",
+        "start_date": "2025-03-15",
+        "payment_method": "CRE"
       }
     ],
     "typification": [
       {
-        "policy_number": "DES-CONS-0002",
+        "mus_a_neto": "48213302",
         "outcome": "RENUNCIA",
         "reason": "Problemas Económicos"
       }
@@ -89,86 +89,86 @@
     {
       "channel": "agent",
       "start_ms": 53146,
-      "end_ms": 62376,
-      "text": "Entiendo, señora Carolina. Le comento que este seguro le cubre hasta cinco cuotas de su crédito si queda cesante por necesidades de la empresa."
+      "end_ms": 61223,
+      "text": "Entiendo, señora Carolina. Le comento que este seguro le paga cuatro cuotas de su crédito si queda cesante de forma involuntaria."
     },
     {
       "channel": "customer",
-      "start_ms": 63076,
-      "end_ms": 66923,
+      "start_ms": 61923,
+      "end_ms": 65769,
       "text": "Sí, sé lo que cubre, pero igual no lo quiero."
     },
     {
       "channel": "agent",
-      "start_ms": 67923,
-      "end_ms": 74076,
-      "text": "Pero piense que le cubre hasta cinco cuotas. Hoy el trabajo está difícil, nunca se sabe."
+      "start_ms": 66769,
+      "end_ms": 72153,
+      "text": "Pero piense que son cuatro cuotas. Hoy el trabajo está difícil, nunca se sabe."
     },
     {
       "channel": "customer",
-      "start_ms": 74876,
-      "end_ms": 77569,
+      "start_ms": 72953,
+      "end_ms": 75646,
       "text": "No, de verdad, quiero darlo de baja."
     },
     {
       "channel": "agent",
-      "start_ms": 78169,
-      "end_ms": 85092,
+      "start_ms": 76246,
+      "end_ms": 83169,
       "text": "Mire, la prima ya está pagada, no le cobran todos los meses. Mantenerlo no le cuesta nada extra."
     },
     {
       "channel": "customer",
-      "start_ms": 85992,
-      "end_ms": 88684,
+      "start_ms": 84069,
+      "end_ms": 86761,
       "text": "Ya le dije que no. Quiero renunciarlo."
     },
     {
       "channel": "agent",
-      "start_ms": 89184,
-      "end_ms": 96876,
-      "text": "Le entiendo, pero imagínese si la despiden el próximo mes. Son cinco cuotas que no va a tener que pagar."
+      "start_ms": 87261,
+      "end_ms": 94953,
+      "text": "Le entiendo, pero imagínese si la despiden el próximo mes. Son cuatro cuotas que no va a tener que pagar."
     },
     {
       "channel": "customer",
-      "start_ms": 98076,
-      "end_ms": 101153,
+      "start_ms": 96153,
+      "end_ms": 99230,
       "text": "Oiga, ya le dije tres veces que no."
     },
     {
       "channel": "agent",
-      "start_ms": 101853,
-      "end_ms": 107623,
+      "start_ms": 99930,
+      "end_ms": 105700,
       "text": "¿Y si lo mantiene un mes más y después lo vemos? Así no queda desprotegida."
     },
     {
       "channel": "customer",
-      "start_ms": 108623,
-      "end_ms": 111700,
+      "start_ms": 106700,
+      "end_ms": 109776,
       "text": "No, por favor, hágame la renuncia no más."
     },
     {
       "channel": "agent",
-      "start_ms": 112500,
-      "end_ms": 115576,
+      "start_ms": 110576,
+      "end_ms": 113653,
       "text": "Está bien, señora Carolina, procedo con la renuncia."
     },
     {
       "channel": "agent",
-      "start_ms": 116176,
-      "end_ms": 128484,
-      "text": "Listo. Le confirmo que quedó ingresada la renuncia de su seguro de desempleo. El cargo se hacía a su crédito de consumo, así que no tendrá más movimientos asociados. ¿Está de acuerdo?"
+      "start_ms": 114253,
+      "end_ms": 126561,
+      "text": "Listo. Le confirmo que quedó ingresada la renuncia de su seguro de desempleo. El medio de pago es su crédito de consumo, así que no tendrá más movimientos asociados. ¿Está de acuerdo?"
     },
     {
       "channel": "customer",
-      "start_ms": 129384,
-      "end_ms": 130923,
+      "start_ms": 127461,
+      "end_ms": 129000,
       "text": "Sí, de acuerdo, gracias."
     },
     {
       "channel": "agent",
-      "start_ms": 131423,
-      "end_ms": 133346,
-      "text": "Que tenga un buen día."
+      "start_ms": 129500,
+      "end_ms": 145653,
+      "text": "Su seguro queda renunciado desde hoy. Como es de prima única, la devolución de la prima no devengada es automática y la hace la compañía dentro de diez días hábiles desde que toma conocimiento de la renuncia. Que tenga un buen día."
     }
   ],
   "expected": {
@@ -176,9 +176,11 @@
     "cancellation_intent": true,
     "outcomes": [
       {
-        "policy_number": "DES-CONS-0002",
+        "mus_a_neto": "48213302",
         "outcome": "RENUNCIA",
-        "cancellation_reason": "Problemas Económicos",
+        "cancellation_reasons": [
+          "Problemas Económicos"
+        ],
         "objections": 5
       }
     ],
@@ -186,12 +188,12 @@
       {
         "criterion_id": 3,
         "status": "non_compliant",
-        "note": "5 argumentos de retención (el primero tras la solicitud y 4 tras negativas explícitas); el máximo es 3."
+        "note": "5 argumentos de retención (el primero tras la solicitud y 4 tras negativas tajantes); el máximo es 3."
       },
       {
         "criterion_id": 13,
         "status": "non_compliant",
-        "note": "El cierre confirma la renuncia pero no menciona el N° de póliza DES-CONS-0002."
+        "note": "El cierre confirma la renuncia pero no menciona el N° de seguro (MUS A Neto 48213302)."
       }
     ]
   }

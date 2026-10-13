@@ -1,25 +1,25 @@
 {
   "call_id": "synth-10",
   "synthetic": true,
-  "title": "Renuncia de un seguro irrenunciable en el canal",
-  "description": "El seguro de Incapacidad Temporal no se puede renunciar por este canal (debe derivarse). El ejecutivo igual ingresa la renuncia.",
+  "title": "Renuncia de un seguro no renunciable",
+  "description": "El desgravamen nominal del hipotecario es obligatorio: no se puede renunciar por teléfono y se debe derivar a sucursal. El ejecutivo igual ingresa la renuncia.",
   "metadata": {
     "date": "2026-09-12",
     "agent_id": "EJ-0110",
-    "duration_sec": 71,
+    "duration_sec": 72,
     "holds_sec": [],
     "policies": [
       {
-        "name": "Seguro de Incapacidad Temporal - Créditos de consumo",
-        "policy_number": "INC-TMP-0010",
-        "retainable": false,
-        "cancellable_in_channel": false,
-        "premium_refund": null
+        "name": "DESGRAVAMEN NOMINAL",
+        "mus_a_neto": "48213311",
+        "policy_number": "498213311",
+        "start_date": "2025-03-15",
+        "payment_method": "HIP"
       }
     ],
     "typification": [
       {
-        "policy_number": "INC-TMP-0010",
+        "mus_a_neto": "48213311",
         "outcome": "RENUNCIA",
         "reason": "Desconoce contratación del seguro"
       }
@@ -71,37 +71,37 @@
     {
       "channel": "customer",
       "start_ms": 35930,
-      "end_ms": 44007,
-      "text": "Me sale un seguro de incapacidad temporal en el crédito y yo no me acuerdo de haberlo contratado. Lo quiero sacar."
+      "end_ms": 44392,
+      "text": "Me sale un seguro de desgravamen en el dividendo del hipotecario y yo no me acuerdo de haberlo contratado. Lo quiero sacar."
     },
     {
       "channel": "agent",
-      "start_ms": 44507,
-      "end_ms": 52200,
-      "text": "Entiendo, señora Gloria. Es el seguro de Incapacidad Temporal asociado a su crédito de consumo. Se lo doy de baja."
+      "start_ms": 44892,
+      "end_ms": 51430,
+      "text": "Entiendo, señora Gloria. Es el seguro de desgravamen de su crédito hipotecario. Se lo doy de baja."
     },
     {
       "channel": "customer",
-      "start_ms": 53400,
-      "end_ms": 54600,
+      "start_ms": 52630,
+      "end_ms": 53830,
       "text": "Ya, gracias."
     },
     {
       "channel": "agent",
-      "start_ms": 55300,
-      "end_ms": 65300,
-      "text": "Listo. Quedó ingresada la renuncia de su seguro de Incapacidad Temporal, póliza número INC-TMP-0010, con prima única cargada en su crédito de consumo. ¿Está de acuerdo?"
+      "start_ms": 54530,
+      "end_ms": 66069,
+      "text": "Listo. Quedó ingresada la renuncia de su seguro de desgravamen, número de seguro cuatro ocho dos uno tres tres uno uno, con cargo en su crédito hipotecario. ¿Está de acuerdo?"
     },
     {
       "channel": "customer",
-      "start_ms": 66300,
-      "end_ms": 67500,
+      "start_ms": 67069,
+      "end_ms": 68269,
       "text": "Sí, de acuerdo."
     },
     {
       "channel": "agent",
-      "start_ms": 68300,
-      "end_ms": 69838,
+      "start_ms": 69069,
+      "end_ms": 70607,
       "text": "Que tenga buena tarde."
     }
   ],
@@ -110,9 +110,11 @@
     "cancellation_intent": true,
     "outcomes": [
       {
-        "policy_number": "INC-TMP-0010",
+        "mus_a_neto": "48213311",
         "outcome": "RENUNCIA",
-        "cancellation_reason": "Desconoce contratación del seguro",
+        "cancellation_reasons": [
+          "Desconoce contratación del seguro"
+        ],
         "objections": 0
       }
     ],
@@ -120,22 +122,19 @@
       {
         "criterion_id": 9,
         "status": "non_compliant",
-        "note": "Renuncia un seguro marcado como irrenunciable en este canal (metadato cancellable_in_channel=false)."
+        "note": "Renuncia un seguro no renunciable (DESGRAVAMEN NOMINAL: obligatorio, solo se reemplaza en sucursal)."
       },
       {
         "criterion_id": 7,
         "status": "non_compliant",
-        "note": "Debió derivar la solicitud al área correspondiente."
+        "note": "Debió explicar que no se puede renunciar por teléfono y orientar a sucursal para reemplazar la póliza."
       },
       {
         "criterion_id": 4,
-        "status": "non_compliant",
-        "note": "Solo nombra el seguro; no indica ninguna característica."
+        "status": "uncertain",
+        "note": "Solo nombra el seguro. En un no renunciable no hay retención, así que no está claro que aplique."
       }
     ],
-    "notes": "Seguro no retenible: el motivo 14 no aplica."
-  },
-  "fixture_assumptions": {
-    "cancellable_in_channel_note": "Supuesto sintético: el cliente aún no define qué seguros son irrenunciables por canal."
+    "notes": "No renunciable: el motivo 14 no aplica. Lo correcto era tipificarlo como consulta."
   }
 }

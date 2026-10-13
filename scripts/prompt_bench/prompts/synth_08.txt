@@ -2,18 +2,39 @@
 llamada_id: synth-08
 fecha: 2026-09-10
 ejecutivo: EJ-0108
-duracion_seg: 91
+duracion_seg: 95
 esperas_seg: []
-umbral_espera_seg: 120
+umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
-- nombre: Sale Seguro | n_poliza: SALE-0008 | retenible: si | renunciable_en_canal: si | devolucion_prima: corresponde
+### Seguro 1: AP INDIVIDUAL MEDIO DE PAGO
+- N° de seguro (MUS A Neto): 48213308
+- N° de póliza: 498213308
+- inicio de vigencia: 2025-03-15
+- compañía: MetLife
+- categoría: RETENIBLE. Seguro retenible: si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
+- tipo de prima: prima anual. Devolución: tiene devolución de la prima no devengada.
+- medio de pago: CTV (Se paga con la Cuenta vista (Cuenta rut))
+- ficha del producto:
+SEGURO | COBERTURAS
+ACCIDENTES PERSONALES PLAN INDIVIDUAL Póliza 491000167 | UF 180
+MUERTE ACCIDENTAL
+En caso de muerte accidental del Asegurado en Chile o en el extranjero, la Compañía pagará al beneficiario, de una sola vez; el capital asegurado según el plan contratado
+BENEFICIARIOS
+Serán beneficiarios de esta póliza todas aquellas personas naturales que el Asegurado designe al momento de la contratación del presente seguro, y que figuren individualizadas en la respectiva Propuesta de Seguro Muerte Accidental Plan Individual. En caso de no haber designado beneficiarios, serán los herederos legales (según posesión efectiva).
+APOYO SOLIDARIO | UF 5
+En caso de fallecimiento del Asegurado, sea cual sea la causa, la Compañía Aseguradora pagará al Reclamante del siniestro, de una sola vez, un monto total de UF 5. Dicho monto se pagará adicionalmente al capital asegurado por fallecimiento. | 1 evento
+POLIZAS N° 490000147, 491000147, 492000147, 490000167, 491000167 y 492000167.
+REQUISITOS DE ASEGURABILIDAD
+Edad mínima de Ingreso | 18 años
+Edad máxima de Ingreso | 78 años y 364 días
+Edad máxima de permanencia | 79 años y 364 días
+PRIMA DEL SEGURO
+UF 0,25
+PRIMA ANUAL
 
 ## Tipificación registrada por el ejecutivo
-- seguro: SALE-0008 | gestion: RENUNCIA | motivo: No informado
-
-## Ficha de producto (del seguro gestionado)
-Sale Seguro: No disponible (ficha pendiente con el cliente).
+- seguro: 48213308 | gestion: RENUNCIA | motivo: No informado
 
 ## Transcripción (canal separado, timestamps mm:ss)
 [00:01] AGENTE: BancoEstado Corredores de Seguros, buenas tardes, le atiende Sebastián Lagos.
@@ -23,13 +44,13 @@ Sale Seguro: No disponible (ficha pendiente con el cliente).
 [00:24] AGENTE: ¿Su correo y teléfono?
 [00:26] CLIENTE: valentina punto reyes arroba correo ejemplo punto cl, nueve dos dos dos tres tres tres cuatro cuatro.
 [00:33] AGENTE: Gracias, datos validados. ¿En qué la ayudo?
-[00:37] CLIENTE: Me apareció un cobro en la cuenta que dice Sale Seguro y no me acuerdo bien qué es. Quería saber qué cubre.
-[00:46] AGENTE: Ah, sí, es un seguro que se contrató con su crédito. La verdad, si no se acuerda de él, seguramente no lo usa. Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?
+[00:37] CLIENTE: Me apareció un cobro en la cuenta por un seguro y no me acuerdo bien qué es. Quería saber qué cubre.
+[00:46] AGENTE: Ah, sí, es un seguro que se contrató con su cuenta. La verdad, si no se acuerda de él, seguramente no lo usa. Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?
 [01:01] CLIENTE: Eh... bueno, ya, si usted dice.
 [01:04] AGENTE: Perfecto, procedo.
 [01:06] CLIENTE: Y lo que ya me cobraron, ¿me lo devuelven?
-[01:11] AGENTE: No, eso no se devuelve. Lo pagado, pagado.
-[01:15] CLIENTE: Ah, ya. Bueno.
-[01:17] AGENTE: Listo, señora Valentina. Quedó ingresada la renuncia de su Sale Seguro, póliza número SALE-0008, con cargo a su cuenta RUT. ¿Está de acuerdo?
-[01:26] CLIENTE: Sí.
-[01:28] AGENTE: Que tenga buena tarde.
+[01:10] AGENTE: No, eso no se devuelve. Lo pagado, pagado.
+[01:14] CLIENTE: Ah, ya. Bueno.
+[01:16] AGENTE: Listo, señora Valentina. Quedó ingresada la renuncia de su seguro de Accidentes Personales, número de seguro cuatro ocho dos uno tres tres cero ocho, con cargo a su cuenta RUT. ¿Está de acuerdo?
+[01:30] CLIENTE: Sí.
+[01:32] AGENTE: Que tenga buena tarde.

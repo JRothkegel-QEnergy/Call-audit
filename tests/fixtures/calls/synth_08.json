@@ -2,24 +2,24 @@
   "call_id": "synth-08",
   "synthetic": true,
   "title": "Inducción a la renuncia y negación de devolución de prima",
-  "description": "El cliente llama a consultar por un cobro de Sale Seguro. El ejecutivo le sugiere renunciar sin que lo haya pedido y le niega la devolución de la prima, que en este caso sí corresponde (supuesto sintético del fixture).",
+  "description": "La clienta llama a consultar por un cobro que no reconoce. El ejecutivo no le explica el seguro, le sugiere renunciar y le niega la devolución, que corresponde porque es un seguro anual.",
   "metadata": {
     "date": "2026-09-10",
     "agent_id": "EJ-0108",
-    "duration_sec": 91,
+    "duration_sec": 95,
     "holds_sec": [],
     "policies": [
       {
-        "name": "Sale Seguro",
-        "policy_number": "SALE-0008",
-        "retainable": true,
-        "cancellable_in_channel": true,
-        "premium_refund": true
+        "name": "AP INDIVIDUAL MEDIO DE PAGO",
+        "mus_a_neto": "48213308",
+        "policy_number": "498213308",
+        "start_date": "2025-03-15",
+        "payment_method": "CTV"
       }
     ],
     "typification": [
       {
-        "policy_number": "SALE-0008",
+        "mus_a_neto": "48213308",
         "outcome": "RENUNCIA",
         "reason": "No informado"
       }
@@ -71,61 +71,61 @@
     {
       "channel": "customer",
       "start_ms": 37469,
-      "end_ms": 45930,
-      "text": "Me apareció un cobro en la cuenta que dice Sale Seguro y no me acuerdo bien qué es. Quería saber qué cubre."
+      "end_ms": 45546,
+      "text": "Me apareció un cobro en la cuenta por un seguro y no me acuerdo bien qué es. Quería saber qué cubre."
     },
     {
       "channel": "agent",
-      "start_ms": 46530,
-      "end_ms": 60761,
-      "text": "Ah, sí, es un seguro que se contrató con su crédito. La verdad, si no se acuerda de él, seguramente no lo usa. Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+      "start_ms": 46146,
+      "end_ms": 60376,
+      "text": "Ah, sí, es un seguro que se contrató con su cuenta. La verdad, si no se acuerda de él, seguramente no lo usa. Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
     },
     {
       "channel": "customer",
-      "start_ms": 61661,
-      "end_ms": 63969,
+      "start_ms": 61276,
+      "end_ms": 63584,
       "text": "Eh... bueno, ya, si usted dice."
     },
     {
       "channel": "agent",
-      "start_ms": 64469,
-      "end_ms": 65669,
+      "start_ms": 64084,
+      "end_ms": 65284,
       "text": "Perfecto, procedo."
     },
     {
       "channel": "customer",
-      "start_ms": 66869,
-      "end_ms": 70330,
+      "start_ms": 66484,
+      "end_ms": 69946,
       "text": "Y lo que ya me cobraron, ¿me lo devuelven?"
     },
     {
       "channel": "agent",
-      "start_ms": 71030,
-      "end_ms": 74107,
+      "start_ms": 70646,
+      "end_ms": 73723,
       "text": "No, eso no se devuelve. Lo pagado, pagado."
     },
     {
       "channel": "customer",
-      "start_ms": 75107,
-      "end_ms": 76307,
+      "start_ms": 74723,
+      "end_ms": 75923,
       "text": "Ah, ya. Bueno."
     },
     {
       "channel": "agent",
-      "start_ms": 77107,
-      "end_ms": 85953,
-      "text": "Listo, señora Valentina. Quedó ingresada la renuncia de su Sale Seguro, póliza número SALE-0008, con cargo a su cuenta RUT. ¿Está de acuerdo?"
+      "start_ms": 76723,
+      "end_ms": 89415,
+      "text": "Listo, señora Valentina. Quedó ingresada la renuncia de su seguro de Accidentes Personales, número de seguro cuatro ocho dos uno tres tres cero ocho, con cargo a su cuenta RUT. ¿Está de acuerdo?"
     },
     {
       "channel": "customer",
-      "start_ms": 86553,
-      "end_ms": 87753,
+      "start_ms": 90015,
+      "end_ms": 91215,
       "text": "Sí."
     },
     {
       "channel": "agent",
-      "start_ms": 88653,
-      "end_ms": 90192,
+      "start_ms": 92115,
+      "end_ms": 93653,
       "text": "Que tenga buena tarde."
     }
   ],
@@ -134,9 +134,9 @@
     "cancellation_intent": false,
     "outcomes": [
       {
-        "policy_number": "SALE-0008",
+        "mus_a_neto": "48213308",
         "outcome": "RENUNCIA",
-        "cancellation_reason": "No informado",
+        "cancellation_reasons": [],
         "objections": 0
       }
     ],
@@ -144,12 +144,12 @@
       {
         "criterion_id": 12,
         "status": "non_compliant",
-        "note": "La clienta solo consulta qué cubre; el ejecutivo le sugiere renunciar."
+        "note": "La clienta solo consulta qué cubre; el ejecutivo le propone renunciar."
       },
       {
         "criterion_id": 28,
         "status": "non_compliant",
-        "note": "Niega la devolución de prima y en los metadatos devolucion_prima = corresponde."
+        "note": "Seguro de prima anual: corresponde devolución de la prima no devengada y el ejecutivo la niega."
       },
       {
         "criterion_id": 6,
@@ -170,8 +170,12 @@
         "criterion_id": 14,
         "status": "non_compliant",
         "note": "Seguro retenible renunciado sin ningún intento de retención."
+      },
+      {
+        "criterion_id": 18,
+        "status": "uncertain",
+        "note": "Tipificado 'No informado'. La clienta no reconoce el cobro: podría ser 'Desconoce contratación del seguro'."
       }
-    ],
-    "notes": "Que corresponda devolución de prima es un supuesto del fixture (premium_refund=True); la regla real es TBD con el cliente."
+    ]
   }
 }

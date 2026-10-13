@@ -6,27 +6,27 @@
   "metadata": {
     "date": "2026-09-11",
     "agent_id": "EJ-0109",
-    "duration_sec": 181,
+    "duration_sec": 194,
     "holds_sec": [],
     "policies": [
       {
-        "name": "Seguro de Desempleo - Créditos de consumo",
-        "policy_number": "DES-CONS-0009",
-        "retainable": true,
-        "cancellable_in_channel": true,
-        "premium_refund": null
+        "name": "DESEMPLEO ITT CRE. CONSUMO",
+        "mus_a_neto": "48213309",
+        "policy_number": "498213309",
+        "start_date": "2025-03-15",
+        "payment_method": "CRE"
       },
       {
-        "name": "Seguro Incendio Hogar",
-        "policy_number": "INC-HOG-0009",
-        "retainable": true,
-        "cancellable_in_channel": true,
-        "premium_refund": null
+        "name": "Incendio Hogar",
+        "mus_a_neto": "48213310",
+        "policy_number": "498213310",
+        "start_date": "2025-03-15",
+        "payment_method": "CCT"
       }
     ],
     "typification": [
       {
-        "policy_number": "DES-CONS-0009",
+        "mus_a_neto": "48213309",
         "outcome": "RENUNCIA",
         "reason": "Cambio de situación laboral"
       }
@@ -108,103 +108,103 @@
     {
       "channel": "agent",
       "start_ms": 73307,
-      "end_ms": 86384,
-      "text": "Claro. Le comento que este seguro le cubriría si a futuro vuelve a tener contrato y lo despiden por necesidades de la empresa. Como la prima ya está pagada, no le cuesta nada mantenerlo."
+      "end_ms": 90615,
+      "text": "Claro. Le comento que, como trabajador independiente, este seguro igual lo cubre por incapacidad temporal: si un accidente o una enfermedad infecciosa no lo deja trabajar, le paga hasta cuatro cuotas del crédito. Y como la prima ya está pagada, no le cuesta nada mantenerlo."
     },
     {
       "channel": "customer",
-      "start_ms": 87184,
-      "end_ms": 92953,
-      "text": "Sí, pero voy a ser independiente, entonces no me va a cubrir. Lo quiero sacar."
+      "start_ms": 91415,
+      "end_ms": 93723,
+      "text": "Sí, pero igual lo quiero sacar."
     },
     {
       "channel": "agent",
-      "start_ms": 93553,
-      "end_ms": 97015,
+      "start_ms": 94323,
+      "end_ms": 97784,
       "text": "Perfecto, entonces gestiono la renuncia del seguro de desempleo."
     },
     {
       "channel": "customer",
-      "start_ms": 97915,
-      "end_ms": 100223,
+      "start_ms": 98684,
+      "end_ms": 100992,
       "text": "Ya. Y el de incendio también."
     },
     {
       "channel": "agent",
-      "start_ms": 100723,
-      "end_ms": 114953,
-      "text": "Sobre el de Incendio Hogar, don Felipe: ese seguro protege su vivienda y sus contenidos ante incendio y otros eventos de la naturaleza. Ahora que va a trabajar desde la casa, puede ser todavía más importante tenerlo."
+      "start_ms": 101492,
+      "end_ms": 118415,
+      "text": "Sobre el de Incendio Hogar, don Felipe: ese seguro protege su vivienda ante incendio, daños por agua y eventos de la naturaleza, y le da asistencias de plomería y cerrajería. Ahora que va a trabajar desde la casa, puede ser todavía más importante tenerlo."
     },
     {
       "channel": "customer",
-      "start_ms": 116153,
-      "end_ms": 123461,
+      "start_ms": 119615,
+      "end_ms": 126923,
       "text": "Mmm, puede ser, pero la verdad es un gasto mensual que ahora no puedo tener. Lo quiero sacar igual."
     },
     {
       "channel": "agent",
-      "start_ms": 124161,
-      "end_ms": 129546,
+      "start_ms": 127623,
+      "end_ms": 133007,
       "text": "Entiendo. Mientras se acomoda con su nuevo trabajo, ¿no prefiere mantenerlo un tiempo más?"
     },
     {
       "channel": "customer",
-      "start_ms": 130546,
-      "end_ms": 133623,
+      "start_ms": 134007,
+      "end_ms": 137084,
       "text": "No, no. Los dos, por favor. Quiero ordenarme."
     },
     {
       "channel": "agent",
-      "start_ms": 134423,
-      "end_ms": 138269,
+      "start_ms": 137884,
+      "end_ms": 141730,
       "text": "Muy bien. Deme un segundo que estoy ingresando la gestión."
     },
     {
       "channel": "customer",
-      "start_ms": 138869,
-      "end_ms": 140069,
+      "start_ms": 142330,
+      "end_ms": 143530,
       "text": "Ya, dale."
     },
     {
       "channel": "agent",
-      "start_ms": 140969,
-      "end_ms": 147507,
+      "start_ms": 144430,
+      "end_ms": 150969,
       "text": "Mientras carga el sistema, don Felipe, ¿quiere que le actualice su dirección o algún dato de contacto?"
     },
     {
       "channel": "customer",
-      "start_ms": 148007,
-      "end_ms": 149930,
+      "start_ms": 151469,
+      "end_ms": 153392,
       "text": "No, está todo bien, gracias."
     },
     {
       "channel": "agent",
-      "start_ms": 151130,
-      "end_ms": 165746,
-      "text": "Perfecto. Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009, cuyo medio de pago fue el cargo único en su crédito de consumo. ¿Está de acuerdo con la gestión?"
+      "start_ms": 154592,
+      "end_ms": 170746,
+      "text": "Perfecto. Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, número de seguro cuatro ocho dos uno tres tres cero nueve, cuyo medio de pago es su crédito de consumo. ¿Está de acuerdo con la gestión?"
     },
     {
       "channel": "customer",
-      "start_ms": 166446,
-      "end_ms": 169523,
+      "start_ms": 171446,
+      "end_ms": 174523,
       "text": "Sí. ¿Y el de incendio quedó listo también?"
     },
     {
       "channel": "agent",
-      "start_ms": 170523,
-      "end_ms": 172830,
-      "text": "Sí, don Felipe, quedó todo listo."
+      "start_ms": 175523,
+      "end_ms": 185138,
+      "text": "Sí, don Felipe, quedó todo listo. Y la devolución de la prima no devengada del seguro de desempleo es automática, dentro de diez días hábiles."
     },
     {
       "channel": "customer",
-      "start_ms": 173630,
-      "end_ms": 175169,
+      "start_ms": 185938,
+      "end_ms": 187476,
       "text": "Ya, perfecto. Muchas gracias."
     },
     {
       "channel": "agent",
-      "start_ms": 175769,
-      "end_ms": 179999,
+      "start_ms": 188076,
+      "end_ms": 192307,
       "text": "A usted, que le vaya muy bien con su nuevo trabajo."
     }
   ],
@@ -213,15 +213,21 @@
     "cancellation_intent": true,
     "outcomes": [
       {
-        "policy_number": "DES-CONS-0009",
+        "mus_a_neto": "48213309",
         "outcome": "RENUNCIA",
-        "cancellation_reason": "Cambio de situación laboral",
+        "cancellation_reasons": [
+          "Cambio de situación laboral",
+          "No desea contraer más obligaciones"
+        ],
         "objections": 1
       },
       {
-        "policy_number": "INC-HOG-0009",
+        "mus_a_neto": "48213310",
         "outcome": "RENUNCIA",
-        "cancellation_reason": "Problemas Económicos",
+        "cancellation_reasons": [
+          "Problemas Económicos",
+          "Cambio de situación laboral"
+        ],
         "objections": 2
       }
     ],
@@ -229,19 +235,29 @@
       {
         "criterion_id": 26,
         "status": "non_compliant",
-        "note": "El cliente pidió renunciar a dos seguros y el cierre solo procesa el de desempleo; responde 'quedó todo listo' sin gestionar Incendio Hogar."
+        "note": "El cliente pidió renunciar a dos seguros y solo se procesa el de desempleo; responde 'quedó todo listo' sin gestionar Incendio Hogar."
       },
       {
         "criterion_id": 25,
         "status": "non_compliant",
-        "note": "Solo tipifica DES-CONS-0009; falta la gestión de INC-HOG-0009."
+        "note": "Solo tipifica 48213309; falta la gestión de 48213310."
       },
       {
         "criterion_id": 13,
-        "status": "non_compliant",
-        "note": "No indica el N° de póliza del seguro Incendio Hogar en el cierre."
+        "status": "uncertain",
+        "note": "No hay cierre para Incendio Hogar (ni N° de seguro). Es consecuencia de no haber gestionado ese seguro (26)."
+      },
+      {
+        "criterion_id": 15,
+        "status": "uncertain",
+        "note": "Igual que 13: no informa el medio de pago de Incendio Hogar."
+      },
+      {
+        "criterion_id": 29,
+        "status": "uncertain",
+        "note": "Igual que 13."
       }
     ],
-    "notes": "El motivo de renuncia de Incendio Hogar es interpretable (gasto mensual → Problemas Económicos); buen caso para medir acuerdo con auditores."
+    "notes": "El piloto parte con un seguro por cliente; este caso queda para probar 25 y 26. El motivo de Incendio Hogar es interpretable (gasto mensual → Problemas Económicos)."
   }
 }

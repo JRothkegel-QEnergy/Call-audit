@@ -2,18 +2,34 @@
 llamada_id: synth-03
 fecha: 2026-09-03
 ejecutivo: EJ-0103
-duracion_seg: 58
+duracion_seg: 60
 esperas_seg: []
-umbral_espera_seg: 120
+umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
-- nombre: Seguro Incendio Hogar | n_poliza: INC-HOG-0003 | retenible: si | renunciable_en_canal: si | devolucion_prima: sin dato
+### Seguro 1: Incendio Hogar
+- N° de seguro (MUS A Neto): 48213303
+- N° de póliza: 498213303
+- inicio de vigencia: 2025-03-15
+- compañía: Seguros Generales Sura
+- categoría: RETENIBLE. Seguro retenible: si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
+- tipo de prima: sin dato en el catálogo. Devolución: sin dato.
+- medio de pago: CCT (Se paga con la Cuenta Corriente)
+- ficha del producto:
+SEGURO | COBERTURAS | Detalle Asistencia
+Incendo Hogar SURA | Principales Coberturas: - Incendio y daños materiales causados por colisión de vehículos. Incluyendo los propios o que están siendo oprados bajo su control o el de sus familiares o dependientes. - Daños materiales causados por rotura de cañerías o por desbordamiento de estanques matrices. - Incendio y daños materiales a consecuencia de actos terroristas. - Incendio y daños materiales a consecuencia de huelga, saqueo o desorden popular. - Incendio y daños materiales causados por viento, inundación y desbordamiento de cauces. Incluyendo la filtración de aguas lluvia, a menos que el edificio sufra primero un daño a la techumbre o algunos de sus muros por acción directa del viento. - Incendio y daños materiales causados por maremoto, tsunami y marejada. - Incendio y daños materiales causados por avalanchas , aluviones y deslizamientos. - Incendio y daños materiales por colisión con objetos flotantes. - Daños materiales causados por peso de nieve o hielo, Se incluye granizo. - Daños materiales causados por explosión: Incluyendo explosión por ruptura o reventón de partes móviles o rotatorias de maquinarias, a causa de fuerza centrifuga, ariete o martillo hidráulico, fallas mecánicas o eléctricas. - Incendio y daños materiales causados por colapso de edificio - Incendio y daños materiales causados por construcción o demolición de edificios colindantes - Incendio y daños materiales causados por erupción volcánica - Daños materiales causados por descomposición de productos depositados en frigorífico. - Daños materiales a los bienes inmuebles causados por robo con fuerza y robo con violencia o intimidación en las personas (CAD 1 2014 0052), siempre y cuando sea consecuencia de incendio y/o sismo. Bajo el mismo supuesto, es decir, como consecuencia de incendio y/o sismo, se cubre también el robo o despojo al contenido producto de asalto exceptuando dinero y/o valores, cubriendo además los daños materiales causados al inmueble asegurado como consecuencia de robo con fuerza, durante un siniestro cubierto o después del mismo. - Remoción de escombros. | Plomería Cuando a consecuencia de una averia imprevista en las instalaciones de abastecimiento de agua sanitarias propias de la vivienda asegurada, se produce una avería que requiera necesidad inmediata de reparación que imposibilite el suministro de las aguas, se enviara a la brevedad un técnico especializado que realizará solo las labores de urgencia necesarias para restablecer el servicio. Lo anterior no corresponde si las averías produce por la responsabilidad del mantenimiento periódico de la responsabilidad de la empresa sanitaria. 2 Eventos en el año y Tope por atención UF2, si el arreglo tiene un precio mayor el asegurado debe cancelar la diferencia. | CERRAJERIA Cuando a consecuencia de cualquier hecho accidental, como perdida, extravió o robo de las llaves, inutilización del cilindro por intento de hurto u otra causa que impídala apertura de la puerta principal de acceso peatonal a la Vivienda Asegurada del asegurado o bien que ponga en riesgo la seguridad de la misma. 2 Eventos en el año y Tope por atención UF2, si el arreglo tiene un precio mayor el asegurado debe cancelar la diferencia. | VIDRIERIA Cuando a consecuencia de un hecho imprevisto se produzca la rotura de alguno de los vidrios, que formen parte del perímetro horizontal de la vivienda asegurada, poniendo en riesgo d la seguridad de la misma, sus ocupantes, o de terceros, se enviará a la brevedad un técnico para solucionar esa eventualidad, siempre y cuando las condiciones del día y la hora lo permitan.. Lo anterior no corresponde si las averías produce por la responsabilidad del mantenimiento periódico de la responsabilidad de la empresa sanitaria. 2 Eventos en el año y Tope por atención UF2, si el arreglo tiene un precio mayor el asegurado debe cancelar la diferencia. | ELECTRICIDAD Cuando a consecuencia de una averia súbita e imprevista en las instalaciones electricas propias en el interior de la vivienda asegurada, que produzca una falta de energía eléctrica en forma total o parcial (corto circuito).se eviarà a la brevedad un técnico especializado que realizara la asistencia de emergencia necesaria para restablecer el suministro de energía eléctrica, siempre y cuando el estado de las redes lo permitan. Lo anterior no corresponde si las averías produce por la responsabilidad del mantenimiento periódico de la responsabilidad de la empresa sanitaria. 2 Eventos en el año y Tope por atención UF2, si el arreglo tiene un precio mayor el asegurado debe cancelar la diferencia. | Instalación de Cortinas y Lámparas Si el asegurado necesita realizar la instalación de cortinas de su domicilio asegurado o lámparas nuevas o usadas, se coordinara un técnico que realizara dicha tarea. 2 Eventos en el año y Tope por atención UF2, El servicio incluye el costo de las herramientas para la instalación, traslado del técnico y mando de obra. Los accesorios, sistema de funcionamiento, y las cortinas, etc. Deberán ser provistos por el Asegurado. En el caso que el precio final por el servicio exceda estos limites, el asegurado solo pagara la diferencia correspondiente, por lo que el servicio descontara el precio final cubierto.
+PÓLIZAS
+P120130161
+Prima del Seguro
+Asistencias FONO 229140216 | Deducible | REQUISITO DE ASEGURABILIDAD
+El bien asegurado es la direcciòn de la propiedad ya sea arrendatario o propietario. | Para la cobertura de Incendio y daños materiales por sismo, se aplicarà un deducible de un 1% (uno por ciento), del monto total asegurado del plan contratado, con minimo de UF25, en toda y cada perdida. El deducible aplica en todos los planes. | Edad actual del asegurado al momento de la contratacion igual o superior a 18 años. Que se encuentre vigente y activado el respectivo medio de pago. Que los bienes se encuntrren ubicados en la direcciòn señala en el mandato del seguro. Que la antiguedad de la vivienda al momento de la contrataciòn no sea superior a 60 años. Que la viviendatenga al menos un 80% destinado al uso habitacional. Por consiguiente, el inmueble en el cual se instale un pequeño comercio, una microempresa familiar, se desarrollen labores artesanales o actividades relacionadas con el ejercicio de una profsion, contarà con cobertura en la medida que la superficio ocupada para estos fines no supere el 20% del total, manteniendose la habitacion como uso principal del inmueble y siempre y cuando la actividad comercial que se desarrolle en el nmueble asegurado no se encuentre dentro de aquellas excluidas de cobertura en el presente seguro. El contratante de la cobertura puede ser propietario, conyuge y/o hijo, siempre que exista interes asegurable de los bienes. Para contratar la cobertura de edificio (inmueble), el asegurado debe ser propietario del inmueble, debidamente individualizado en la propuesta de Seguro Ccolectivo Incendio Hogar. Para contratar la cobertura de contenido (bienes muebles), el asegurado debe ser propietario o arrendatario o arrendatario del inmueble, debidamente individualeizado en la propuesta de Seguro. No es posible contratar mas de un Seguro para una misma direccion asegurada. No es posible contratar el presente seguro, si el edificio se encuentra cubierto por el seguro colectivo de Incendio Hipotecario al Edificio, Proteccion Hogar de venta por telefonìa u otro seguro colectivo de Incendio Hogar intermediado por BancoEstado Corredores de Seguros S.A. . No es posible contratar el presente seguro, si el contenido se encuentra cubierto por el seguro colectivo de Incendio Hipotecario al Contenido, Proteccion Hogar de venta telefnic u otro seguro colectivo de Incendio Hogar intermediado por BancoEstado Corredores de seguros S.A.
+Asegurados
+El bien asegurado es la direcciòn de la propiedad ya sea arrendatario o propietario.
+PLAZO PARA DENUNCIAR EL SINIESTRO
+90 dias corridos desde la fecha en que se toma conocimiento de la ocurrencia del siniestro.
 
 ## Tipificación registrada por el ejecutivo
-- seguro: INC-HOG-0003 | gestion: RENUNCIA | motivo: Cambio de Domicilio o Venta de Propiedad
-
-## Ficha de producto (del seguro gestionado)
-Seguro Incendio Hogar: No disponible (ficha pendiente con el cliente).
+- seguro: 48213303 | gestion: RENUNCIA | motivo: Cambio de Domicilio o Venta de Propiedad
 
 ## Transcripción (canal separado, timestamps mm:ss)
 [00:01] AGENTE: BancoEstado Corredores de Seguros, buenas tardes, habla Javiera Morales.
@@ -24,6 +40,6 @@ Seguro Incendio Hogar: No disponible (ficha pendiente con el cliente).
 [00:25] CLIENTE: Vendí el departamento y quiero dar de baja el seguro de incendio, porque ya no tiene sentido.
 [00:32] AGENTE: Ya, perfecto, se lo doy de baja al tiro.
 [00:37] CLIENTE: Ya, gracias.
-[00:38] AGENTE: Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, póliza número INC-HOG-0003, que se cargaba mensualmente a su cuenta corriente terminada en cuatro cinco. ¿Está de acuerdo con la gestión?
-[00:52] CLIENTE: Sí, de acuerdo.
-[00:54] AGENTE: Gracias por llamar, que esté bien.
+[00:38] AGENTE: Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, número de seguro cuatro ocho dos uno tres tres cero tres, que se cargaba a su cuenta corriente. ¿Está de acuerdo con la gestión?
+[00:53] CLIENTE: Sí, de acuerdo.
+[00:55] AGENTE: Gracias por llamar, que esté bien.

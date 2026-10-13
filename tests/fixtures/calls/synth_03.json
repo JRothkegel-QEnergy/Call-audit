@@ -2,24 +2,24 @@
   "call_id": "synth-03",
   "synthetic": true,
   "title": "Llamada corta sin intento de retención",
-  "description": "El cliente vendió su departamento y quiere renunciar al seguro Incendio Hogar, que es retenible. El ejecutivo no intenta retener y tampoco valida correo ni teléfono.",
+  "description": "El cliente vendió su departamento y quiere renunciar al seguro Incendio Hogar, que es retenible. El ejecutivo no intenta retener, no da ninguna característica y tampoco valida correo ni teléfono.",
   "metadata": {
     "date": "2026-09-03",
     "agent_id": "EJ-0103",
-    "duration_sec": 58,
+    "duration_sec": 60,
     "holds_sec": [],
     "policies": [
       {
-        "name": "Seguro Incendio Hogar",
-        "policy_number": "INC-HOG-0003",
-        "retainable": true,
-        "cancellable_in_channel": true,
-        "premium_refund": null
+        "name": "Incendio Hogar",
+        "mus_a_neto": "48213303",
+        "policy_number": "498213303",
+        "start_date": "2025-03-15",
+        "payment_method": "CCT"
       }
     ],
     "typification": [
       {
-        "policy_number": "INC-HOG-0003",
+        "mus_a_neto": "48213303",
         "outcome": "RENUNCIA",
         "reason": "Cambio de Domicilio o Venta de Propiedad"
       }
@@ -77,19 +77,19 @@
     {
       "channel": "agent",
       "start_ms": 38830,
-      "end_ms": 51523,
-      "text": "Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, póliza número INC-HOG-0003, que se cargaba mensualmente a su cuenta corriente terminada en cuatro cinco. ¿Está de acuerdo con la gestión?"
+      "end_ms": 52676,
+      "text": "Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, número de seguro cuatro ocho dos uno tres tres cero tres, que se cargaba a su cuenta corriente. ¿Está de acuerdo con la gestión?"
     },
     {
       "channel": "customer",
-      "start_ms": 52723,
-      "end_ms": 53923,
+      "start_ms": 53876,
+      "end_ms": 55076,
       "text": "Sí, de acuerdo."
     },
     {
       "channel": "agent",
-      "start_ms": 54623,
-      "end_ms": 56930,
+      "start_ms": 55776,
+      "end_ms": 58084,
       "text": "Gracias por llamar, que esté bien."
     }
   ],
@@ -98,9 +98,11 @@
     "cancellation_intent": true,
     "outcomes": [
       {
-        "policy_number": "INC-HOG-0003",
+        "mus_a_neto": "48213303",
         "outcome": "RENUNCIA",
-        "cancellation_reason": "Cambio de Domicilio o Venta de Propiedad",
+        "cancellation_reasons": [
+          "Cambio de Domicilio o Venta de Propiedad"
+        ],
         "objections": 0
       }
     ],
@@ -118,7 +120,7 @@
       {
         "criterion_id": 4,
         "status": "non_compliant",
-        "note": "No indica ninguna característica del seguro a renunciar."
+        "note": "No indica ninguna característica del seguro a renunciar (solo el nombre)."
       }
     ]
   }

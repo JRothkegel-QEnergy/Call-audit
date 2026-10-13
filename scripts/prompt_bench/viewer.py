@@ -196,20 +196,22 @@ function renderMain() {
   const { call, outputs } = DATA.calls[current];
   const m = call.metadata;
   const exp = call.expected;
-  const policies = m.policies.map(p => `<li>${esc(p.name)} · <b>${esc(p.policy_number)}</b> · retenible: ${p.retainable ? "sí" : "no"} · renunciable en canal: ${p.cancellable_in_channel ? "sí" : "no"} · devolución de prima: ${p.premium_refund == null ? "sin dato" : p.premium_refund ? "corresponde" : "no corresponde"}</li>`).join("");
-  const typ = m.typification.length ? m.typification.map(t => `<li>${esc(t.policy_number)}: ${esc(t.outcome)} · ${esc(t.reason)}</li>`).join("") : "<li>(sin tipificación)</li>";
+  const policies = m.policies.map(p => `<li>${esc(p.name)} · N° de seguro <b>${esc(p.mus_a_neto)}</b> · medio de pago: ${esc(p.payment_method)}</li>`).join("");
+  const typ = m.typification.length ? m.typification.map(t => `<li>${esc(t.mus_a_neto)}: ${esc(t.outcome)} · ${esc(t.reason)}</li>`).join("") : "<li>(sin tipificación)</li>";
   const expList = exp.findings.length ? exp.findings.map(f => `<li><b>${f.criterion_id}</b> ${esc(f.status)}: ${esc(f.note)}</li>`).join("") : "<li>Ninguno: la llamada cumple.</li>";
-  const outcomes = exp.outcomes.map(o => `<li>${esc(o.policy_number)}: ${esc(o.outcome)} · ${esc(o.cancellation_reason)} · ${o.objections} objeciones</li>`).join("");
+  const outcomes = exp.outcomes.map(o => `<li>${esc(o.mus_a_neto)}: ${esc(o.outcome)} · ${esc((o.cancellation_reasons || []).join(" / ") || "sin motivo")} · ${o.objections} objeciones</li>`).join("");
 
   // Gestiones según cada modelo
   const gestRows = DATA.models.map(name => {
     const out = outputs[name];
-    if (!out?.response) return `<tr><td>${esc(name)}</td><td colspan="4" class="err">${esc(out?.error || "sin respuesta")}</td></tr>`;
+    if (!out?.response) return `<tr><td>${esc(name)}</td><td colspan="5" class="err">${esc(out?.error || "sin respuesta")}</td></tr>`;
     const g = out.response.gestiones || [];
     return g.map((x, k) => {
-      const e = exp.outcomes.find(o => o.policy_number === x.n_poliza);
+      const e = exp.outcomes.find(o => o.mus_a_neto === String(x.mus_a_neto));
       const ok = (a, b) => e ? (a === b ? "" : ` style="color:var(--bad);font-weight:600"`) : "";
-      return `<tr>${k === 0 ? `<td rowspan="${g.length}">${esc(name)}</td>` : ""}<td>${esc(x.n_poliza)}</td><td${ok(x.resultado_grabacion, e?.outcome)}>${esc(x.resultado_grabacion)}</td><td${ok(x.motivo_renuncia, e?.cancellation_reason)}>${esc(x.motivo_renuncia)}</td><td${ok(x.n_objeciones, e?.objections)}>${esc(x.n_objeciones)}</td></tr>`;
+      const reasons = (x.motivos_renuncia || []).join(" / ");
+      const args = (x.argumentos_retencion || []).map(a => a.tipo).join(" → ");
+      return `<tr>${k === 0 ? `<td rowspan="${g.length}">${esc(name)}</td>` : ""}<td>${esc(x.mus_a_neto)}</td><td${ok(x.resultado_grabacion, e?.outcome)}>${esc(x.resultado_grabacion)}</td><td>${esc(reasons)}</td><td${ok(x.n_objeciones, e?.objections)}>${esc(x.n_objeciones)}</td><td>${esc(args)}</td></tr>`;
     }).join("");
   }).join("");
 
@@ -264,7 +266,7 @@ function renderMain() {
     <div class="detail" id="detail">${renderDetail()}</div>
     <details open><summary>Resumen de cada modelo</summary><ul>${summaries}</ul></details>
     <details><summary>Gestiones según cada modelo (en rojo lo que no coincide)</summary>
-      <div class="tablewrap"><table><thead><tr><th>Modelo</th><th>Póliza</th><th>Resultado</th><th>Motivo renuncia</th><th>Objeciones</th></tr></thead><tbody>${gestRows}</tbody></table></div>
+      <div class="tablewrap"><table><thead><tr><th>Modelo</th><th>N° de seguro</th><th>Resultado</th><th>Motivos renuncia</th><th>Objeciones</th><th>Argumentos</th></tr></thead><tbody>${gestRows}</tbody></table></div>
     </details>
     <details open><summary>Transcripción</summary><div class="card transcript">${transcript}</div></details>`;
   highlightQuotes();

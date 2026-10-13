@@ -2,27 +2,27 @@
   "call_id": "synth-07",
   "synthetic": true,
   "title": "Llamada larga con esperas excesivas y descalificación de la competencia",
-  "description": "El cliente ya contrató un seguro en otra compañía. El ejecutivo lo deja dos veces en espera (45 s y 210 s) y descalifica a la competencia. El cliente termina renunciando.",
+  "description": "El cliente ya contrató un seguro en otra compañía. El ejecutivo lo deja dos veces en espera (45 s y 210 s, ambas sobre 30 s) y descalifica a la competencia. El cliente termina renunciando.",
   "metadata": {
     "date": "2026-09-09",
     "agent_id": "EJ-0107",
-    "duration_sec": 442,
+    "duration_sec": 449,
     "holds_sec": [
       45,
       210
     ],
     "policies": [
       {
-        "name": "Seguro de Salud Incapacidad MYPE",
-        "policy_number": "MYPE-0007",
-        "retainable": true,
-        "cancellable_in_channel": true,
-        "premium_refund": null
+        "name": "PROTECCION GLOBAL MYPE",
+        "mus_a_neto": "48213307",
+        "policy_number": "498213307",
+        "start_date": "2025-03-15",
+        "payment_method": "CCT"
       }
     ],
     "typification": [
       {
-        "policy_number": "MYPE-0007",
+        "mus_a_neto": "48213307",
         "outcome": "RENUNCIA",
         "reason": "Cliente posee otros Seguros"
       }
@@ -98,115 +98,115 @@
     {
       "channel": "customer",
       "start_ms": 46900,
-      "end_ms": 59976,
-      "text": "Mire, tengo una ferretería chica y tengo el seguro de salud incapacidad MYPE con ustedes. Ya contraté uno en otra compañía que cubre más y es más barato, así que quiero renunciar a este."
+      "end_ms": 59592,
+      "text": "Mire, tengo una ferretería chica y tengo el seguro Protección Global MYPE con ustedes. Ya contraté uno en otra compañía que cubre más y es más barato, así que quiero renunciar a este."
     },
     {
       "channel": "agent",
-      "start_ms": 61176,
-      "end_ms": 67330,
+      "start_ms": 60792,
+      "end_ms": 66946,
       "text": "Entiendo, don Cristián. Permítame revisar el detalle de su póliza. Lo dejo un momento en espera."
     },
     {
       "channel": "agent",
-      "start_ms": 113030,
-      "end_ms": 123030,
-      "text": "Gracias por esperar. Veo su seguro Salud Incapacidad MYPE, con prima mensual cargada a su cuenta corriente. ¿Me puede contar qué contrató en la otra compañía?"
+      "start_ms": 112646,
+      "end_ms": 122646,
+      "text": "Gracias por esperar. Veo su seguro Protección Global MYPE, con prima mensual cargada a su cuenta corriente. ¿Me puede contar qué contrató en la otra compañía?"
     },
     {
       "channel": "customer",
-      "start_ms": 123830,
-      "end_ms": 131138,
-      "text": "Una renta diaria más alta por incapacidad y además cubre hospitalización. Y sale como cuatro lucas menos al mes."
+      "start_ms": 123446,
+      "end_ms": 131523,
+      "text": "Uno que cubre incendio, sismo y robo del local, y además responsabilidad civil. Y sale como cuatro lucas menos al mes."
     },
     {
       "channel": "agent",
-      "start_ms": 131738,
-      "end_ms": 143276,
+      "start_ms": 132123,
+      "end_ms": 143661,
       "text": "Mire, don Cristián, le soy honesta: esa otra compañía es una estafa. Siempre ponen letra chica y después no pagan nada. Los que se cambian a ellos después vuelven llorando."
     },
     {
       "channel": "customer",
-      "start_ms": 144176,
-      "end_ms": 148023,
+      "start_ms": 144561,
+      "end_ms": 148407,
       "text": "Bueno, pero yo leí las condiciones y me parecen bien."
     },
     {
       "channel": "agent",
-      "start_ms": 148523,
-      "end_ms": 159676,
-      "text": "Nuestro seguro tiene el respaldo de BancoEstado. Si usted queda incapacitado, le pagamos la renta diaria sin tantos trámites, y el cargo es automático, no se tiene que preocupar."
+      "start_ms": 148907,
+      "end_ms": 160446,
+      "text": "Nuestro seguro le cubre el local y también sus mercaderías, maquinarias y equipos ante incendio, sismo, robo y daños materiales, y el cargo es automático, no se tiene que preocupar."
     },
     {
       "channel": "customer",
-      "start_ms": 160876,
-      "end_ms": 165492,
+      "start_ms": 161646,
+      "end_ms": 166261,
       "text": "Ya, pero el otro igual cubre más, la verdad. Quiero sacar este."
     },
     {
       "channel": "agent",
-      "start_ms": 166192,
-      "end_ms": 172346,
+      "start_ms": 166961,
+      "end_ms": 173115,
       "text": "Déjeme consultar con mi supervisor si hay alguna alternativa para usted. Lo dejo en espera nuevamente."
     },
     {
       "channel": "agent",
-      "start_ms": 383346,
-      "end_ms": 391423,
+      "start_ms": 384115,
+      "end_ms": 392192,
       "text": "Disculpe la demora, don Cristián. Mi supervisor me indica que no tenemos un plan alternativo con más cobertura en este momento."
     },
     {
       "channel": "customer",
-      "start_ms": 392023,
-      "end_ms": 397023,
+      "start_ms": 392792,
+      "end_ms": 397792,
       "text": "Oiga, me tuvo harto rato esperando. Ya, entonces hágame la renuncia, por favor."
     },
     {
       "channel": "agent",
-      "start_ms": 397923,
-      "end_ms": 401769,
+      "start_ms": 398692,
+      "end_ms": 402538,
       "text": "Le pido disculpas por la espera. Procedo con la renuncia."
     },
     {
       "channel": "customer",
-      "start_ms": 402269,
-      "end_ms": 406115,
+      "start_ms": 403038,
+      "end_ms": 406884,
       "text": "Y una consulta, ¿me van a cobrar este mes igual?"
     },
     {
       "channel": "agent",
-      "start_ms": 407315,
-      "end_ms": 416930,
-      "text": "Si la renuncia queda ingresada hoy, el cargo de este mes ya no se debería realizar. Si llegara a verlo, nos llama y lo revisamos."
+      "start_ms": 408084,
+      "end_ms": 420392,
+      "text": "La fecha del cargo mensual no la veo en mi sistema; para confirmarla puede llamar al seiscientos seiscientos sesenta, doce doce. Si la renuncia queda ingresada hoy, no deberían seguir los cargos."
     },
     {
       "channel": "customer",
-      "start_ms": 417630,
-      "end_ms": 418830,
+      "start_ms": 421092,
+      "end_ms": 422292,
       "text": "Ya, perfecto."
     },
     {
       "channel": "agent",
-      "start_ms": 419830,
-      "end_ms": 432907,
-      "text": "Le resumo la gestión, don Cristián: se ingresó la renuncia de su seguro Salud Incapacidad MYPE, póliza número MYPE-0007, que se cargaba mensualmente a su cuenta corriente. ¿Está de acuerdo con la gestión realizada?"
+      "start_ms": 423292,
+      "end_ms": 439446,
+      "text": "Le resumo la gestión, don Cristián: se ingresó la renuncia de su seguro Protección Global MYPE, número de seguro cuatro ocho dos uno tres tres cero siete, que se cargaba mensualmente a su cuenta corriente. ¿Está de acuerdo con la gestión realizada?"
     },
     {
       "channel": "customer",
-      "start_ms": 433707,
-      "end_ms": 434907,
+      "start_ms": 440246,
+      "end_ms": 441446,
       "text": "Sí, de acuerdo."
     },
     {
       "channel": "agent",
-      "start_ms": 435507,
-      "end_ms": 438969,
+      "start_ms": 442046,
+      "end_ms": 445507,
       "text": "Muchas gracias por su paciencia. Que tenga buena tarde."
     },
     {
       "channel": "customer",
-      "start_ms": 439869,
-      "end_ms": 441069,
+      "start_ms": 446407,
+      "end_ms": 447607,
       "text": "Igualmente, chao."
     }
   ],
@@ -215,9 +215,11 @@
     "cancellation_intent": true,
     "outcomes": [
       {
-        "policy_number": "MYPE-0007",
+        "mus_a_neto": "48213307",
         "outcome": "RENUNCIA",
-        "cancellation_reason": "Cliente posee otros Seguros",
+        "cancellation_reasons": [
+          "Cliente posee otros Seguros"
+        ],
         "objections": 3
       }
     ],
@@ -229,10 +231,10 @@
       },
       {
         "criterion_id": 1,
-        "status": "depends_on_threshold",
-        "note": "Esperas de 45 s y 210 s. El umbral es TBD con el cliente; con un umbral de ejemplo de 120 s, la segunda espera incumple."
+        "status": "non_compliant",
+        "note": "Esperas de 45 s y 210 s; el máximo es 30 s sin hablarle al cliente."
       }
     ],
-    "notes": "Llamada más larga del set; útil para probar esperas y costo por llamada."
+    "notes": "Llamada más larga del set. Orientar a llamar por la fecha de cargo no es derivación ni falta de información (no hay fechas de pago en el sistema)."
   }
 }

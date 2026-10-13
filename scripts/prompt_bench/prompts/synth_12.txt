@@ -1,0 +1,39 @@
+## Metadatos
+llamada_id: synth-12
+fecha: 2026-09-16
+ejecutivo: EJ-0112
+duracion_seg: 103
+esperas_seg: []
+umbral_espera_seg: 30
+
+## Seguros del cliente consultados en la llamada
+### Seguro 1: SEGURO DE DESEMPLEO CONSUMO
+- N° de seguro (MUS A Neto): 48213313
+- N° de póliza: 498213313
+- inicio de vigencia: 2025-03-15
+- compañía: BNP Paribas Cardif
+- categoría: NO_RETENIBLE. Seguro NO retenible: se puede renunciar, pero no se debe intentar retener.
+- tipo de prima: sin dato en el catálogo. Devolución: sin dato.
+- medio de pago: CRE (Está asociado a un Crédito de Consumo.)
+- ficha del producto:
+No disponible: el Excel de apoyo no tiene ficha para este seguro.
+
+## Tipificación registrada por el ejecutivo
+- seguro: 48213313 | gestion: RETENCION | motivo: Cambio de situación laboral
+
+## Transcripción (canal separado, timestamps mm:ss)
+[00:01] AGENTE: Buenos días, BancoEstado Corredores de Seguros, le habla Andrés Pino. ¿Con quién tengo el gusto?
+[00:07] CLIENTE: Hola, buenos días, habla Ricardo Vidal.
+[00:10] AGENTE: Don Ricardo, para validar su identidad, ¿me indica su RUT, su nombre completo y su fecha de nacimiento?
+[00:18] CLIENTE: Veinte millones doscientos mil doscientos guion dos. Ricardo José Vidal Campos, diez de noviembre del ochenta y tres.
+[00:26] AGENTE: ¿Y me confirma su correo y teléfono?
+[00:29] CLIENTE: ricardo punto vidal arroba correo ejemplo punto cl, nueve ocho ocho ocho siete siete siete seis seis.
+[00:36] AGENTE: Gracias, don Ricardo, datos validados. ¿En qué lo ayudo?
+[00:41] CLIENTE: Quiero dar de baja el seguro de desempleo del crédito de consumo. Ahora trabajo de forma independiente, así que no lo voy a poder usar.
+[00:51] AGENTE: Entiendo, don Ricardo. Antes de eso, le recomiendo pensarlo: este seguro lo protege si se queda sin ingresos y le ayuda a pagar las cuotas de su crédito.
+[01:03] CLIENTE: Pero si soy independiente, ¿igual me sirve?
+[01:06] AGENTE: Es una protección para su crédito, y si vuelve a trabajar con contrato le puede servir mucho. Yo que usted lo mantendría un tiempo más.
+[01:17] CLIENTE: Bueno, ya, lo dejo por ahora.
+[01:20] AGENTE: Perfecto. Le resumo la gestión: su seguro de desempleo de crédito de consumo, número de seguro cuatro ocho dos uno tres tres uno tres, se mantiene vigente, con cargo a su crédito de consumo. ¿Está de acuerdo con la gestión?
+[01:36] CLIENTE: Sí, de acuerdo.
+[01:38] AGENTE: Muchas gracias, don Ricardo, que tenga buen día.

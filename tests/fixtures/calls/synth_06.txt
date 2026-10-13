@@ -1,6 +1,6 @@
 # synth-06 · Retención sin intención de renuncia y pregunta predispuesta
 
-El cliente solo consulta cómo usar su seguro Protección Global. El ejecutivo igual hace un discurso de retención y le pide un 'sí' condicionado.
+La clienta solo consulta si su Sale Seguro cubre un robo. El ejecutivo igual hace un discurso de retención, le pide un 'sí' condicionado y no responde si el robo está cubierto.
 
 [00:01] AGENTE : Buenos días, BancoEstado Corredores de Seguros, le habla Ignacio Vargas. ¿Con quién hablo?
 [00:07] CLIENTE: Hola, buenos días, con Sofía Tapia.
@@ -9,13 +9,11 @@ El cliente solo consulta cómo usar su seguro Protección Global. El ejecutivo i
 [00:25] AGENTE : ¿Su correo y un teléfono de contacto?
 [00:28] CLIENTE: sofia punto tapia arroba correo ejemplo punto cl, nueve tres tres tres dos dos dos uno uno.
 [00:36] AGENTE : Gracias, quedó validada. ¿En qué la puedo ayudar?
-[00:40] CLIENTE: Tengo el seguro Protección Global y me robaron la billetera el fin de semana. Quería saber si eso lo cubre y cómo hago el reclamo.
-[00:50] AGENTE : Señora Sofía, antes de eso le quiero recordar lo importante que es mantener este seguro. Mucha gente lo da de baja y después se arrepiente, porque es una protección muy completa para usted y su familia.
-[01:05] CLIENTE: Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo.
-[01:11] AGENTE : Sí, claro, pero es importante que lo mantenga. Usted está de acuerdo en mantenerlo, ¿cierto?
-[01:18] CLIENTE: Eh... sí, supongo. Pero ¿me cubre el robo o no?
-[01:22] AGENTE : Perfecto, entonces queda vigente. Para el robo de la billetera, la cobertura depende de las condiciones de su póliza; tiene que hacer la denuncia en Carabineros y llamar al número de siniestros que le voy a dar.
-[01:37] CLIENTE: Ya, ¿cuál es el número?
-[01:40] AGENTE : Es el seiscientos, cero, cero, cero, cero, cero, cero. Ahí le van a pedir la denuncia.
-[01:47] CLIENTE: Ya, gracias.
-[01:49] AGENTE : Que tenga buen día, señora Sofía.
+[00:40] CLIENTE: Tengo el Sale Seguro y el fin de semana me asaltaron y me robaron la cartera con la tarjeta. Quería saber si eso lo cubre y cómo hago el reclamo.
+[00:52] AGENTE : Señora Sofía, antes de eso le quiero recordar lo importante que es mantener este seguro. Mucha gente lo da de baja y después se arrepiente, porque es una protección muy completa para usted y su familia.
+[01:07] CLIENTE: Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo.
+[01:13] AGENTE : Sí, claro, pero es importante que lo mantenga. Usted está de acuerdo en mantenerlo, ¿cierto?
+[01:19] CLIENTE: Eh... sí, supongo. Pero ¿me cubre el robo o no?
+[01:24] AGENTE : Perfecto, entonces queda vigente. Para el robo, eso lo ve la compañía; usted haga la denuncia en Carabineros y llame al FonoSeguros, seiscientos seiscientos sesenta, doce doce.
+[01:35] CLIENTE: Ya, gracias.
+[01:37] AGENTE : Que tenga buen día, señora Sofía.

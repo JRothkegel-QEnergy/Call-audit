@@ -2,24 +2,24 @@
   "call_id": "synth-04",
   "synthetic": true,
   "title": "Información errónea del producto y tipificación incorrecta",
-  "description": "El ejecutivo dice que el seguro paga tres cuotas (la ficha dice hasta cinco). El cliente renuncia por problemas económicos, pero el ejecutivo tipifica 'Cambio de situación laboral'.",
+  "description": "Ante la pregunta de la clienta, el ejecutivo dice que el seguro paga tres cuotas, todas contra el finiquito (la ficha dice cuatro cuotas, de dos en dos). La clienta renuncia por problemas económicos, pero el ejecutivo tipifica 'Cambio de situación laboral'.",
   "metadata": {
     "date": "2026-09-04",
     "agent_id": "EJ-0104",
-    "duration_sec": 115,
+    "duration_sec": 128,
     "holds_sec": [],
     "policies": [
       {
-        "name": "Seguro de Desempleo - Créditos de consumo",
-        "policy_number": "DES-CONS-0004",
-        "retainable": true,
-        "cancellable_in_channel": true,
-        "premium_refund": null
+        "name": "DESEMPLEO ITT CRE. CONSUMO",
+        "mus_a_neto": "48213304",
+        "policy_number": "498213304",
+        "start_date": "2025-03-15",
+        "payment_method": "CRE"
       }
     ],
     "typification": [
       {
-        "policy_number": "DES-CONS-0004",
+        "mus_a_neto": "48213304",
         "outcome": "RENUNCIA",
         "reason": "Cambio de situación laboral"
       }
@@ -113,50 +113,50 @@
     {
       "channel": "agent",
       "start_ms": 75092,
-      "end_ms": 79323,
-      "text": "Le paga tres cuotas, y se pagan apenas presenta el finiquito."
+      "end_ms": 80861,
+      "text": "Le paga tres cuotas, y se pagan todas de una vez apenas presenta el finiquito."
     },
     {
       "channel": "customer",
-      "start_ms": 80523,
-      "end_ms": 83215,
+      "start_ms": 82061,
+      "end_ms": 84753,
       "text": "Pucha, no es tanto. Igual prefiero sacarlo."
     },
     {
       "channel": "agent",
-      "start_ms": 83915,
-      "end_ms": 88530,
+      "start_ms": 85453,
+      "end_ms": 90069,
       "text": "Piense que la prima ya está pagada, no es un cobro mensual."
     },
     {
       "channel": "customer",
-      "start_ms": 89530,
-      "end_ms": 93376,
+      "start_ms": 91069,
+      "end_ms": 94915,
       "text": "Ya, pero lo quiero sacar igual. Quiero tener menos cosas."
     },
     {
       "channel": "agent",
-      "start_ms": 94176,
-      "end_ms": 96869,
+      "start_ms": 95715,
+      "end_ms": 98407,
       "text": "Bueno, señora Andrea, procedo con la renuncia."
     },
     {
       "channel": "agent",
-      "start_ms": 97469,
-      "end_ms": 108623,
-      "text": "Le resumo: se ingresó la renuncia de su seguro de desempleo, póliza número DES-CONS-0004, asociado a su crédito de consumo con cargo único en el crédito. ¿Está de acuerdo?"
+      "start_ms": 99007,
+      "end_ms": 112084,
+      "text": "Le resumo: se ingresó la renuncia de su seguro de desempleo, número de seguro cuatro ocho dos uno tres tres cero cuatro, cuyo medio de pago es su crédito de consumo. ¿Está de acuerdo?"
     },
     {
       "channel": "customer",
-      "start_ms": 109523,
-      "end_ms": 110723,
+      "start_ms": 112984,
+      "end_ms": 114184,
       "text": "Sí, de acuerdo."
     },
     {
       "channel": "agent",
-      "start_ms": 111223,
-      "end_ms": 113530,
-      "text": "Muchas gracias, que tenga buena tarde."
+      "start_ms": 114684,
+      "end_ms": 126607,
+      "text": "El seguro queda renunciado desde hoy, y la devolución de la prima no devengada es automática: la compañía la hace dentro de diez días hábiles. Muchas gracias, que tenga buena tarde."
     }
   ],
   "expected": {
@@ -164,9 +164,11 @@
     "cancellation_intent": true,
     "outcomes": [
       {
-        "policy_number": "DES-CONS-0004",
+        "mus_a_neto": "48213304",
         "outcome": "RENUNCIA",
-        "cancellation_reason": "Problemas Económicos",
+        "cancellation_reasons": [
+          "Problemas Económicos"
+        ],
         "objections": 2
       }
     ],
@@ -174,12 +176,12 @@
       {
         "criterion_id": 6,
         "status": "non_compliant",
-        "note": "Dice que paga tres cuotas y que se pagan contra finiquito; la ficha indica hasta cinco cuotas (dos contra finiquito y tres tras 60 días)."
+        "note": "Ante la pregunta, dice tres cuotas pagadas de una vez contra finiquito; la ficha dice cuatro cuotas pagadas de dos en dos."
       },
       {
         "criterion_id": 18,
         "status": "non_compliant",
-        "note": "Tipificado 'Cambio de situación laboral'; la clienta dice que sigue en el mismo trabajo y que no le alcanza: Problemas Económicos. Lo detecta el motor de decisión."
+        "note": "Tipificado 'Cambio de situación laboral'; la clienta dice que sigue en el mismo trabajo y que no le alcanza: Problemas Económicos."
       }
     ]
   }

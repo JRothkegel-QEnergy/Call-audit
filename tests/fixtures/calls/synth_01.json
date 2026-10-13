@@ -2,24 +2,24 @@
   "call_id": "synth-01",
   "synthetic": true,
   "title": "Retención exitosa, llamada modelo",
-  "description": "El cliente quiere renunciar al seguro de desempleo por problemas económicos. Acreditación completa, 2 objeciones, responde sobre la permanencia y el cliente decide mantenerlo. Cierre completo con N° de póliza y medio de pago.",
+  "description": "El cliente quiere renunciar al seguro de desempleo por problemas económicos. Acreditación completa, 2 objeciones (cobertura y luego beneficio), responde sobre la permanencia y el cliente decide mantenerlo. Cierre completo con N° de seguro y medio de pago.",
   "metadata": {
     "date": "2026-09-01",
     "agent_id": "EJ-0101",
-    "duration_sec": 180,
+    "duration_sec": 212,
     "holds_sec": [],
     "policies": [
       {
-        "name": "Seguro de Desempleo - Créditos de consumo",
-        "policy_number": "DES-CONS-0001",
-        "retainable": true,
-        "cancellable_in_channel": true,
-        "premium_refund": null
+        "name": "DESEMPLEO ITT CRE. CONSUMO",
+        "mus_a_neto": "48213301",
+        "policy_number": "498213301",
+        "start_date": "2025-03-15",
+        "payment_method": "CRE"
       }
     ],
     "typification": [
       {
-        "policy_number": "DES-CONS-0001",
+        "mus_a_neto": "48213301",
         "outcome": "RETENCION",
         "reason": "Problemas Económicos"
       }
@@ -101,85 +101,103 @@
     {
       "channel": "agent",
       "start_ms": 64446,
-      "end_ms": 74061,
-      "text": "Entiendo, don Pedro. Veo que tiene el seguro de desempleo asociado a su crédito de consumo. Antes de gestionarlo, ¿me permite contarle brevemente qué cubre?"
+      "end_ms": 75215,
+      "text": "Entiendo, don Pedro. Veo que tiene el seguro de Desempleo e Incapacidad Temporal asociado a su crédito de consumo. Antes de gestionarlo, ¿me permite contarle brevemente qué cubre?"
     },
     {
       "channel": "customer",
-      "start_ms": 75061,
-      "end_ms": 76261,
+      "start_ms": 76215,
+      "end_ms": 77415,
       "text": "Ya, dale."
     },
     {
       "channel": "agent",
-      "start_ms": 77061,
-      "end_ms": 101676,
-      "text": "Este seguro es de prima única, o sea, se pagó una sola vez por todo el período del crédito; no le genera un cobro mensual. Si queda desempleado por necesidades de la empresa o por mutuo acuerdo con indemnización, le paga hasta cinco cuotas de su crédito: dos de una vez contra el finiquito y tres más después de acreditar sesenta días de desempleo."
+      "start_ms": 78215,
+      "end_ms": 102446,
+      "text": "Si queda desempleado de forma involuntaria, el seguro le paga cuatro cuotas de su crédito, de dos en dos, más un tres coma cinco por ciento. Y si tiene una incapacidad temporal por accidente o enfermedad infecciosa, le paga hasta cuatro cuotas, una por cada treinta días de incapacidad. Además, es de prima única: se pagó una sola vez junto con el crédito."
     },
     {
       "channel": "customer",
-      "start_ms": 102276,
-      "end_ms": 106507,
+      "start_ms": 103046,
+      "end_ms": 107276,
       "text": "Ah, pero yo pensé que me lo cobraban todos los meses."
     },
     {
       "channel": "agent",
-      "start_ms": 107407,
-      "end_ms": 112407,
+      "start_ms": 108176,
+      "end_ms": 113176,
       "text": "No, don Pedro, es prima única, ya está pagado junto con su crédito."
     },
     {
       "channel": "customer",
-      "start_ms": 112907,
-      "end_ms": 116369,
+      "start_ms": 113676,
+      "end_ms": 117138,
       "text": "Mmm, igual prefiero no tener nada extra, la verdad."
     },
     {
       "channel": "agent",
-      "start_ms": 117569,
-      "end_ms": 129876,
-      "text": "Lo entiendo. Considere que si su situación laboral se complica, son hasta cinco cuotas que no tendría que pagar usted. Justo cuando me cuenta que está apretado, es cuando más le sirve."
+      "start_ms": 118338,
+      "end_ms": 134492,
+      "text": "Lo entiendo. Considere también que, si queda desempleado, el seguro le da asistencia laboral personalizada para volver a encontrar trabajo: le analizan su perfil y lo capacitan en la búsqueda. Justo cuando me cuenta que está apretado, es cuando más le sirve."
     },
     {
       "channel": "customer",
-      "start_ms": 130576,
-      "end_ms": 134423,
+      "start_ms": 135192,
+      "end_ms": 139038,
       "text": "Ya, pero si lo dejo, ¿después lo puedo sacar igual?"
     },
     {
       "channel": "agent",
-      "start_ms": 135423,
-      "end_ms": 141192,
+      "start_ms": 140038,
+      "end_ms": 145807,
       "text": "Sí, don Pedro. La permanencia en el seguro la decide usted; puede renunciar cuando quiera."
     },
     {
       "channel": "customer",
-      "start_ms": 141992,
-      "end_ms": 147761,
+      "start_ms": 146607,
+      "end_ms": 152376,
       "text": "Ah, ya. Entonces lo mantengo no más po, si no me están cobrando nada aparte."
     },
     {
       "channel": "agent",
-      "start_ms": 148361,
-      "end_ms": 169515,
-      "text": "Perfecto. Le resumo la gestión: hoy mantenemos vigente su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0001. El medio de pago es el cargo único que se hizo en su crédito de consumo, así que no tiene cargos mensuales en su cuenta. No se realiza ninguna renuncia. ¿Está conforme con la gestión realizada?"
+      "start_ms": 152976,
+      "end_ms": 158746,
+      "text": "Don Pedro, ¿le parece entonces que mantengamos vigente su seguro de Desempleo e Incapacidad Temporal?"
     },
     {
       "channel": "customer",
-      "start_ms": 170415,
-      "end_ms": 171615,
-      "text": "Sí, conforme."
+      "start_ms": 159646,
+      "end_ms": 160846,
+      "text": "Ya po."
     },
     {
       "channel": "agent",
-      "start_ms": 172115,
-      "end_ms": 176730,
-      "text": "Muchas gracias por su tiempo, don Pedro. Que tenga muy buena tarde."
+      "start_ms": 161346,
+      "end_ms": 163653,
+      "text": "Don Pedro, ¿eso es un sí?"
     },
     {
       "channel": "customer",
-      "start_ms": 177930,
-      "end_ms": 179130,
+      "start_ms": 164853,
+      "end_ms": 166053,
+      "text": "Sí, sí."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 166753,
+      "end_ms": 190984,
+      "text": "Don Pedro, hoy con fecha primero de septiembre usted manifiesta la decisión de permanecer con su seguro de Desempleo e Incapacidad Temporal crédito de consumo, número de seguro terminado en tres tres cero uno, con vigencia desde el quince de marzo de dos mil veinticinco, número de póliza cuatro nueve ocho dos uno tres tres cero uno, asociado a su crédito de consumo."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 191984,
+      "end_ms": 208523,
+      "text": "Lo felicito por su decisión. Ante cualquier duda o para denunciar un siniestro, puede visitar nuestra página web o llamar al FonoSeguros, seiscientos seiscientos sesenta, doce doce. Muchas gracias por su tiempo, recuerde que habló con Camila Rojas. Que tenga muy buena tarde."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 209323,
+      "end_ms": 210523,
       "text": "Gracias, igualmente. Chao."
     }
   ],
@@ -188,13 +206,16 @@
     "cancellation_intent": true,
     "outcomes": [
       {
-        "policy_number": "DES-CONS-0001",
+        "mus_a_neto": "48213301",
         "outcome": "RETENCION",
-        "cancellation_reason": "Problemas Económicos",
-        "objections": 2
+        "cancellation_reasons": [
+          "Problemas Económicos"
+        ],
+        "objections": 2,
+        "renewal_last": true
       }
     ],
     "findings": [],
-    "notes": "Llamada de referencia: todos los motivos cumplen o no aplican."
+    "notes": "Llamada de referencia: todos los motivos cumplen o no aplican. Argumentos en orden: cobertura y luego beneficio."
   }
 }

@@ -2,18 +2,32 @@
 llamada_id: synth-06
 fecha: 2026-09-08
 ejecutivo: EJ-0106
-duracion_seg: 113
+duracion_seg: 102
 esperas_seg: []
-umbral_espera_seg: 120
+umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
-- nombre: Protección Global | n_poliza: PROT-GLB-0006 | retenible: si | renunciable_en_canal: si | devolucion_prima: sin dato
+### Seguro 1: SALE SEGURO PLUS (Sucursales)
+- N° de seguro (MUS A Neto): 48213306
+- N° de póliza: 498213306
+- inicio de vigencia: 2025-03-15
+- compañía: BNP Paribas Cardif
+- categoría: RETENIBLE. Seguro retenible: si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
+- tipo de prima: prima mensual. Devolución: no hay devolución automática; si el cliente la pide por cobros incorrectos o desconocimiento, se le invita a ingresar un requerimiento al 600 660 1212, opción 2.
+- medio de pago: CTV (Se paga con la Cuenta vista (Cuenta rut))
+- ficha del producto:
+SEGURO | Cobertura Sale Seguro
+Seguro Sale Seguro Plus - Prima Recurrente | 1.-Utilización Forzada por Robo en ATM, Sucursales y BancoEstado Express :Utilización forzada de tarjetas bancarias por giros realizados en cajeros automáticos y en ventanilla: cubre perdida patrimonial que pueda sufrir el asegurado cuando este sea victima de un robo con el objeto de lograr la sustracción del dinero después de haber fectuado la transacción en el cajero automático mediante la utilización forzada de la tarjeta bancaria y transacciones efectuadas en la ventanilla de la sucursal bancaria. 2.-Engaño o extorsión; Cubre las pérdidas patrimoniales que pueda sufrir el Asegurado a causa de un Engaño o Extorsión cometido dentro del territorio nacional, por un tercero desconocido en contra de: el propio Asegurado o,sus padres, cónyuge, conviviente civil, pareja de hecho o hijos (ya sea de ambos, o solo de uno de ellos), que vivan en su mismo domicilio o (iii) un tercero que preste servicios en dicho domicilio. Se entenderá por: “Extorsión”, la amenaza de daño a la integridad física, reputación, mascota, o bienes, de alguna de las personas individualizadas en las condiciones particulares, sin que exista el uso de fuerza física o armas por parte del tercero para realizar el amedrentamiento, obligándolo a actuar de determinada manera y obtener así dinero u otro beneficio patrimonial. “Engaño”, la: suplantación de identidad o invención de alguna situación falsa por parte de un tercero desconocido que induce a alguna de las personas individualizadas en el párrafo primero de este literal, a realizar algún tipo de transacción o traspaso de bienes o dinero. El asegurado está sujeto a una defraudación, mediante el engaño o la extorsión, donde el cliente ve un daño patrimonial producto de esta acción ilícita. 3.-Robo con Violencia o Intimidación en las Personas. En el evento que el Asegurado reporte pérdidas patrimoniales (bienes muebles) a causa de un robo con violencia o Intimidación del que sea víctima, siempre que este ocurra dentro de los límites del Territorio Nacional, la Compañía indemnizará el monto de la pérdida con tope en el monto asegurado según el plan contratado. Para los efectos de esta cobertura se entenderá por Robo con “Violencia” el uso de la fuerza física contra la persona del Asegurado, o por Robo con “Intimidación”, el anuncio o amenaza dirigido al Asegurado en orden a causarle un mal o daño inminente. La compañía cubrirá todo tipo de aparatos y/o accesorios electrónicos, todo tipo de artículos de uso personal, inclusive silla, coche de bebé y/o similar. Esta cobertura se activara siempre que exista el hecho de robo, y esta sea con violencia, entendiéndose por violencia el uso de fuerza física contra la persona asegurada; o intimidación, que hace referencia a anuncios o amenazas dirigidas al asegurado, mientras se cumpla alguna de estas condiciones estará cubierto. 4.-Robo, Hurto o Extravío de Cheques. En el evento que el Asegurado reporte pérdidas en dinero como consecuencia de robo, hurto o extravío de uno o más talonarios de cheques o de cheques individuales emitidos por BancoEstado, la Compañía indemnizará el monto de los cheques pagados, siempre que se cumplan todos los requisitos y obligaciones. 5.-Compra Protegida. Esta cobertura cubre, pérdidas patrimoniales que pueda sufrir el asegurado, quien siendo víctima de la perpetración de un delito de robo o asalto, sufra la pérdida de algún bien adquirido de Forma Presencial dentro del territorio nacional, a través de los medios de pago provistos por BancoEstado. La indemnización se expresará en dinero según el monto de la pérdida con tope en el monto asegurado del plan contratado.
+PÓLIZAS
+COBERTURAS
+Este seguro ofrece la tranquilidad de tener cubiertas las perdidas patrimoniales que pueda sufrir el asegurado, cuando este sea victima de: - Utilización forzada de tarjetas bancarias en cajero automático o giros realizados sucursal BancoEstado y BancoEstado Express - Robo con violencia e intimidación en las personas - Engaño o extorsión. - Robo, hurto o extravío de cheques. - Robo de productos adquiridos utilizando una tarjeta bancaria BancoEstado (Compra protegida).
+Beneficio y Asistencias (600 6000 570) Seguro: | REQUISITO DE ASEGURABILIDAD
+Podrán ser Asegurados, los clientes mayores de 18 años, personas naturales, con o sin giro comercial, que tengan la calidad de titulares y/o adicionales autorizado por el primero de tarjetas emitidas por el Banco Estado, que en forma voluntaria se adhieran a esta Póliza.
+Qué hacer en caso de Siniestro.
+El asegurado, cuando requiera hacer uso del seguro, podrà denunciar el siniestro ingresando al sitio www.segurosbancoestado.cl, llamando al FonoSeguros 6006601212.
 
 ## Tipificación registrada por el ejecutivo
 - (sin tipificación registrada)
-
-## Ficha de producto (del seguro gestionado)
-Protección Global: No disponible (ficha pendiente con el cliente).
 
 ## Transcripción (canal separado, timestamps mm:ss)
 [00:01] AGENTE: Buenos días, BancoEstado Corredores de Seguros, le habla Ignacio Vargas. ¿Con quién hablo?
@@ -23,13 +37,11 @@ Protección Global: No disponible (ficha pendiente con el cliente).
 [00:25] AGENTE: ¿Su correo y un teléfono de contacto?
 [00:28] CLIENTE: sofia punto tapia arroba correo ejemplo punto cl, nueve tres tres tres dos dos dos uno uno.
 [00:36] AGENTE: Gracias, quedó validada. ¿En qué la puedo ayudar?
-[00:40] CLIENTE: Tengo el seguro Protección Global y me robaron la billetera el fin de semana. Quería saber si eso lo cubre y cómo hago el reclamo.
-[00:50] AGENTE: Señora Sofía, antes de eso le quiero recordar lo importante que es mantener este seguro. Mucha gente lo da de baja y después se arrepiente, porque es una protección muy completa para usted y su familia.
-[01:05] CLIENTE: Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo.
-[01:11] AGENTE: Sí, claro, pero es importante que lo mantenga. Usted está de acuerdo en mantenerlo, ¿cierto?
-[01:18] CLIENTE: Eh... sí, supongo. Pero ¿me cubre el robo o no?
-[01:22] AGENTE: Perfecto, entonces queda vigente. Para el robo de la billetera, la cobertura depende de las condiciones de su póliza; tiene que hacer la denuncia en Carabineros y llamar al número de siniestros que le voy a dar.
-[01:37] CLIENTE: Ya, ¿cuál es el número?
-[01:40] AGENTE: Es el seiscientos, cero, cero, cero, cero, cero, cero. Ahí le van a pedir la denuncia.
-[01:47] CLIENTE: Ya, gracias.
-[01:49] AGENTE: Que tenga buen día, señora Sofía.
+[00:40] CLIENTE: Tengo el Sale Seguro y el fin de semana me asaltaron y me robaron la cartera con la tarjeta. Quería saber si eso lo cubre y cómo hago el reclamo.
+[00:52] AGENTE: Señora Sofía, antes de eso le quiero recordar lo importante que es mantener este seguro. Mucha gente lo da de baja y después se arrepiente, porque es una protección muy completa para usted y su familia.
+[01:07] CLIENTE: Ya, pero yo no lo quiero dar de baja, solo quiero saber del robo.
+[01:13] AGENTE: Sí, claro, pero es importante que lo mantenga. Usted está de acuerdo en mantenerlo, ¿cierto?
+[01:19] CLIENTE: Eh... sí, supongo. Pero ¿me cubre el robo o no?
+[01:24] AGENTE: Perfecto, entonces queda vigente. Para el robo, eso lo ve la compañía; usted haga la denuncia en Carabineros y llame al FonoSeguros, seiscientos seiscientos sesenta, doce doce.
+[01:35] CLIENTE: Ya, gracias.
+[01:37] AGENTE: Que tenga buen día, señora Sofía.

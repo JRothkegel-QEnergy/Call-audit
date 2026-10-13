@@ -1,0 +1,21 @@
+# synth-13 · Tipifica renuncia cuando fue retención y limita la permanencia
+
+La clienta quiere renunciar al AP Plus. El ejecutivo parte con la fecha de renovación y le dice que solo puede renunciar en esa fecha. La clienta decide mantenerlo hasta entonces, pero el ejecutivo tipifica RENUNCIA. Medio de pago OTRO: no se menciona en el cierre.
+
+[00:01] AGENTE : Buenas tardes, BancoEstado Corredores de Seguros, le saluda Marcela Ortiz. ¿Con quién hablo?
+[00:07] CLIENTE: Buenas tardes, habla Patricia León.
+[00:09] AGENTE : Señora Patricia, para validar su identidad, ¿me indica su RUT?
+[00:14] CLIENTE: Nueve millones novecientos mil novecientos guion nueve.
+[00:17] AGENTE : ¿Su nombre completo y fecha de nacimiento?
+[00:20] CLIENTE: Patricia Elena León Fuentes, veinticinco de junio del setenta.
+[00:25] AGENTE : ¿Y su correo y teléfono de contacto?
+[00:29] CLIENTE: patricia punto leon arroba correo ejemplo punto cl, nueve siete cero cero cero uno dos tres cuatro.
+[00:36] AGENTE : Gracias, señora Patricia, quedó validada. ¿En qué la puedo ayudar?
+[00:41] CLIENTE: Quiero renunciar al seguro de accidentes personales. Está todo muy caro y tengo que recortar gastos.
+[00:47] AGENTE : Entiendo, señora Patricia. Su seguro se renueva en marzo, y la renuncia solo se puede hacer en la fecha de renovación, así que le conviene esperar a marzo.
+[00:59] CLIENTE: ¿Y no lo puedo sacar antes?
+[01:02] AGENTE : No, tiene que esperar a la renovación. Además, mientras tanto sigue protegida: si fallece por un accidente, en Chile o en el extranjero, sus beneficiarios reciben quinientas UF de una vez.
+[01:15] CLIENTE: Ya, bueno. Entonces lo dejo hasta marzo no más.
+[01:19] AGENTE : Perfecto. Le resumo: su seguro de Accidentes Personales Plan Plus, número de seguro cuatro ocho dos uno tres tres uno cuatro, se mantiene vigente. ¿Está de acuerdo?
+[01:31] CLIENTE: Sí, de acuerdo.
+[01:33] AGENTE : Gracias, que tenga buena tarde.

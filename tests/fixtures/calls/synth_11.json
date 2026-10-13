@@ -10,16 +10,16 @@
     "holds_sec": [],
     "policies": [
       {
-        "name": "Seguro de Desempleo - Créditos de consumo",
-        "policy_number": "DES-CONS-0011",
-        "retainable": true,
-        "cancellable_in_channel": true,
-        "premium_refund": null
+        "name": "DESEMPLEO ITT CRE. CONSUMO",
+        "mus_a_neto": "48213312",
+        "policy_number": "498213312",
+        "start_date": "2025-03-15",
+        "payment_method": "CRE"
       }
     ],
     "typification": [
       {
-        "policy_number": "DES-CONS-0011",
+        "mus_a_neto": "48213312",
         "outcome": "RENUNCIA",
         "reason": "No desea contraer más obligaciones"
       }
@@ -78,7 +78,7 @@
       "channel": "agent",
       "start_ms": 42130,
       "end_ms": 50592,
-      "text": "Entiendo. Le cuento que este seguro le cubre hasta cinco cuotas de su crédito si queda sin trabajo por necesidades de la..."
+      "text": "Entiendo. Le cuento que este seguro le paga cuatro cuotas de su crédito si queda sin trabajo de forma involuntaria, y además..."
     },
     {
       "channel": "customer",
@@ -110,9 +110,11 @@
     "cancellation_intent": true,
     "outcomes": [
       {
-        "policy_number": "DES-CONS-0011",
+        "mus_a_neto": "48213312",
         "outcome": "SIN_GESTION",
-        "cancellation_reason": "No desea contraer más obligaciones",
+        "cancellation_reasons": [
+          "No desea contraer más obligaciones"
+        ],
         "objections": 1
       }
     ],
@@ -138,6 +140,6 @@
         "note": "No se ve si la renuncia se alcanzó a gestionar."
       }
     ],
-    "notes": "Debe ir a revisión humana. La tipificación RENUNCIA no se puede verificar: ningún motivo 18 a 25 describe una gestión inconclusa."
+    "notes": "Debe ir a revisión humana. La tipificación RENUNCIA no se puede verificar."
   }
 }

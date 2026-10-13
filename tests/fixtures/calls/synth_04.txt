@@ -1,6 +1,6 @@
 # synth-04 · Información errónea del producto y tipificación incorrecta
 
-El ejecutivo dice que el seguro paga tres cuotas (la ficha dice hasta cinco). El cliente renuncia por problemas económicos, pero el ejecutivo tipifica 'Cambio de situación laboral'.
+Ante la pregunta de la clienta, el ejecutivo dice que el seguro paga tres cuotas, todas contra el finiquito (la ficha dice cuatro cuotas, de dos en dos). La clienta renuncia por problemas económicos, pero el ejecutivo tipifica 'Cambio de situación laboral'.
 
 [00:01] AGENTE : Buenas tardes, BancoEstado Corredores de Seguros, le atiende Matías Herrera. ¿Con quién hablo?
 [00:07] CLIENTE: Hola, habla Andrea Núñez.
@@ -16,11 +16,11 @@ El ejecutivo dice que el seguro paga tres cuotas (la ficha dice hasta cinco). El
 [00:57] CLIENTE: Sí, sigo en la misma pega, no es eso. Es que los gastos me tienen ahogada.
 [01:04] AGENTE : Le cuento que este seguro le sirve justamente si pierde la pega, porque le paga cuotas de su crédito.
 [01:12] CLIENTE: ¿Y cuántas cuotas me paga?
-[01:15] AGENTE : Le paga tres cuotas, y se pagan apenas presenta el finiquito.
-[01:20] CLIENTE: Pucha, no es tanto. Igual prefiero sacarlo.
-[01:23] AGENTE : Piense que la prima ya está pagada, no es un cobro mensual.
-[01:29] CLIENTE: Ya, pero lo quiero sacar igual. Quiero tener menos cosas.
-[01:34] AGENTE : Bueno, señora Andrea, procedo con la renuncia.
-[01:37] AGENTE : Le resumo: se ingresó la renuncia de su seguro de desempleo, póliza número DES-CONS-0004, asociado a su crédito de consumo con cargo único en el crédito. ¿Está de acuerdo?
-[01:49] CLIENTE: Sí, de acuerdo.
-[01:51] AGENTE : Muchas gracias, que tenga buena tarde.
+[01:15] AGENTE : Le paga tres cuotas, y se pagan todas de una vez apenas presenta el finiquito.
+[01:22] CLIENTE: Pucha, no es tanto. Igual prefiero sacarlo.
+[01:25] AGENTE : Piense que la prima ya está pagada, no es un cobro mensual.
+[01:31] CLIENTE: Ya, pero lo quiero sacar igual. Quiero tener menos cosas.
+[01:35] AGENTE : Bueno, señora Andrea, procedo con la renuncia.
+[01:39] AGENTE : Le resumo: se ingresó la renuncia de su seguro de desempleo, número de seguro cuatro ocho dos uno tres tres cero cuatro, cuyo medio de pago es su crédito de consumo. ¿Está de acuerdo?
+[01:52] CLIENTE: Sí, de acuerdo.
+[01:54] AGENTE : El seguro queda renunciado desde hoy, y la devolución de la prima no devengada es automática: la compañía la hace dentro de diez días hábiles. Muchas gracias, que tenga buena tarde.

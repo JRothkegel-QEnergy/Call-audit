@@ -1,0 +1,160 @@
+{
+  "call_id": "synth-13",
+  "synthetic": true,
+  "title": "Tipifica renuncia cuando fue retención y limita la permanencia",
+  "description": "La clienta quiere renunciar al AP Plus. El ejecutivo parte con la fecha de renovación y le dice que solo puede renunciar en esa fecha. La clienta decide mantenerlo hasta entonces, pero el ejecutivo tipifica RENUNCIA. Medio de pago OTRO: no se menciona en el cierre.",
+  "metadata": {
+    "date": "2026-09-17",
+    "agent_id": "EJ-0113",
+    "duration_sec": 96,
+    "holds_sec": [],
+    "policies": [
+      {
+        "name": "AP PLUS MEDIO DE PAGO",
+        "mus_a_neto": "48213314",
+        "policy_number": "498213314",
+        "start_date": "2025-03-15",
+        "payment_method": "OTRO"
+      }
+    ],
+    "typification": [
+      {
+        "mus_a_neto": "48213314",
+        "outcome": "RENUNCIA",
+        "reason": "Problemas Económicos"
+      }
+    ]
+  },
+  "transcript": [
+    {
+      "channel": "agent",
+      "start_ms": 1000,
+      "end_ms": 6000,
+      "text": "Buenas tardes, BancoEstado Corredores de Seguros, le saluda Marcela Ortiz. ¿Con quién hablo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 7000,
+      "end_ms": 8923,
+      "text": "Buenas tardes, habla Patricia León."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 9723,
+      "end_ms": 13569,
+      "text": "Señora Patricia, para validar su identidad, ¿me indica su RUT?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 14169,
+      "end_ms": 16861,
+      "text": "Nueve millones novecientos mil novecientos guion nueve."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 17761,
+      "end_ms": 20453,
+      "text": "¿Su nombre completo y fecha de nacimiento?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 20953,
+      "end_ms": 24415,
+      "text": "Patricia Elena León Fuentes, veinticinco de junio del setenta."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 25615,
+      "end_ms": 28307,
+      "text": "¿Y su correo y teléfono de contacto?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 29007,
+      "end_ms": 35546,
+      "text": "patricia punto leon arroba correo ejemplo punto cl, nueve siete cero cero cero uno dos tres cuatro."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 36546,
+      "end_ms": 40392,
+      "text": "Gracias, señora Patricia, quedó validada. ¿En qué la puedo ayudar?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 41192,
+      "end_ms": 47346,
+      "text": "Quiero renunciar al seguro de accidentes personales. Está todo muy caro y tengo que recortar gastos."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 47946,
+      "end_ms": 58715,
+      "text": "Entiendo, señora Patricia. Su seguro se renueva en marzo, y la renuncia solo se puede hacer en la fecha de renovación, así que le conviene esperar a marzo."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 59615,
+      "end_ms": 61923,
+      "text": "¿Y no lo puedo sacar antes?"
+    },
+    {
+      "channel": "agent",
+      "start_ms": 62423,
+      "end_ms": 74346,
+      "text": "No, tiene que esperar a la renovación. Además, mientras tanto sigue protegida: si fallece por un accidente, en Chile o en el extranjero, sus beneficiarios reciben quinientas UF de una vez."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 75546,
+      "end_ms": 79007,
+      "text": "Ya, bueno. Entonces lo dejo hasta marzo no más."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 79707,
+      "end_ms": 90092,
+      "text": "Perfecto. Le resumo: su seguro de Accidentes Personales Plan Plus, número de seguro cuatro ocho dos uno tres tres uno cuatro, se mantiene vigente. ¿Está de acuerdo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 91092,
+      "end_ms": 92292,
+      "text": "Sí, de acuerdo."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 93092,
+      "end_ms": 95015,
+      "text": "Gracias, que tenga buena tarde."
+    }
+  ],
+  "expected": {
+    "call_verdict": "non_compliant",
+    "cancellation_intent": true,
+    "outcomes": [
+      {
+        "mus_a_neto": "48213314",
+        "outcome": "RETENCION",
+        "cancellation_reasons": [
+          "Problemas Económicos"
+        ],
+        "objections": 2,
+        "renewal_last": false
+      }
+    ],
+    "findings": [
+      {
+        "criterion_id": 5,
+        "status": "non_compliant",
+        "note": "Ante la consulta directa, dice que solo puede renunciar en la fecha de renovación; la permanencia la decide la clienta."
+      },
+      {
+        "criterion_id": 19,
+        "status": "non_compliant",
+        "note": "Tipifica RENUNCIA y por grabación la clienta mantiene el seguro (retención)."
+      }
+    ],
+    "notes": "Orden de argumentos incorrecto: la fecha de renovación va al final y acá es el primero (indicador del dashboard, no es motivo). Medio de pago OTRO: el motivo 15 no aplica."
+  }
+}

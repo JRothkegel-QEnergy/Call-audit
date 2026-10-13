@@ -2,6 +2,15 @@
 
 Prueba el prompt de `docs/layer2-prompt-example.md` con distintas IA sobre las llamadas sintéticas de `tests/fixtures/calls/` y compara los resultados.
 
+## 0. Armar el catálogo de seguros (una vez, o cuando cambie el Excel de apoyo)
+
+```bash
+pip install pyxlsb
+python scripts/prompt_bench/extract_catalog.py "<ruta>/Apoyo nuevo v1.xlsb"
+```
+
+Deja `data/catalog/products.json` (fuera del repo, por ser material del cliente): categoría, tipo de prima, ficha y medios de pago de cada seguro.
+
 ## 1. Generar los prompts
 
 ```bash
@@ -50,6 +59,7 @@ Deja `results/report.md` con:
 ## Ojo
 
 - Los esperados los definimos nosotros, no auditores del cliente: esto mide **consistencia entre IA**, no precisión real. Eso lo da el golden set.
-- El umbral de espera (120 s) es un ejemplo; el real es TBD.
-- Solo hay ficha de producto para Desempleo. Para el resto se le indica a la IA que no la tiene.
+- Umbral de espera: 30 s (nota del cliente en el motivo 1).
+- Las fichas salen del Excel de apoyo. Algunos seguros no tienen ficha (no retenibles, no renunciables, SONAP): la IA recibe "No disponible".
 - Las transcripciones no están anonimizadas (son datos inventados). En producción, el texto se anonimiza antes del LLM.
+- Corridas anteriores en `archive/` (cada una con su `report.md`). Las de v1.x usan las 11 llamadas antiguas y otro esquema: no son directamente comparables con v2.0.

@@ -25,6 +25,7 @@ provider = "anthropic"
 model = "claude-haiku-5-5"
 enabled = true
 effort = "medium"
+max_tokens = 20000   # con 16.000 se cortó la llamada de dos seguros; sobre ~21.000 el SDK exige streaming
 price_input_per_mtok = 0.10
 price_output_per_mtok = 0.50
 
@@ -46,6 +47,7 @@ name = "gemini-3-5-flash-lite"
 provider = "gemini"
 model = "gemini-3.5-flash-lite"
 enabled = true
+tool_mode = true   # en modo JSON devolvía el esquema en vez de la respuesta (prompt v2.0)
 temperature = 0
 price_input_per_mtok = 0.30
 price_output_per_mtok = 2.50
@@ -122,7 +124,7 @@ provider = "openrouter"
 model = "google/gemini-3.8-flash"
 enabled = true
 temperature = 0
-max_tokens = 16000
+max_tokens = 32000   # con 16.000 se cortó una respuesta (prompt v2.0)
 price_input_per_mtok = 0.75
 price_output_per_mtok = 3.75
 
@@ -152,7 +154,7 @@ name = "or-qwen3-8-flash"
 provider = "openrouter"
 model = "qwen/qwen3.8-flash"
 enabled = true
-tool_mode = true   # en modo JSON a veces devuelve el esquema en vez de la respuesta
+# tool_mode ya no sirve: el proveedor (Alibaba) rechaza tool_choice en modo razonamiento (2026-10-09)
 temperature = 0
 max_tokens = 32000   # con 16.000 el razonamiento cortaba la respuesta
 price_input_per_mtok = 0.15

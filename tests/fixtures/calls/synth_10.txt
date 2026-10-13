@@ -1,6 +1,6 @@
-# synth-10 · Renuncia de un seguro irrenunciable en el canal
+# synth-10 · Renuncia de un seguro no renunciable
 
-El seguro de Incapacidad Temporal no se puede renunciar por este canal (debe derivarse). El ejecutivo igual ingresa la renuncia.
+El desgravamen nominal del hipotecario es obligatorio: no se puede renunciar por teléfono y se debe derivar a sucursal. El ejecutivo igual ingresa la renuncia.
 
 [00:01] AGENTE : Buenas tardes, BancoEstado Corredores de Seguros, le habla Tomás Silva. ¿Con quién hablo?
 [00:06] CLIENTE: Hola, con Gloria Fernández.
@@ -9,9 +9,9 @@ El seguro de Incapacidad Temporal no se puede renunciar por este canal (debe der
 [00:22] AGENTE : ¿Y su correo y teléfono?
 [00:25] CLIENTE: gloria punto fernandez arroba correo ejemplo punto cl, nueve uno uno uno dos dos dos tres tres.
 [00:32] AGENTE : Gracias, quedó validada. ¿En qué la ayudo?
-[00:35] CLIENTE: Me sale un seguro de incapacidad temporal en el crédito y yo no me acuerdo de haberlo contratado. Lo quiero sacar.
-[00:44] AGENTE : Entiendo, señora Gloria. Es el seguro de Incapacidad Temporal asociado a su crédito de consumo. Se lo doy de baja.
-[00:53] CLIENTE: Ya, gracias.
-[00:55] AGENTE : Listo. Quedó ingresada la renuncia de su seguro de Incapacidad Temporal, póliza número INC-TMP-0010, con prima única cargada en su crédito de consumo. ¿Está de acuerdo?
-[01:06] CLIENTE: Sí, de acuerdo.
-[01:08] AGENTE : Que tenga buena tarde.
+[00:35] CLIENTE: Me sale un seguro de desgravamen en el dividendo del hipotecario y yo no me acuerdo de haberlo contratado. Lo quiero sacar.
+[00:44] AGENTE : Entiendo, señora Gloria. Es el seguro de desgravamen de su crédito hipotecario. Se lo doy de baja.
+[00:52] CLIENTE: Ya, gracias.
+[00:54] AGENTE : Listo. Quedó ingresada la renuncia de su seguro de desgravamen, número de seguro cuatro ocho dos uno tres tres uno uno, con cargo en su crédito hipotecario. ¿Está de acuerdo?
+[01:07] CLIENTE: Sí, de acuerdo.
+[01:09] AGENTE : Que tenga buena tarde.

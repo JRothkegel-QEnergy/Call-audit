@@ -1,0 +1,152 @@
+{
+  "call_id": "synth-12",
+  "synthetic": true,
+  "title": "Retiene un seguro no retenible",
+  "description": "El cliente quiere renunciar a un seguro de desempleo que está en la lista de no retenibles. El ejecutivo argumenta dos veces y el cliente lo mantiene. Gestión que no corresponde.",
+  "metadata": {
+    "date": "2026-09-16",
+    "agent_id": "EJ-0112",
+    "duration_sec": 103,
+    "holds_sec": [],
+    "policies": [
+      {
+        "name": "SEGURO DE DESEMPLEO CONSUMO",
+        "mus_a_neto": "48213313",
+        "policy_number": "498213313",
+        "start_date": "2025-03-15",
+        "payment_method": "CRE"
+      }
+    ],
+    "typification": [
+      {
+        "mus_a_neto": "48213313",
+        "outcome": "RETENCION",
+        "reason": "Cambio de situación laboral"
+      }
+    ]
+  },
+  "transcript": [
+    {
+      "channel": "agent",
+      "start_ms": 1000,
+      "end_ms": 6769,
+      "text": "Buenos días, BancoEstado Corredores de Seguros, le habla Andrés Pino. ¿Con quién tengo el gusto?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 7469,
+      "end_ms": 9776,
+      "text": "Hola, buenos días, habla Ricardo Vidal."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 10776,
+      "end_ms": 17700,
+      "text": "Don Ricardo, para validar su identidad, ¿me indica su RUT, su nombre completo y su fecha de nacimiento?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 18500,
+      "end_ms": 25423,
+      "text": "Veinte millones doscientos mil doscientos guion dos. Ricardo José Vidal Campos, diez de noviembre del ochenta y tres."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 26023,
+      "end_ms": 28715,
+      "text": "¿Y me confirma su correo y teléfono?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 29615,
+      "end_ms": 36153,
+      "text": "ricardo punto vidal arroba correo ejemplo punto cl, nueve ocho ocho ocho siete siete siete seis seis."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 36653,
+      "end_ms": 40115,
+      "text": "Gracias, don Ricardo, datos validados. ¿En qué lo ayudo?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 41315,
+      "end_ms": 50930,
+      "text": "Quiero dar de baja el seguro de desempleo del crédito de consumo. Ahora trabajo de forma independiente, así que no lo voy a poder usar."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 51630,
+      "end_ms": 62400,
+      "text": "Entiendo, don Ricardo. Antes de eso, le recomiendo pensarlo: este seguro lo protege si se queda sin ingresos y le ayuda a pagar las cuotas de su crédito."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 63400,
+      "end_ms": 66092,
+      "text": "Pero si soy independiente, ¿igual me sirve?"
+    },
+    {
+      "channel": "agent",
+      "start_ms": 66892,
+      "end_ms": 76507,
+      "text": "Es una protección para su crédito, y si vuelve a trabajar con contrato le puede servir mucho. Yo que usted lo mantendría un tiempo más."
+    },
+    {
+      "channel": "customer",
+      "start_ms": 77107,
+      "end_ms": 79415,
+      "text": "Bueno, ya, lo dejo por ahora."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 80315,
+      "end_ms": 95700,
+      "text": "Perfecto. Le resumo la gestión: su seguro de desempleo de crédito de consumo, número de seguro cuatro ocho dos uno tres tres uno tres, se mantiene vigente, con cargo a su crédito de consumo. ¿Está de acuerdo con la gestión?"
+    },
+    {
+      "channel": "customer",
+      "start_ms": 96200,
+      "end_ms": 97400,
+      "text": "Sí, de acuerdo."
+    },
+    {
+      "channel": "agent",
+      "start_ms": 98600,
+      "end_ms": 101676,
+      "text": "Muchas gracias, don Ricardo, que tenga buen día."
+    }
+  ],
+  "expected": {
+    "call_verdict": "non_compliant",
+    "cancellation_intent": true,
+    "outcomes": [
+      {
+        "mus_a_neto": "48213313",
+        "outcome": "RETENCION",
+        "cancellation_reasons": [
+          "Cambio de situación laboral"
+        ],
+        "objections": 2
+      }
+    ],
+    "findings": [
+      {
+        "criterion_id": 17,
+        "status": "non_compliant",
+        "note": "SEGURO DE DESEMPLEO CONSUMO está en la lista de no retenibles y el ejecutivo lo retiene."
+      },
+      {
+        "criterion_id": 8,
+        "status": "uncertain",
+        "note": "El cliente pregunta si le sirve siendo independiente y el ejecutivo responde de forma vaga."
+      },
+      {
+        "criterion_id": 6,
+        "status": "uncertain",
+        "note": "No hay ficha de este seguro para contrastar la respuesta."
+      }
+    ],
+    "notes": "Prueba que el modelo distinga SEGURO DE DESEMPLEO CONSUMO (no retenible) de DESEMPLEO ITT CRE. CONSUMO (retenible)."
+  }
+}

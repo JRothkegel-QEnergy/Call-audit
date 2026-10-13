@@ -14,20 +14,20 @@ El cliente quiere renunciar a dos seguros (desempleo e Incendio Hogar). El ejecu
 [00:44] CLIENTE: Mire, me quedé sin pega hace un mes, me voy a trabajar independiente, y quiero ordenar mis gastos. Quiero renunciar a dos seguros: el de desempleo del crédito y el de incendio de la casa.
 [00:58] AGENTE : Entiendo, don Felipe. Partamos por el de desempleo. ¿Usted ya cobró el seguro por su despido?
 [01:05] CLIENTE: No, si me fui yo, renuncié. Por eso no lo puedo cobrar, cachai, entonces no me sirve.
-[01:13] AGENTE : Claro. Le comento que este seguro le cubriría si a futuro vuelve a tener contrato y lo despiden por necesidades de la empresa. Como la prima ya está pagada, no le cuesta nada mantenerlo.
-[01:27] CLIENTE: Sí, pero voy a ser independiente, entonces no me va a cubrir. Lo quiero sacar.
-[01:33] AGENTE : Perfecto, entonces gestiono la renuncia del seguro de desempleo.
-[01:37] CLIENTE: Ya. Y el de incendio también.
-[01:40] AGENTE : Sobre el de Incendio Hogar, don Felipe: ese seguro protege su vivienda y sus contenidos ante incendio y otros eventos de la naturaleza. Ahora que va a trabajar desde la casa, puede ser todavía más importante tenerlo.
-[01:56] CLIENTE: Mmm, puede ser, pero la verdad es un gasto mensual que ahora no puedo tener. Lo quiero sacar igual.
-[02:04] AGENTE : Entiendo. Mientras se acomoda con su nuevo trabajo, ¿no prefiere mantenerlo un tiempo más?
-[02:10] CLIENTE: No, no. Los dos, por favor. Quiero ordenarme.
-[02:14] AGENTE : Muy bien. Deme un segundo que estoy ingresando la gestión.
-[02:18] CLIENTE: Ya, dale.
-[02:20] AGENTE : Mientras carga el sistema, don Felipe, ¿quiere que le actualice su dirección o algún dato de contacto?
-[02:28] CLIENTE: No, está todo bien, gracias.
-[02:31] AGENTE : Perfecto. Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, póliza número DES-CONS-0009, cuyo medio de pago fue el cargo único en su crédito de consumo. ¿Está de acuerdo con la gestión?
-[02:46] CLIENTE: Sí. ¿Y el de incendio quedó listo también?
-[02:50] AGENTE : Sí, don Felipe, quedó todo listo.
-[02:53] CLIENTE: Ya, perfecto. Muchas gracias.
-[02:55] AGENTE : A usted, que le vaya muy bien con su nuevo trabajo.
+[01:13] AGENTE : Claro. Le comento que, como trabajador independiente, este seguro igual lo cubre por incapacidad temporal: si un accidente o una enfermedad infecciosa no lo deja trabajar, le paga hasta cuatro cuotas del crédito. Y como la prima ya está pagada, no le cuesta nada mantenerlo.
+[01:31] CLIENTE: Sí, pero igual lo quiero sacar.
+[01:34] AGENTE : Perfecto, entonces gestiono la renuncia del seguro de desempleo.
+[01:38] CLIENTE: Ya. Y el de incendio también.
+[01:41] AGENTE : Sobre el de Incendio Hogar, don Felipe: ese seguro protege su vivienda ante incendio, daños por agua y eventos de la naturaleza, y le da asistencias de plomería y cerrajería. Ahora que va a trabajar desde la casa, puede ser todavía más importante tenerlo.
+[01:59] CLIENTE: Mmm, puede ser, pero la verdad es un gasto mensual que ahora no puedo tener. Lo quiero sacar igual.
+[02:07] AGENTE : Entiendo. Mientras se acomoda con su nuevo trabajo, ¿no prefiere mantenerlo un tiempo más?
+[02:14] CLIENTE: No, no. Los dos, por favor. Quiero ordenarme.
+[02:17] AGENTE : Muy bien. Deme un segundo que estoy ingresando la gestión.
+[02:22] CLIENTE: Ya, dale.
+[02:24] AGENTE : Mientras carga el sistema, don Felipe, ¿quiere que le actualice su dirección o algún dato de contacto?
+[02:31] CLIENTE: No, está todo bien, gracias.
+[02:34] AGENTE : Perfecto. Le resumo: queda ingresada la renuncia de su seguro de desempleo de crédito de consumo, número de seguro cuatro ocho dos uno tres tres cero nueve, cuyo medio de pago es su crédito de consumo. ¿Está de acuerdo con la gestión?
+[02:51] CLIENTE: Sí. ¿Y el de incendio quedó listo también?
+[02:55] AGENTE : Sí, don Felipe, quedó todo listo. Y la devolución de la prima no devengada del seguro de desempleo es automática, dentro de diez días hábiles.
+[03:05] CLIENTE: Ya, perfecto. Muchas gracias.
+[03:08] AGENTE : A usted, que le vaya muy bien con su nuevo trabajo.

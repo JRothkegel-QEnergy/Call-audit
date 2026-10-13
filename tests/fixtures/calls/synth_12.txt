@@ -1,0 +1,19 @@
+# synth-12 · Retiene un seguro no retenible
+
+El cliente quiere renunciar a un seguro de desempleo que está en la lista de no retenibles. El ejecutivo argumenta dos veces y el cliente lo mantiene. Gestión que no corresponde.
+
+[00:01] AGENTE : Buenos días, BancoEstado Corredores de Seguros, le habla Andrés Pino. ¿Con quién tengo el gusto?
+[00:07] CLIENTE: Hola, buenos días, habla Ricardo Vidal.
+[00:10] AGENTE : Don Ricardo, para validar su identidad, ¿me indica su RUT, su nombre completo y su fecha de nacimiento?
+[00:18] CLIENTE: Veinte millones doscientos mil doscientos guion dos. Ricardo José Vidal Campos, diez de noviembre del ochenta y tres.
+[00:26] AGENTE : ¿Y me confirma su correo y teléfono?
+[00:29] CLIENTE: ricardo punto vidal arroba correo ejemplo punto cl, nueve ocho ocho ocho siete siete siete seis seis.
+[00:36] AGENTE : Gracias, don Ricardo, datos validados. ¿En qué lo ayudo?
+[00:41] CLIENTE: Quiero dar de baja el seguro de desempleo del crédito de consumo. Ahora trabajo de forma independiente, así que no lo voy a poder usar.
+[00:51] AGENTE : Entiendo, don Ricardo. Antes de eso, le recomiendo pensarlo: este seguro lo protege si se queda sin ingresos y le ayuda a pagar las cuotas de su crédito.
+[01:03] CLIENTE: Pero si soy independiente, ¿igual me sirve?
+[01:06] AGENTE : Es una protección para su crédito, y si vuelve a trabajar con contrato le puede servir mucho. Yo que usted lo mantendría un tiempo más.
+[01:17] CLIENTE: Bueno, ya, lo dejo por ahora.
+[01:20] AGENTE : Perfecto. Le resumo la gestión: su seguro de desempleo de crédito de consumo, número de seguro cuatro ocho dos uno tres tres uno tres, se mantiene vigente, con cargo a su crédito de consumo. ¿Está de acuerdo con la gestión?
+[01:36] CLIENTE: Sí, de acuerdo.
+[01:38] AGENTE : Muchas gracias, don Ricardo, que tenga buen día.

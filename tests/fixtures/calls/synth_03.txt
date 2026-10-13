@@ -1,6 +1,6 @@
 # synth-03 · Llamada corta sin intento de retención
 
-El cliente vendió su departamento y quiere renunciar al seguro Incendio Hogar, que es retenible. El ejecutivo no intenta retener y tampoco valida correo ni teléfono.
+El cliente vendió su departamento y quiere renunciar al seguro Incendio Hogar, que es retenible. El ejecutivo no intenta retener, no da ninguna característica y tampoco valida correo ni teléfono.
 
 [00:01] AGENTE : BancoEstado Corredores de Seguros, buenas tardes, habla Javiera Morales.
 [00:04] CLIENTE: Hola, buenas, habla Luis Contreras.
@@ -10,6 +10,6 @@ El cliente vendió su departamento y quiere renunciar al seguro Incendio Hogar, 
 [00:25] CLIENTE: Vendí el departamento y quiero dar de baja el seguro de incendio, porque ya no tiene sentido.
 [00:32] AGENTE : Ya, perfecto, se lo doy de baja al tiro.
 [00:37] CLIENTE: Ya, gracias.
-[00:38] AGENTE : Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, póliza número INC-HOG-0003, que se cargaba mensualmente a su cuenta corriente terminada en cuatro cinco. ¿Está de acuerdo con la gestión?
-[00:52] CLIENTE: Sí, de acuerdo.
-[00:54] AGENTE : Gracias por llamar, que esté bien.
+[00:38] AGENTE : Listo, don Luis. Quedó ingresada la renuncia de su seguro Incendio Hogar, número de seguro cuatro ocho dos uno tres tres cero tres, que se cargaba a su cuenta corriente. ¿Está de acuerdo con la gestión?
+[00:53] CLIENTE: Sí, de acuerdo.
+[00:55] AGENTE : Gracias por llamar, que esté bien.

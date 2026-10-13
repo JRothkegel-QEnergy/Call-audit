@@ -2,18 +2,24 @@
 llamada_id: synth-10
 fecha: 2026-09-12
 ejecutivo: EJ-0110
-duracion_seg: 71
+duracion_seg: 72
 esperas_seg: []
-umbral_espera_seg: 120
+umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
-- nombre: Seguro de Incapacidad Temporal - Créditos de consumo | n_poliza: INC-TMP-0010 | retenible: no | renunciable_en_canal: no | devolucion_prima: sin dato
+### Seguro 1: DESGRAVAMEN NOMINAL
+- N° de seguro (MUS A Neto): 48213311
+- N° de póliza: 498213311
+- inicio de vigencia: 2025-03-15
+- compañía: sin dato
+- categoría: NO_RENUNCIABLE_SUCURSAL. No renunciable por teléfono (obligatorio). Solo se puede reemplazar por otra póliza y esa gestión se hace en sucursal. Se registra como consulta: 'seguro no se puede renunciar, se deriva a sucursal'.
+- tipo de prima: sin dato en el catálogo. Devolución: sin dato.
+- medio de pago: HIP (Asociado a Crédito Hipotecario.)
+- ficha del producto:
+No disponible: el Excel de apoyo no tiene ficha para este seguro.
 
 ## Tipificación registrada por el ejecutivo
-- seguro: INC-TMP-0010 | gestion: RENUNCIA | motivo: Desconoce contratación del seguro
-
-## Ficha de producto (del seguro gestionado)
-Seguro de Incapacidad Temporal - Créditos de consumo: No disponible (ficha pendiente con el cliente).
+- seguro: 48213311 | gestion: RENUNCIA | motivo: Desconoce contratación del seguro
 
 ## Transcripción (canal separado, timestamps mm:ss)
 [00:01] AGENTE: Buenas tardes, BancoEstado Corredores de Seguros, le habla Tomás Silva. ¿Con quién hablo?
@@ -23,9 +29,9 @@ Seguro de Incapacidad Temporal - Créditos de consumo: No disponible (ficha pend
 [00:22] AGENTE: ¿Y su correo y teléfono?
 [00:25] CLIENTE: gloria punto fernandez arroba correo ejemplo punto cl, nueve uno uno uno dos dos dos tres tres.
 [00:32] AGENTE: Gracias, quedó validada. ¿En qué la ayudo?
-[00:35] CLIENTE: Me sale un seguro de incapacidad temporal en el crédito y yo no me acuerdo de haberlo contratado. Lo quiero sacar.
-[00:44] AGENTE: Entiendo, señora Gloria. Es el seguro de Incapacidad Temporal asociado a su crédito de consumo. Se lo doy de baja.
-[00:53] CLIENTE: Ya, gracias.
-[00:55] AGENTE: Listo. Quedó ingresada la renuncia de su seguro de Incapacidad Temporal, póliza número INC-TMP-0010, con prima única cargada en su crédito de consumo. ¿Está de acuerdo?
-[01:06] CLIENTE: Sí, de acuerdo.
-[01:08] AGENTE: Que tenga buena tarde.
+[00:35] CLIENTE: Me sale un seguro de desgravamen en el dividendo del hipotecario y yo no me acuerdo de haberlo contratado. Lo quiero sacar.
+[00:44] AGENTE: Entiendo, señora Gloria. Es el seguro de desgravamen de su crédito hipotecario. Se lo doy de baja.
+[00:52] CLIENTE: Ya, gracias.
+[00:54] AGENTE: Listo. Quedó ingresada la renuncia de su seguro de desgravamen, número de seguro cuatro ocho dos uno tres tres uno uno, con cargo en su crédito hipotecario. ¿Está de acuerdo?
+[01:07] CLIENTE: Sí, de acuerdo.
+[01:09] AGENTE: Que tenga buena tarde.

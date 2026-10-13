@@ -2,18 +2,55 @@
 llamada_id: synth-05
 fecha: 2026-09-05
 ejecutivo: EJ-0105
-duracion_seg: 115
+duracion_seg: 118
 esperas_seg: []
-umbral_espera_seg: 120
+umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
-- nombre: Seguro de Salud Incapacidad MYPE | n_poliza: MYPE-0005 | retenible: si | renunciable_en_canal: si | devolucion_prima: sin dato
+### Seguro 1: HOSPITALIZACION TLMK
+- N° de seguro (MUS A Neto): 48213305
+- N° de póliza: 498213305
+- inicio de vigencia: 2025-03-15
+- compañía: MetLife
+- categoría: RETENIBLE. Seguro retenible: si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
+- tipo de prima: prima mensual. Devolución: no hay devolución automática; si el cliente la pide por cobros incorrectos o desconocimiento, se le invita a ingresar un requerimiento al 600 660 1212, opción 2.
+- medio de pago: CTV (Se paga con la Cuenta vista (Cuenta rut))
+- ficha del producto:
+Nombre en sistema | HOSPITALIZACIÓN TLMK
+SEGURO | COBERTURAS
+HOSPITALIZACIÓN | $ DE LIBRE DISPOSICIÓN
+POR ENFERMEDAD O ACCIDENTE
+SALA COMUN, UTI O UCI | desde UF 2
+Tope máximo de días | 180 días
+PRIMA DEL SEGURO PARA ASEGURADO TITULAR
+PLAN | PRIMA EN $ aprox | COBERTURA
+Plan 1 UF 0,1950 | 6300 | Plan 1 2 UF
+Plan 2 UF 0,2230 | 7200 | Plan 2 4 UF
+Plan 3 UF 0,2500 | 8100 | Plan 3 6 UF
+PRIMA ASEGURADO TITULAR + 1 ADICIONAL | PRIMA ASEGURADO TITULAR + 1 ADICIONAL
+Plan 1 UF 0,2380 | $ 6.800 | Plan 1 2 UF x asegurado adicional
+Plan 2 UF 0,2970 | $ 8.500 | Plan 1 4 UF x asegurado adicional
+Plan 3 UF 0,3570 | $ 10.200 | Plan 1 6 UF x asegurado adicional
+PRIMA ASEGURADO TITULAR + 2 ADICIONALES | PRIMA ASEGURADO TITULAR + 2 ADICIONALES
+Plan 1 UF 0,2680 | $ 7.700 | Plan 1 2 UF x asegurado adicional
+Plan 2 UF 0,3620 | $ 10.400 | Plan 1 4 UF x asegurado adicional
+Plan 3 UF 0,4540 | $ 13.000 | Plan 1 6 UF x asegurado adicional
+PRIMA ASEGURADO TITULAR + 3 ADICIONALES | PRIMA ASEGURADO TITULAR + 3 ADICIONALES
+Plan 1 UF 0,2970 | $ 8.500 | Plan 1 2 UF x asegurado adicional
+Plan 2 UF 0,4230 | $ 12.100 | Plan 1 4 UF x asegurado adicional
+Plan 3 UF 0,5530 | $ 15.900 | Plan 1 6 UF x asegurado adicional
+PRIMA ASEGURADO TITULAR + 4 ADICIONALES | PRIMA ASEGURADO TITULAR + 4 ADICIONALES
+Plan 1 UF 0,3270 | $ 9.400 | Plan 1 2 UF x asegurado adicional
+Plan 2 UF 0,4890 | $ 14.000 | Plan 1 4 UF x asegurado adicional
+Plan 3 UF 0,6510 | $ 18.700 | Plan 1 6 UF x asegurado adicional
+PRIMA ASEGURADO TITULAR + 5 ADICIONALES | PRIMA ASEGURADO TITULAR + 5 ADICIONALES
+Plan 1 UF 0,3570 | $ 10.200 | Plan 1 2 UF x asegurado adicional
+Plan 2 UF 0,5550 | $ 15.900 | Plan 1 4 UF x asegurado adicional
+Plan 3 UF 0,749 | $ 21.500 | Plan 1 6 UF x asegurado adicional
+Asistencia Renta Hospitalización
 
 ## Tipificación registrada por el ejecutivo
-- seguro: MYPE-0005 | gestion: RENUNCIA | motivo: No desea contraer más obligaciones
-
-## Ficha de producto (del seguro gestionado)
-Seguro de Salud Incapacidad MYPE: No disponible (ficha pendiente con el cliente).
+- seguro: 48213305 | gestion: RENUNCIA | motivo: No desea contraer más obligaciones
 
 ## Transcripción (canal separado, timestamps mm:ss)
 [00:01] AGENTE: Buenas tardes, le habla Fernanda Castro de BancoEstado Corredores de Seguros. ¿Con quién tengo el gusto?
@@ -23,12 +60,12 @@ Seguro de Salud Incapacidad MYPE: No disponible (ficha pendiente con el cliente)
 [00:26] AGENTE: ¿Y su correo y teléfono?
 [00:29] CLIENTE: jorge punto ramirez arroba correo ejemplo punto cl, nueve cuatro cuatro cuatro cuatro cinco cinco cinco cinco.
 [00:36] AGENTE: Gracias, don Jorge, quedó validado. ¿En qué lo ayudo?
-[00:41] CLIENTE: Quiero renunciar al seguro de salud de la pyme, no quiero más compromisos. Pero mire, mi señora es la que ve estas cosas, le paso con ella.
-[00:52] CLIENTE: Hola, buenas, habla Marcela, la señora de Jorge. ¿Cuánto es lo que estamos pagando por ese seguro y desde cuándo?
-[01:01] AGENTE: Hola, señora Marcela. El seguro de Salud Incapacidad MYPE tiene una prima mensual de doce mil cuatrocientos pesos, que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado.
-[01:15] CLIENTE: Ya, ¿y qué pasa si lo sacamos? ¿Pierde algo?
-[01:19] AGENTE: Perdería la cobertura de incapacidad para su negocio: si don Jorge queda incapacitado temporalmente, el seguro le paga una renta diaria. Es una buena protección para un emprendedor.
-[01:31] CLIENTE: No, igual lo queremos sacar. Ya tenemos muchas cuentas.
-[01:35] AGENTE: Perfecto, señora Marcela. Entonces le confirmo: queda ingresada la renuncia del seguro Salud Incapacidad MYPE, póliza número MYPE-0005, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?
-[01:48] CLIENTE: Sí, de acuerdo. Gracias, señorita.
-[01:50] AGENTE: A usted, que tengan buena tarde.
+[00:41] CLIENTE: Quiero renunciar al seguro de hospitalización, no quiero más compromisos. Pero mire, mi señora es la que ve estas cosas, le paso con ella.
+[00:51] CLIENTE: Hola, buenas, habla Marcela, la señora de Jorge. ¿Cuánto es lo que estamos pagando por ese seguro y desde cuándo?
+[00:59] AGENTE: Hola, señora Marcela. El seguro de Hospitalización tiene una prima mensual de seis mil trescientos pesos, que se carga a la cuenta vista de don Jorge, y está vigente desde marzo del año pasado.
+[01:13] CLIENTE: Ya, ¿y qué pasa si lo sacamos? ¿Pierde algo?
+[01:17] AGENTE: Perdería la cobertura de hospitalización: si don Jorge queda hospitalizado por enfermedad o accidente, en sala común, UTI o UCI, el seguro le paga dos UF por día, de libre disposición, hasta por ciento ochenta días.
+[01:32] CLIENTE: No, igual lo queremos sacar. Ya tenemos muchas cuentas.
+[01:36] AGENTE: Perfecto, señora Marcela. Entonces le confirmo: queda ingresada la renuncia del seguro de Hospitalización, número de seguro cuatro ocho dos uno tres tres cero cinco, con cargo a la cuenta vista de don Jorge. ¿Están de acuerdo?
+[01:52] CLIENTE: Sí, de acuerdo. Gracias, señorita.
+[01:54] AGENTE: A usted, que tengan buena tarde.

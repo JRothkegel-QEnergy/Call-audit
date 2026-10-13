@@ -1,6 +1,6 @@
-# synth-02 · Exceso de objeciones y cierre sin N° de póliza
+# synth-02 · Exceso de objeciones y cierre sin N° de seguro
 
-El cliente insiste en renunciar; el ejecutivo da 5 argumentos de retención (1 tras la solicitud y 4 tras negativas). Procesa la renuncia, pero en el cierre no menciona el número de seguro.
+La clienta insiste en renunciar de forma tajante; el ejecutivo da 5 argumentos de retención (1 tras la solicitud y 4 tras negativas). Procesa la renuncia, pero en el cierre no menciona el número de seguro.
 
 [00:01] AGENTE : Buenos días, mi nombre es Rodrigo Fuentes, de BancoEstado Corredores de Seguros. ¿Con quién hablo?
 [00:07] CLIENTE: Buenos días, con Carolina Paredes.
@@ -12,17 +12,17 @@ El cliente insiste en renunciar; el ejecutivo da 5 argumentos de retención (1 t
 [00:32] CLIENTE: carolina punto paredes arroba correo ejemplo punto cl, y el nueve ocho siete seis cinco cuatro tres dos uno.
 [00:40] AGENTE : Perfecto, datos validados. Cuénteme, ¿en qué la puedo ayudar?
 [00:44] CLIENTE: Quiero renunciar al seguro de desempleo. Es que no me alcanza, tengo muchas deudas y no quiero nada más.
-[00:53] AGENTE : Entiendo, señora Carolina. Le comento que este seguro le cubre hasta cinco cuotas de su crédito si queda cesante por necesidades de la empresa.
-[01:03] CLIENTE: Sí, sé lo que cubre, pero igual no lo quiero.
-[01:07] AGENTE : Pero piense que le cubre hasta cinco cuotas. Hoy el trabajo está difícil, nunca se sabe.
-[01:14] CLIENTE: No, de verdad, quiero darlo de baja.
-[01:18] AGENTE : Mire, la prima ya está pagada, no le cobran todos los meses. Mantenerlo no le cuesta nada extra.
-[01:25] CLIENTE: Ya le dije que no. Quiero renunciarlo.
-[01:29] AGENTE : Le entiendo, pero imagínese si la despiden el próximo mes. Son cinco cuotas que no va a tener que pagar.
-[01:38] CLIENTE: Oiga, ya le dije tres veces que no.
-[01:41] AGENTE : ¿Y si lo mantiene un mes más y después lo vemos? Así no queda desprotegida.
-[01:48] CLIENTE: No, por favor, hágame la renuncia no más.
-[01:52] AGENTE : Está bien, señora Carolina, procedo con la renuncia.
-[01:56] AGENTE : Listo. Le confirmo que quedó ingresada la renuncia de su seguro de desempleo. El cargo se hacía a su crédito de consumo, así que no tendrá más movimientos asociados. ¿Está de acuerdo?
-[02:09] CLIENTE: Sí, de acuerdo, gracias.
-[02:11] AGENTE : Que tenga un buen día.
+[00:53] AGENTE : Entiendo, señora Carolina. Le comento que este seguro le paga cuatro cuotas de su crédito si queda cesante de forma involuntaria.
+[01:01] CLIENTE: Sí, sé lo que cubre, pero igual no lo quiero.
+[01:06] AGENTE : Pero piense que son cuatro cuotas. Hoy el trabajo está difícil, nunca se sabe.
+[01:12] CLIENTE: No, de verdad, quiero darlo de baja.
+[01:16] AGENTE : Mire, la prima ya está pagada, no le cobran todos los meses. Mantenerlo no le cuesta nada extra.
+[01:24] CLIENTE: Ya le dije que no. Quiero renunciarlo.
+[01:27] AGENTE : Le entiendo, pero imagínese si la despiden el próximo mes. Son cuatro cuotas que no va a tener que pagar.
+[01:36] CLIENTE: Oiga, ya le dije tres veces que no.
+[01:39] AGENTE : ¿Y si lo mantiene un mes más y después lo vemos? Así no queda desprotegida.
+[01:46] CLIENTE: No, por favor, hágame la renuncia no más.
+[01:50] AGENTE : Está bien, señora Carolina, procedo con la renuncia.
+[01:54] AGENTE : Listo. Le confirmo que quedó ingresada la renuncia de su seguro de desempleo. El medio de pago es su crédito de consumo, así que no tendrá más movimientos asociados. ¿Está de acuerdo?
+[02:07] CLIENTE: Sí, de acuerdo, gracias.
+[02:09] AGENTE : Su seguro queda renunciado desde hoy. Como es de prima única, la devolución de la prima no devengada es automática y la hace la compañía dentro de diez días hábiles desde que toma conocimiento de la renuncia. Que tenga un buen día.

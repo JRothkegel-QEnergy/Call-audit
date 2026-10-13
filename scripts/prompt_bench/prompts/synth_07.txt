@@ -2,18 +2,36 @@
 llamada_id: synth-07
 fecha: 2026-09-09
 ejecutivo: EJ-0107
-duracion_seg: 442
+duracion_seg: 449
 esperas_seg: [45, 210]
-umbral_espera_seg: 120
+umbral_espera_seg: 30
 
 ## Seguros del cliente consultados en la llamada
-- nombre: Seguro de Salud Incapacidad MYPE | n_poliza: MYPE-0007 | retenible: si | renunciable_en_canal: si | devolucion_prima: sin dato
+### Seguro 1: PROTECCION GLOBAL MYPE
+- N° de seguro (MUS A Neto): 48213307
+- N° de póliza: 498213307
+- inicio de vigencia: 2025-03-15
+- compañía: BNP Paribas Cardif
+- categoría: RETENIBLE. Seguro retenible: si el cliente pide renunciar, el ejecutivo debe intentar retenerlo.
+- tipo de prima: prima mensual. Devolución: no hay devolución automática; si el cliente la pide por cobros incorrectos o desconocimiento, se le invita a ingresar un requerimiento al 600 660 1212, opción 2.
+- medio de pago: CCT (Se paga con la Cuenta Corriente)
+- ficha del producto:
+SEGURO | COBERTURAS | Cobertura Incendio
+Seguro Protección Global MyPE asociado a Medio de Pago - Prima Recurrente | Incendio, Sismo, Robo, y Daños Materiales. Cuenta con 7 planes. Bien Raíz: Cubre los daños materiales ocurridos al inmueble asegurado como consecuencia de: Incendio, Robo, Sismo o Daños Materiales hasta el monto asegurado según el plan contratado en la respectiva propuesta de seguros. Bienes Muebles o Contenido: Cubre los daños materiales de los bienes muebles o contenidos, incluyendo Maquinarias y Equipos Móviles, que se encuentren dentro del inmueble asegurado a causa de Incendio, Robo, Sismo o Daños Materiales, hasta el monto asegurado según el plan contratado en la respectiva propuesta de seguros. | Para la cobertura de Incendio (Artículo 5 POL 1 2015 0767): - Los daños materiales que sufra la Materia Asegurada por la acción directa del incendio y los que sean una consecuencia inmediata del mismo, como los causados por el calor, el humo o el vapor. Se establece como límite máximo a indemnizar hasta el monto asegurado. - Los daños materiales causados por los medios empleados para extinguir o contener el incendio; y las demoliciones que sean necesarias a consecuencia del incendio y que sean ordenadas en tal carácter por la autoridad competente. Se establece como límite máximo a indemnizar hasta el monto asegurado. - Los gastos razonables en que se incurra por el traslado de los Bienes Muebles asegurados desde el lugar del incendio; además los gastos por la remoción, de escombros provenientes de la Materia Asegurada y traslado de muebles del lugar del incendio, Se establece como límite máximo a indemnizar hasta el 10% del monto asegurado, con un máximo de UF300. - Los gastos acreditables en que incurra el asegurado para atenuar un siniestro. Se establece como límite máximo a indemnizar hasta el 10% del monto asegurado, con un máximo de UF300. - El valor de las rentas de arrendamiento que el Asegurado deba solventar a causa de un siniestro indemnizable por el seguro. Se entiende por valor de las rentas de arrendamiento, el dinero que deba el Asegurado pagar para obtener, mientras sea necesario, alojamiento para él y su familia, como también los costos de bodegaje o almacén de los bienes que guarnecían el inmueble siniestrado. Se establece como límite máximo de indemnización un periodo de 6 meses, y se fija como monto máximo a indemnizar mensualmente por ubicación un 1% del monto asegurado. - Los gastos por concepto de honorarios profesionales, viáticos, viajes y estadías de ingenieros, arquitectos, asesores legales y/o consultores en los que se deba incurrir el Asegurado como consecuencia de un evento amparado por la presente póliza y que están relacionados única y directamente con la reconstrucción, reparación o restitución de los bienes asegurados que hayan resultado dañados. Se establece como límite máximo a indemnizar hasta el 10% del monto asegurado, con un máximo de UF300. No obstante que los hechos generadores de pérdida que a continuación se indican no son constitutivos de incendio, las pólizas cubren hasta el monto asegurado: - Daños materiales por explosión. - Los deterioros que sufra la Materia Asegurada por efecto de rayos que provengan de descargas atmosféricas.
+PÓLIZAS
+ASEGURADOS | PRIMA DEL SEGURO
+Seguro de beneficio cliente que entrega una cobertura integral a los bienes físicos ante diversos riesgos, fundamentales para la estabilidad y la continuidad de los servicios y actividades que realizan nuestros clientes del segmento Pequeñas Empresas y Microempresas. | La prima de esta póliza se expresará en UF, y se cancela de manera mensual asociado a medio de pago en BancoEstado. Planes indicado en tabla a la derecha
+REQUISITO DE ASEGURABILIDAD | Deducible
+Asegurado debe ser el propietario o arrendatario del inmueble ubicado en la dirección que especifique el asegurado en la Propuesta de Seguro. Sólo podrán contratar el seguro, aquellas microempresas, EIRL y pequeñas empresas con ventas anuales iguales o inferiores a UF 40.000, lo cual es indicado por el asegurable en la Propuesta de Seguro. | Daños Materiales por Sismo: para las coberturas de daños materiales causados por sismo y/o incendio a consecuencia de sismo, se establece un deducible por evento del 1% del monto asegurado por ubicación con un mínimo de UF 25. Robo: para la cobertura de Robo se establece un deducible por evento de UF 10. Otros Riesgos: sin deducible.
+PLAZO PARA DENUNCIAR EL SINIESTRO
+El denuncio del siniestro deberá efectuarse por escrito lo antes posible tan pronto el Asegurado haya tomado conocimiento del mismo. No obstante, se establece un plazo máximo de 90 días corridos siguientes a la fecha en que el Asegurado haya tomado conocimiento del siniestro para efectuar el denuncio.
+Qué hacer en caso de Siniestro. | Documentos a presentar en caso de Siniestro
+El asegurado, cuando requiera hacer uso del seguro, podrà denunciar el siniestro ingresando al sitio www.segurosbancoestado.cl, llamando al FonoSeguros 6006601212. | - Fotocopia Cédula Nacional de Identidad. - Declaración escrita de las causas y circunstancias de como ocurrió el siniestro (descripción del origen y extensión del siniestro, fecha de ocurrencia, dirección afectada, teléfono de contacto, nombre y RUT del Asegurado, nombre y datos del denunciante). - Indicar si existen otros seguros comprometidos por la misma propiedad, y de ser así, datos de la compañía aseguradora, Nº de póliza y montos asegurados - Informe técnico de equipos electrónicos afectados, indicando su daño, origen, costo de reparación, costo de reposición (estos deberían solicitarse en los casos que el cliente no esté de acuerdo con la liquidación de su siniestro). - Parte de Carabineros. Antecedentes adicionales para denuncio de las coberturas de Incendio y Daños Materiales: - Parte e Informe Pericial de Bomberos. Antecedentes adicionales para denuncio de las coberturas Robo con fuerza en las cosas y violencia en las personas: - Informe de estado de causa en fiscalía.
+Cobertura Robo y Daños Materiales
+Para la Cobertura de Robo (Artículo 6 POL 1 2015 0767): - La pérdida de los Bienes Muebles asegurados que, mediante un Robo con Fuerza en las Cosas o Robo con Violencia o Intimidación en las Personas, le fueren sustraídos desde la Ubicación Asegurada con límite máximo a indemnizar hasta el monto asegurado. - Los daños que resulten por destrucción o deterioro de los Bienes Muebles asegurados en caso de robo, siempre que dicha destrucción o deterioro haya sido ocasionada durante cualquier etapa de ejecución del Robo con Fuerza en las Cosas o Robo con Violencia en las Personas, según lo dispuesto en los Artículos 432, 433 y 440 del Código Penal. Se establece como límite máximo a indemnizar hasta el monto asegurado. Para la Cobertura de Daños Materiales (Artículo 7 POL 1 2015 0767): La Compañía indemnizará al Asegurado, por las pérdidas que sufra la Materia Asegurada hasta el monto asegurado: a. A consecuencia de un sismo. b. Riesgos de la naturaleza que sean consecuencia directa e inmediata de erupción volcánica, salida de mar, inundación, huracán, ciclón, avalancha, aluvión, deslizamiento, viento, filtración de lluvias, desbordamiento de cauces o cualquier otra perturbación atmosférica, producidos o desencadenados por fenómenos de la naturaleza. c. Para los efectos de esta cobertura, las siguientes expresiones tendrán el significado que se indica a continuación: d. Aluvión: es la avenida fuerte de agua, que se produce como consecuencia de la saturación y desbordamiento de sus cauces naturales o artificiales. e. Avalancha: es el derrumbamiento de una gran masa de nieve, rocas o tierra desde los montes cercanos. f. Deslizamiento: es la caída de tierra o rocas desde una pendiente. g. Por la acción directa e inmediata de vehículos motorizados y aeronaves, o la caída de sus partes o piezas, o de su carga no explosivos. h. Como consecuencia directa de huelga y/o de la acción de terceros. i. Causada por el colapso total o parcial del Bien Raíz, entendiéndose por colapso, el hundimiento o desplome ocasionado por falla o debilitamiento de sus sistemas de apoyo o de sustentación, a causa de excavaciones, hundimiento de terrenos o derrumbes. Es requisito indispensable para que opere la cobertura de la presente cláusula, que el colapso del Bien Raíz se produzca por circunstancias ajenas a la naturaleza y estructura del mismo. j. Causada directamente por el peso de nieve o hielo, incluyéndose los daños derivados del granizo. k. Causada por la acción directa e inmediata del agua proveniente de rotura de cañerías, desagües o desbordamientos de estanques matrices, todos del Bien Raíz donde se encuentren los bienes asegurados, o edificio en caso de departamentos.
 
 ## Tipificación registrada por el ejecutivo
-- seguro: MYPE-0007 | gestion: RENUNCIA | motivo: Cliente posee otros Seguros
-
-## Ficha de producto (del seguro gestionado)
-Seguro de Salud Incapacidad MYPE: No disponible (ficha pendiente con el cliente).
+- seguro: 48213307 | gestion: RENUNCIA | motivo: Cliente posee otros Seguros
 
 ## Transcripción (canal separado, timestamps mm:ss)
 [00:01] AGENTE: Buenas tardes, le saluda Daniela Espinoza de BancoEstado Corredores de Seguros. ¿Con quién tengo el gusto?
@@ -27,22 +45,22 @@ Seguro de Salud Incapacidad MYPE: No disponible (ficha pendiente con el cliente)
 [00:31] AGENTE: ¿Me confirma su correo y teléfono?
 [00:34] CLIENTE: cristian punto molina arroba correo ejemplo punto cl, y el nueve siete siete siete uno uno uno dos dos.
 [00:42] AGENTE: Gracias, don Cristián, quedó validado. ¿En qué lo puedo ayudar?
-[00:46] CLIENTE: Mire, tengo una ferretería chica y tengo el seguro de salud incapacidad MYPE con ustedes. Ya contraté uno en otra compañía que cubre más y es más barato, así que quiero renunciar a este.
-[01:01] AGENTE: Entiendo, don Cristián. Permítame revisar el detalle de su póliza. Lo dejo un momento en espera.
-[01:53] AGENTE: Gracias por esperar. Veo su seguro Salud Incapacidad MYPE, con prima mensual cargada a su cuenta corriente. ¿Me puede contar qué contrató en la otra compañía?
-[02:03] CLIENTE: Una renta diaria más alta por incapacidad y además cubre hospitalización. Y sale como cuatro lucas menos al mes.
-[02:11] AGENTE: Mire, don Cristián, le soy honesta: esa otra compañía es una estafa. Siempre ponen letra chica y después no pagan nada. Los que se cambian a ellos después vuelven llorando.
+[00:46] CLIENTE: Mire, tengo una ferretería chica y tengo el seguro Protección Global MYPE con ustedes. Ya contraté uno en otra compañía que cubre más y es más barato, así que quiero renunciar a este.
+[01:00] AGENTE: Entiendo, don Cristián. Permítame revisar el detalle de su póliza. Lo dejo un momento en espera.
+[01:52] AGENTE: Gracias por esperar. Veo su seguro Protección Global MYPE, con prima mensual cargada a su cuenta corriente. ¿Me puede contar qué contrató en la otra compañía?
+[02:03] CLIENTE: Uno que cubre incendio, sismo y robo del local, y además responsabilidad civil. Y sale como cuatro lucas menos al mes.
+[02:12] AGENTE: Mire, don Cristián, le soy honesta: esa otra compañía es una estafa. Siempre ponen letra chica y después no pagan nada. Los que se cambian a ellos después vuelven llorando.
 [02:24] CLIENTE: Bueno, pero yo leí las condiciones y me parecen bien.
-[02:28] AGENTE: Nuestro seguro tiene el respaldo de BancoEstado. Si usted queda incapacitado, le pagamos la renta diaria sin tantos trámites, y el cargo es automático, no se tiene que preocupar.
-[02:40] CLIENTE: Ya, pero el otro igual cubre más, la verdad. Quiero sacar este.
+[02:28] AGENTE: Nuestro seguro le cubre el local y también sus mercaderías, maquinarias y equipos ante incendio, sismo, robo y daños materiales, y el cargo es automático, no se tiene que preocupar.
+[02:41] CLIENTE: Ya, pero el otro igual cubre más, la verdad. Quiero sacar este.
 [02:46] AGENTE: Déjeme consultar con mi supervisor si hay alguna alternativa para usted. Lo dejo en espera nuevamente.
-[06:23] AGENTE: Disculpe la demora, don Cristián. Mi supervisor me indica que no tenemos un plan alternativo con más cobertura en este momento.
+[06:24] AGENTE: Disculpe la demora, don Cristián. Mi supervisor me indica que no tenemos un plan alternativo con más cobertura en este momento.
 [06:32] CLIENTE: Oiga, me tuvo harto rato esperando. Ya, entonces hágame la renuncia, por favor.
-[06:37] AGENTE: Le pido disculpas por la espera. Procedo con la renuncia.
-[06:42] CLIENTE: Y una consulta, ¿me van a cobrar este mes igual?
-[06:47] AGENTE: Si la renuncia queda ingresada hoy, el cargo de este mes ya no se debería realizar. Si llegara a verlo, nos llama y lo revisamos.
-[06:57] CLIENTE: Ya, perfecto.
-[06:59] AGENTE: Le resumo la gestión, don Cristián: se ingresó la renuncia de su seguro Salud Incapacidad MYPE, póliza número MYPE-0007, que se cargaba mensualmente a su cuenta corriente. ¿Está de acuerdo con la gestión realizada?
-[07:13] CLIENTE: Sí, de acuerdo.
-[07:15] AGENTE: Muchas gracias por su paciencia. Que tenga buena tarde.
-[07:19] CLIENTE: Igualmente, chao.
+[06:38] AGENTE: Le pido disculpas por la espera. Procedo con la renuncia.
+[06:43] CLIENTE: Y una consulta, ¿me van a cobrar este mes igual?
+[06:48] AGENTE: La fecha del cargo mensual no la veo en mi sistema; para confirmarla puede llamar al seiscientos seiscientos sesenta, doce doce. Si la renuncia queda ingresada hoy, no deberían seguir los cargos.
+[07:01] CLIENTE: Ya, perfecto.
+[07:03] AGENTE: Le resumo la gestión, don Cristián: se ingresó la renuncia de su seguro Protección Global MYPE, número de seguro cuatro ocho dos uno tres tres cero siete, que se cargaba mensualmente a su cuenta corriente. ¿Está de acuerdo con la gestión realizada?
+[07:20] CLIENTE: Sí, de acuerdo.
+[07:22] AGENTE: Muchas gracias por su paciencia. Que tenga buena tarde.
+[07:26] CLIENTE: Igualmente, chao.
