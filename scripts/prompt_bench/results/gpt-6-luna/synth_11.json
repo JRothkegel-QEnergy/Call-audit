@@ -1,0 +1,419 @@
+{
+  "resumen": "El cliente solicitó dar de baja el seguro DESEMPLEO ITT CRE. CONSUMO y señaló que no quería más compromisos. El ejecutivo inició un argumento de retención, pero la llamada se cortó antes de que se resolviera la solicitud; la tipificación registrada fue RENUNCIA.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero dar de baja el seguro de desempleo, no quiero más compromisos.",
+    "timestamp": "00:36"
+  },
+  "termino_llamada": {
+    "tipo": "CORTADA",
+    "comentario": "La conversación se interrumpe antes de resolver la solicitud; el ejecutivo intenta verificar si el cliente escucha, pero no consta una despedida ni una gestión final."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213312",
+      "resultado_grabacion": "SIN_GESTION",
+      "motivos_renuncia": [
+        "No desea contraer más obligaciones"
+      ],
+      "n_objeciones": 1,
+      "cliente_tajante": false,
+      "argumentos_retencion": [
+        {
+          "t": "00:42",
+          "tipo": "COBERTURA",
+          "cita": "Le cuento que este seguro le paga cuatro cuotas de su crédito si queda sin trabajo de forma involuntaria, y además..."
+        }
+      ],
+      "evidencia": "El cliente solicitó la baja a las 00:36 y expresó que no quería más compromisos; el ejecutivo comenzó un argumento de cobertura a las 00:42, pero la llamada se interrumpió antes de resolver la solicitud."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "mus_a_neto": "",
+      "comentario": "No se registran esperas ni silencios del ejecutivo superiores a 30 segundos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213312",
+      "comentario": "La descripción entregada sobre el pago de cuatro cuotas por desempleo involuntario coincide con la ficha del seguro.",
+      "evidencia": [
+        {
+          "t": "00:42",
+          "hablante": "AGENTE",
+          "cita": "este seguro le paga cuatro cuotas de su crédito si queda sin trabajo de forma involuntaria"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213312",
+      "comentario": "Solo se alcanza a escuchar un argumento de retención y no hay evidencia suficiente de que el cliente estuviera tajante.",
+      "evidencia": [
+        {
+          "t": "00:42",
+          "hablante": "AGENTE",
+          "cita": "Le cuento que este seguro le paga cuatro cuotas de su crédito si queda sin trabajo de forma involuntaria"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213312",
+      "comentario": "El ejecutivo mencionó como característica del seguro la cobertura de cuatro cuotas del crédito ante desempleo involuntario.",
+      "evidencia": [
+        {
+          "t": "00:42",
+          "hablante": "AGENTE",
+          "cita": "este seguro le paga cuatro cuotas de su crédito si queda sin trabajo de forma involuntaria"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.99
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213312",
+      "comentario": "El cliente no consultó cuándo podía renunciar ni planteó una consulta sobre la fecha de permanencia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213312",
+      "comentario": "No hubo una pregunta del cliente sobre coberturas o información del producto que el ejecutivo respondiera incorrectamente o eludiera.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.94
+    },
+    {
+      "id": 7,
+      "mus_a_neto": "",
+      "comentario": "La situación no requería derivar al cliente a otro canal.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "",
+      "comentario": "El cliente no hizo una pregunta directa que el ejecutivo dejara sin respuesta.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.96
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213312",
+      "comentario": "El seguro es retenible y no consta que se haya ingresado su renuncia.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.96
+    },
+    {
+      "id": 10,
+      "mus_a_neto": "",
+      "comentario": "No se observan expresiones de maltrato, agresividad, grosería o impaciencia hostil.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 11,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo no descalificó a BancoEstado, la compañía, la competencia ni a otros ejecutivos.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.98
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213312",
+      "comentario": "El ejecutivo no propuso renunciar un seguro que el cliente no hubiera pedido cancelar.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.96
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213312",
+      "comentario": "La llamada se cortó antes de concretarse una gestión y de realizar el protocolo de cierre, por lo que no correspondía revisar el número de seguro en un cierre.",
+      "evidencia": [
+        {
+          "t": "01:00",
+          "hablante": "AGENTE",
+          "cita": "¿Aló? Don Manuel..."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.84
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213312",
+      "comentario": "El ejecutivo inició un intento de retención del seguro retenible antes de que se interrumpiera la llamada.",
+      "evidencia": [
+        {
+          "t": "00:42",
+          "hablante": "AGENTE",
+          "cita": "Le cuento que este seguro le paga cuatro cuotas de su crédito si queda sin trabajo de forma involuntaria"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.96
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213312",
+      "comentario": "La llamada se cortó antes de concretarse una gestión y de realizar el protocolo de cierre; no correspondía revisar el medio de pago en un cierre.",
+      "evidencia": [
+        {
+          "t": "01:00",
+          "hablante": "AGENTE",
+          "cita": "¿Aló? Don Manuel..."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.84
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213312",
+      "comentario": "El cliente expresó explícitamente que quería dar de baja el seguro antes del argumento de retención.",
+      "evidencia": [
+        {
+          "t": "00:36",
+          "hablante": "CLIENTE",
+          "cita": "Quiero dar de baja el seguro de desempleo, no quiero más compromisos."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213312",
+      "comentario": "El seguro es retenible, no no-retensible, y no consta que se haya registrado como retenido.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213312",
+      "comentario": "El motivo tipificado, «No desea contraer más obligaciones», es compatible con lo expresado por el cliente.",
+      "evidencia": [
+        {
+          "t": "00:36",
+          "hablante": "CLIENTE",
+          "cita": "no quiero más compromisos"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213312",
+      "comentario": "La gestión no terminó en retención; la llamada se cortó antes de determinar un resultado final.",
+      "evidencia": [
+        {
+          "t": "01:00",
+          "hablante": "AGENTE",
+          "cita": "¿Aló? Don Manuel..."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.88
+    },
+    {
+      "id": 20,
+      "mus_a_neto": "48213312",
+      "comentario": "La tipificación corresponde al seguro mencionado por el cliente, no a uno distinto o nunca mencionado.",
+      "evidencia": [
+        {
+          "t": "00:36",
+          "hablante": "CLIENTE",
+          "cita": "el seguro de desempleo"
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 21,
+      "mus_a_neto": "48213312",
+      "comentario": "El seguro tipificado corresponde al seguro de desempleo cuya baja solicitó el cliente.",
+      "evidencia": [
+        {
+          "t": "00:36",
+          "hablante": "CLIENTE",
+          "cita": "Quiero dar de baja el seguro de desempleo"
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.97
+    },
+    {
+      "id": 22,
+      "mus_a_neto": "48213312",
+      "comentario": "No se tipificó una retención de un seguro que no hubiera sido mencionado.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 23,
+      "mus_a_neto": "48213312",
+      "comentario": "No se tipificó una retención de un seguro distinto del mencionado por el cliente.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.98
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213312",
+      "comentario": "La tipificación registrada fue RENUNCIA, no RETENCIÓN.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.99
+    },
+    {
+      "id": 25,
+      "mus_a_neto": "48213312",
+      "comentario": "El cliente pidió gestionar un seguro, pero la llamada se cortó antes de resolver la solicitud; no hay varias gestiones completadas pendientes de tipificar.",
+      "evidencia": [
+        {
+          "t": "00:36",
+          "hablante": "CLIENTE",
+          "cita": "Quiero dar de baja el seguro de desempleo"
+        },
+        {
+          "t": "01:00",
+          "hablante": "AGENTE",
+          "cita": "¿Aló? Don Manuel..."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.8
+    },
+    {
+      "id": 26,
+      "mus_a_neto": "48213312",
+      "comentario": "El cliente pidió dar de baja este seguro y la solicitud quedó sin gestionar porque la llamada terminó antes de que el ejecutivo resolviera o ingresara la renuncia.",
+      "evidencia": [
+        {
+          "t": "00:36",
+          "hablante": "CLIENTE",
+          "cita": "Quiero dar de baja el seguro de desempleo, no quiero más compromisos."
+        },
+        {
+          "t": "01:00",
+          "hablante": "AGENTE",
+          "cita": "¿Aló? Don Manuel..."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 0.85
+    },
+    {
+      "id": 27,
+      "mus_a_neto": "",
+      "comentario": "La persona que se identifica en la llamada es el cliente titular; no se observa intervención de un tercero.",
+      "evidencia": [
+        {
+          "t": "00:07",
+          "hablante": "CLIENTE",
+          "cita": "Hola, habla Manuel Torres."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.97
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213312",
+      "comentario": "No se concretó la renuncia ni hubo una consulta del cliente sobre devolución de prima.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.95
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213312",
+      "comentario": "La llamada se cortó antes de resolverse la solicitud, por lo que no hubo una gestión final que resumir en un protocolo de cierre.",
+      "evidencia": [
+        {
+          "t": "01:00",
+          "hablante": "AGENTE",
+          "cita": "¿Aló? Don Manuel..."
+        }
+      ],
+      "estado": "no_aplica",
+      "confianza": 0.84
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213312",
+      "comentario": "No se llegó a formular una pregunta de confirmación de cierre que requiriera repregunta.",
+      "evidencia": [],
+      "estado": "no_aplica",
+      "confianza": 0.94
+    },
+    {
+      "id": 31,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicitó RUT, nombre completo y fecha de nacimiento, y el cliente entregó los tres datos antes de continuar.",
+      "evidencia": [
+        {
+          "t": "00:09",
+          "hablante": "AGENTE",
+          "cita": "¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:15",
+          "hablante": "CLIENTE",
+          "cita": "Doce millones doscientos doce mil doscientos doce guion k. Manuel Antonio Torres Díaz, primero de abril del setenta y nueve."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.97
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "48213312",
+      "comentario": "El ejecutivo no condicionó la respuesta ni predispusó al cliente para aceptar mantener el seguro.",
+      "evidencia": [],
+      "estado": "cumple",
+      "confianza": 0.96
+    },
+    {
+      "id": 33,
+      "mus_a_neto": "",
+      "comentario": "El ejecutivo solicitó el correo electrónico y el teléfono, y el cliente proporcionó ambos datos.",
+      "evidencia": [
+        {
+          "t": "00:23",
+          "hablante": "AGENTE",
+          "cita": "¿Su correo y teléfono?"
+        },
+        {
+          "t": "00:25",
+          "hablante": "CLIENTE",
+          "cita": "manuel punto torres arroba correo ejemplo punto cl, nueve cero cero cero uno uno uno dos dos."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 0.98
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "gpt-6-luna",
+  "provider": "openai",
+  "requested_model": "gpt-6-luna",
+  "returned_model": "gpt-6-luna",
+  "settings": {},
+  "usage": {
+    "input_tokens": 9967,
+    "output_tokens": 6535
+  },
+  "cost_usd": 0.004264,
+  "latency_ms": 48217,
+  "run_at": "2026-10-13T14:09:55+00:00"
+}

@@ -1,0 +1,368 @@
+```json
+{
+  "resumen": "Cliente llama por un cobro de seguro que no recuerda. El ejecutivo sugiere renunciar sin informar características del producto, induce la renuncia, niega incorrectamente la devolución de prima, y realiza un cierre parcial sin validar email ni teléfono.",
+  "intencion_renuncia": {
+    "expresada": false,
+    "cita": "El cliente nunca pidió renunciar explícitamente. El ejecutivo indujo la renuncia con 'Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?' y el cliente respondió con dudas ('Eh... bueno, ya, si usted dice').",
+    "timestamp": "00:46–01:04"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con despedida del ejecutivo tras la confirmación del cliente."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213308",
+      "resultado_grabacion": "RENUNCIA",
+      "motivos_renuncia": [],
+      "n_objeciones": 0,
+      "cliente_tajante": false,
+      "argumentos_retencion": [],
+      "evidencia": "El ejecutivo indujo la renuncia sin que el cliente la solicitara. El cliente expresó dudas ('Eh... bueno, ya, si usted dice') pero no pidió renunciar. El ejecutivo procedió a ingresar la renuncia."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hay esperas registradas en los metadatos y la transcripción no muestra silencios prolongados sin comunicación.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo no describe coberturas del seguro por iniciativa propia; solo menciona el nombre genérico 'Accidentes Personales' en el cierre.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 3,
+      "comentario": "No aplica: no hay intención de renuncia del cliente ni objeciones que contar.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213308",
+      "comentario": "El ejecutivo no indica ninguna característica del seguro (coberturas, beneficios, montos, prima) cuando el cliente pregunta qué cubre. Solo dice 'es un seguro que se contrató con su cuenta' sin detalles.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Quería saber qué cubre."
+        },
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Ah, sí, es un seguro que se contrató con su cuenta. La verdad, si no se acuerda de él, seguramente no lo usa."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 5,
+      "comentario": "No aplica: el cliente no consultó sobre fechas de renuncia ni sobre si puede renunciar en otro momento.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213308",
+      "comentario": "El cliente pregunta directamente qué cubre el seguro y el ejecutivo no proporciona información del producto, solo dice que 'seguramente no lo usa'. Esto es evasión de la pregunta, no información del producto.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Quería saber qué cubre."
+        },
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Ah, sí, es un seguro que se contrató con su cuenta. La verdad, si no se acuerda de él, seguramente no lo usa. Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 7,
+      "comentario": "No aplica: no hay situación que requiera derivación a otro canal.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 8,
+      "mus_a_neto": "48213308",
+      "comentario": "El cliente pregunta qué cubre el seguro y el ejecutivo elude la pregunta, respondiendo que 'seguramente no lo usa' e inmediatamente sugiriendo darlo de baja, sin responder directamente a la consulta.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Quería saber qué cubre."
+        },
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Ah, sí, es un seguro que se contrató con su cuenta. La verdad, si no se acuerda de él, seguramente no lo usa. Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 9,
+      "comentario": "El seguro es RETENIBLE, no no renunciable. No aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 10,
+      "comentario": "El tono del ejecutivo es directo y sin hostilidad. No hay evidencia de mal trato, lenguaje soez o impaciencia agresiva.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 11,
+      "comentario": "No hay descalificaciones a pares, BancoEstado, la compañía o la competencia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213308",
+      "comentario": "El ejecutivo induce explícitamente la renuncia sugiriendo 'Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?' sin que el cliente haya pedido renunciar. El cliente solo consultaba qué cubre el seguro.",
+      "evidencia": [
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213308",
+      "comentario": "El ejecutivo menciona el número de seguro en el cierre: 'número de seguro cuatro ocho dos uno tres tres cero ocho' (48213308, completo). Cumple.",
+      "evidencia": [
+        {
+          "t": "01:16",
+          "hablante": "AGENTE",
+          "cita": "Quedó ingresada la renuncia de su seguro de Accidentes Personales, número de seguro cuatro ocho dos uno tres tres cero ocho"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213308",
+      "comentario": "No aplica: el cliente no expresó intención de renuncia. El ejecutivo indujo la renuncia sin que el cliente la pidiera, por lo que no hay retención que intentar.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213308",
+      "comentario": "El ejecutivo menciona el medio de pago en el cierre: 'con cargo a su cuenta RUT' (CTV). Cumple.",
+      "evidencia": [
+        {
+          "t": "01:16",
+          "hablante": "AGENTE",
+          "cita": "con cargo a su cuenta RUT"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213308",
+      "comentario": "El ejecutivo realiza retención (o intenta gestionar) sin que el cliente haya expresado intención de renuncia. El cliente solo consultaba qué cubre; el ejecutivo indujo la renuncia.",
+      "evidencia": [
+        {
+          "t": "00:37",
+          "hablante": "CLIENTE",
+          "cita": "Me apareció un cobro en la cuenta por un seguro y no me acuerdo bien qué es. Quería saber qué cubre."
+        },
+        {
+          "t": "00:46",
+          "hablante": "AGENTE",
+          "cita": "Mejor se lo doy de baja altiro y se ahorra la plata, ¿le parece?"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 17,
+      "comentario": "El seguro es RETENIBLE. No aplica este motivo.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 18,
+      "mus_a_neto": "48213308",
+      "comentario": "El ejecutivo tipificó 'No informado' como motivo de renuncia. El cliente nunca expresó un motivo de renuncia; el ejecutivo indujo la renuncia. 'No informado' es válido cuando el cliente no da motivo, pero aquí el cliente ni siquiera pidió renunciar.",
+      "estado": "cumple",
+      "confianza": 0.8
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213308",
+      "comentario": "La grabación muestra que se ingresó una renuncia (el ejecutivo dice 'Quedó ingresada la renuncia'). La tipificación registra RENUNCIA. Coinciden.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 20,
+      "comentario": "No aplica: solo hay un seguro mencionado en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 21,
+      "comentario": "No aplica: solo hay un seguro mencionado en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 22,
+      "comentario": "No aplica: solo hay un seguro mencionado en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 23,
+      "comentario": "No aplica: solo hay un seguro mencionado en la llamada.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 24,
+      "comentario": "No aplica: la tipificación registra RENUNCIA y la grabación muestra renuncia. No hay discrepancia.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 25,
+      "comentario": "Solo hay un seguro mencionado y se tipificó su gestión (RENUNCIA). Cumple.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 26,
+      "comentario": "El cliente solo consultó sobre un seguro y se gestionó ese seguro. No hay gestiones adicionales solicitadas.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 27,
+      "comentario": "No aplica: no hay tercero en la llamada. El cliente es el titular.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213308",
+      "comentario": "El seguro tiene prima anual con devolución de prima no devengada. El cliente pregunta si le devuelven lo ya cobrado y el ejecutivo responde 'No, eso no se devuelve. Lo pagado, pagado.' Esto es incorrecto: en seguros anuales, al renunciar hay devolución automática de la prima no devengada en 10 días hábiles desde que la compañía toma conocimiento.",
+      "evidencia": [
+        {
+          "t": "01:06",
+          "hablante": "CLIENTE",
+          "cita": "Y lo que ya me cobraron, ¿me lo devuelven?"
+        },
+        {
+          "t": "01:10",
+          "hablante": "AGENTE",
+          "cita": "No, eso no se devuelve. Lo pagado, pagado."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213308",
+      "comentario": "El ejecutivo realiza un resumen de cierre: 'Quedó ingresada la renuncia de su seguro de Accidentes Personales, número de seguro cuatro ocho dos uno tres tres cero ocho, con cargo a su cuenta RUT. ¿Está de acuerdo?' Hay un resumen de la gestión, aunque no incluye todos los elementos del script (fecha, vigencia, N° de póliza, número de renuncia, información de devolución). El motivo 29 evalúa si hay protocolo de cierre; hay uno, aunque incompleto.",
+      "evidencia": [
+        {
+          "t": "01:16",
+          "hablante": "AGENTE",
+          "cita": "Listo, señora Valentina. Quedó ingresada la renuncia de su seguro de Accidentes Personales, número de seguro cuatro ocho dos uno tres tres cero ocho, con cargo a su cuenta RUT. ¿Está de acuerdo?"
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 30,
+      "mus_a_neto": "48213308",
+      "comentario": "El ejecutivo pregunta '¿Está de acuerdo?' y el cliente responde 'Sí', que es una respuesta permitida. No hay necesidad de repreguntar.",
+      "evidencia": [
+        {
+          "t": "01:16",
+          "hablante": "AGENTE",
+          "cita": "¿Está de acuerdo?"
+        },
+        {
+          "t": "01:30",
+          "hablante": "CLIENTE",
+          "cita": "Sí."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida RUT ('Dieciocho millones ochocientos ochenta y ocho mil ochocientos ochenta y ocho guion ocho'), nombre ('Valentina Paz Reyes Ortiz') y fecha de nacimiento ('cinco de diciembre del noventa y cinco'). Los tres datos se corroboran.",
+      "evidencia": [
+        {
+          "t": "00:08",
+          "hablante": "AGENTE",
+          "cita": "Señora Valentina, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:13",
+          "hablante": "CLIENTE",
+          "cita": "Dieciocho millones ochocientos ochenta y ocho mil ochocientos ochenta y ocho guion ocho. Valentina Paz Reyes Ortiz, cinco de diciembre del noventa y cinco."
+        },
+        {
+          "t": "00:33",
+          "hablante": "AGENTE",
+          "cita": "Gracias, datos validados."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo pregunta por email y teléfono ('¿Su correo y teléfono?') y el cliente proporciona ambos ('valentina punto reyes arroba correo ejemplo punto cl, nueve dos dos dos tres tres tres cuatro cuatro'). Se validan los datos.",
+      "evidencia": [
+        {
+          "t": "00:24",
+          "hablante": "AGENTE",
+          "cita": "¿Su correo y teléfono?"
+        },
+        {
+          "t": "00:26",
+          "hablante": "CLIENTE",
+          "cita": "valentina punto reyes arroba correo ejemplo punto cl, nueve dos dos dos tres tres tres cuatro cuatro."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 32,
+      "mus_a_neto": "48213308",
+      "comentario": "El ejecutivo pregunta '¿Está de acuerdo?' en el cierre, que es una pregunta neutra del script. No predispone al cliente ni condiciona la respuesta a un 'Sí'.",
+      "estado": "cumple",
+      "confianza": 1
+    }
+  ]
+}
+```

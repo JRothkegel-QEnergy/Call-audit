@@ -1,0 +1,243 @@
+```json
+{
+  "resumen": "Patricia León llama para renunciar a su seguro de Accidentes Personales por problemas económicos. El ejecutivo le indica incorrectamente que solo puede renunciar en la fecha de renovación (marzo), lo que condiciona la renuncia a una fecha específica. Finalmente, el cliente acepta mantener el seguro hasta marzo.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero renunciar al seguro de accidentes personales. Está todo muy caro y tengo que recortar gastos.",
+    "timestamp": "00:41"
+  },
+  "termino_llamada": {
+    "tipo": "NORMAL",
+    "comentario": "La llamada termina con despedida del ejecutivo tras registrar la retención del seguro."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213314",
+      "resultado_grabacion": "RETENCION",
+      "motivos_renuncia": [
+        "Problemas Económicos"
+      ],
+      "n_objeciones": 1,
+      "cliente_tajante": false,
+      "argumentos_retencion": [
+        {
+          "t": "01:02",
+          "tipo": "COBERTURA",
+          "cita": "si fallece por un accidente, en Chile o en el extranjero, sus beneficiarios reciben quinientas UF de una vez"
+        }
+      ],
+      "evidencia": "El cliente expresó intención de renuncia clara. El ejecutivo presentó un argumento de retención (cobertura de muerte accidental) tras la solicitud, contando como 1 objeción. El cliente no fue tajante y aceptó mantener el seguro."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hay esperas registradas en los metadatos y la transcripción no muestra silencios prolongados sin comunicación del ejecutivo.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 2,
+      "comentario": "El ejecutivo describe correctamente la cobertura de muerte accidental (quinientas UF) que coincide con la ficha del producto (UF 500).",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 3,
+      "comentario": "El ejecutivo presenta 1 objeción (argumento de retención sobre cobertura) tras la intención de renuncia. El cliente no es tajante, por lo que no aplica el máximo de 3 objeciones.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 4,
+      "comentario": "El ejecutivo menciona al menos una característica del seguro: la cobertura de muerte accidental por UF 500.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 5,
+      "comentario": "Incumple: el ejecutivo dice explícitamente que la renuncia solo se puede hacer en la fecha de renovación (marzo), condicionando la renuncia a esa fecha específica, cuando el cliente tiene derecho a renunciar en cualquier momento.",
+      "evidencia": [
+        {
+          "t": "00:47",
+          "hablante": "AGENTE",
+          "cita": "Su seguro se renueva en marzo, y la renuncia solo se puede hacer en la fecha de renovación, así que le conviene esperar a marzo."
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 6,
+      "comentario": "El ejecutivo proporciona información correcta sobre la cobertura del seguro cuando el cliente pregunta si puede sacarlo antes.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 7,
+      "comentario": "No aplica: no hay situación que requiera derivación a otro canal.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde de forma directa a las preguntas del cliente sobre la posibilidad de renunciar antes de marzo.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 9,
+      "comentario": "No aplica: el seguro es RETENIBLE, no NO RENUNCIABLE, por lo que no hay intento de renunciar un seguro irrenunciable.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 10,
+      "comentario": "El tono y lenguaje del ejecutivo son profesionales y respetuosos durante toda la llamada.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 11,
+      "comentario": "No hay descalificaciones a pares, BancoEstado, la compañía o la competencia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 12,
+      "comentario": "El ejecutivo no induce a renuncia; el cliente es quien expresa la intención de renunciar.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213314",
+      "comentario": "El ejecutivo menciona el número de seguro en el cierre: 'número de seguro cuatro ocho dos uno tres tres uno cuatro' (48213314 completo).",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213314",
+      "comentario": "El ejecutivo realiza un intento de retención: presenta la cobertura de muerte accidental como argumento para mantener el seguro tras la solicitud de renuncia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213314",
+      "comentario": "No aplica: el medio de pago es 'OTRO', por lo que no debe mencionarse en el protocolo de cierre según las reglas.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 16,
+      "comentario": "No aplica: el ejecutivo solo intenta retener el seguro que el cliente pidió cancelar (Accidentes Personales).",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 17,
+      "comentario": "No aplica: el seguro es RETENIBLE, por lo que la retención es procedente.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 18,
+      "comentario": "El motivo tipificado es 'Problemas Económicos', que coincide con lo expresado por el cliente: 'Está todo muy caro y tengo que recortar gastos'.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 19,
+      "comentario": "Incumple: el ejecutivo tipificó RENUNCIA, pero según la grabación el resultado es RETENCION (el cliente finalmente mantiene el seguro tras aceptar esperar a marzo).",
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 20,
+      "comentario": "No aplica: el seguro tipificado (48213314) fue mencionado en la grabación.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 21,
+      "comentario": "No aplica: el seguro tipificado corresponde al que se mencionó en la grabación.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 22,
+      "comentario": "No aplica: no hay tipificación de retención de seguro no mencionado.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 23,
+      "comentario": "No aplica: no hay tipificación de retención de otro seguro.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 24,
+      "comentario": "Incumple: el ejecutivo tipificó RENUNCIA cuando la grabación muestra RETENCION (el cliente mantiene el seguro).",
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 25,
+      "comentario": "No aplica: se tipificó la única gestión mencionada en la grabación (seguro 48213314).",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 26,
+      "comentario": "No aplica: el cliente solo solicitó gestionar un seguro (Accidentes Personales) y se gestionó.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 27,
+      "comentario": "No aplica: no hubo terceros en la llamada; solo el titular (Patricia León) fue atendido.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 28,
+      "comentario": "No aplica: no hubo renuncia en la grabación, por lo que no se evalúa la información sobre devolución de prima.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 29,
+      "comentario": "El ejecutivo realiza un resumen final: 'su seguro de Accidentes Personales Plan Plus, número de seguro cuatro ocho dos uno tres tres uno cuatro, se mantiene vigente' y pregunta confirmación.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 30,
+      "comentario": "El cliente responde 'Sí, de acuerdo' a la pregunta de confirmación, que es una respuesta permitida, por lo que no es necesario repreguntar.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida correctamente los 3 datos requeridos: RUT (9.900.900-9), nombre (Patricia Elena León Fuentes) y fecha de nacimiento (25 de junio de 1970).",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 32,
+      "comentario": "La pregunta de confirmación del cierre es neutra: '¿Está de acuerdo?' no predispone al cliente ni condiciona la respuesta a un sí.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo valida correctamente el email (patricia.leon@correoejemplo.cl) y teléfono (9 7000 0123 4) del cliente.",
+      "estado": "cumple",
+      "confianza": 1
+    }
+  ]
+}
+```

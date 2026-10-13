@@ -1,0 +1,287 @@
+```json
+{
+  "resumen": "Llamada de Manuel Torres solicitando dar de baja su seguro de desempleo. El ejecutivo intenta retener con una característica del producto, pero la llamada se corta durante la gestión sin completarse.",
+  "intencion_renuncia": {
+    "expresada": true,
+    "cita": "Quiero dar de baja el seguro de desempleo, no quiero más compromisos.",
+    "timestamp": "00:36"
+  },
+  "termino_llamada": {
+    "tipo": "CORTADA",
+    "comentario": "La llamada se interrumpe a los 01:00 durante la gestión de retención, sin completar el protocolo de cierre ni confirmar la renuncia."
+  },
+  "gestiones": [
+    {
+      "mus_a_neto": "48213312",
+      "resultado_grabacion": "SIN_GESTION",
+      "motivos_renuncia": [
+        "No desea contraer más obligaciones"
+      ],
+      "n_objeciones": 0,
+      "cliente_tajante": false,
+      "argumentos_retencion": [
+        {
+          "t": "00:42",
+          "tipo": "COBERTURA",
+          "cita": "Le cuento que este seguro le paga cuatro cuotas de su crédito si queda sin trabajo de forma involuntaria, y además..."
+        }
+      ],
+      "evidencia": "El cliente expresa intención de renuncia clara a los 00:36. El ejecutivo inicia un argumento de retención a los 00:42, pero la llamada se corta a los 01:00 sin que se complete ninguna gestión (ni retención confirmada ni renuncia procesada)."
+    }
+  ],
+  "criterios": [
+    {
+      "id": 1,
+      "comentario": "No hay esperas registradas en los metadatos y la transcripción no muestra silencios del ejecutivo superiores a 30 segundos.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 2,
+      "mus_a_neto": "48213312",
+      "comentario": "El ejecutivo menciona que el seguro 'le paga cuatro cuotas de su crédito si queda sin trabajo de forma involuntaria', lo que coincide con la ficha (cobertura de desempleo: 4 cuotas del crédito).",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 3,
+      "mus_a_neto": "48213312",
+      "comentario": "No se alcanza a contar objeciones porque la llamada se corta antes de que el cliente rechace el argumento o el ejecutivo presente más argumentos.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 4,
+      "mus_a_neto": "48213312",
+      "comentario": "El ejecutivo menciona una característica del seguro (cobertura de desempleo: pago de 4 cuotas del crédito).",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 5,
+      "mus_a_neto": "48213312",
+      "comentario": "No aplica: el cliente no consulta sobre fechas de renuncia ni el ejecutivo condiciona la renuncia a una fecha específica.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 6,
+      "mus_a_neto": "48213312",
+      "comentario": "El ejecutivo proporciona información correcta sobre la cobertura de desempleo sin contradicciones con la ficha.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 7,
+      "comentario": "No aplica: la llamada se corta antes de que sea necesaria una derivación.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 8,
+      "comentario": "El ejecutivo responde directamente a la solicitud de renuncia del cliente con un argumento de retención.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 9,
+      "mus_a_neto": "48213312",
+      "comentario": "No aplica: el seguro es RETENIBLE, no NO RENUNCIABLE. No se ingresa renuncia en el sistema porque la llamada se corta.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 10,
+      "comentario": "El tono del ejecutivo es profesional y respetuoso durante toda la llamada.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 11,
+      "comentario": "No hay descalificaciones a pares, BancoEstado, la compañía o la competencia.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 12,
+      "mus_a_neto": "48213312",
+      "comentario": "No aplica: el cliente es quien expresa la intención de renunciar; el ejecutivo no induce la renuncia.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 13,
+      "mus_a_neto": "48213312",
+      "comentario": "No aplica: no hay protocolo de cierre porque la llamada se corta sin completar la gestión.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 14,
+      "mus_a_neto": "48213312",
+      "comentario": "El ejecutivo intenta retener el seguro retenible presentando una característica de cobertura a los 00:42, cumpliendo con el intento de retención antes de que la llamada se corte.",
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 15,
+      "mus_a_neto": "48213312",
+      "comentario": "No aplica: no hay protocolo de cierre porque la llamada se corta.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 16,
+      "mus_a_neto": "48213312",
+      "comentario": "No aplica: el cliente expresó intención de renuncia explícita ('Quiero dar de baja el seguro'), por lo que el intento de retención es procedente.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 17,
+      "mus_a_neto": "48213312",
+      "comentario": "No aplica: el seguro es RETENIBLE, categoría correcta para intentar retención.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 18,
+      "comentario": "No aplica: no se tipifica motivo de renuncia incorrecto. El motivo tipificado ('No desea contraer más obligaciones') coincide con lo expresado por el cliente ('no quiero más compromisos').",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 19,
+      "mus_a_neto": "48213312",
+      "comentario": "No aplica: la tipificación registra RENUNCIA, pero en la grabación no se completa ninguna gestión (la llamada se corta). El resultado real es SIN_GESTION, no RETENCION.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 20,
+      "comentario": "No aplica: el seguro tipificado (48213312 - Desempleo ITT Cre. Consumo) se menciona en la grabación.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 21,
+      "comentario": "No aplica: el seguro tipificado corresponde al que se menciona en la grabación.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 22,
+      "comentario": "No aplica: no se tipifica retención de seguro no mencionado.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 23,
+      "comentario": "No aplica: no se tipifica retención.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 24,
+      "mus_a_neto": "48213312",
+      "comentario": "Incumple: se tipifica RENUNCIA, pero por grabación el resultado es SIN_GESTION (la llamada se corta sin completar la gestión ni confirmar la renuncia en el sistema).",
+      "evidencia": [
+        {
+          "t": "01:00",
+          "hablante": "AGENTE",
+          "cita": "¿Aló? Don Manuel... [llamada se corta]"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 25,
+      "comentario": "No aplica: solo se menciona un seguro en la grabación.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 26,
+      "comentario": "No aplica: el cliente solo solicita gestionar un seguro (desempleo) y no hay otras gestiones pendientes.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 27,
+      "comentario": "No aplica: no hay terceros en la llamada; el titular es quien llama.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 28,
+      "mus_a_neto": "48213312",
+      "comentario": "No aplica: no se completa la gestión de renuncia, por lo que no se llega a informar sobre devolución de prima.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 29,
+      "mus_a_neto": "48213312",
+      "comentario": "Incumple: no hay protocolo de cierre. La llamada se corta a los 01:00 sin que el ejecutivo resuma la gestión ni confirme la renuncia.",
+      "evidencia": [
+        {
+          "t": "01:00",
+          "hablante": "AGENTE",
+          "cita": "¿Aló? Don Manuel... [fin de la grabación]"
+        }
+      ],
+      "estado": "incumple",
+      "confianza": 1
+    },
+    {
+      "id": 30,
+      "comentario": "No aplica: no hay protocolo de cierre ni confirmación del cliente porque la llamada se corta.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 31,
+      "comentario": "El ejecutivo valida correctamente RUT (12.212.212-K), nombre completo (Manuel Antonio Torres Díaz) y fecha de nacimiento (01/04/1979).",
+      "evidencia": [
+        {
+          "t": "00:09",
+          "hablante": "AGENTE",
+          "cita": "Don Manuel, ¿me indica su RUT, nombre completo y fecha de nacimiento?"
+        },
+        {
+          "t": "00:15",
+          "hablante": "CLIENTE",
+          "cita": "Doce millones doscientos doce mil doscientos doce guion k. Manuel Antonio Torres Díaz, primero de abril del setenta y nueve."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    },
+    {
+      "id": 32,
+      "comentario": "No aplica: el ejecutivo no predispone al cliente con preguntas que condicionen la respuesta a un 'Sí'. No hay protocolo de cierre porque la llamada se corta.",
+      "estado": "no_aplica",
+      "confianza": 1
+    },
+    {
+      "id": 33,
+      "comentario": "El ejecutivo valida correctamente email (manuel.torres@correoejemplo.cl) y teléfono (900011122).",
+      "evidencia": [
+        {
+          "t": "00:23",
+          "hablante": "AGENTE",
+          "cita": "¿Su correo y teléfono?"
+        },
+        {
+          "t": "00:25",
+          "hablante": "CLIENTE",
+          "cita": "manuel punto torres arroba correo ejemplo punto cl, nueve cero cero cero uno uno uno dos dos."
+        }
+      ],
+      "estado": "cumple",
+      "confianza": 1
+    }
+  ]
+}
+```
