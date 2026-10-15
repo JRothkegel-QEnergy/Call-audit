@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capa 2 en llamadas reales</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --text: #1d2330; --muted: #667085; --border: #e3e6eb;
+    --accent: #2f6fde; --accent-soft: #e6eefc;
+    --ok: #1f7a4d; --ok-soft: #e3f4ea; --bad: #b42318; --bad-soft: #fde8e6; --unsure: #9a6700; --unsure-soft: #fff4d6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151b; --panel: #1b1f27; --text: #e6e9ef; --muted: #98a2b3; --border: #2c323d;
+      --accent: #6a9cff; --accent-soft: #1f2d4a;
+      --ok: #4ade80; --ok-soft: #163222; --bad: #f87171; --bad-soft: #3a1b1b; --unsure: #fbbf24; --unsure-soft: #3a2f12;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  h1 { font-size: 17px; margin: 0 0 4px; } h2 { font-size: 14px; margin: 24px 0 8px; }
+  p.lead, .note { color: var(--muted); margin: 0 0 8px; font-size: 13px; max-width: 980px; }
+  .wrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { padding: 7px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { font-weight: 600; color: var(--muted); white-space: nowrap; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  small { color: var(--muted); font-size: 11px; }
+  .chip { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+  .APROBADA { background: var(--ok-soft); color: var(--ok); }
+  .RECHAZADA { background: var(--bad-soft); color: var(--bad); }
+  .DUDOSA { background: var(--unsure-soft); color: var(--unsure); }
+  .ERROR, .PENDIENTE { background: var(--border); color: var(--muted); }
+  td.cell { cursor: pointer; min-width: 150px; }
+  td.cell:hover { background: var(--bg); }
+  td.cell.sel { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .mark { font-size: 12px; font-weight: 700; margin-left: 4px; }
+  .mark.hit { color: var(--ok); } .mark.miss { color: var(--bad); }
+  .ids { display: block; font-size: 12px; margin-top: 2px; }
+  #detail { margin-top: 12px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: none; }
+  #detail h3 { margin: 0 0 6px; font-size: 14px; }
+  .crit { border-top: 1px solid var(--border); padding: 8px 0; }
+  .crit b { font-weight: 600; }
+  .ev { margin: 4px 0 0 12px; font-size: 13px; color: var(--muted); }
+  .ev .warn { color: var(--bad); font-weight: 600; }
+  details summary { cursor: pointer; color: var(--accent); font-size: 13px; margin-top: 8px; }
+  pre { white-space: pre-wrap; font: 12px/1.5 ui-monospace, Consolas, monospace; background: var(--bg); padding: 10px; border-radius: 6px; max-height: 420px; overflow: auto; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<h1>Capa 2 en llamadas reales</h1>
+<p class="lead" id="lead"></p>
+<p class="note">
+  <b>Veredicto de la IA</b>: <span class="chip RECHAZADA">RECHAZADA</span> si marcó al menos un motivo <code>incumple</code>;
+  <span class="chip DUDOSA">POR REVISAR</span> si no hay incumplimientos pero sí motivos <code>indeterminado</code>, o la IA no encontró información del seguro que sirva (va a revisión humana);
+  <span class="chip APROBADA">APROBADA</span> si no hay ninguno. <span id="unevnote">Los motivos <span id="unev"></span> no cuentan: el Excel no trae la gestión tipificada.</span>
+  ✓ / ✗ = coincide o no con el <b>ESTADO_CALIDAD</b> del Excel. Clic en una celda para ver el detalle.
+</p>
+
+<h2>Resumen por IA</h2>
+<div class="wrap"><table id="summary"></table></div>
+<p class="note" id="costnote"></p>
+
+<h2>Llamada por llamada</h2>
+<div class="wrap"><table id="grid"></table></div>
+<div id="detail"></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const usd = (v, d = 4) => v == null ? "—" : "US$" + v.toLocaleString("es-CL", { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = (a, b) => b ? Math.round((100 * a) / b) + "%" : "—";
+const LABELS = {
+  "claude-haiku-5-5": "Haiku 5.5", "claude-sonnet-5-5": "Sonnet 5.5", "gpt-6-luna": "GPT-6 Luna",
+  "or-deepseek-v4-1-flash": "DeepSeek V4.1 Flash", "or-gemini-3-8-flash": "Gemini 3.8 Flash (OpenRouter)", "gemini-3-8-flash": "Gemini 3.8 Flash",
+};
+const label = (m) => LABELS[m] || m;
+const show = (v) => (v === "DUDOSA" ? "POR REVISAR" : v);
+
+const totalMin = DATA.calls.reduce((a, c) => a + c.minutes, 0);
+const real = { APROBADA: 0, RECHAZADA: 0 };
+DATA.calls.forEach((c) => real[c.real] = (real[c.real] || 0) + 1);
+$("lead").textContent = `${DATA.calls.length} llamadas reales (${totalMin.toFixed(0)} min de audio; ${real.APROBADA} APROBADA y ${real.RECHAZADA} RECHAZADA según el Excel). `
+  + `Transcripción de Gemini 3.8 Flash${DATA.anonymized ? ", anonimizada antes de enviarla a cada IA" : " (sin anonimizar)"}. Prompt de capa 2 vigente (docs/layer2-prompt-example.md).`;
+if (DATA.unevaluable.length) $("unev").textContent = DATA.unevaluable[0] + "–" + DATA.unevaluable[DATA.unevaluable.length - 1];
+else $("unevnote").remove();
+
+// --- Resumen ---
+const rows = DATA.models.map((m) => {
+  const s = { min: 0, hit: 0, fp: 0, fn: 0, unsure: 0, unsureA: 0, unsureR: 0, err: 0, cost: 0, n: 0, lat: 0, latN: 0, done: 0, rHit: 0, aHit: 0 };
+  for (const c of DATA.calls) {
+    const it = c.models[m];
+    if (!it || !it.verdict) continue;
+    if (it.cost != null) { s.cost += it.cost; s.n++; s.min += c.minutes; }
+    if (it.latency != null) { s.lat += it.latency; s.latN++; }
+    if (it.verdict === "ERROR") { s.err++; continue; }
+    s.done++;
+    if (it.verdict === "DUDOSA") { s.unsure++; c.real === "APROBADA" ? s.unsureA++ : s.unsureR++; continue; }
+    if (it.verdict === c.real) { s.hit++; c.real === "RECHAZADA" ? s.rHit++ : s.aHit++; }
+    else if (it.verdict === "RECHAZADA") s.fp++;
+    else s.fn++;
+  }
+  return { m, ...s };
+});
+$("summary").innerHTML = `<thead><tr><th>IA</th><th class="num">Respondidas</th><th class="num">Coinciden</th>
+  <th class="num">RECHAZADA detectadas</th><th class="num">APROBADA detectadas</th>
+  <th class="num">Falsas alarmas<br><small>IA rechaza, Excel aprueba</small></th><th class="num">Omisiones<br><small>IA aprueba, Excel rechaza</small></th>
+  <th class="num">Por revisar<br><small>a revisión humana</small></th>
+  <th class="num">Costo total</th><th class="num">Costo por llamada</th><th class="num">Costo por min de audio</th>
+  <th class="num">Mensual<br><small>${DATA.monthly_calls.toLocaleString("es-CL")} llamadas</small></th><th class="num">Latencia prom.</th></tr></thead><tbody>`
+  + rows.map((r) => {
+    const perCall = r.n ? r.cost / r.n : null;
+    return `<tr><td><b>${esc(label(r.m))}</b></td>
+      <td class="num">${r.done}/${DATA.calls.length}${r.err ? ` <small>(${r.err} error)</small>` : ""}</td>
+      <td class="num"><b>${r.hit}</b>/${r.done} <small>${pct(r.hit, r.done)}</small></td>
+      <td class="num">${r.rHit}/${real.RECHAZADA}</td><td class="num">${r.aHit}/${real.APROBADA}</td>
+      <td class="num">${r.fp}</td><td class="num">${r.fn}</td>
+      <td class="num">${r.unsure}${r.unsure ? ` <small>(${r.unsureA} A · ${r.unsureR} R)</small>` : ""}</td>
+      <td class="num">${usd(r.cost, 3)}</td><td class="num">${usd(perCall)}</td>
+      <td class="num">${r.min ? usd(r.cost / r.min) : "—"}</td>
+      <td class="num">${perCall != null ? usd(perCall * DATA.monthly_calls, 0) : "—"}</td>
+      <td class="num">${r.latN ? (r.lat / r.latN / 1000).toFixed(1) + " s" : "—"}</td></tr>`;
+  }).join("") + "</tbody>";
+$("costnote").textContent = "Costo calculado con los tokens reales de cada respuesta y los precios de models.toml (sin batch ni caché entre llamadas). "
+  + "La proyección mensual usa el costo promedio por llamada de esta muestra, cuyas llamadas duran ~10 min.";
+
+// --- Grilla ---
+$("grid").innerHTML = `<thead><tr><th>Llamada</th><th class="num">Min</th><th>Seguro · motivo</th><th>Excel</th>`
+  + DATA.models.map((m) => `<th>${esc(label(m))}</th>`).join("") + "</tr></thead><tbody>"
+  + DATA.calls.map((c, ci) => `<tr><td>${esc(c.stem.replace("call_", ""))}</td><td class="num">${c.minutes}</td>
+      <td>${esc(c.seguro)}<br><small>${esc(c.motivo)}${c.comentario ? " · " + esc(c.comentario) : ""}</small></td>
+      <td><span class="chip ${c.real}">${c.real}</span></td>`
+    + DATA.models.map((m) => {
+      const it = c.models[m] || {};
+      const v = it.verdict || "PENDIENTE";
+      const hit = v === c.real, comparable = v === "APROBADA" || v === "RECHAZADA";
+      const ids = it.bad && it.bad.length ? `incumple: ${it.bad.join(", ")}` : "";
+      const un = it.unsure && it.unsure.length ? `indet.: ${it.unsure.join(", ")}` : "";
+      return `<td class="cell" data-c="${ci}" data-m="${esc(m)}"><span class="chip ${v}">${show(v)}</span>`
+        + (comparable ? `<span class="mark ${hit ? "hit" : "miss"}">${hit ? "✓" : "✗"}</span>` : "")
+        + `<span class="ids">${esc(ids)}${ids && un ? "<br>" : ""}<small>${esc(un)}</small></span>`
+        + `<small>${usd(it.cost)}</small></td>`;
+    }).join("") + "</tr>").join("") + "</tbody>";
+
+$("grid").addEventListener("click", (e) => {
+  const td = e.target.closest("td.cell");
+  if (!td) return;
+  document.querySelectorAll("td.cell.sel").forEach((x) => x.classList.remove("sel"));
+  td.classList.add("sel");
+  showDetail(DATA.calls[+td.dataset.c], td.dataset.m);
+});
+
+function showDetail(c, m) {
+  const it = c.models[m] || {};
+  const el = $("detail");
+  el.style.display = "block";
+  let h = `<h3>${esc(label(m))} · llamada ${esc(c.stem.replace("call_", ""))} · Excel: <span class="chip ${c.real}">${c.real}</span> · IA: <span class="chip ${it.verdict || "PENDIENTE"}">${show(it.verdict || "PENDIENTE")}</span></h3>`;
+  h += `<p class="note"><a href="../asr_bench/${encodeURIComponent(c.recording)}/viewer.html" target="_blank">Escuchar el audio y ver la transcripción</a>`
+    + (it.usage ? ` · tokens in/out: ${it.usage.input_tokens} / ${it.usage.output_tokens}` : "") + ` · costo ${usd(it.cost)}</p>`;
+  if (it.error) {
+    h += `<pre>${esc(it.error)}</pre>`;
+  } else if (it.audit) {
+    const a = it.audit;
+    h += `<p><b>Resumen:</b> ${esc(a.resumen)}</p>`;
+    const info = a.informacion_seguro;
+    if (info && info.estado && info.estado !== "OK") {
+      h += `<p><span class="chip DUDOSA">${esc(info.estado === "SIN_FICHA" ? "Sin información del seguro" : "La ficha no corresponde")}</span> ${esc(info.comentario)}</p>`;
+    }
+    for (const g of a.gestiones || []) {
+      h += `<p class="note">Gestión según grabación: <b>${esc(g.resultado_grabacion)}</b> · objeciones: ${esc(g.n_objeciones)} · motivos: ${esc((g.motivos_renuncia || []).join(", "))}</p>`;
+    }
+    const order = { incumple: 0, indeterminado: 1, cumple: 2, no_aplica: 3 };
+    const crit = [...(a.criterios || [])].sort((x, y) => (order[x.estado] - order[y.estado]) || x.id - y.id);
+    const block = (cr) => {
+      const ignored = DATA.unevaluable.includes(cr.id) ? " <small>(no cuenta para el veredicto)</small>" : "";
+      const ev = (cr.evidencia || []).map((e) => `<div class="ev">[${esc(e.t)}] ${esc(e.hablante)}: “${esc(e.cita)}”`
+        + (e.found ? "" : ` <span class="warn">⚠ cita no encontrada en la transcripción</span>`) + "</div>").join("");
+      return `<div class="crit"><span class="chip ${cr.estado === "incumple" ? "RECHAZADA" : cr.estado === "indeterminado" ? "DUDOSA" : "APROBADA"}">${esc(cr.estado)}</span>
+        <b>${cr.id}. ${esc(DATA.criteria[cr.id] || "")}</b>${ignored} <small>confianza ${esc(cr.confianza)}</small>
+        <div>${esc(cr.comentario)}</div>${ev}</div>`;
+    };
+    const main = crit.filter((x) => x.estado === "incumple" || x.estado === "indeterminado");
+    h += main.length ? main.map(block).join("") : `<p class="note">Sin motivos incumplidos ni indeterminados.</p>`;
+    const rest = crit.filter((x) => !main.includes(x));
+    h += `<details><summary>Ver los ${rest.length} motivos que cumple o no aplican</summary>${rest.map(block).join("")}</details>`;
+  } else {
+    h += `<p class="note">Sin respuesta todavía.</p>`;
+  }
+  h += `<details><summary>Ver la transcripción que recibió la IA</summary><pre>${esc(c.transcript)}</pre></details>`;
+  el.innerHTML = h;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+</script>
+</body>
+</html>

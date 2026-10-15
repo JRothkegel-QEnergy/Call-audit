@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revisión capa 2</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --raised: #ffffff;
+    --text: #0b0b0b; --text-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+    --accent: #2a78d6; --accent-soft: #e4effc;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300;
+    --div-neg: #2a78d6; --div-pos: #e34948;
+    --seq-0: #f0efec; --seq-1: #cde2fb; --seq-2: #86b6ef; --seq-3: #3987e5; --seq-4: #1c5cab;
+    --seq-ink-0: #0b0b0b; --seq-ink-1: #0b0b0b; --seq-ink-2: #0b0b0b; --seq-ink-3: #ffffff; --seq-ink-4: #ffffff;
+    --good: #0ca30c; --good-ink: #006300; --good-soft: #e3f4e3;
+    --warn: #fab219; --warn-ink: #8a5a00; --warn-soft: #fdf2d6;
+    --crit: #d03b3b; --crit-ink: #b42318; --crit-soft: #fbe5e5;
+    --hl: #fff3c4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --raised: #222221;
+      --text: #ffffff; --text-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+      --accent: #3987e5; --accent-soft: #1b2b44;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300;
+      --div-neg: #3987e5; --div-pos: #e66767;
+      --seq-0: #383835; --seq-1: #184f95; --seq-2: #256abf; --seq-3: #3987e5; --seq-4: #86b6ef;
+      --seq-ink-0: #ffffff; --seq-ink-1: #ffffff; --seq-ink-2: #ffffff; --seq-ink-3: #ffffff; --seq-ink-4: #0b0b0b;
+      --good: #0ca30c; --good-ink: #0ca30c; --good-soft: #15301a;
+      --warn: #fab219; --warn-ink: #fab219; --warn-soft: #3a2f12;
+      --crit: #d03b3b; --crit-ink: #f87171; --crit-soft: #3a1b1b;
+      --hl: #3d3416;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { position: sticky; top: 0; z-index: 5; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  header h1 { font-size: 15px; margin: 0; }
+  .tabs { display: flex; gap: 4px; }
+  .tabs button, .btn { font: inherit; font-size: 13px; border: 1px solid var(--border); background: var(--raised); color: var(--text); border-radius: 6px; padding: 5px 12px; cursor: pointer; }
+  .tabs button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  select, input[type=search], textarea { font: inherit; font-size: 13px; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--raised); color: var(--text); }
+  main { padding: 16px; max-width: 1500px; margin: 0 auto; }
+  h2 { font-size: 14px; margin: 24px 0 8px; }
+  .note { color: var(--text-2); font-size: 12px; margin: 0 0 10px; max-width: 900px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  /* Stat tiles */
+  .model-head { display: flex; align-items: center; gap: 8px; font-weight: 600; margin-bottom: 10px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .tile .v { font-size: 22px; font-weight: 600; line-height: 1.1; }
+  .tile .l { font-size: 12px; color: var(--text-2); }
+  .tile .s { font-size: 11px; color: var(--muted); }
+  /* Tables */
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { padding: 6px 8px; border-bottom: 1px solid var(--grid); text-align: left; vertical-align: top; }
+  th { color: var(--text-2); font-weight: 600; font-size: 12px; white-space: nowrap; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .wrap { overflow-x: auto; }
+  .cm { border-collapse: separate; border-spacing: 3px; width: 100%; table-layout: fixed; }
+  .cm th, .cm td { border-bottom: 0; }
+  .cm th { white-space: normal; font-size: 11px; line-height: 1.25; text-align: center; padding: 4px 2px; }
+  .cm th.row { text-align: left; width: 26%; }
+  .cm td.cell { text-align: center; font-variant-numeric: tabular-nums; font-weight: 600; font-size: 14px; border-radius: 4px; padding: 8px 2px; }
+  .delta-up { color: var(--good-ink); } .delta-down { color: var(--crit-ink); }
+  .barcell { display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
+  .barcell i { display: block; height: 6px; border-radius: 0 3px 3px 0; background: var(--seq-3); }
+  /* Chips */
+  .chip { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; white-space: nowrap; }
+  .APROBADA { background: var(--good-soft); color: var(--good-ink); }
+  .RECHAZADA { background: var(--crit-soft); color: var(--crit-ink); }
+  .DUDOSA { background: var(--warn-soft); color: var(--warn-ink); }
+  .ERROR, .NONE { background: var(--grid); color: var(--text-2); }
+  .mk { font-weight: 700; font-size: 12px; }
+  .mk.hit { color: var(--good-ink); } .mk.miss { color: var(--crit-ink); }
+  /* Butterfly */
+  .bf { width: 100%; }
+  .bf text { fill: var(--text-2); font-size: 11px; }
+  .bf .lbl { fill: var(--text); }
+  .bf rect.hit { fill: transparent; cursor: default; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-2); margin: 4px 0 8px; flex-wrap: wrap; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  #tip { position: fixed; pointer-events: none; background: var(--raised); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.15); display: none; z-index: 20; max-width: 320px; }
+  /* Review */
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .review { display: grid; grid-template-columns: minmax(380px, 38%) 1fr; gap: 12px; align-items: start; }
+  .list { max-height: calc(100vh - 170px); overflow: auto; }
+  .list table tr { cursor: pointer; }
+  .list tr.sel td { background: var(--accent-soft); }
+  .list tr:hover td { background: var(--page); }
+  .list td { font-size: 12px; padding: 5px 6px; }
+  .rv { font-size: 11px; color: var(--muted); }
+  .detail { position: sticky; top: 64px; max-height: calc(100vh - 80px); overflow: auto; }
+  .meta { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; font-size: 13px; margin: 8px 0; }
+  .meta dt { color: var(--text-2); } .meta dd { margin: 0; }
+  .player { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  audio { width: min(520px, 100%); height: 34px; }
+  .mybox { background: var(--page); border-radius: 8px; padding: 10px; margin: 10px 0; display: grid; gap: 8px; }
+  .mybox textarea { width: 100%; min-height: 54px; resize: vertical; }
+  .mtabs { display: flex; gap: 4px; flex-wrap: wrap; margin: 10px 0 6px; }
+  .crit { border-top: 1px solid var(--grid); padding: 7px 0; font-size: 13px; }
+  .crit .c { color: var(--text-2); }
+  .ev { margin: 3px 0 0 14px; font-size: 12px; color: var(--text-2); }
+  .ts { color: var(--accent); cursor: pointer; font-variant-numeric: tabular-nums; text-decoration: underline dotted; }
+  .warn { color: var(--crit-ink); font-weight: 600; }
+  details summary { cursor: pointer; color: var(--accent); font-size: 13px; margin: 8px 0; }
+  .tr { max-height: 360px; overflow: auto; border: 1px solid var(--grid); border-radius: 6px; padding: 4px; }
+  .turn { display: grid; grid-template-columns: 44px 70px 1fr; gap: 6px; padding: 3px 4px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+  .turn.on { background: var(--accent-soft); }
+  .turn.hl { background: var(--hl); }
+  .turn .who { font-weight: 600; font-size: 11px; color: var(--text-2); }
+  .turn.agent .who { color: var(--accent); }
+  kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--border); border-radius: 3px; padding: 0 4px; }
+  @media (max-width: 900px) { .review { grid-template-columns: 1fr; } .detail { position: static; max-height: none; } .list { max-height: 50vh; } .tiles { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Revisión capa 2 · llamadas reales</h1>
+  <div class="tabs"><button id="t-dash" class="on">Dashboard</button><button id="t-rev">Revisión</button></div>
+  <label style="font-size:13px;color:var(--text-2)">Versión del prompt <select id="ver"></select></label>
+  <span id="hdrnote" style="font-size:12px;color:var(--muted)"></span>
+</header>
+<main>
+  <section id="dash"></section>
+  <section id="rev" hidden></section>
+</main>
+<div id="tip"></div>
+
+<script>
+const D = /*__DATA__*/null;
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const fmtUsd = (v, d = 4) => v == null ? "—" : "US$" + v.toLocaleString("es-CL", { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = (a, b) => b ? Math.round((100 * a) / b) + "%" : "—";
+const SHOW = { APROBADA: "APROBADA", RECHAZADA: "RECHAZADA", DUDOSA: "POR REVISAR", ERROR: "ERROR" };
+const COLOR = {}; D.models.forEach((m, i) => COLOR[m] = `var(--s${i + 1})`);
+const lab = (m) => D.labels[m] || m;
+const fmtT = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+const parseT = (t) => { const p = String(t || "").split(":").map(Number); return p.some(isNaN) ? null : p.reduce((a, b) => a * 60 + b, 0); };
+let version = D.versions[0];
+$("#ver").innerHTML = D.versions.map((v) => `<option>${esc(v)}</option>`).join("");
+$("#hdrnote").textContent = `${D.calls.length} llamadas · modelos: ${D.models.map(lab).join(", ")}`;
+
+// ---------- Estadísticas ----------
+function stats(model, ver) {
+  const s = { n: 0, hit: 0, fa: 0, om: 0, rev: 0, err: 0, cost: 0, costN: 0, lat: 0, latN: 0, rHit: 0, aHit: 0, cm: { APROBADA: {}, RECHAZADA: {} } };
+  for (const c of D.calls) {
+    const r = c.results[ver]?.[model];
+    if (!r || !r.verdict) continue;
+    s.n++;
+    if (r.cost != null) { s.cost += r.cost; s.costN++; }
+    if (r.latency != null) { s.lat += r.latency; s.latN++; }
+    s.cm[c.real][r.verdict] = (s.cm[c.real][r.verdict] || 0) + 1;
+    if (r.verdict === "ERROR") s.err++;
+    else if (r.verdict === "DUDOSA") s.rev++;
+    else if (r.verdict === c.real) { s.hit++; c.real === "RECHAZADA" ? s.rHit++ : s.aHit++; }
+    else if (r.verdict === "RECHAZADA") s.fa++;
+    else s.om++;
+  }
+  return s;
+}
+const realCount = { APROBADA: D.calls.filter((c) => c.real === "APROBADA").length, RECHAZADA: D.calls.filter((c) => c.real === "RECHAZADA").length };
+
+function renderDash() {
+  const models = D.models.filter((m) => D.calls.some((c) => c.results[version]?.[m]?.verdict));
+  let h = `<p class="note">Comparación de cada IA con el <b>ESTADO_CALIDAD</b> del Excel (${realCount.APROBADA} APROBADA, ${realCount.RECHAZADA} RECHAZADA). `
+    + `La IA rechaza si marca al menos un motivo <i>incumple</i>; queda <b>por revisar</b> si solo hay motivos <i>indeterminado</i> o no encontró información del seguro.</p>`;
+
+  // Tiles
+  h += `<div class="grid">` + models.map((m) => {
+    const s = stats(m, version), per = s.costN ? s.cost / s.costN : null;
+    return `<div class="card"><div class="model-head"><span class="dot" style="background:${COLOR[m]}"></span>${esc(lab(m))}</div>
+      <div class="tiles">
+        <div class="tile"><div class="v">${pct(s.hit, s.n)}</div><div class="l">coincide con el Excel</div><div class="s">${s.hit} de ${s.n}</div></div>
+        <div class="tile"><div class="v">${s.fa}</div><div class="l">falsas alarmas</div><div class="s">IA rechaza, Excel aprueba</div></div>
+        <div class="tile"><div class="v">${s.om}</div><div class="l">omisiones</div><div class="s">IA aprueba, Excel rechaza</div></div>
+        <div class="tile"><div class="v">${s.rev}</div><div class="l">por revisar</div><div class="s">${s.err ? s.err + " con error" : "irían a un auditor"}</div></div>
+        <div class="tile"><div class="v">${fmtUsd(per, 3)}</div><div class="l">costo por llamada</div><div class="s">${per != null ? "~" + fmtUsd(per * D.monthly_calls, 0) + "/mes a " + D.monthly_calls.toLocaleString("es-CL") : ""}</div></div>
+        <div class="tile"><div class="v">${s.latN ? Math.round(s.lat / s.latN / 1000) + " s" : "—"}</div><div class="l">latencia promedio</div><div class="s">por llamada</div></div>
+      </div></div>`;
+  }).join("") + `</div>`;
+
+  // Matrices de confusión
+  h += `<h2>Excel vs. IA</h2><p class="note">Filas: lo que dice el Excel. Columnas: lo que dijo la IA. Las celdas Excel APROBADA × IA APROBADA y Excel RECHAZADA × IA RECHAZADA son aciertos; el color es solo la cantidad.</p><div class="grid">`
+    + models.map((m) => {
+      const s = stats(m, version), cols = ["APROBADA", "RECHAZADA", "DUDOSA"];
+      const max = Math.max(1, ...["APROBADA", "RECHAZADA"].flatMap((r) => cols.map((c) => s.cm[r][c] || 0)));
+      const cell = (r, c) => { const v = s.cm[r][c] || 0, k = Math.ceil((v / max) * 4); return `<td class="cell" style="background:var(--seq-${v ? k : 0});color:var(--seq-ink-${v ? k : 0})" data-tip="Excel ${r} · IA ${SHOW[c]}: ${v} llamadas">${v}</td>`; };
+      return `<div class="card"><div class="model-head"><span class="dot" style="background:${COLOR[m]}"></span>${esc(lab(m))}</div>
+        <table class="cm"><tr><th class="row"></th>${cols.map((c) => `<th>IA<br>${SHOW[c].toLowerCase()}</th>`).join("")}</tr>
+        ${["APROBADA", "RECHAZADA"].map((r) => `<tr><th class="row">Excel<br>${r.toLowerCase()}</th>${cols.map((c) => cell(r, c)).join("")}</tr>`).join("")}</table></div>`;
+    }).join("") + `</div>`;
+
+  // Versiones
+  if (D.versions.length > 1) {
+    h += `<h2>Comparación entre versiones del prompt</h2><div class="card wrap"><table><thead><tr><th>IA</th><th>Versión</th><th class="n">Coinciden</th><th class="n">RECHAZADA detectadas</th><th class="n">APROBADA detectadas</th><th class="n">Falsas alarmas</th><th class="n">Omisiones</th><th class="n">Por revisar</th><th class="n">Costo total</th></tr></thead><tbody>`;
+    for (const m of D.models) {
+      const base = stats(m, D.versions[D.versions.length - 1]);
+      D.versions.forEach((v, i) => {
+        const s = stats(m, v);
+        if (!s.n) return;
+        const d = (a, b, good) => i === 0 && base.n > 0 && b != null ? (a === b ? "" : ` <small class="${(a > b) === good ? "delta-up" : "delta-down"}">${a > b ? "▲" : "▼"}${Math.abs(a - b)}</small>`) : "";
+        h += `<tr><td>${i === 0 ? `<span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m))}` : ""}</td><td>${esc(v)}</td>
+          <td class="n"><b>${s.hit}</b>${d(s.hit, base.hit, true)}</td><td class="n">${s.rHit}/${realCount.RECHAZADA}${d(s.rHit, base.rHit, true)}</td><td class="n">${s.aHit}/${realCount.APROBADA}${d(s.aHit, base.aHit, true)}</td>
+          <td class="n">${s.fa}${d(s.fa, base.fa, false)}</td><td class="n">${s.om}${d(s.om, base.om, false)}</td><td class="n">${s.rev}${d(s.rev, base.rev, false)}</td><td class="n">${fmtUsd(s.cost, 2)}</td></tr>`;
+      });
+    }
+    h += `</tbody></table></div><p class="note">▲▼ = cambio de la versión más nueva respecto de la más antigua (verde mejora, rojo empeora).</p>`;
+  }
+
+  // Butterfly
+  h += `<h2>¿Qué motivos distinguen una llamada rechazada?</h2>
+    <p class="note">Cuántas llamadas tienen cada motivo marcado como <i>incumple</i>, separando las que el Excel aprobó (izquierda: probablemente falsas alarmas) de las que rechazó (derecha). Un motivo útil carga hacia la derecha.</p>
+    <div class="filters">${models.map((m, i) => `<button class="btn bfm${i === 0 ? " on" : ""}" data-m="${m}"><span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m))}</button>`).join("")}</div>
+    <div class="legend"><span><i style="background:var(--div-neg)"></i>en llamadas APROBADA del Excel</span><span><i style="background:var(--div-pos)"></i>en llamadas RECHAZADA del Excel</span></div>
+    <div class="card" id="bfwrap"></div>`;
+
+  // Acuerdo entre modelos
+  if (models.length > 1) {
+    h += `<h2>Acuerdo entre IA</h2><div class="card wrap"><table><thead><tr><th></th>${models.map((m) => `<th class="n">${esc(lab(m))}</th>`).join("")}</tr></thead><tbody>`
+      + models.map((a) => `<tr><th>${esc(lab(a))}</th>${models.map((b) => {
+        if (a === b) return `<td class="n">—</td>`;
+        let n = 0, same = 0;
+        for (const c of D.calls) { const x = c.results[version]?.[a]?.verdict, y = c.results[version]?.[b]?.verdict; if (x && y) { n++; same += x === y; } }
+        return `<td class="n">${pct(same, n)} <small style="color:var(--muted)">(${same}/${n})</small></td>`;
+      }).join("")}</tr>`).join("") + `</tbody></table></div>`;
+  }
+
+  // Por seguro y por ejecutivo
+  const breakdown = (key, title, minN) => {
+    const groups = {};
+    for (const c of D.calls) (groups[c[key] || "—"] ||= []).push(c);
+    const rows = Object.entries(groups).filter(([, cs]) => cs.length >= minN).sort((a, b) => b[1].length - a[1].length);
+    return `<h2>${title}</h2><div class="card wrap"><table><thead><tr><th>${key === "ficha" ? "Ficha" : "Ejecutivo"}</th><th class="n">Llamadas</th><th class="n">RECHAZADA (Excel)</th>${models.map((m) => `<th class="n">${esc(lab(m))}<br><small>coincide</small></th>`).join("")}</tr></thead><tbody>`
+      + rows.map(([k, cs]) => `<tr><td>${esc(k)}${key === "ficha" ? ` <small style="color:var(--muted)">${esc(cs[0].insurance)}</small>` : ""}</td><td class="n">${cs.length}</td><td class="n">${cs.filter((c) => c.real === "RECHAZADA").length}</td>`
+        + models.map((m) => { const ok = cs.filter((c) => c.results[version]?.[m]?.verdict === c.real).length, p = ok / cs.length; return `<td class="n"><div class="barcell">${Math.round(100 * p)}%<i style="width:${Math.round(48 * p)}px"></i></div></td>`; }).join("") + `</tr>`).join("")
+      + `</tbody></table></div>`;
+  };
+  h += breakdown("ficha", "Aciertos por seguro (ficha del catálogo)", 1);
+  h += breakdown("agent", "Aciertos por ejecutivo (con 2 llamadas o más)", 2);
+
+  $("#dash").innerHTML = h;
+  document.querySelectorAll(".bfm").forEach((b) => b.onclick = () => { document.querySelectorAll(".bfm").forEach((x) => x.classList.toggle("on", x === b)); butterfly(b.dataset.m); });
+  if (models.length) butterfly(models[0]);
+}
+
+function butterfly(model) {
+  const counts = {};
+  for (const c of D.calls) {
+    const r = c.results[version]?.[model];
+    for (const id of r?.bad || []) { counts[id] ||= { A: 0, R: 0 }; counts[id][c.real === "APROBADA" ? "A" : "R"]++; }
+  }
+  const ids = Object.keys(counts).map(Number).sort((a, b) => (counts[b].A + counts[b].R) - (counts[a].A + counts[a].R));
+  if (!ids.length) { $("#bfwrap").innerHTML = `<p class="note">Este modelo no marcó ningún incumplimiento.</p>`; return; }
+  const W = Math.max(560, $("#bfwrap").clientWidth - 28), row = 24, top = 22, labelW = Math.min(300, W * 0.38), side = (W - labelW - 60) / 2;
+  const max = Math.max(...ids.map((i) => Math.max(counts[i].A, counts[i].R)), 1);
+  const cx = labelW + 30 + side, sx = (v) => (v / max) * side;
+  let svg = `<svg class="bf" viewBox="0 0 ${W} ${top + ids.length * row + 8}" role="img" aria-label="Motivos incumplidos por estado del Excel">`;
+  svg += `<text x="${cx - 6}" y="12" text-anchor="end">← en APROBADA</text><text x="${cx + 6}" y="12">en RECHAZADA →</text>`;
+  svg += `<line x1="${cx}" x2="${cx}" y1="${top - 4}" y2="${top + ids.length * row}" stroke="var(--axis)" stroke-width="1"/>`;
+  ids.forEach((id, i) => {
+    const y = top + i * row, a = counts[id].A, r = counts[id].R, name = D.criteria[id] || "";
+    const short = name.length > 42 ? name.slice(0, 41) + "…" : name;
+    svg += `<text class="lbl" x="0" y="${y + 15}">${id}. ${esc(short)}</text>`;
+    if (a) svg += `<path d="M${cx - 1},${y + 5} h${-(sx(a) - 4)} a4,4 0 0 0 -4,4 v6 a4,4 0 0 0 4,4 h${sx(a) - 4} z" fill="var(--div-neg)"/>`;
+    if (r) svg += `<path d="M${cx + 1},${y + 5} h${sx(r) - 4} a4,4 0 0 1 4,4 v6 a4,4 0 0 1 -4,4 h${-(sx(r) - 4)} z" fill="var(--div-pos)"/>`;
+    if (a) svg += `<text x="${cx - sx(a) - 6}" y="${y + 16}" text-anchor="end">${a}</text>`;
+    if (r) svg += `<text x="${cx + sx(r) + 6}" y="${y + 16}">${r}</text>`;
+    svg += `<rect class="hit" x="0" y="${y}" width="${W}" height="${row}" data-tip="${esc(`${id}. ${name}`)}<br>APROBADA: <b>${a}</b> · RECHAZADA: <b>${r}</b>"/>`;
+  });
+  $("#bfwrap").innerHTML = svg + "</svg>";
+}
+
+// Tooltip
+document.addEventListener("mousemove", (e) => {
+  const t = e.target.closest?.("[data-tip]"), tip = $("#tip");
+  if (!t) { tip.style.display = "none"; return; }
+  tip.innerHTML = t.dataset.tip; tip.style.display = "block";
+  tip.style.left = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8) + "px";
+  tip.style.top = Math.min(e.clientY + 14, innerHeight - tip.offsetHeight - 8) + "px";
+});
+
+// ---------- Revisión ----------
+const STORE = "l2-review-v1";
+let reviews = {};
+try { reviews = JSON.parse(localStorage.getItem(STORE) || "{}"); } catch {}
+const saveReviews = () => { try { localStorage.setItem(STORE, JSON.stringify(reviews)); } catch {} };
+let current = null, filtered = D.calls, audioUrl = null, activeModel = null;
+const F = { q: "", real: "", agree: "", ficha: "", reviewed: "" };
+
+function renderRevShell() {
+  const fichas = [...new Set(D.calls.map((c) => c.ficha || "—"))].sort();
+  $("#rev").innerHTML = `
+    <div class="filters">
+      <input type="search" id="f-q" placeholder="Buscar ID, ejecutivo, seguro, motivo…" style="width:240px">
+      <select id="f-real"><option value="">Excel: todos</option><option>APROBADA</option><option>RECHAZADA</option></select>
+      <select id="f-agree"><option value="">IA vs Excel: todas</option><option value="any">Alguna IA discrepa</option><option value="all">Todas las IA coinciden</option>${D.models.map((m) => `<option value="m:${m}">${esc(lab(m))} discrepa</option>`).join("")}</select>
+      <select id="f-ficha"><option value="">Ficha: todas</option>${fichas.map((f) => `<option>${esc(f)}</option>`).join("")}</select>
+      <select id="f-rev"><option value="">Mi revisión: todas</option><option value="no">Pendientes</option><option value="yes">Revisadas</option></select>
+      <span id="count" style="font-size:12px;color:var(--text-2)"></span>
+      <button class="btn" id="export">Exportar mi revisión (CSV)</button>
+      <span style="font-size:11px;color:var(--muted)"><kbd>j</kbd>/<kbd>k</kbd> siguiente/anterior · <kbd>espacio</kbd> play/pausa</span>
+    </div>
+    <div class="review"><div class="card list" id="list"></div><div class="card detail" id="detail"><p class="note">Elige una llamada del listado.</p></div></div>`;
+  const bind = (id, key) => $(id).addEventListener("input", (e) => { F[key] = e.target.value; renderList(); });
+  bind("#f-q", "q"); bind("#f-real", "real"); bind("#f-agree", "agree"); bind("#f-ficha", "ficha"); bind("#f-rev", "reviewed");
+  $("#export").onclick = exportCsv;
+  renderList();
+}
+
+function verdictOf(c, m) { return c.results[version]?.[m]?.verdict; }
+function renderList() {
+  const q = F.q.toLowerCase();
+  filtered = D.calls.filter((c) => {
+    if (F.real && c.real !== F.real) return false;
+    if (F.ficha && (c.ficha || "—") !== F.ficha) return false;
+    if (F.reviewed === "yes" && !reviews[c.stem]?.verdict) return false;
+    if (F.reviewed === "no" && reviews[c.stem]?.verdict) return false;
+    const vs = D.models.map((m) => verdictOf(c, m)).filter(Boolean);
+    if (F.agree === "any" && vs.every((v) => v === c.real)) return false;
+    if (F.agree === "all" && !vs.every((v) => v === c.real)) return false;
+    if (F.agree.startsWith("m:") && verdictOf(c, F.agree.slice(2)) === c.real) return false;
+    if (q && ![c.id, c.agent, c.insurance, c.reason, c.comment, c.ficha].join(" ").toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const done = D.calls.filter((c) => reviews[c.stem]?.verdict).length;
+  $("#count").textContent = `${filtered.length} llamadas · revisadas ${done}/${D.calls.length}`;
+  $("#list").innerHTML = `<table><thead><tr><th>ID</th><th>Seguro</th><th class="n">Min</th><th>Excel</th>${D.models.map((m) => `<th><span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m).split(" ")[0])}</th>`).join("")}<th>Yo</th></tr></thead><tbody>`
+    + filtered.map((c) => `<tr data-s="${c.stem}" class="${current?.stem === c.stem ? "sel" : ""}"><td>${esc(c.id)}<div class="rv">${esc(c.agent)}</div></td><td>${esc(c.ficha || "—")}<div class="rv">${esc(c.insurance)}</div></td><td class="n">${c.minutes}</td>
+      <td><span class="chip ${c.real}">${c.real === "APROBADA" ? "APR" : "REC"}</span></td>`
+      + D.models.map((m) => { const v = verdictOf(c, m); if (!v) return "<td>—</td>"; const cmp = v === "APROBADA" || v === "RECHAZADA"; return `<td><span class="chip ${v}">${v === "DUDOSA" ? "REV" : v.slice(0, 3)}</span>${cmp ? `<span class="mk ${v === c.real ? "hit" : "miss"}">${v === c.real ? "✓" : "✗"}</span>` : ""}</td>`; }).join("")
+      + `<td>${reviews[c.stem]?.verdict ? `<span class="chip ${reviews[c.stem].verdict}">${reviews[c.stem].verdict === "DUDOSA" ? "REV" : reviews[c.stem].verdict.slice(0, 3)}</span>` : `<span class="rv">pendiente</span>`}</td></tr>`).join("")
+    + `</tbody></table>`;
+  $("#list").onclick = (e) => { const tr = e.target.closest("tr[data-s]"); if (tr) openCall(tr.dataset.s); };
+}
+
+async function openCall(stem) {
+  current = D.calls.find((c) => c.stem === stem);
+  document.querySelectorAll("#list tr").forEach((tr) => tr.classList.toggle("sel", tr.dataset.s === stem));
+  activeModel = activeModel && D.models.includes(activeModel) ? activeModel : D.models[0];
+  const c = current, mine = reviews[stem] || {};
+  $("#detail").innerHTML = `
+    <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center">
+      <h2 style="margin:0">Llamada ${esc(c.id)} <span class="chip ${c.real}">Excel: ${c.real}</span></h2>
+      <span><button class="btn" id="prev">← Anterior</button> <button class="btn" id="next">Siguiente →</button></span>
+    </div>
+    <dl class="meta">
+      <dt>Fecha · duración</dt><dd>${esc(c.date)} · ${c.minutes} min · esperas detectadas: ${c.holds.length ? c.holds.map((h) => h + " s").join(", ") : "ninguna"}</dd>
+      <dt>Ejecutivo</dt><dd>${esc(c.agent)}</dd>
+      <dt>Seguro</dt><dd>${esc(c.insurance)} · plan: ${esc(c.plan)} · ficha ${esc(c.ficha || "sin ficha")}</dd>
+      <dt>Tipificación</dt><dd>${esc(c.typification || "—")} · motivo: ${esc(c.reason)}</dd>
+      ${c.comment ? `<dt>Comentario Excel</dt><dd>${esc(c.comment)}</dd>` : ""}
+    </dl>
+    <div class="player"><audio id="player" controls preload="none"></audio>
+      ${[0.75, 1, 1.25, 1.5, 2].map((r) => `<button class="btn spd${r === 1 ? " on" : ""}" data-r="${r}">${r}×</button>`).join("")}
+      <span id="astate" style="font-size:12px;color:var(--muted)">cargando audio…</span>
+      <a href="${esc(c.asr_viewer)}" target="_blank" style="font-size:12px">comparar transcripciones</a></div>
+    <div class="mybox">
+      <b style="font-size:13px">Mi revisión</b>
+      <div class="filters" style="margin:0">${["APROBADA", "RECHAZADA", "DUDOSA"].map((v) => `<button class="btn myv${mine.verdict === v ? " on" : ""}" data-v="${v}">${SHOW[v]}</button>`).join("")}
+        <span style="font-size:12px;color:var(--text-2)">¿Acertó cada IA?</span>
+        ${D.models.map((m) => `<label style="font-size:12px"><span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m))} <select class="myok" data-m="${m}"><option value="">—</option><option value="ok"${mine.models?.[m] === "ok" ? " selected" : ""}>sí</option><option value="bad"${mine.models?.[m] === "bad" ? " selected" : ""}>no</option></select></label>`).join("")}
+      </div>
+      <textarea id="mynote" placeholder="Notas: qué motivo aplica, qué se equivocó la IA, problema de transcripción…">${esc(mine.note || "")}</textarea>
+    </div>
+    <div class="mtabs">${D.models.map((m) => { const v = verdictOf(c, m) || "NONE"; return `<button class="btn mt${m === activeModel ? " on" : ""}" data-m="${m}"><span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m))} <span class="chip ${v}">${SHOW[v] || "—"}</span></button>`; }).join("")}</div>
+    <div id="mres"></div>
+    <details open><summary>Transcripción (clic en una línea para escuchar desde ahí)</summary><div class="tr" id="tr">${c.transcript.map(([t, ch, tx], i) => `<div class="turn ${ch}" data-t="${t}" id="turn-${i}"><span class="ts">${fmtT(t)}</span><span class="who">${ch === "agent" ? "EJECUTIVO" : ch === "customer" ? "CLIENTE" : "OTRO"}</span><span>${esc(tx)}</span></div>`).join("")}</div></details>`;
+  $("#prev").onclick = () => step(-1); $("#next").onclick = () => step(1);
+  document.querySelectorAll(".spd").forEach((b) => b.onclick = () => { $("#player").playbackRate = +b.dataset.r; document.querySelectorAll(".spd").forEach((x) => x.classList.toggle("on", x === b)); });
+  document.querySelectorAll(".myv").forEach((b) => b.onclick = () => { setMine({ verdict: mine.verdict === b.dataset.v ? null : b.dataset.v }); openCallKeepAudio(); });
+  document.querySelectorAll(".myok").forEach((s) => s.onchange = () => setMine({ models: { ...(reviews[stem]?.models || {}), [s.dataset.m]: s.value } }));
+  $("#mynote").oninput = (e) => setMine({ note: e.target.value }, false);
+  document.querySelectorAll(".mt").forEach((b) => b.onclick = () => { activeModel = b.dataset.m; document.querySelectorAll(".mt").forEach((x) => x.classList.toggle("on", x === b)); renderModel(); });
+  $("#tr").onclick = (e) => { const t = e.target.closest(".turn"); if (t) seek(+t.dataset.t); };
+  renderModel();
+  loadAudio(c);
+}
+
+// Re-render del detalle sin recargar el audio (al marcar mi veredicto).
+function openCallKeepAudio() {
+  document.querySelectorAll(".myv").forEach((b) => b.classList.toggle("on", reviews[current.stem]?.verdict === b.dataset.v));
+  renderList();
+}
+
+function setMine(patch, rerenderList = true) {
+  reviews[current.stem] = { ...(reviews[current.stem] || {}), ...patch, at: new Date().toISOString() };
+  saveReviews();
+  if (rerenderList) renderList();
+}
+
+function renderModel() {
+  const c = current, r = c.results[version]?.[activeModel];
+  let h = "";
+  if (!r || !r.verdict) h = `<p class="note">Sin resultado de este modelo en la versión ${esc(version)}.</p>`;
+  else if (!r.audit) h = `<p class="note">${r.verdict === "ERROR" ? "La IA no respondió: " + esc(r.error || "error") : "Solo hay detalle para la versión actual."}</p>`;
+  else {
+    const a = r.audit, info = a.informacion_seguro || {};
+    h += `<p style="font-size:13px"><b>Resumen:</b> ${esc(a.resumen)}</p>`;
+    if (info.estado && info.estado !== "OK") h += `<p style="font-size:13px"><span class="chip DUDOSA">${info.estado === "SIN_FICHA" ? "Sin información del seguro" : "La ficha no corresponde"}</span> ${esc(info.comentario)}</p>`;
+    for (const g of a.gestiones || []) h += `<p class="note">Según la grabación: <b>${esc(g.resultado_grabacion)}</b> · objeciones: ${esc(g.n_objeciones)} · motivos del cliente: ${esc((g.motivos_renuncia || []).join(", ") || "—")}</p>`;
+    const order = { incumple: 0, indeterminado: 1, cumple: 2, no_aplica: 3 };
+    const crit = [...(a.criterios || [])].sort((x, y) => (order[x.estado] ?? 9) - (order[y.estado] ?? 9) || x.id - y.id);
+    const block = (cr) => {
+      const cls = cr.estado === "incumple" ? "RECHAZADA" : cr.estado === "indeterminado" ? "DUDOSA" : "APROBADA";
+      const ev = (cr.evidencia || []).map((e) => { const s = parseT(e.t); return `<div class="ev">${s != null ? `<span class="ts" data-seek="${s}">${esc(e.t)}</span>` : esc(e.t || "")} ${esc(e.hablante)}: “${esc(e.cita)}”</div>`; }).join("");
+      return `<div class="crit"><span class="chip ${cls}">${esc(cr.estado)}</span> <b>${cr.id}. ${esc(D.criteria[cr.id] || "")}</b> <small style="color:var(--muted)">confianza ${esc(cr.confianza)}</small><div class="c">${esc(cr.comentario)}</div>${ev}</div>`;
+    };
+    const main = crit.filter((x) => x.estado === "incumple" || x.estado === "indeterminado");
+    h += main.length ? main.map(block).join("") : `<p class="note">Sin motivos incumplidos ni indeterminados.</p>`;
+    const rest = crit.filter((x) => !main.includes(x));
+    h += `<details><summary>Ver los ${rest.length} motivos que cumple o no aplican</summary>${rest.map(block).join("")}</details>`;
+  }
+  $("#mres").innerHTML = h;
+  $("#mres").onclick = (e) => { const t = e.target.closest("[data-seek]"); if (t) seek(+t.dataset.seek, true); };
+}
+
+async function loadAudio(c) {
+  const player = $("#player");
+  if (audioUrl) { URL.revokeObjectURL(audioUrl); audioUrl = null; }
+  try {
+    // Se carga como blob: así se puede saltar a cualquier punto aunque el servidor no soporte Range.
+    const res = await fetch(c.audio);
+    if (!res.ok) throw new Error(res.status);
+    const blob = await res.blob();
+    if (current !== c) return;
+    audioUrl = URL.createObjectURL(new Blob([blob], { type: "audio/wav" }));
+    player.src = audioUrl;
+    $("#astate").textContent = "";
+  } catch {
+    player.src = c.audio;
+    $("#astate").textContent = "Abre la página con el servidor local para escuchar el audio.";
+  }
+  let last = -1;
+  player.ontimeupdate = () => { const s = Math.floor(player.currentTime); if (s !== last) { last = s; syncTranscript(player.currentTime); } };
+}
+
+function seek(sec, highlight) {
+  const p = $("#player");
+  if (!p) return;
+  p.currentTime = Math.max(0, sec - 1);
+  p.play().catch(() => {});
+  if (highlight) {
+    document.querySelectorAll(".turn.hl").forEach((x) => x.classList.remove("hl"));
+    const turns = [...document.querySelectorAll(".turn")];
+    const t = turns.filter((x) => +x.dataset.t <= sec + 1).pop();
+    if (t) { t.classList.add("hl"); t.scrollIntoView({ block: "center", behavior: "smooth" }); }
+  }
+}
+
+function syncTranscript(t) {
+  const turns = [...document.querySelectorAll(".turn")];
+  let on = null;
+  for (const el of turns) { el.classList.remove("on"); if (+el.dataset.t <= t + 0.5) on = el; }
+  if (on) { on.classList.add("on"); const box = $("#tr"); if (!$("#player").paused) box.scrollTo({ top: on.offsetTop - box.offsetTop - box.clientHeight / 3, behavior: "smooth" }); }
+}
+
+function step(d) {
+  if (!filtered.length) return;
+  const i = filtered.findIndex((c) => c.stem === current?.stem);
+  const n = filtered[Math.min(filtered.length - 1, Math.max(0, i + d))];
+  if (n) { openCall(n.stem); document.querySelector(`#list tr[data-s="${n.stem}"]`)?.scrollIntoView({ block: "nearest" }); }
+}
+
+document.addEventListener("keydown", (e) => {
+  if ($("#rev").hidden || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+  if (e.key === "j") step(1);
+  if (e.key === "k") step(-1);
+  if (e.key === " " && $("#player")) { e.preventDefault(); const p = $("#player"); p.paused ? p.play() : p.pause(); }
+});
+
+function exportCsv() {
+  const cols = ["llamada", "grabacion", "excel", ...D.models.map((m) => `ia_${m}`), "mi_veredicto", ...D.models.map((m) => `acerto_${m}`), "nota", "revisado_en"];
+  const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const lines = [cols.join(",")].concat(D.calls.filter((c) => reviews[c.stem]).map((c) => {
+    const r = reviews[c.stem];
+    return [c.id, c.recording, c.real, ...D.models.map((m) => verdictOf(c, m) || ""), r.verdict === "DUDOSA" ? "POR REVISAR" : r.verdict || "", ...D.models.map((m) => ({ ok: "si", bad: "no" })[r.models?.[m]] || ""), r.note || "", r.at || ""].map(q).join(",");
+  }));
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["﻿" + lines.join("\n")], { type: "text/csv;charset=utf-8" }));
+  a.download = `revision_capa2_${version}.csv`;
+  a.click();
+}
+
+// ---------- Tabs / versión ----------
+function show(tab) {
+  $("#dash").hidden = tab !== "dash"; $("#rev").hidden = tab !== "rev";
+  $("#t-dash").classList.toggle("on", tab === "dash"); $("#t-rev").classList.toggle("on", tab === "rev");
+  try { localStorage.setItem("l2-tab", tab); } catch {}
+}
+$("#t-dash").onclick = () => show("dash");
+$("#t-rev").onclick = () => show("rev");
+$("#ver").onchange = (e) => { version = e.target.value; renderDash(); renderList(); if (current) openCall(current.stem); };
+renderDash();
+renderRevShell();
+let startTab = "dash";
+try { startTab = localStorage.getItem("l2-tab") || "dash"; } catch {}
+show(startTab);
+</script>
+</body>
+</html>

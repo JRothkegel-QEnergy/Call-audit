@@ -26,6 +26,7 @@ import openpyxl
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "data" / "catalog" / "products.json"
 
+CHANNELS = {"MUS", "SALESFORCE"}
 PREMIUM_TYPES = {"mensual": "mensual", "anual": "anual", "crédito": "credito", "credito": "credito"}
 NON_CANCELLABLE = {
     "derivar a sucursal": "NO_RENUNCIABLE_SUCURSAL",
@@ -85,10 +86,16 @@ def main() -> None:
     products = []
     for p in rows(wb, "Productos"):
         pid = p["ID"]
-        system_names = [n.strip() for n in p["Nombre en sistema"].split(" / ")]
+        # En las fichas HDI la columna trae el canal ("MUS", "Salesforce") en vez del nombre en sistema, o viene vacía:
+        # esos seguros se encuentran por nombre de producto (catalog_match.py).
+        names = [n.strip() for n in (p["Nombre en sistema"] or "").split(" / ") if n.strip()]
+        channels = [n for n in names if normalize(n) in CHANNELS]
+        system_names = [n for n in names if normalize(n) not in CHANNELS]
         products.append({
             "id": pid,
             "system_names": system_names,
+            "channels": channels,
+            "source_sheet": p.get("Hoja original"),
             "name": p["Producto"],
             "insurer": p["Compañía"],
             "category": "RETENIBLE" if (p["Grupo"] or "").lower() == "retenible" else p["Grupo"],

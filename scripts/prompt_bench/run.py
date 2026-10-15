@@ -97,7 +97,10 @@ def cost_usd(cfg: dict, usage: dict) -> float | None:
 def call_anthropic(cfg: dict, system: str, user: str) -> tuple[str, str, dict]:
     import anthropic
 
-    client = anthropic.Anthropic(api_key=api_key_for("anthropic"))
+    # Las keys que no están asignadas a un workspace exigen el header anthropic-workspace-id.
+    workspace = os.environ.get("ANTHROPIC_WORKSPACE_ID")
+    headers = {"anthropic-workspace-id": workspace} if workspace else None
+    client = anthropic.Anthropic(api_key=api_key_for("anthropic"), default_headers=headers)
     params = {
         "model": cfg["model"],
         "max_tokens": cfg.get("max_tokens", 16000),
@@ -110,7 +113,9 @@ def call_anthropic(cfg: dict, system: str, user: str) -> tuple[str, str, dict]:
         params["extra_body"] = {"temperature": cfg["temperature"]}
     if "effort" in cfg:
         params["output_config"] = {"effort": cfg["effort"]}
-    response = client.messages.create(**params)
+    # Streaming: sobre ~21.000 tokens de salida el SDK exige stream (llamadas reales largas lo necesitan).
+    with client.messages.stream(**params) as stream:
+        response = stream.get_final_message()
     if response.stop_reason in ("max_tokens", "refusal"):
         raise RuntimeError(f"stop_reason={response.stop_reason}")
     text = "".join(block.text for block in response.content if block.type == "text")

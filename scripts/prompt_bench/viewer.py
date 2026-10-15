@@ -3,12 +3,12 @@
 Uso:
     python scripts/prompt_bench/viewer.py              # usa results/
     python scripts/prompt_bench/viewer.py <carpeta>    # otra carpeta, ej. una de archive/
+    python scripts/prompt_bench/viewer.py <resultados> --calls <carpeta_llamadas>   # llamadas reales (real_calls.py)
 
 Escribe <carpeta>/viewer.html (autocontenido, se abre con doble clic en el navegador).
 """
 
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -16,7 +16,7 @@ from run import extract_audit
 
 ROOT = Path(__file__).resolve().parents[2]
 CALLS_DIR = ROOT / "tests" / "fixtures" / "calls"
-RESULTS_DIR = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parent / "results"
+RESULTS_DIR = Path(__file__).resolve().parent / "results"
 
 # Texto oficial de la "Pauta Calidad Actualizada" del cliente.
 CRITERIA = {
@@ -66,7 +66,7 @@ def parse_response(text: str) -> dict | None:
 def collect() -> dict:
     calls = []
     models = sorted(d.name for d in RESULTS_DIR.iterdir() if d.is_dir()) if RESULTS_DIR.exists() else []
-    for path in sorted(CALLS_DIR.glob("synth_*.json")):
+    for path in sorted(p for p in CALLS_DIR.glob("*.json") if p.stem.startswith(("synth_", "call_"))):
         call = json.loads(path.read_text(encoding="utf-8"))
         outputs = {}
         for model in models:
@@ -84,7 +84,11 @@ def collect() -> dict:
                 entry["meta"] = json.loads(Path(f"{base}.meta.json").read_text(encoding="utf-8"))
             outputs[model] = entry
         calls.append({"stem": path.stem, "call": call, "outputs": outputs})
-    return {"models": models, "criteria": CRITERIA, "calls": calls, "source": str(RESULTS_DIR.relative_to(ROOT))}
+    try:
+        source = str(RESULTS_DIR.relative_to(ROOT))
+    except ValueError:
+        source = str(RESULTS_DIR)
+    return {"models": models, "criteria": CRITERIA, "calls": calls, "source": source}
 
 
 HTML = r"""<!doctype html>
@@ -169,7 +173,23 @@ let current = 0, onlyDiff = true, selected = null;
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const norm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9ñ ]/g, " ").replace(/\s+/g, " ").trim();
 
+// Llamadas reales: el Excel solo trae el veredicto de la llamada (findings = null), no los motivos.
+const isReal = call => call.expected.findings == null;
+function realVerdict(call, out) {
+  const crit = (out?.response?.criterios || []).filter(c => !(call.expected.unevaluable || []).includes(Number(c.id)));
+  if (!out?.response) return "ERROR";
+  if (crit.some(c => c.estado === "incumple")) return "RECHAZADA";
+  const infoOk = (out.response.informacion_seguro?.estado || "OK") === "OK";
+  return crit.some(c => c.estado === "indeterminado") || !infoOk ? "DUDOSA" : "APROBADA";
+}
+const VCLS = { RECHAZADA: "s-non_compliant", DUDOSA: "s-uncertain", APROBADA: "s-compliant", ERROR: "s-missing" };
+function verdictBadge(call, out) {
+  const v = realVerdict(call, out), real = call.expected.call_verdict;
+  const mark = v === "APROBADA" || v === "RECHAZADA" ? (v === real ? " ✓" : " ✗") : "";
+  return `<span class="badge ${VCLS[v]} ${mark === " ✓" ? "hit" : mark ? "miss" : ""}">${v === "DUDOSA" ? "POR REVISAR" : v}${mark}</span>`;
+}
 function expectedStatus(call, id) {
+  if (isReal(call)) return { status: "unknown", note: "" };
   const f = call.expected.findings.find(f => f.criterion_id === id);
   if (!f) return { status: "ok_or_na", note: "" };
   return { status: f.status === "non_compliant" ? "non_compliant" : "uncertain", note: f.note };
@@ -188,7 +208,10 @@ function quoteFound(call, quote) {
 function renderNav() {
   document.getElementById("nav").innerHTML =
     `<h1>Visor prompt bench</h1><div class="src">${esc(DATA.source)} · ${DATA.models.length} modelos</div>` +
-    DATA.calls.map((c, i) => `<button class="${i === current ? "active" : ""}" onclick="go(${i})">${esc(c.call.call_id)}<small>${esc(c.call.title)}</small></button>`).join("");
+    DATA.calls.map((c, i) => {
+      const extra = isReal(c.call) ? ` · ${DATA.models.map(n => { const v = realVerdict(c.call, c.outputs[n]); return v === c.call.expected.call_verdict ? "✓" : v === "DUDOSA" ? "?" : "✗"; }).join("")}` : "";
+      return `<button class="${i === current ? "active" : ""}" onclick="go(${i})">${esc(c.call.call_id)}<small>${esc(c.call.title)}${extra}</small></button>`;
+    }).join("");
 }
 function go(i) { current = i; selected = null; renderNav(); renderMain(); window.scrollTo(0, 0); }
 
@@ -198,8 +221,8 @@ function renderMain() {
   const exp = call.expected;
   const policies = m.policies.map(p => `<li>${esc(p.name)} · N° de seguro <b>${esc(p.mus_a_neto)}</b> · medio de pago: ${esc(p.payment_method)}</li>`).join("");
   const typ = m.typification.length ? m.typification.map(t => `<li>${esc(t.mus_a_neto)}: ${esc(t.outcome)} · ${esc(t.reason)}</li>`).join("") : "<li>(sin tipificación)</li>";
-  const expList = exp.findings.length ? exp.findings.map(f => `<li><b>${f.criterion_id}</b> ${esc(f.status)}: ${esc(f.note)}</li>`).join("") : "<li>Ninguno: la llamada cumple.</li>";
-  const outcomes = exp.outcomes.map(o => `<li>${esc(o.mus_a_neto)}: ${esc(o.outcome)} · ${esc((o.cancellation_reasons || []).join(" / ") || "sin motivo")} · ${o.objections} objeciones</li>`).join("");
+  const expList = isReal(call) ? `<li>Excel: <b>${esc(exp.call_verdict)}</b> (sin detalle de motivos)</li>` : exp.findings.length ? exp.findings.map(f => `<li><b>${f.criterion_id}</b> ${esc(f.status)}: ${esc(f.note)}</li>`).join("") : "<li>Ninguno: la llamada cumple.</li>";
+  const outcomes = (exp.outcomes || []).map(o => `<li>${esc(o.mus_a_neto)}: ${esc(o.outcome)} · ${esc((o.cancellation_reasons || []).join(" / ") || "sin motivo")} · ${o.objections} objeciones</li>`).join("");
 
   // Gestiones según cada modelo
   const gestRows = DATA.models.map(name => {
@@ -207,7 +230,7 @@ function renderMain() {
     if (!out?.response) return `<tr><td>${esc(name)}</td><td colspan="5" class="err">${esc(out?.error || "sin respuesta")}</td></tr>`;
     const g = out.response.gestiones || [];
     return g.map((x, k) => {
-      const e = exp.outcomes.find(o => o.mus_a_neto === String(x.mus_a_neto));
+      const e = (exp.outcomes || []).find(o => o.mus_a_neto === String(x.mus_a_neto));
       const ok = (a, b) => e ? (a === b ? "" : ` style="color:var(--bad);font-weight:600"`) : "";
       const reasons = (x.motivos_renuncia || []).join(" / ");
       const args = (x.argumentos_retencion || []).map(a => a.tipo).join(" → ");
@@ -229,38 +252,43 @@ function renderMain() {
       const isSel = selected && selected.model === model && selected.id === id;
       return { model, status: c.status, cls, html: `<span class="badge s-${c.status} ${cls} ${isSel ? "sel" : ""}" onclick="pick('${model}',${id})" title="${esc(c.comentario)}">${LABEL[c.status]}</span>` };
     });
-    const interesting = e.status !== "ok_or_na" || cells.some(x => x.status === "non_compliant" || x.status === "uncertain");
+    const interesting = !["ok_or_na", "unknown"].includes(e.status) || cells.some(x => x.status === "non_compliant" || x.status === "uncertain");
     if (onlyDiff && !interesting) return "";
-    const expBadge = e.status === "ok_or_na" ? `<span class="badge s-not_applicable">cumple / n.a.</span>` : `<span class="badge s-${e.status}" title="${esc(e.note)}">${LABEL[e.status]}</span>`;
-    return `<tr><td class="crit"><b>${id}</b>${esc(name)}</td><td>${expBadge}</td>${cells.map(x => `<td>${x.html}</td>`).join("")}</tr>`;
+    const expBadge = e.status === "unknown" ? `<span class="badge s-not_applicable">sin dato</span>` : e.status === "ok_or_na" ? `<span class="badge s-not_applicable">cumple / n.a.</span>` : `<span class="badge s-${e.status}" title="${esc(e.note)}">${LABEL[e.status]}</span>`;
+    const unev = (exp.unevaluable || []).includes(id) ? ` <span class="tag">(no cuenta: falta la gestión tipificada)</span>` : "";
+    return `<tr><td class="crit"><b>${id}</b>${esc(name)}${unev}</td><td>${expBadge}</td>${cells.map(x => `<td>${x.html}</td>`).join("")}</tr>`;
   }).join("");
 
   const transcript = call.transcript.map((t, i) => {
     const s = Math.floor(t.start_ms / 1000);
-    return `<div class="turn ${t.channel}" id="turn-${i}"><span class="t">${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}</span><span class="who">${t.channel === "agent" ? "AGENTE" : "CLIENTE"}</span><span>${esc(t.text)}</span></div>`;
+    return `<div class="turn ${t.channel}" id="turn-${i}"><span class="t">${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}</span><span class="who">${t.channel === "agent" ? "AGENTE" : t.channel === "customer" ? "CLIENTE" : "OTRO"}</span><span>${esc(t.text)}</span></div>`;
   }).join("");
 
   const summaries = DATA.models.map(name => {
     const out = outputs[name];
     const meta = out?.meta;
     const info = meta ? `${esc(meta.returned_model)} · ${(meta.latency_ms / 1000).toFixed(1)} s${meta.cost_usd != null ? ` · ${meta.cost_usd.toFixed(4)} USD` : ""}` : "";
-    return `<li><b>${esc(name)}</b> <span class="tag">${info}</span><br>${out?.response ? esc(out.response.resumen) : `<span class="err">${esc(out?.error || "sin respuesta")}</span>`}</li>`;
+    const vb = isReal(call) ? verdictBadge(call, out) + " " : "";
+    const info = out?.response?.informacion_seguro;
+    const infoNote = info && info.estado && info.estado !== "OK" ? `<br><span class="badge s-uncertain">${esc(info.estado)}</span> ${esc(info.comentario)}` : "";
+    return `<li>${vb}<b>${esc(name)}</b> <span class="tag">${info}</span><br>${out?.response ? esc(out.response.resumen) + infoNote : `<span class="err">${esc(out?.error || "sin respuesta")}</span>`}</li>`;
   }).join("");
 
   document.getElementById("main").innerHTML = `
     <h2>${esc(call.call_id)} · ${esc(call.title)}</h2>
-    <p class="desc">${esc(call.description)}</p>
+    <p class="desc">${esc(call.description)}${call.audio_href ? ` · <a href="${esc(call.audio_href)}" target="_blank">Escuchar el audio</a>` : ""}</p>
+    ${isReal(call) ? `<div class="card" style="margin-bottom:12px"><h3>Veredicto de cada IA vs. Excel (${esc(exp.call_verdict)})</h3>${DATA.models.map(n => `<div style="margin:4px 0">${verdictBadge(call, outputs[n])} ${esc(n)}</div>`).join("")}<div class="tag" style="margin-top:6px">RECHAZADA = al menos un incumple · POR REVISAR = solo indeterminados o sin información del seguro · motivos ${(exp.unevaluable || []).join(", ")} no cuentan</div></div>` : ""}
     <div class="cards">
       <div class="card"><h3>Metadatos</h3><ul>${policies}</ul><div class="tag" style="margin-top:6px">Agente ${esc(m.agent_id)} · ${m.duration_sec} s · esperas: ${JSON.stringify(m.holds_sec)}</div></div>
       <div class="card"><h3>Tipificación registrada</h3><ul>${typ}</ul></div>
-      <div class="card"><h3>Esperado (${esc(exp.call_verdict)})</h3><ul>${expList}</ul><h3 style="margin-top:10px">Gestiones esperadas</h3><ul>${outcomes}</ul></div>
+      <div class="card"><h3>Esperado (${esc(exp.call_verdict)})</h3><ul>${expList}</ul>${outcomes ? `<h3 style="margin-top:10px">Gestiones esperadas</h3><ul>${outcomes}</ul>` : ""}</div>
     </div>
     <div class="toolbar">
       <label><input type="checkbox" ${onlyDiff ? "checked" : ""} onchange="onlyDiff=this.checked;renderMain()"> Solo motivos con hallazgos</label>
       <span class="legend">Borde verde: acierto · borde rojo punteado: no coincide con lo esperado · clic en un estado para ver comentario y citas</span>
     </div>
     <div class="tablewrap"><table>
-      <thead><tr><th>Motivo</th><th>Esperado</th>${DATA.models.map(n => `<th>${esc(n)}</th>`).join("")}</tr></thead>
+      <thead><tr><th>Motivo</th><th>${isReal(call) ? "Excel" : "Esperado"}</th>${DATA.models.map(n => `<th>${esc(n)}</th>`).join("")}</tr></thead>
       <tbody>${rows || `<tr><td colspan="${DATA.models.length + 2}">Ningún modelo ni el esperado marcan hallazgos.</td></tr>`}</tbody>
     </table></div>
     <div class="detail" id="detail">${renderDetail()}</div>
@@ -307,6 +335,14 @@ renderMain();
 
 
 def main() -> None:
+    global RESULTS_DIR, CALLS_DIR
+    args = sys.argv[1:]
+    if "--calls" in args:
+        i = args.index("--calls")
+        CALLS_DIR = Path(args[i + 1]).resolve()
+        del args[i : i + 2]
+    if args:
+        RESULTS_DIR = Path(args[0]).resolve()
     data = collect()
     out = RESULTS_DIR / "viewer.html"
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")

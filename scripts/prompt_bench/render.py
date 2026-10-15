@@ -52,6 +52,17 @@ CATEGORY_RULES = {
     "NO_RENUNCIABLE_SUBSIDIADO": "Subsidiado MINVU, obligatorio. No se puede renunciar; el cliente no paga o paga solo una parte.",
     "NO_RENUNCIABLE_OBLIGATORIO": "Obligatorio (SOAP). No se renuncia ni se reemplaza; si el cliente insiste, que llame a la compañía.",
 }
+# Beneficios de la compañía, comunes a toda póliza MetLife. El Excel de apoyo no los trae y casi todos los ejecutivos
+# los mencionan: sin este bloque la IA marcaba SIN_FICHA. Contenido genérico, sin porcentajes ni teléfonos, hasta que
+# el cliente confirme el detalle (docs/client-open-questions.md, n.º 26).
+METLIFE_BENEFITS = (
+    "Beneficios adicionales MetLife (comunes a todas las pólizas MetLife, no son coberturas del seguro): descuentos "
+    "en convenios de salud y centros médicos, dental, ópticas y oftalmología, farmacias, laboratorio e imágenes, "
+    "deporte, tiempo libre, belleza, bienestar y gourmet. Se revisan en el portal de beneficios adicionales de "
+    "metlife.cl; el cliente se identifica con su RUT y menciona el convenio MetLife. Porcentajes y convenios varían "
+    "y no están en esta ficha: no los contrastes."
+)
+
 # Las celdas de detalle a veces traen párrafos largos (causales, documentos). Se recortan para no inflar el prompt.
 MAX_DETAIL = 900
 MAX_DOCUMENTS = 300
@@ -122,6 +133,18 @@ def join_fields(*pairs: tuple[str, str | None]) -> str:
     return ". ".join(f"{label}: {value}" if label else value for label, value in parts if value)
 
 
+def contract_lines(policy: dict) -> str:
+    """Plan, prima y monto del CONTRATO del cliente (sistema de BancoEstado). Las llamadas sintéticas no los traen:
+    queda vacío y la ficha no cambia. Pueden diferir de la ficha general (planes antiguos, stock, migraciones)."""
+    fields = [
+        ("plan contratado", policy.get("plan")),
+        ("prima del cliente", policy.get("premium")),
+        ("periodicidad de la prima", policy.get("periodicity")),
+        ("monto asegurado del cliente", policy.get("insured_amount")),
+    ]
+    return "".join(f"\n- {label}: {value}" for label, value in fields if value)
+
+
 def render_policy(n: int, policy: dict, catalog: dict, templates: tuple[str, str]) -> str:
     product = find_product(policy["name"], catalog)
     premium, refund = PREMIUM[product["premium_type"]]
@@ -132,6 +155,7 @@ def render_policy(n: int, policy: dict, catalog: dict, templates: tuple[str, str
         "n_poliza": policy.get("policy_number") or NO_DATA,
         "inicio_vigencia": policy.get("start_date") or NO_DATA,
         "medio_pago": payment_description(policy["payment_method"], catalog),
+        "datos_contrato": contract_lines(policy),
         "id_producto": product["id"],
         "nombre_real": product["name"],
         "compania": product.get("insurer") or NO_DATA,
@@ -160,6 +184,8 @@ def render_policy(n: int, policy: dict, catalog: dict, templates: tuple[str, str
         join_fields(("", a["name"]), ("", short(a.get("detail"), 400)), ("eventos", a.get("events")), ("tope", a.get("cap")), ("fono", a.get("phone")))
         for a in product["assistances"]
     ]
+    if "metlife" in (product.get("insurer") or "").lower():
+        assistances.append(METLIFE_BENEFITS)
     premiums = [
         join_fields(("", r.get("plan")), ("", r.get("insured")), ("edad", r.get("age_band")), ("monto asegurado", r.get("amount_insured")),
                     ("prima UF", r.get("premium_uf")), ("prima $ aprox.", r.get("premium_clp")), ("", r.get("periodicity")))

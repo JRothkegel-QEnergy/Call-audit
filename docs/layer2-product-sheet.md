@@ -19,7 +19,7 @@ Datos de la llamada (BancoEstado):
 - N° de seguro (MUS A Neto): {mus_a_neto}
 - N° de póliza: {n_poliza}
 - inicio de vigencia: {inicio_vigencia}
-- medio de pago: {medio_pago}
+- medio de pago: {medio_pago}{datos_contrato}
 
 Ficha del producto ({id_producto}: {nombre_real}):
 - compañía: {compania}
@@ -47,7 +47,7 @@ Datos de la llamada (BancoEstado):
 - N° de seguro (MUS A Neto): {mus_a_neto}
 - N° de póliza: {n_poliza}
 - inicio de vigencia: {inicio_vigencia}
-- medio de pago: {medio_pago}
+- medio de pago: {medio_pago}{datos_contrato}
 
 Ficha del producto: no hay ficha en el catálogo para este seguro.
 - nombre real: {nombre_real}

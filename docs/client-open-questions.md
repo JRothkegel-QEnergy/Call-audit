@@ -4,9 +4,9 @@ Datos que **no** se deben inventar. Mientras sigan abiertos, el código y las r�
 
 | # | Pendiente | Impacta a | Estado |
 |---|---|---|---|
-| 1 | Gravedad de cada uno de los 33 motivos de no calidad | Rúbrica, motor de decisión, orden de la cola | Abierto |
+| 1 | Gravedad de cada uno de los 33 motivos de no calidad | Rúbrica, motor de decisión, orden de la cola | Abierto. Propuesta empírica 2026-10-15 (100 llamadas reales): leves, no rechazan, 2, 3, 16, 18, 25, 28, 30, 32; el resto grave (`MINOR_CRITERIA` en `scripts/prompt_bench/real_calls.py`). Confirmar con el cliente |
 | 2 | Guion exacto de cierre y de acreditación | Capa 1 (reglas) | Resuelto 2026-10-09: Script Retención BECS (julio 2026), incorporado en el prompt 2.1 |
-| 3 | Umbral de espera excesiva | Capa 1 (tiempos) | Resuelto 2026-10-09: más de 30 s sin hablarle al cliente (nota de la pauta, motivo 1) |
+| 3 | Umbral de espera excesiva | Capa 1 (tiempos) | Resuelto 2026-10-09: más de 30 s sin hablarle al cliente (nota de la pauta, motivo 1). Reabierto 2026-10-15: en las 100 llamadas reales el auditor aprobó silencios de 31 a 35 s y rechazó desde 40 s; el bench usa 35 s (`HOLD_LIMIT_SEC`). ¿El auditor mide la espera del sistema o el silencio en la grabación? |
 | 4 | Seguros retenibles o irrenunciables por canal | Rúbrica, capa 2 | Resuelto 2026-10-09: hoja RESUMEN del Excel "Apoyo nuevo v1" (`scripts/prompt_bench/extract_catalog.py`) |
 | 5 | Acceso a llamadas ya auditadas (golden set) | Evaluación, metas de FP/FN | Abierto |
 | 6 | ¿El audio puede salir de Chile? DPA firmado (Ley 21.719) | Elección de proveedor ASR/LLM | Abierto |
@@ -24,3 +24,10 @@ Datos que **no** se deben inventar. Mientras sigan abiertos, el código y las r�
 | 18 | No informar la devolución automática al renunciar un seguro de prima única o anual: ¿motivo 28 o 29? | Motivos 28, 29 | Abierto (el prompt lo deja como observación) |
 | 19 | ¿Se evalúa el aviso de grabación del saludo y los elementos del cierre que no están en la pauta (fecha, vigencia, N° de póliza, N° de renuncia)? | Motivo 29 | Abierto (el prompt los deja como observación) |
 | 20 | Observaciones del Excel estandarizado (hoja Observaciones): primas desplazadas en Vida e Invalidez, pólizas de 8 dígitos en Máxima Protección, dos reglas de apoyo solidario, pólizas faltantes de Cardif | Fichas | Abierto |
+| 21 | Lista cerrada de motivos de corrección que usa el auditor al cambiar un hallazgo de la IA | Vista del auditor (HU-AUD-03), métricas de la IA | Abierto (propuesta en HU-AUD-03, tomada del prototipo) |
+| 22 | ¿El supervisor aprueba todas las revisiones de los auditores o solo una muestra? | Flujo de cierre de casos (HU-SUP-07) | Resuelto 2026-10-14 (Johannes): por ahora aprueba **todas**; más adelante (`Post`) podrá configurar un % de muestreo de revisiones aceptadas y rechazadas |
+| 23 | % de muestreo de llamadas "cumple" para revisión humana y metas de productividad del auditor | Cola del auditor (HU-AUD-07), dashboard de auditores | Abierto (el prototipo propone 5 %) |
+| 24 | ¿A qué sistema QA o de gestión se envían las tareas de seguimiento de llamadas que no cumplen, y cómo se integra? | Exportación (HU-SUP-12) | Abierto |
+| 25 | ¿Qué proveedor de SSO usan los auditores y supervisores del cliente (Microsoft Entra ID, Google Workspace, otro)? ¿SAML u OIDC? | Login (front), autenticación (backend) | Abierto (el login se diseña agnóstico: botón SSO genérico + cuenta propia) |
+| 26 | Beneficios adicionales MetLife: lista de convenios, porcentajes y teléfono (Fono Beneficios) vigentes. Hoy la ficha solo trae un bloque genérico sin cifras (`METLIFE_BENEFITS` en `render.py`) | Capa 2 (motivos 2 y 6, regla 13) | Abierto |
+| 27 | Retiro del ahorro en seguros con ahorro (Muerte Accidental con Ahorro / AP con Ahorro): los ejecutivos dicen "1 retiro total o hasta 4 parciales al año, uno por mes"; la ficha dice que se retira cuando el cliente quiera. ¿Cuál es la regla vigente? | Capa 2, motivos 2 y 6; catálogo | Abierto |
