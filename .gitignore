@@ -36,6 +36,7 @@ datasets/
 golden_set/data/
 exports/
 transcripts/
+revision/
 
 # Claude Code (config local personal)
 .claude/settings.local.json
