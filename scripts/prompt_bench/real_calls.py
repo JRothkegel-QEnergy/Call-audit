@@ -330,10 +330,16 @@ def run_models(args, index: list[dict]) -> None:
 # 35 s y rechazó desde 40 s. TBD con el cliente (docs/client-open-questions.md, n.º 3).
 HOLD_LIMIT_SEC = 35
 
-# Severidad por motivo: solo los graves rechazan la llamada; los leves quedan como retroalimentación. Propuesta
+# Severidad por motivo: todo incumplimiento rechaza, pero si solo hay leves el rechazo queda marcado para revisión
+# (hasta v2.7 los leves no rechazaban; el usuario pidió rechazarlos con marca el 2026-10-16). Propuesta
 # empírica sacada de las 100 llamadas reales (transcripts/layer2_real_100/analisis_discrepancias_v2.6.md): el auditor
 # aprobó llamadas con 3, 18, 28 por omisión, 30, 32, 16 y 25. TBD con el cliente (client-open-questions, n.º 1).
 MINOR_CRITERIA = {2, 3, 16, 18, 25, 28, 30, 32}
+
+
+def minor_only(bad: list[int], minor: set[int]) -> bool:
+    """Rechazo leve: hay motivos incumplidos y todos son de `minor`."""
+    return bool(bad) and not set(bad) - set(minor)
 
 
 def hold_finding(holds: list[int], limit: int = HOLD_LIMIT_SEC) -> bool:
@@ -359,9 +365,10 @@ def verdict_options(args, out_dir: Path, stem: str, model: str | None = None) ->
 
 def verdict(audit: dict, unevaluable: set[int], holds: list[int] | None = None,
             minor: set[int] = frozenset(), overrides: dict[int, str] | None = None) -> tuple[str, list[int], list[int]]:
-    """APROBADA / RECHAZADA / DUDOSA. Con holds, el motivo 1 sale del código y no del LLM. Los motivos de `minor` se
-    reportan en bad/unsure pero no cambian el veredicto. `overrides` reemplaza el estado de esos motivos (2 y 6 desde
-    verify_claims.py); entonces la ficha incompleta ya no deja la llamada DUDOSA, salvo NO_CORRESPONDE.
+    """APROBADA / RECHAZADA / DUDOSA. Con holds, el motivo 1 sale del código y no del LLM. Todo motivo incumplido
+    rechaza; si son solo de `minor`, el rechazo es leve (ver minor_only) y el dashboard lo marca para revisar. Un
+    motivo de `minor` indeterminado no deja la llamada DUDOSA. `overrides` reemplaza el estado de esos motivos (2 y 6
+    desde verify_claims.py); entonces la ficha incompleta ya no deja la llamada DUDOSA, salvo NO_CORRESPONDE.
     Sin holds, minor ni overrides, se comporta como hasta v2.6."""
     crit = [c for c in audit.get("criterios", []) if c.get("id") not in unevaluable]
     if holds is not None:
@@ -370,7 +377,7 @@ def verdict(audit: dict, unevaluable: set[int], holds: list[int] | None = None,
         crit = [c for c in crit if c.get("id") not in overrides] + [{"id": k, "estado": v} for k, v in overrides.items()]
     bad = sorted({c["id"] for c in crit if c.get("estado") == "incumple"})
     unsure = sorted({c["id"] for c in crit if c.get("estado") == "indeterminado"})
-    if set(bad) - minor:
+    if bad:
         return "RECHAZADA", bad, unsure
     # Regla 13 del prompt (v2.4): sin información del seguro usable, la llamada queda por revisar.
     info = (audit.get("informacion_seguro") or {}).get("estado", "OK")

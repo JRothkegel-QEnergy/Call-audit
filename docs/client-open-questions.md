@@ -4,7 +4,7 @@ Datos que **no** se deben inventar. Mientras sigan abiertos, el código y las r�
 
 | # | Pendiente | Impacta a | Estado |
 |---|---|---|---|
-| 1 | Gravedad de cada uno de los 33 motivos de no calidad | Rúbrica, motor de decisión, orden de la cola | Abierto. Propuesta empírica 2026-10-15 (100 llamadas reales): leves, no rechazan, 2, 3, 16, 18, 25, 28, 30, 32; el resto grave (`MINOR_CRITERIA` en `scripts/prompt_bench/real_calls.py`). Confirmar con el cliente |
+| 1 | Gravedad de cada uno de los 33 motivos de no calidad | Rúbrica, motor de decisión, orden de la cola | Abierto. Propuesta empírica 2026-10-15 (100 llamadas reales): leves 2, 3, 16, 18, 25, 28, 30, 32; el resto grave. Desde 2026-10-16 los leves también rechazan, pero marcados para revisión (REC* en el dashboard) (`MINOR_CRITERIA` en `scripts/prompt_bench/real_calls.py`). Confirmar con el cliente |
 | 2 | Guion exacto de cierre y de acreditación | Capa 1 (reglas) | Resuelto 2026-10-09: Script Retención BECS (julio 2026), incorporado en el prompt 2.1 |
 | 3 | Umbral de espera excesiva | Capa 1 (tiempos) | Resuelto 2026-10-09: más de 30 s sin hablarle al cliente (nota de la pauta, motivo 1). Reabierto 2026-10-15: en las 100 llamadas reales el auditor aprobó silencios de 31 a 35 s y rechazó desde 40 s; el bench usa 35 s (`HOLD_LIMIT_SEC`). ¿El auditor mide la espera del sistema o el silencio en la grabación? |
 | 4 | Seguros retenibles o irrenunciables por canal | Rúbrica, capa 2 | Resuelto 2026-10-09: hoja RESUMEN del Excel "Apoyo nuevo v1" (`scripts/prompt_bench/extract_catalog.py`) |

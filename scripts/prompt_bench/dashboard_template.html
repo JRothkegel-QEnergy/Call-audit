@@ -79,6 +79,8 @@
   .RECHAZADA { background: var(--crit-soft); color: var(--crit-ink); }
   .DUDOSA { background: var(--warn-soft); color: var(--warn-ink); }
   .ERROR, .NONE { background: var(--grid); color: var(--text-2); }
+  .chip.leve { outline: 1px dashed currentColor; outline-offset: -1px; }
+  .levenote { font-size: 13px; margin: 6px 0; }
   .mk { font-weight: 700; font-size: 12px; }
   .mk.hit { color: var(--good-ink); } .mk.miss { color: var(--crit-ink); }
   /* Butterfly */
@@ -145,6 +147,10 @@ const pct = (a, b) => b ? Math.round((100 * a) / b) + "%" : "—";
 const SHOW = { APROBADA: "APROBADA", RECHAZADA: "RECHAZADA", DUDOSA: "POR REVISAR", ERROR: "ERROR" };
 const COLOR = {}; D.models.forEach((m, i) => COLOR[m] = `var(--s${i + 1})`);
 const lab = (m) => D.labels[m] || m;
+// Rechazo leve: RECHAZADA y todos los motivos incumplidos son de D.minor (lo calcula dashboard.py en minor_only).
+const MINOR = new Set(D.minor || []);
+const isLeve = (r) => !!r?.minor_only && r.verdict === "RECHAZADA";
+const leveIds = (r) => (r?.bad || []).join(", ");
 const fmtT = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 const parseT = (t) => { const p = String(t || "").split(":").map(Number); return p.some(isNaN) ? null : p.reduce((a, b) => a * 60 + b, 0); };
 let version = D.versions[0];
@@ -153,7 +159,7 @@ $("#hdrnote").textContent = `${D.calls.length} llamadas · modelos: ${D.models.m
 
 // ---------- Estadísticas ----------
 function stats(model, ver) {
-  const s = { n: 0, hit: 0, fa: 0, om: 0, rev: 0, err: 0, cost: 0, costN: 0, lat: 0, latN: 0, rHit: 0, aHit: 0, cm: { APROBADA: {}, RECHAZADA: {} } };
+  const s = { n: 0, hit: 0, fa: 0, faLeve: 0, om: 0, rev: 0, err: 0, cost: 0, costN: 0, lat: 0, latN: 0, rHit: 0, aHit: 0, cm: { APROBADA: {}, RECHAZADA: {} } };
   for (const c of D.calls) {
     const r = c.results[ver]?.[model];
     if (!r || !r.verdict) continue;
@@ -164,7 +170,7 @@ function stats(model, ver) {
     if (r.verdict === "ERROR") s.err++;
     else if (r.verdict === "DUDOSA") s.rev++;
     else if (r.verdict === c.real) { s.hit++; c.real === "RECHAZADA" ? s.rHit++ : s.aHit++; }
-    else if (r.verdict === "RECHAZADA") s.fa++;
+    else if (r.verdict === "RECHAZADA") { s.fa++; s.faLeve += isLeve(r); }
     else s.om++;
   }
   return s;
@@ -174,7 +180,7 @@ const realCount = { APROBADA: D.calls.filter((c) => c.real === "APROBADA").lengt
 function renderDash() {
   const models = D.models.filter((m) => D.calls.some((c) => c.results[version]?.[m]?.verdict));
   let h = `<p class="note">Comparación de cada IA con el <b>ESTADO_CALIDAD</b> del Excel (${realCount.APROBADA} APROBADA, ${realCount.RECHAZADA} RECHAZADA). `
-    + `La IA rechaza si marca al menos un motivo <i>incumple</i>; queda <b>por revisar</b> si solo hay motivos <i>indeterminado</i> o no encontró información del seguro.</p>`;
+    + `La IA rechaza si marca al menos un motivo <i>incumple</i> (REC* si todos son leves: conviene revisarlo); queda <b>por revisar</b> si solo hay motivos <i>indeterminado</i> o no encontró información del seguro.</p>`;
 
   // Tiles
   h += `<div class="grid">` + models.map((m) => {
@@ -182,7 +188,7 @@ function renderDash() {
     return `<div class="card"><div class="model-head"><span class="dot" style="background:${COLOR[m]}"></span>${esc(lab(m))}</div>
       <div class="tiles">
         <div class="tile"><div class="v">${pct(s.hit, s.n)}</div><div class="l">coincide con el Excel</div><div class="s">${s.hit} de ${s.n}</div></div>
-        <div class="tile"><div class="v">${s.fa}</div><div class="l">falsas alarmas</div><div class="s">IA rechaza, Excel aprueba</div></div>
+        <div class="tile"><div class="v">${s.fa}</div><div class="l">falsas alarmas</div><div class="s">IA rechaza, Excel aprueba${s.faLeve ? `<br>${s.faLeve} solo por motivos leves` : ""}</div></div>
         <div class="tile"><div class="v">${s.om}</div><div class="l">omisiones</div><div class="s">IA aprueba, Excel rechaza</div></div>
         <div class="tile"><div class="v">${s.rev}</div><div class="l">por revisar</div><div class="s">${s.err ? s.err + " con error" : "irían a un auditor"}</div></div>
         <div class="tile"><div class="v">${fmtUsd(per, 3)}</div><div class="l">costo por llamada</div><div class="s">${per != null ? "~" + fmtUsd(per * D.monthly_calls, 0) + "/mes a " + D.monthly_calls.toLocaleString("es-CL") : ""}</div></div>
@@ -299,12 +305,12 @@ try { reviews = JSON.parse(localStorage.getItem(STORE) || "{}"); } catch {}
 const REVIEW_DIR = decodeURIComponent(location.pathname.replace(/\/[^/]*$/, "")).replace(/^\//, "");
 let serverSave = false, saveTimer = null;
 const csvColumns = () => ["stem", "llamada", "grabacion", "excel", "mi_veredicto", ...D.models.map((m) => `acerto_${m}`), "nota", "revisado_en",
-  ...D.versions.flatMap((v) => D.models.map((m) => `ia_${m}_${v}`))];
+  ...D.versions.flatMap((v) => D.models.flatMap((m) => [`ia_${m}_${v}`, `ia_${m}_${v}_solo_leves`]))];
 const csvRows = () => D.calls.filter((c) => reviews[c.stem]).map((c) => {
   const r = reviews[c.stem];
   return [c.stem, c.id, c.recording, c.real, r.verdict === "DUDOSA" ? "POR REVISAR" : r.verdict || "",
     ...D.models.map((m) => ({ ok: "si", bad: "no" })[r.models?.[m]] || ""), r.note || "", r.at || "",
-    ...D.versions.flatMap((v) => D.models.map((m) => c.results[v]?.[m]?.verdict || ""))];
+    ...D.versions.flatMap((v) => D.models.flatMap((m) => [c.results[v]?.[m]?.verdict || "", isLeve(c.results[v]?.[m]) ? "si" : ""]))];
 });
 function setSaveState(text, warn = false) { const el = $("#savestate"); if (el) { el.textContent = text; el.style.color = warn ? "var(--bad, #c0392b)" : "var(--muted)"; } }
 async function pushServer() {
@@ -355,10 +361,11 @@ function renderRevShell() {
     <div class="filters">
       <input type="search" id="f-q" placeholder="Buscar ID, ejecutivo, seguro, motivo…" style="width:240px">
       <select id="f-real"><option value="">Excel: todos</option><option>APROBADA</option><option>RECHAZADA</option></select>
-      <select id="f-agree"><option value="">IA vs Excel: todas</option><option value="any">Alguna IA discrepa</option><option value="all">Todas las IA coinciden</option>${D.models.map((m) => `<option value="m:${m}">${esc(lab(m))} discrepa</option>`).join("")}</select>
+      <select id="f-agree"><option value="">IA vs Excel: todas</option><option value="any">Alguna IA discrepa</option><option value="all">Todas las IA coinciden</option><option value="leve">Alguna IA rechaza solo por leves</option>${D.models.map((m) => `<option value="m:${m}">${esc(lab(m))} discrepa</option>`).join("")}</select>
       <select id="f-ficha"><option value="">Ficha: todas</option>${fichas.map((f) => `<option>${esc(f)}</option>`).join("")}</select>
       <select id="f-rev"><option value="">Mi revisión: todas</option><option value="no">Pendientes</option><option value="yes">Revisadas</option></select>
       <span id="count" style="font-size:12px;color:var(--text-2)"></span>
+      <span style="font-size:11px;color:var(--muted)"><span class="chip RECHAZADA leve">REC*</span> = rechazada solo por motivos leves</span>
       <button class="btn" id="export">Exportar mi revisión (CSV)</button>
       <span id="savestate" style="font-size:11px;color:var(--muted)"></span>
       <span style="font-size:11px;color:var(--muted)"><kbd>j</kbd>/<kbd>k</kbd> siguiente/anterior · <kbd>espacio</kbd> play/pausa</span>
@@ -381,6 +388,7 @@ function renderList() {
     const vs = D.models.map((m) => verdictOf(c, m)).filter(Boolean);
     if (F.agree === "any" && vs.every((v) => v === c.real)) return false;
     if (F.agree === "all" && !vs.every((v) => v === c.real)) return false;
+    if (F.agree === "leve" && !D.models.some((m) => isLeve(c.results[version]?.[m]))) return false;
     if (F.agree.startsWith("m:") && verdictOf(c, F.agree.slice(2)) === c.real) return false;
     if (q && ![c.id, c.agent, c.insurance, c.reason, c.comment, c.ficha].join(" ").toLowerCase().includes(q)) return false;
     return true;
@@ -390,7 +398,16 @@ function renderList() {
   $("#list").innerHTML = `<table><thead><tr><th>ID</th><th>Seguro</th><th class="n">Min</th><th>Excel</th>${D.models.map((m) => `<th><span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m).split(" ")[0])}</th>`).join("")}<th>Yo</th></tr></thead><tbody>`
     + filtered.map((c) => `<tr data-s="${c.stem}" class="${current?.stem === c.stem ? "sel" : ""}"><td>${esc(c.id)}<div class="rv">${esc(c.agent)}</div></td><td>${esc(c.ficha || "—")}<div class="rv">${esc(c.insurance)}</div></td><td class="n">${c.minutes}</td>
       <td><span class="chip ${c.real}">${c.real === "APROBADA" ? "APR" : "REC"}</span></td>`
-      + D.models.map((m) => { const v = verdictOf(c, m); if (!v) return "<td>—</td>"; const cmp = v === "APROBADA" || v === "RECHAZADA"; return `<td><span class="chip ${v}">${v === "DUDOSA" ? "REV" : v.slice(0, 3)}</span>${cmp ? `<span class="mk ${v === c.real ? "hit" : "miss"}">${v === c.real ? "✓" : "✗"}</span>` : ""}</td>`; }).join("")
+      + D.models.map((m) => {
+        const v = verdictOf(c, m); if (!v) return "<td>—</td>";
+        const cmp = v === "APROBADA" || v === "RECHAZADA", r = c.results[version][m];
+        const mk = cmp ? `<span class="mk ${v === c.real ? "hit" : "miss"}">${v === c.real ? "✓" : "✗"}</span>` : "";
+        if (isLeve(r)) {
+          const ids = leveIds(r);
+          return `<td title="Rechazada solo por motivos leves (${ids}). Conviene revisar si de verdad amerita rechazo." aria-label="${esc(lab(m))}: rechazada solo por motivos leves (${ids}). ${v === c.real ? "Coincide" : "No coincide"} con el Excel."><span class="chip RECHAZADA leve">REC*</span>${mk}</td>`;
+        }
+        return `<td><span class="chip ${v}">${v === "DUDOSA" ? "REV" : v.slice(0, 3)}</span>${mk}</td>`;
+      }).join("")
       + `<td>${reviews[c.stem]?.verdict ? `<span class="chip ${reviews[c.stem].verdict}">${reviews[c.stem].verdict === "DUDOSA" ? "REV" : reviews[c.stem].verdict.slice(0, 3)}</span>` : `<span class="rv">pendiente</span>`}</td></tr>`).join("")
     + `</tbody></table>`;
   $("#list").onclick = (e) => { const tr = e.target.closest("tr[data-s]"); if (tr) openCall(tr.dataset.s); };
@@ -425,7 +442,7 @@ async function openCall(stem) {
       </div>
       <textarea id="mynote" placeholder="Notas: qué motivo aplica, qué se equivocó la IA, problema de transcripción…">${esc(mine.note || "")}</textarea>
     </div>
-    <div class="mtabs">${D.models.map((m) => { const v = verdictOf(c, m) || "NONE"; return `<button class="btn mt${m === activeModel ? " on" : ""}" data-m="${m}"><span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m))} <span class="chip ${v}">${SHOW[v] || "—"}</span></button>`; }).join("")}</div>
+    <div class="mtabs">${D.models.map((m) => { const v = verdictOf(c, m) || "NONE", r = c.results[version]?.[m], leve = isLeve(r); return `<button class="btn mt${m === activeModel ? " on" : ""}" data-m="${m}"><span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m))} <span class="chip ${v}${leve ? " leve" : ""}"${leve ? ` title="Rechazada solo por motivos leves (${leveIds(r)}). Conviene revisar si de verdad amerita rechazo."` : ""}>${leve ? "RECHAZADA · SOLO LEVES" : SHOW[v] || "—"}</span></button>`; }).join("")}</div>
     <div id="mres"></div>
     <details open><summary>Transcripción (clic en una línea para escuchar desde ahí)</summary><div class="tr" id="tr">${c.transcript.map(([t, ch, tx], i) => `<div class="turn ${ch}" data-t="${t}" id="turn-${i}"><span class="ts">${fmtT(t)}</span><span class="who">${ch === "agent" ? "EJECUTIVO" : ch === "customer" ? "CLIENTE" : "OTRO"}</span><span>${esc(tx)}</span></div>`).join("")}</div></details>`;
   $("#prev").onclick = () => step(-1); $("#next").onclick = () => step(1);
@@ -462,11 +479,14 @@ function renderModel() {
     if (info.estado && info.estado !== "OK") h += `<p style="font-size:13px"><span class="chip DUDOSA">${info.estado === "SIN_FICHA" ? "Sin información del seguro" : "La ficha no corresponde"}</span> ${esc(info.comentario)}</p>`;
     for (const g of a.gestiones || []) h += `<p class="note">Según la grabación: <b>${esc(g.resultado_grabacion)}</b> · objeciones: ${esc(g.n_objeciones)} · motivos del cliente: ${esc((g.motivos_renuncia || []).join(", ") || "—")}</p>`;
     const order = { incumple: 0, indeterminado: 1, cumple: 2, no_aplica: 3 };
-    const crit = [...(a.criterios || [])].sort((x, y) => (order[x.estado] ?? 9) - (order[y.estado] ?? 9) || x.id - y.id);
+    // Dentro de cada estado, los graves antes que los leves.
+    const crit = [...(a.criterios || [])].sort((x, y) => (order[x.estado] ?? 9) - (order[y.estado] ?? 9) || MINOR.has(x.id) - MINOR.has(y.id) || x.id - y.id);
+    if (isLeve(r)) h += `<p class="levenote"><span class="chip RECHAZADA leve">RECHAZADA · SOLO LEVES</span> Esta IA rechazó solo por motivos leves (${leveIds(r)}). Revisa si alguno basta para rechazar la llamada.</p>`;
     const block = (cr) => {
       const cls = cr.estado === "incumple" ? "RECHAZADA" : cr.estado === "indeterminado" ? "DUDOSA" : "APROBADA";
       const ev = (cr.evidencia || []).map((e) => { const s = parseT(e.t); return `<div class="ev">${s != null ? `<span class="ts" data-seek="${s}">${esc(e.t)}</span>` : esc(e.t || "")} ${esc(e.hablante)}: “${esc(e.cita)}”</div>`; }).join("");
-      return `<div class="crit"><span class="chip ${cls}">${esc(cr.estado)}</span> <b>${cr.id}. ${esc(D.criteria[cr.id] || "")}</b> <small style="color:var(--muted)">confianza ${esc(cr.confianza)}</small><div class="c">${esc(cr.comentario)}</div>${ev}</div>`;
+      const leve = MINOR.has(cr.id) ? ` <span class="chip NONE" title="Motivo leve: por sí solo marca la llamada para revisión">leve</span>` : "";
+      return `<div class="crit"><span class="chip ${cls}">${esc(cr.estado)}</span>${leve} <b>${cr.id}. ${esc(D.criteria[cr.id] || "")}</b> <small style="color:var(--muted)">confianza ${esc(cr.confianza)}</small><div class="c">${esc(cr.comentario)}</div>${ev}</div>`;
     };
     const main = crit.filter((x) => x.estado === "incumple" || x.estado === "indeterminado");
     h += main.length ? main.map(block).join("") : `<p class="note">Sin motivos incumplidos ni indeterminados.</p>`;

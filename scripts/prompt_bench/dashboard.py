@@ -51,7 +51,8 @@ def read_result(results: Path, model: str, stem: str, row: dict, full: bool, opt
         return item
     v, bad, unsure = real_calls.verdict(audit, real_calls.unevaluable_for(row), **options)
     info = audit.get("informacion_seguro") or {}
-    item.update(verdict=v, bad=bad, unsure=unsure, info=info.get("estado"))
+    item.update(verdict=v, bad=bad, unsure=unsure, info=info.get("estado"),
+                minor_only=real_calls.minor_only(bad, options.get("minor", set())))
     if full:
         item["audit"] = {
             "resumen": audit.get("resumen"),
@@ -117,6 +118,7 @@ def main() -> None:
         "models": models,
         "labels": {m: LABELS.get(m, m) for m in models},
         "criteria": CRITERIA,
+        "minor": [] if args.verdict == "v2.6" else sorted(real_calls.MINOR_CRITERIA),
         "calls": calls,
         "monthly_calls": real_calls.MONTHLY_CALLS,
     }
