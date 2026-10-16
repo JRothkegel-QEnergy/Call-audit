@@ -43,12 +43,35 @@ CACHE_WRITE_MULT = 1.25
 CACHE_READ_MULT = 0.10
 
 
-def extract_audit(text: str) -> dict:
-    """Saca la auditoría de la respuesta de una IA. Tolera bloques ```json, texto alrededor y modelos que
-    repiten el esquema antes de responder: devuelve el primer objeto JSON que trae "criterios" como lista."""
+def _from_simulated_tool_call(text: str) -> dict | None:
+    """Sonnet 5.5 a veces escribe la llamada a la herramienta como texto (<invoke ...><parameter name="x">...),
+    pese a la regla 12 del prompt: se arma el objeto desde los <parameter>, parseando como JSON los que lo son."""
     import re
 
+    params = re.findall(r'<parameter name="([^"]+)">(.*?)</parameter>', text, re.S)
+    if not params:
+        return None
+    obj = {}
+    for name, value in params:
+        try:
+            obj[name] = json.loads(value)
+        except json.JSONDecodeError:
+            obj[name] = value.strip()
+    return obj
+
+
+def extract_audit(text: str) -> dict:
+    """Saca la auditoría de la respuesta de una IA. Tolera bloques ```json, texto alrededor, modelos que
+    repiten el esquema antes de responder, escapes inválidos (\\$) y la llamada a la herramienta escrita como texto:
+    devuelve el primer objeto que trae "criterios" como lista."""
+    import re
+
+    simulated = _from_simulated_tool_call(text)
+    if simulated and isinstance(simulated.get("criterios"), list):
+        return simulated
     text = re.sub(r"```(?:json)?", "", text)
+    # Escapes que JSON no admite (Haiku escribe "\$17.237"): se deja el carácter sin la barra.
+    text = re.sub(r'\\([^"\\/bfnrtu])', r"\1", text)
     decoder = json.JSONDecoder()
     candidates, pos = [], text.find("{")
     while pos != -1:

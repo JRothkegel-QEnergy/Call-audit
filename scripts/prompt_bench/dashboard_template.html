@@ -294,7 +294,58 @@ document.addEventListener("mousemove", (e) => {
 const STORE = "l2-review-v1";
 let reviews = {};
 try { reviews = JSON.parse(localStorage.getItem(STORE) || "{}"); } catch {}
-const saveReviews = () => { try { localStorage.setItem(STORE, JSON.stringify(reviews)); } catch {} };
+// Con review_server.py, "Mi revisión" se guarda en revision_capa2.csv junto a este dashboard. Con un servidor
+// estático (python -m http.server) queda solo en este navegador y se exporta a mano.
+const REVIEW_DIR = decodeURIComponent(location.pathname.replace(/\/[^/]*$/, "")).replace(/^\//, "");
+let serverSave = false, saveTimer = null;
+const csvColumns = () => ["stem", "llamada", "grabacion", "excel", "mi_veredicto", ...D.models.map((m) => `acerto_${m}`), "nota", "revisado_en",
+  ...D.versions.flatMap((v) => D.models.map((m) => `ia_${m}_${v}`))];
+const csvRows = () => D.calls.filter((c) => reviews[c.stem]).map((c) => {
+  const r = reviews[c.stem];
+  return [c.stem, c.id, c.recording, c.real, r.verdict === "DUDOSA" ? "POR REVISAR" : r.verdict || "",
+    ...D.models.map((m) => ({ ok: "si", bad: "no" })[r.models?.[m]] || ""), r.note || "", r.at || "",
+    ...D.versions.flatMap((v) => D.models.map((m) => c.results[v]?.[m]?.verdict || ""))];
+});
+function setSaveState(text, warn = false) { const el = $("#savestate"); if (el) { el.textContent = text; el.style.color = warn ? "var(--bad, #c0392b)" : "var(--muted)"; } }
+async function pushServer() {
+  try {
+    const res = await fetch(`/api/review?dir=${encodeURIComponent(REVIEW_DIR)}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ columns: csvColumns(), rows: csvRows() }) });
+    if (!res.ok) throw new Error(res.status);
+    const j = await res.json();
+    setSaveState(`Guardado en ${j.file} (${j.rows} revisadas) · ${new Date().toLocaleTimeString()}`);
+  } catch (e) { setSaveState("No se pudo guardar el CSV: quedó solo en este navegador", true); }
+}
+const saveReviews = () => {
+  try { localStorage.setItem(STORE, JSON.stringify(reviews)); } catch {}
+  if (serverSave) { clearTimeout(saveTimer); setSaveState("Guardando…"); saveTimer = setTimeout(pushServer, 600); }
+};
+async function loadServerReviews() {
+  try {
+    const res = await fetch(`/api/review?dir=${encodeURIComponent(REVIEW_DIR)}`, { cache: "no-store" });
+    if (!res.ok) throw new Error(res.status);
+    const { rows, file } = await res.json();
+    serverSave = true;
+    let localOnly = false;
+    const fromCsv = {};
+    for (const row of rows) {
+      if (!row.stem) continue;
+      fromCsv[row.stem] = {
+        verdict: row.mi_veredicto === "POR REVISAR" ? "DUDOSA" : row.mi_veredicto || null,
+        models: Object.fromEntries(D.models.map((m) => [m, ({ si: "ok", no: "bad" })[row[`acerto_${m}`]] || ""])),
+        note: row.nota || "", at: row.revisado_en || "",
+      };
+    }
+    // Gana la revisión más reciente de cada llamada (CSV o navegador); las que solo estaban en el navegador se suben.
+    for (const stem of new Set([...Object.keys(fromCsv), ...Object.keys(reviews)])) {
+      const a = fromCsv[stem], b = reviews[stem];
+      if (!b || (a && (a.at || "") >= (b.at || ""))) reviews[stem] = a;
+      else if (D.calls.some((c) => c.stem === stem) && (!a || (b.at || "") > (a.at || ""))) localOnly = true;
+    }
+    try { localStorage.setItem(STORE, JSON.stringify(reviews)); } catch {}
+    setSaveState(`Revisión en ${file} (${rows.length} filas)`);
+    if (localOnly) await pushServer();
+  } catch { setSaveState("Sin review_server.py: la revisión queda solo en este navegador (usa Exportar)", true); }
+}
 let current = null, filtered = D.calls, audioUrl = null, activeModel = null;
 const F = { q: "", real: "", agree: "", ficha: "", reviewed: "" };
 
@@ -309,6 +360,7 @@ function renderRevShell() {
       <select id="f-rev"><option value="">Mi revisión: todas</option><option value="no">Pendientes</option><option value="yes">Revisadas</option></select>
       <span id="count" style="font-size:12px;color:var(--text-2)"></span>
       <button class="btn" id="export">Exportar mi revisión (CSV)</button>
+      <span id="savestate" style="font-size:11px;color:var(--muted)"></span>
       <span style="font-size:11px;color:var(--muted)"><kbd>j</kbd>/<kbd>k</kbd> siguiente/anterior · <kbd>espacio</kbd> play/pausa</span>
     </div>
     <div class="review"><div class="card list" id="list"></div><div class="card detail" id="detail"><p class="note">Elige una llamada del listado.</p></div></div>`;
@@ -480,12 +532,8 @@ document.addEventListener("keydown", (e) => {
 });
 
 function exportCsv() {
-  const cols = ["llamada", "grabacion", "excel", ...D.models.map((m) => `ia_${m}`), "mi_veredicto", ...D.models.map((m) => `acerto_${m}`), "nota", "revisado_en"];
   const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const lines = [cols.join(",")].concat(D.calls.filter((c) => reviews[c.stem]).map((c) => {
-    const r = reviews[c.stem];
-    return [c.id, c.recording, c.real, ...D.models.map((m) => verdictOf(c, m) || ""), r.verdict === "DUDOSA" ? "POR REVISAR" : r.verdict || "", ...D.models.map((m) => ({ ok: "si", bad: "no" })[r.models?.[m]] || ""), r.note || "", r.at || ""].map(q).join(",");
-  }));
+  const lines = [csvColumns().map(q).join(",")].concat(csvRows().map((row) => row.map(q).join(",")));
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob(["﻿" + lines.join("\n")], { type: "text/csv;charset=utf-8" }));
   a.download = `revision_capa2_${version}.csv`;
@@ -503,6 +551,7 @@ $("#t-rev").onclick = () => show("rev");
 $("#ver").onchange = (e) => { version = e.target.value; renderDash(); renderList(); if (current) openCall(current.stem); };
 renderDash();
 renderRevShell();
+loadServerReviews().then(() => { renderList(); if (current) openCall(current.stem); });
 let startTab = "dash";
 try { startTab = localStorage.getItem("l2-tab") || "dash"; } catch {}
 show(startTab);

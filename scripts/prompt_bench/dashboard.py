@@ -5,7 +5,9 @@ Uso:
         [--compare "v2.4=<carpeta de resultados anterior>"] [--label v2.6]
 
 Escribe <out>/dashboard.html. Referencia los audios por ruta relativa: ábrelo con el servidor local
-(python -m http.server desde "Qubico Develop") para poder escuchar y saltar a cualquier punto.
+(python call-audit/scripts/prompt_bench/review_server.py desde "Qubico Develop") para poder escuchar y saltar a
+cualquier punto. Con ese servidor, "Mi revisión" se guarda sola en <out>/revision_capa2.csv; con python -m
+http.server queda solo en el navegador y se exporta a mano.
 Contiene datos reales: no se publica ni se commitea.
 """
 
