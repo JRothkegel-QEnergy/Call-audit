@@ -9,6 +9,9 @@ Cada componente tiene además su propio historial detallado:
 
 ## 2026-10-19
 
+- **Evidencias en el detalle:**
+  - El resaltado amarillo marca la cita completa, o el tramo más largo que calce en palabras enteras. Antes cortaba en el carácter 40.
+  - El motivo 1 ahora tiene evidencia con timestamp: el audio salta al inicio de la espera más larga y se resalta el turno con que se retoma. Usa `real_calls.executive_hold_spans`, con las mismas esperas que el bench; se verificó que no cambia ninguna de las 100 llamadas.
 - **Audio real en el detalle de llamada:**
   - `useAudio` reproduce la URL firmada de S3 con un `<audio>` real, sincronizado con la transcripción, las evidencias, ±5 s y la velocidad. Hasta ahora el reproductor simulaba la reproducción en silencio.
   - En modo real, sin audio se muestra "No pudimos cargar el audio".

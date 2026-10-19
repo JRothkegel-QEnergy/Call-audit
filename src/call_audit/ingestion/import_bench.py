@@ -61,6 +61,10 @@ def clean(value: Any) -> str:
     return real_calls.clean(value)
 
 
+def mmss(ms: int) -> str:
+    return f"{ms // 60000:02d}:{ms // 1000 % 60:02d}"
+
+
 def mmss_to_ms(value: str | None) -> int:
     if not value:
         return 0
@@ -181,8 +185,30 @@ def product_sheet(product: dict | None, policy: dict) -> dict:
     }
 
 
+def hold_evidence(segments: list[dict] | None, turns: list[dict]) -> dict | None:
+    """Evidencia del motivo 1: la espera más larga del ejecutivo. El audio salta al inicio del silencio y se resalta
+    el turno con que se retoma la llamada. Sin los segmentos del ASR (o si no calzan con los turnos) no hay posición."""
+    if not segments or len(segments) != len(turns):
+        return None
+    spans = real_calls.executive_hold_spans(segments)
+    if not spans:
+        return None
+    start, end, index = max(spans, key=lambda s: s[1] - s[0])
+    return {
+        "quote": turns[index]["text"],
+        "startMs": int(start * 1000),
+        "endMs": int(end * 1000),
+        "quoteValidated": True,
+    }
+
+
 def findings_from(
-    audit: dict, transcript_text: str, holds: list[int], rubric: Rubric, unmask: Unmasker | None = None
+    audit: dict,
+    transcript_text: str,
+    holds: list[int],
+    rubric: Rubric,
+    unmask: Unmasker | None = None,
+    hold: dict | None = None,
 ) -> list[dict]:
     """La cita se valida contra lo que vio el modelo (enmascarado) y después se muestra con el texto original."""
     show = unmask or (lambda text: text)
@@ -223,8 +249,9 @@ def findings_from(
             "criterionId": 1,
             "verdict": "non_compliant" if over else "compliant",
             "confidence": 1.0,
-            "evidence": None,
-            "comment": f"Espera más larga del ejecutivo: {longest} s (umbral {rubric.hold_limit_sec} s).",
+            "evidence": hold,
+            "comment": f"Espera más larga del ejecutivo: {longest} s (umbral {rubric.hold_limit_sec} s)"
+            + (f", desde el {mmss(hold['startMs'])}." if hold else "."),
         }
     )
     return sorted(findings, key=lambda f: f["criterionId"])
@@ -320,6 +347,7 @@ def import_run(
         masked = [t["text"] for t in call["transcript"]]
         shown = [t["text"] for t in case.transcript]
         unmask = Unmasker(masked, shown) if shown != masked else None
+        hold = hold_evidence(original, case.transcript)
         case.call_metadata = call["metadata"]
         case.external_verdict = VERDICTS.get(external) if external in ("APROBADA", "RECHAZADA") else None
         case.external_comment = (comment if asr_dir else real_calls.Anonymizer(row)(comment)) or None
@@ -328,7 +356,7 @@ def import_run(
         transcript_text = user_prompt.split("## Transcripción", 1)[-1]
         holds = call["metadata"]["holds_sec"]
         for model in models:
-            run = import_model_run(results / model, path.stem, row, transcript_text, holds, rubric, unmask)
+            run = import_model_run(results / model, path.stem, row, transcript_text, holds, rubric, unmask, hold)
             if run is None:
                 continue
             existing = next((r for r in case.runs if r.model == model and r.run_label == label), None)
@@ -357,6 +385,7 @@ def import_model_run(
     holds: list[int],
     rubric: Rubric,
     unmask: Unmasker | None = None,
+    hold: dict | None = None,
 ) -> dict | None:
     out, meta_path, err = (model_dir / f"{stem}{ext}" for ext in (".json", ".meta.json", ".error.txt"))
     meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.exists() else {}
@@ -394,7 +423,7 @@ def import_model_run(
         "verdict": VERDICTS[verdict],
         "minor_only": minor_only,
         "applied_rule": applied_rule(verdict, bad, unsure, minor_only),
-        "findings": findings_from(audit, transcript_text, holds, rubric, unmask),
+        "findings": findings_from(audit, transcript_text, holds, rubric, unmask, hold),
         "raw_response": audit,
         "error": None,
     }

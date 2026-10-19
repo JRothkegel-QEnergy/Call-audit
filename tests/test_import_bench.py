@@ -4,7 +4,7 @@ from pathlib import Path
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, sessionmaker
 
-from call_audit.ingestion.import_bench import Unmasker, import_reviews, import_run
+from call_audit.ingestion.import_bench import Unmasker, hold_evidence, import_reviews, import_run
 from call_audit.persistence.models import Case, DiscrepancyClassification, ModelRun, User
 from call_audit.rubric import Rubric
 from tests.conftest import CATALOG
@@ -117,3 +117,20 @@ def test_unmasker_restores_quotes_and_comments() -> None:
 def test_unmasker_placeholder_at_the_edge() -> None:
     unmask = Unmasker(["Hablo con [NOMBRE_CLIENTE] hoy"], ["Hablo con Lorena hoy"])
     assert unmask("Hablo con [NOMBRE_CLIENTE]") == "Hablo con Lorena"
+
+
+def test_hold_evidence_points_to_the_longest_executive_wait() -> None:
+    segments = [
+        {"speaker": "EJECUTIVO", "start": "00:00", "end": "00:02", "text": "Un momento, por favor."},
+        {"speaker": "EJECUTIVO", "start": "00:49", "end": "00:52", "text": "Gracias por esperar, señora."},
+        {"speaker": "CLIENTE", "start": "00:53", "end": "00:55", "text": "Bueno."},
+    ]
+    turns = [{"text": s["text"]} for s in segments]
+    evidence = hold_evidence(segments, turns)
+    assert evidence == {
+        "quote": "Gracias por esperar, señora.",
+        "startMs": 2000,
+        "endMs": 49000,
+        "quoteValidated": True,
+    }
+    assert hold_evidence(segments, turns[:2]) is None

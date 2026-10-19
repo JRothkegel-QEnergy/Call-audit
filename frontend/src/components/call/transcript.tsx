@@ -10,17 +10,36 @@ import { mmss } from "@/lib/format";
 
 const SPEAKER: Record<TranscriptTurn["speaker"], string> = { agent: "Ejecutivo", customer: "Cliente", other: "Otro" };
 
-function highlight(text: string, needle: string | null) {
-  if (!needle) return text;
-  const i = text.toLowerCase().indexOf(needle.toLowerCase());
-  if (i < 0) return text;
+/** Tramo de `text` que coincide con la cita: la cita completa o, si el modelo la recortó o le cambió palabras, el
+ * tramo más largo de palabras enteras (mínimo 3) que sí aparece. Así el resaltado nunca corta una palabra. */
+export function quoteSpan(text: string, quote: string): [number, number] | null {
+  const words = quote.replace(/\.{2,}|…/g, " ").replace(/[«»"“”]/g, " ").split(/\s+/).filter(Boolean);
+  const lower = text.toLowerCase();
+  for (let start = 0; start < Math.min(4, words.length); start++) {
+    for (let end = words.length; end - start >= 3; end--) {
+      const piece = words.slice(start, end).join(" ").toLowerCase();
+      const i = lower.indexOf(piece);
+      if (i >= 0) return [i, i + piece.length];
+    }
+  }
+  return null;
+}
+
+function highlight(text: string, span: [number, number] | null) {
+  if (!span) return text;
+  const [i, j] = span;
   return (
     <>
       {text.slice(0, i)}
-      <mark>{text.slice(i, i + needle.length)}</mark>
-      {text.slice(i + needle.length)}
+      <mark>{text.slice(i, j)}</mark>
+      {text.slice(j)}
     </>
   );
+}
+
+function searchSpan(text: string, query: string): [number, number] | null {
+  const i = text.toLowerCase().indexOf(query.toLowerCase());
+  return i < 0 ? null : [i, i + query.length];
 }
 
 /**
@@ -49,7 +68,8 @@ export function Transcript({
   const current = useMemo(() => turns.reduce((acc, t, i) => (t.startMs <= currentMs ? i : acc), 0), [turns, currentMs]);
   const evidenceTurn = useMemo(() => {
     if (!evidence) return -1;
-    return turns.findIndex((t) => t.text.includes(evidence.quote.slice(0, 20)) || (t.startMs <= evidence.startMs && evidence.startMs < t.endMs));
+    const byQuote = evidence.quote ? turns.findIndex((t) => quoteSpan(t.text, evidence.quote)) : -1;
+    return byQuote >= 0 ? byQuote : turns.findIndex((t) => t.startMs <= evidence.startMs && evidence.startMs < t.endMs);
   }, [turns, evidence]);
 
   useEffect(() => {
@@ -60,7 +80,6 @@ export function Transcript({
     if (top < 48 || top > col.clientHeight - 40) col.scrollTop += top - 80;
   }, [current]);
 
-  const quoteNeedle = evidence ? evidence.quote.slice(0, 40) : null;
 
   return (
     <section className="col" aria-label="Transcripción">
@@ -99,7 +118,11 @@ export function Transcript({
                 {SPEAKER[t.speaker]}
               </span>
               <span>
-                {query ? highlight(t.text, query) : i === evidenceTurn ? highlight(t.text, quoteNeedle) : t.text}
+                {query
+                  ? highlight(t.text, searchSpan(t.text, query))
+                  : i === evidenceTurn && evidence
+                    ? highlight(t.text, quoteSpan(t.text, evidence.quote))
+                    : t.text}
                 {badTurns.includes(t.index) && (
                   <>
                     {" "}

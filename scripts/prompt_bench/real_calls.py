@@ -169,8 +169,13 @@ def executive_holds(segments: list[dict]) -> list[int]:
     """Esperas en que el CLIENTE espera al EJECUTIVO (motivo 1): silencios >= MIN_GAP_SEC entre segmentos que terminan
     cuando vuelve a hablar el ejecutivo, o cuando el cliente pregunta si lo siguen atendiendo ("¿aló?"). Si el que se
     demora es el cliente (busca un dato, piensa) y retoma con contenido, no cuenta: el que espera es el ejecutivo."""
-    holds = []
-    for cur, nxt in zip(segments, segments[1:]):
+    return [round(end - start) for start, end, _ in executive_hold_spans(segments)]
+
+
+def executive_hold_spans(segments: list[dict]) -> list[tuple[float, float, int]]:
+    """Las mismas esperas de executive_holds, con su posición: (inicio s, fin s, índice del segmento que la termina)."""
+    spans = []
+    for i, (cur, nxt) in enumerate(zip(segments, segments[1:])):
         if not cur.get("end"):
             continue
         # El ASR a veces marca el fin de un monólogo largo igual a su inicio: se estima un fin mínimo por largo.
@@ -181,8 +186,8 @@ def executive_holds(segments: list[dict]) -> list[int]:
         speaker = SPEAKERS.get(str(nxt.get("speaker", "")).upper(), "OTRO")
         text = str(nxt.get("text", "")).strip()
         if speaker == "AGENTE" or (speaker == "CLIENTE" and CHECK_IN.match(text) and len(text.split()) <= 8):
-            holds.append(round(gap))
-    return holds
+            spans.append((end, parse_ts(nxt["start"]), i + 1))
+    return spans
 
 
 def update_holds(args, index: list[dict]) -> None:
