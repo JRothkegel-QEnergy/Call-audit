@@ -6,6 +6,8 @@
 #
 # Deja en .deploy/ (ignorado por git): la llave SSH, la contraseña del RDS y deploy.env con lo que usa deploy.sh.
 set -euo pipefail
+# Git Bash (Windows) convierte rutas como /aws/service/... en rutas de Windows: se desactiva.
+export MSYS_NO_PATHCONV=1
 
 REGION="${REGION:-sa-east-1}"
 NAME="${NAME:-call-audit}"
