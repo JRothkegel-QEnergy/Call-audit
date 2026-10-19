@@ -62,7 +62,7 @@
 | 2026-10-19 | D-23 · Sin rol "Calidad de la IA" en el MVP; Discrepancias y su clasificación quedan en Supervisor | Diseñador (supuesto, H-57) |
 | 2026-10-19 | D-24 · El auditor nunca ve el veredicto ni el comentario del cliente | Diseñador |
 | 2026-10-19 | D-25 · El veredicto del cliente es opcional: no viene / por llamada / por llamada + motivo; más un comentario opcional; el backend lo pasa si viene | Johannes |
-| 2026-10-19 | Cambio 10 (revisión rápida, `10-modo-real.md`): modo real aprobado con cambios; acciones sin backend se ocultan en vez de fallar; L-28 condiciona el uso con datos reales; nuevo L-33; adenda por L-34 (ayuda de la transcripción y nota del panel del modelo) | Diseñador; pendiente de confirmación de Johannes |
+| 2026-10-19 | Cambio 10 (revisión rápida, `10-modo-real.md`): modo real aprobado con cambios; acciones sin backend se ocultan en vez de fallar; L-28 condiciona el uso con datos reales; nuevo L-33; adenda por L-34 (ayuda de la transcripción y nota del panel del modelo) | Diseñador; aprobado por Johannes (2026-10-19) e implementado |
 | 2026-10-14 | En los artefactos solo se usan métricas agregadas de las transcripciones reales; los prototipos usan contenido sintético (L-19) | Diseñador |
 
 ## Preguntas abiertas

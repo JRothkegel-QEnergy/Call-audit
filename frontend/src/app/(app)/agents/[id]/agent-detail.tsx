@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/dialog";
 import { KpiCard, PageHeader } from "@/components/ui/page-header";
 import { AsyncView } from "@/components/ui/states";
-import { api } from "@/lib/api";
+import { api, isRealMode } from "@/lib/api";
 import type { AgentDetail, FollowUpStatus } from "@/lib/api/types";
 import { pct, shortDate } from "@/lib/format";
 import { useAsync } from "@/lib/use-async";
@@ -41,9 +41,11 @@ export function AgentDetailView({ id }: { id: string }) {
                 actions={
                   <>
                     <ExportButton count={d.stats.audited} />
-                    <Button variant="primary" onClick={() => setFbOpen(true)}>
-                      Registrar feedback
-                    </Button>
+                    {!isRealMode && (
+                      <Button variant="primary" onClick={() => setFbOpen(true)}>
+                        Registrar feedback
+                      </Button>
+                    )}
                   </>
                 }
               />

@@ -7,9 +7,15 @@ import { useEffect, useState } from "react";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { homeFor } from "@/components/shell/app-shell";
 import { Button } from "@/components/ui/button";
-import { api } from "@/lib/api";
+import { api, isRealMode } from "@/lib/api";
 import type { Role } from "@/lib/api/types";
 import { useSession } from "@/lib/session";
+
+/** Mensajes por código de error de la API (Cambio 10, punto 1e; textos de la Fase 6). */
+const LOGIN_ERRORS: Record<string, string> = {
+  unauthorized: "El correo o la contraseña no son correctos.",
+  forbidden: "Tu cuenta no tiene acceso a Call Audit. Pide acceso a Qubico.",
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,8 +36,9 @@ export default function LoginPage() {
       const u = await api.login(input);
       setUser(u);
       router.replace(homeFor(u.role));
-    } catch {
-      setError("No pudimos ingresar. Revisa tu conexión e intenta de nuevo.");
+    } catch (e) {
+      const code = e instanceof Error ? e.message : "";
+      setError(LOGIN_ERRORS[code] ?? "No pudimos ingresar. Revisa tu conexión e intenta de nuevo.");
     } finally {
       setBusy(false);
     }
@@ -55,7 +62,7 @@ export default function LoginPage() {
             La IA propone hallazgos sobre el 100 % de las llamadas. Las personas revisan y deciden.
           </p>
         </div>
-        <p className="help text-[#9aa3ad]">Demo con datos sintéticos</p>
+        {!isRealMode && <p className="help text-[#9aa3ad]">Demo con datos sintéticos</p>}
       </section>
       <section className="grid place-items-center p-6">
         <form
@@ -70,13 +77,18 @@ export default function LoginPage() {
           }}
         >
           <h1 className="m-0 text-[22px] font-semibold">Ingresar</h1>
-          <Button variant="primary" size="lg" disabled={busy} onClick={() => void enter({ sso: true })}>
-            <Cloud size={18} aria-hidden />
-            Ingresar con la cuenta de tu empresa
-          </Button>
-          <div className="flex items-center gap-2.5 text-xs text-muted-foreground before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
-            o ingresa con tu correo
-          </div>
+          {/* Modo real: el backend v0 no tiene SSO (Cambio 10, punto 1a). */}
+          {!isRealMode && (
+            <>
+              <Button variant="primary" size="lg" disabled={busy} onClick={() => void enter({ sso: true })}>
+                <Cloud size={18} aria-hidden />
+                Ingresar con la cuenta de tu empresa
+              </Button>
+              <div className="flex items-center gap-2.5 text-xs text-muted-foreground before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+                o ingresa con tu correo
+              </div>
+            </>
+          )}
           <label className="field">
             Correo
             <input
@@ -105,15 +117,21 @@ export default function LoginPage() {
           <Button type="submit" size="lg" loading={busy}>
             Ingresar
           </Button>
-          <a href="#" onClick={(e) => e.preventDefault()}>
-            ¿Olvidaste tu contraseña?
-          </a>
-          <div className="help border-t border-border pt-2.5">
-            Demo: <a href="#" onClick={demo("auditor")}>entrar como auditora</a> ·{" "}
-            <a href="#" onClick={demo("supervisor")}>entrar como supervisor</a>
-            <br />
-            Con correo y contraseña: si el correo contiene «sup», entras como supervisor.
-          </div>
+          {isRealMode ? (
+            <p className="help m-0">¿Olvidaste tu contraseña? Escríbele a tu contacto en Qubico para restablecerla.</p>
+          ) : (
+            <>
+              <a href="#" onClick={(e) => e.preventDefault()}>
+                ¿Olvidaste tu contraseña?
+              </a>
+              <div className="help border-t border-border pt-2.5">
+                Demo: <a href="#" onClick={demo("auditor")}>entrar como auditora</a> ·{" "}
+                <a href="#" onClick={demo("supervisor")}>entrar como supervisor</a>
+                <br />
+                Con correo y contraseña: si el correo contiene «sup», entras como supervisor.
+              </div>
+            </>
+          )}
           <div className="help">
             <Link href="/privacy">Privacidad</Link> · <Link href="/privacy#terminos">Términos de uso</Link> ·{" "}
             <Link href="/privacy#cookies">Cookies</Link>

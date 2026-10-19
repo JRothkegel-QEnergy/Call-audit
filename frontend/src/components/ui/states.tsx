@@ -52,3 +52,8 @@ export function AsyncView<T>({
   if (state.data === undefined) return <LoadingState />;
   return <>{children(state.data)}</>;
 }
+
+/** Estadísticas que el backend v0 todavía no calcula (Cambio 10 de UX, punto 3a). */
+export function UnavailableStats() {
+  return <EmptyState title="Estas estadísticas todavía no están disponibles. Las activaremos en una próxima versión." />;
+}

@@ -82,7 +82,11 @@ export function ModelPanel({
             </RadixDialog.Close>
           </div>
           <RadixDialog.Description className="sr-only">Entrada y salida del modelo para esta llamada</RadixDialog.Description>
-          <div className="banner mx-5 mt-3" role="note" style={{ borderLeftColor: "var(--amber-600)" }}>
+          <p className="help mx-5 mb-0 mt-3">
+            Esto es lo que se envió al modelo. Los datos personales van anonimizados, por eso ves marcas como
+            [NOMBRE_CLIENTE].
+          </p>
+          <div className="banner mx-5 mt-2" role="note" style={{ borderLeftColor: "var(--amber-600)" }}>
             <ShieldAlert size={14} aria-hidden className="flex-none" />
             <span>Contenido técnico confidencial de Qubico y datos del cliente. No lo compartas fuera de la app.</span>
           </div>

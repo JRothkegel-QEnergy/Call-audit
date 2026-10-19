@@ -1,7 +1,7 @@
 # Cambio 10 — Modo real (`NEXT_PUBLIC_API_MODE=http`)
 
 **Tipo:** revisión rápida contra lo aprobado (fases 0–8 + Cambio 09). No reabre fases.
-**Fecha:** 2026-10-19 · **Estado:** aprobado con cambios (diseñador); pendiente de confirmación de Johannes en lo marcado.
+**Fecha:** 2026-10-19 · **Estado:** aprobado por Johannes con la adenda (2026-10-19) e implementado en `frontend/` (`isRealMode`).
 
 ## Contexto
 El front pasa de mock a backend FastAPI real para Vero, el equipo externo (Auditor + `view_model_io`, D-22) y Qubico (Supervisor). Backend v0: sin SSO, sin invitaciones; cuentas creadas por Qubico por consola. En modo mock nada cambia.

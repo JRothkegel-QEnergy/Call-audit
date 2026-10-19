@@ -5,8 +5,8 @@ import { useState } from "react";
 import { ExportButton } from "@/components/dialogs/export-dialog";
 import { StatusBadge } from "@/components/ui/badges";
 import { PageHeader } from "@/components/ui/page-header";
-import { AsyncView, EmptyState } from "@/components/ui/states";
-import { api } from "@/lib/api";
+import { AsyncView, EmptyState, UnavailableStats } from "@/components/ui/states";
+import { api, isRealMode } from "@/lib/api";
 import { pct } from "@/lib/format";
 import { useAsync } from "@/lib/use-async";
 
@@ -33,6 +33,9 @@ export default function AgentsPage() {
         />
         <span className="help">Las búsquedas por ejecutivo quedan registradas.</span>
       </div>
+      {isRealMode ? (
+        <UnavailableStats />
+      ) : (
       <AsyncView state={stats} what="los ejecutivos">
         {(rows) =>
           rows.length === 0 ? (
@@ -71,6 +74,7 @@ export default function AgentsPage() {
           )
         }
       </AsyncView>
+      )}
     </>
   );
 }

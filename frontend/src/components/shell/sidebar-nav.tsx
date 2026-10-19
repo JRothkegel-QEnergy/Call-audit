@@ -25,6 +25,7 @@ import type { User } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { useSession } from "@/lib/session";
 import { useNavCounts } from "./nav-counts";
+import { isRealMode } from "@/lib/api";
 
 interface Item {
   label: string;
@@ -144,10 +145,12 @@ export function SidebarNav({
           <Settings size={18} aria-hidden />
           {!collapsed && <span>Preferencias</span>}
         </Link>
-        <button type="button" className={rowClass} onClick={() => setDemoOpen(true)} title="Opciones de la demo">
-          <FlaskConical size={18} aria-hidden />
-          {!collapsed && <span>Opciones de la demo</span>}
-        </button>
+        {!isRealMode && (
+          <button type="button" className={rowClass} onClick={() => setDemoOpen(true)} title="Opciones de la demo">
+            <FlaskConical size={18} aria-hidden />
+            {!collapsed && <span>Opciones de la demo</span>}
+          </button>
+        )}
         <button
           type="button"
           className={rowClass}
@@ -169,7 +172,7 @@ export function SidebarNav({
           )}
         </button>
       </div>
-      <DemoDialog open={demoOpen} onOpenChange={setDemoOpen} />
+      {!isRealMode && <DemoDialog open={demoOpen} onOpenChange={setDemoOpen} />}
     </nav>
   );
 }

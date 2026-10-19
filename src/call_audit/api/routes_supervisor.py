@@ -60,9 +60,10 @@ def kpis(session: DbSession, _: Supervisor, rubric: RubricDep):
 
 @router.get("/criteria/stats")
 def criterion_stats(session: DbSession, _: Supervisor):
-    runs = [r for r in (out.current_run(c) for c in session.scalars(select(Case)).all()) if r]
-    failed = Counter(f["criterionId"] for r in runs for f in r.findings if f["verdict"] == "non_compliant")
-    return [{"criterionId": c, "count": n, "pct": pct(n, len(runs)), "deltaPts": 0} for c, n in failed.most_common()]
+    """Incumplimientos confirmados por un auditor (la pantalla "Motivos" solo cuenta lo revisado por personas)."""
+    reviews = session.scalars(select(Review)).all()
+    failed = Counter(i["criterionId"] for r in reviews for i in r.items if i["verdict"] == "non_compliant")
+    return [{"criterionId": c, "count": n, "pct": pct(n, len(reviews)), "deltaPts": 0} for c, n in failed.most_common()]
 
 
 # --- Alertas y aprobaciones -------------------------------------------------------------

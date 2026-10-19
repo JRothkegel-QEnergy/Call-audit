@@ -130,3 +130,14 @@ def test_stats_not_in_v0_are_empty_and_actions_501(client: TestClient, users: di
     assert client.get("/api/agents/stats").json() == []
     assert client.get("/api/criteria/heatmap").json() == {"agents": [], "rows": []}
     assert client.post("/api/export").status_code == 501
+
+
+def test_criteria_stats_count_only_confirmed_findings(client: TestClient, users: dict[str, User]) -> None:
+    login(client, users["supervisor"])
+    assert client.get("/api/criteria/stats").json() == []
+    login(client, users["auditor"])
+    cid = case_id(client, "1003")
+    items = [{"criterionId": 12, "action": "confirmed", "verdict": "non_compliant"}]
+    assert client.post(f"/api/cases/{cid}/review", json={"items": items}).status_code == 204
+    login(client, users["supervisor"])
+    assert client.get("/api/criteria/stats").json() == [{"criterionId": 12, "count": 1, "pct": 100.0, "deltaPts": 0}]

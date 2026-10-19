@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/ui/page-header";
 import { AsyncView } from "@/components/ui/states";
-import { api } from "@/lib/api";
+import { api, isRealMode } from "@/lib/api";
 import type { AccountStatus, AuditorAccount, LoginMethod } from "@/lib/api/types";
 import { useAsync } from "@/lib/use-async";
 import { AuditorsTabs } from "../auditors-tabs";
@@ -32,10 +32,14 @@ export default function AccountsPage() {
         title="Auditores"
         description="Solo puedes crear cuentas de auditor. Las de supervisor las crea Qubico."
         actions={
-          <Button variant="primary" onClick={() => setInviteOpen(true)}>
-            <Plus size={14} aria-hidden />
-            Invitar auditor
-          </Button>
+          isRealMode ? (
+            <span className="help">Por ahora las cuentas las crea Qubico.</span>
+          ) : (
+            <Button variant="primary" onClick={() => setInviteOpen(true)}>
+              <Plus size={14} aria-hidden />
+              Invitar auditor
+            </Button>
+          )
         }
       />
       <AuditorsTabs active="accounts" />

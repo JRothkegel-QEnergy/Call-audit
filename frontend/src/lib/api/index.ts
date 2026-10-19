@@ -11,3 +11,6 @@ export const apiMode: "mock" | "http" = process.env.NEXT_PUBLIC_API_MODE === "ht
 
 export const api: ApiClient = apiMode === "http" ? httpApi : mockApi;
 export type { ApiClient };
+
+/** Modo real (backend v0): oculta lo que solo existe en la demo o que v0 todavía no tiene (Cambio 10 de UX). */
+export const isRealMode = apiMode === "http";

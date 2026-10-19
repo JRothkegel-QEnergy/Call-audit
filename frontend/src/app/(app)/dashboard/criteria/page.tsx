@@ -2,8 +2,8 @@
 
 import { ExportButton } from "@/components/dialogs/export-dialog";
 import { PageHeader } from "@/components/ui/page-header";
-import { AsyncView } from "@/components/ui/states";
-import { api } from "@/lib/api";
+import { AsyncView, UnavailableStats } from "@/components/ui/states";
+import { api, isRealMode } from "@/lib/api";
 import { pct, pts } from "@/lib/format";
 import { useRubric } from "@/lib/rubric";
 import { useAsync } from "@/lib/use-async";
@@ -52,6 +52,9 @@ export default function CriteriaPage() {
                 </tbody>
               </table>
               <h2 className="mb-2 mt-5 text-base font-semibold">Motivo × ejecutivo</h2>
+              {isRealMode ? (
+                <UnavailableStats />
+              ) : (
               <table className="tbl">
                 <thead>
                   <tr>
@@ -80,6 +83,7 @@ export default function CriteriaPage() {
                   ))}
                 </tbody>
               </table>
+              )}
             </>
           );
         }}

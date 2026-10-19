@@ -26,7 +26,7 @@ import { CallVerdictBadge, SourceBadge, StatusBadge } from "@/components/ui/badg
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/dialog";
 import { ErrorState, LoadingState } from "@/components/ui/states";
-import { api } from "@/lib/api";
+import { api, isRealMode } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import type { CallVerdict, CaseDetail, Note, Rubric } from "@/lib/api/types";
 import { durationText, shortDateTime } from "@/lib/format";
@@ -555,7 +555,7 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
           ) : (
             <>
               <Button onClick={() => setDialog("reopen")}>Reabrir</Button>
-              <Button onClick={() => setEditing(true)}>Cambiar decisión</Button>
+              {!isRealMode && <Button onClick={() => setEditing(true)}>Cambiar decisión</Button>}
               <Button variant="primary" onClick={() => void approveAndNext()} shortcut="A">
                 Aprobar y siguiente
               </Button>

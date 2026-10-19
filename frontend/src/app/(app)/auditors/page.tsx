@@ -2,8 +2,8 @@
 
 import { StatusBadge } from "@/components/ui/badges";
 import { PageHeader } from "@/components/ui/page-header";
-import { AsyncView } from "@/components/ui/states";
-import { api } from "@/lib/api";
+import { AsyncView, UnavailableStats } from "@/components/ui/states";
+import { api, isRealMode } from "@/lib/api";
 import type { AuditorStats } from "@/lib/api/types";
 import { durationText, pct } from "@/lib/format";
 import { useAsync } from "@/lib/use-async";
@@ -27,6 +27,9 @@ export default function AuditorsPage() {
     <>
       <PageHeader title="Auditores" description="Comparado con la media del equipo." />
       <AuditorsTabs active="performance" />
+      {isRealMode ? (
+        <UnavailableStats />
+      ) : (
       <AsyncView state={stats} what="el desempeño de los auditores">
         {(rows: AuditorStats[]) => {
           const mean = (k: keyof AuditorStats) => rows.reduce((a, r) => a + Number(r[k]), 0) / rows.length;
@@ -64,6 +67,7 @@ export default function AuditorsPage() {
           );
         }}
       </AsyncView>
+      )}
     </>
   );
 }

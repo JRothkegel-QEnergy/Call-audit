@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StatusBadge } from "@/components/ui/badges";
 import { Button } from "@/components/ui/button";
+import { isRealMode } from "@/lib/api";
 import type { Evidence, TranscriptTurn } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { mmss } from "@/lib/format";
@@ -65,7 +66,7 @@ export function Transcript({
     <section className="col" aria-label="Transcripción">
       <div className="col-h">
         <b className="text-sm font-semibold">Transcripción</b>
-        <span className="help">Datos personales enmascarados</span>
+        <span className="help">{isRealMode ? "Transcripción automática; puede tener errores." : "Datos personales enmascarados"}</span>
         <input
           className="control search ml-auto h-7 w-[150px]"
           placeholder="Buscar"

@@ -5,10 +5,16 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-import { api } from "@/lib/api";
+import { api, isRealMode } from "@/lib/api";
 
 /** Exportar lo filtrado: sin datos personales por defecto; con ellos, motivo obligatorio y registro (L-04). */
 export function ExportButton({ count = 1240 }: { count?: number }) {
+  // Exportar no existe en el backend v0: se oculta para no fallar al enviar (Cambio 10, punto 3b).
+  if (isRealMode) return null;
+  return <ExportButtonDemo count={count} />;
+}
+
+function ExportButtonDemo({ count }: { count: number }) {
   const [open, setOpen] = useState(false);
   const [format, setFormat] = useState<"csv" | "xlsx">("csv");
   const [pii, setPii] = useState(false);

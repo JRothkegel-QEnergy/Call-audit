@@ -9,6 +9,14 @@ Cada componente tiene además su propio historial detallado:
 
 ## 2026-10-19
 
+- **Cambio 10 de UX (modo real), aprobado e implementado:** con `NEXT_PUBLIC_API_MODE=http` (`isRealMode`):
+  - el login queda sin SSO ni atajos de demo y muestra los mensajes de la Fase 6;
+  - se ocultan "Opciones de la demo", Exportar, Registrar feedback, Cambiar decisión e Invitar auditor;
+  - las estadísticas que v0 no calcula muestran "todavía no están disponibles";
+  - la transcripción dice "Transcripción automática; puede tener errores.";
+  - el panel del modelo explica que lo enviado va anonimizado.
+
+  En modo mock no cambia nada. La API ahora cuenta en "Motivos" solo los incumplimientos confirmados por un auditor.
 - **Despliegue v0:**
   - Imágenes `Dockerfile` (API: aplica las migraciones al arrancar) y `frontend/Dockerfile` (Next standalone en modo http).
   - `docker-compose.yml` para probar en local (Postgres + API + front) y `docker-compose.prod.yml` + `Caddyfile` para un EC2 con RDS y HTTPS.

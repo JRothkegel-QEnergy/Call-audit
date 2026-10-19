@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/ui/page-header";
 import { AsyncView, EmptyState } from "@/components/ui/states";
-import { api } from "@/lib/api";
+import { api, isRealMode } from "@/lib/api";
 import type { DiscrepancyBranch, DiscrepancyClassification, DiscrepancyRow } from "@/lib/api/types";
 import { pct, shortDateTime } from "@/lib/format";
 import { useRubric } from "@/lib/rubric";
@@ -61,10 +61,12 @@ export default function DiscrepanciesPage() {
         title="Discrepancias con el cliente"
         description="Compara la IA con la auditoría del cliente en las llamadas que traen su veredicto."
         actions={
-          <Button onClick={() => toast("Estamos preparando el archivo. Te avisaremos cuando esté listo.")}>
-            <Download size={14} aria-hidden />
-            Exportar rama
-          </Button>
+          isRealMode ? undefined : (
+            <Button onClick={() => toast("Estamos preparando el archivo. Te avisaremos cuando esté listo.")}>
+              <Download size={14} aria-hidden />
+              Exportar rama
+            </Button>
+          )
         }
       />
       <AsyncView state={rows} what="las discrepancias">
