@@ -49,3 +49,6 @@ Thumbs.db
 
 # Base local de desarrollo (SQLite)
 *.db
+
+# Secretos y llaves del despliegue (scripts/deploy)
+.deploy/

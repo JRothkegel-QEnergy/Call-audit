@@ -1,15 +1,15 @@
-# Producción v0 en un EC2 (ver docs/deploy.md). La base es el RDS de DATABASE_URL en .env.
-#   DOMAIN=audit.qubicoenergy.com docker compose -f docker-compose.prod.yml up -d --build
+# Producción v0 en el EC2 (ver docs/deploy.md). Las imágenes vienen de ECR (scripts/deploy/deploy.sh las construye y
+# las sube); la base es el RDS de DATABASE_URL en .env. deploy.sh deja este archivo, el Caddyfile y .env en
+# /opt/call-audit y corre:
+#   API_IMAGE=... FRONT_IMAGE=... DOMAIN=audit.qubicoenergy.com docker compose -f docker-compose.prod.yml up -d
 services:
   api:
-    build: .
+    image: ${API_IMAGE:?Falta API_IMAGE}
     env_file: .env
     restart: unless-stopped
 
   front:
-    build:
-      context: frontend
-      args: {API_URL: "http://api:8000"}
+    image: ${FRONT_IMAGE:?Falta FRONT_IMAGE}
     depends_on: [api]
     restart: unless-stopped
 

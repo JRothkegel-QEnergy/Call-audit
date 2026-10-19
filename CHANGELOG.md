@@ -9,6 +9,10 @@ Cada componente tiene además su propio historial detallado:
 
 ## 2026-10-19
 
+- **Scripts de despliegue en AWS** (`scripts/deploy/`):
+  - `aws_setup.sh` crea ECR, los security groups, el rol IAM, el RDS privado y el EC2 con IP elástica.
+  - `deploy.sh` construye y sube las imágenes y actualiza el EC2.
+  - `docker-compose.prod.yml` ahora usa las imágenes de ECR. Dominio: `audit.qubicoenergy.com`.
 - **Cambio 10 de UX (modo real), aprobado e implementado:** con `NEXT_PUBLIC_API_MODE=http` (`isRealMode`):
   - el login queda sin SSO ni atajos de demo y muestra los mensajes de la Fase 6;
   - se ocultan "Opciones de la demo", Exportar, Registrar feedback, Cambiar decisión e Invitar auditor;
