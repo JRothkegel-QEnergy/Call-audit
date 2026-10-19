@@ -1,0 +1,96 @@
+{
+  "$description": "Call Audit design tokens v1.0 (2026-10-16). Formato W3C Design Tokens (DTCG). Fuente de verdad: 08-tokens.css.",
+  "color": {
+    "base": {
+      "ink-900": { "$type": "color", "$value": "#1b1f24" },
+      "ink-800": { "$type": "color", "$value": "#23272d" },
+      "neutral-800": { "$type": "color", "$value": "#3a4048" },
+      "neutral-700": { "$type": "color", "$value": "#545b66" },
+      "neutral-600": { "$type": "color", "$value": "#6e7682", "$description": "Solo sobre blanco" },
+      "neutral-500": { "$type": "color", "$value": "#8a929c" },
+      "neutral-300": { "$type": "color", "$value": "#d6dbe0" },
+      "neutral-200": { "$type": "color", "$value": "#e2e6ea" },
+      "neutral-100": { "$type": "color", "$value": "#f3f5f7" },
+      "neutral-50": { "$type": "color", "$value": "#f5f7f8" },
+      "white": { "$type": "color", "$value": "#ffffff" },
+      "teal-800": { "$type": "color", "$value": "#0b4843" },
+      "teal-700": { "$type": "color", "$value": "#0b5953" },
+      "teal-600": { "$type": "color", "$value": "#0f766e" },
+      "teal-200": { "$type": "color", "$value": "#c7e7e2" },
+      "teal-100": { "$type": "color", "$value": "#e7f4f2" },
+      "red-800": { "$type": "color", "$value": "#7f2523" },
+      "red-700": { "$type": "color", "$value": "#a8322f" },
+      "red-200": { "$type": "color", "$value": "#f8d3d2" },
+      "red-100": { "$type": "color", "$value": "#fdeeee" },
+      "amber-800": { "$type": "color", "$value": "#6b4808" },
+      "amber-600": { "$type": "color", "$value": "#c08a1e" },
+      "amber-200": { "$type": "color", "$value": "#f7e3b5" },
+      "amber-100": { "$type": "color", "$value": "#fdf5e4" }
+    },
+    "semantic": {
+      "background": { "$type": "color", "$value": "{color.base.neutral-50}" },
+      "foreground": { "$type": "color", "$value": "{color.base.ink-900}" },
+      "card": { "$type": "color", "$value": "{color.base.white}" },
+      "primary": { "$type": "color", "$value": "{color.base.teal-600}" },
+      "primary-hover": { "$type": "color", "$value": "{color.base.teal-700}" },
+      "primary-foreground": { "$type": "color", "$value": "{color.base.white}" },
+      "muted": { "$type": "color", "$value": "{color.base.neutral-100}" },
+      "muted-foreground": { "$type": "color", "$value": "{color.base.neutral-700}" },
+      "accent": { "$type": "color", "$value": "{color.base.teal-100}" },
+      "accent-foreground": { "$type": "color", "$value": "{color.base.teal-800}" },
+      "destructive": { "$type": "color", "$value": "{color.base.red-700}" },
+      "border": { "$type": "color", "$value": "{color.base.neutral-200}" },
+      "input": { "$type": "color", "$value": "{color.base.neutral-500}" },
+      "ring": { "$type": "color", "$value": "{color.base.teal-600}" }
+    },
+    "verdict": {
+      "item-fail-bg": { "$type": "color", "$value": "{color.base.red-700}" },
+      "item-fail-fg": { "$type": "color", "$value": "{color.base.white}" },
+      "item-doubt-bg": { "$type": "color", "$value": "{color.base.amber-100}" },
+      "item-doubt-fg": { "$type": "color", "$value": "{color.base.amber-800}" },
+      "item-doubt-border": { "$type": "color", "$value": "{color.base.amber-600}" },
+      "item-pass-bg": { "$type": "color", "$value": "{color.base.neutral-100}" },
+      "item-pass-fg": { "$type": "color", "$value": "{color.base.neutral-800}" },
+      "call-fail-bg": { "$type": "color", "$value": "{color.base.red-100}" },
+      "call-fail-fg": { "$type": "color", "$value": "{color.base.red-700}" },
+      "call-doubt-bg": { "$type": "color", "$value": "{color.base.amber-100}" },
+      "call-doubt-fg": { "$type": "color", "$value": "{color.base.amber-800}" },
+      "call-pass-bg": { "$type": "color", "$value": "{color.base.neutral-100}" },
+      "call-pass-fg": { "$type": "color", "$value": "{color.base.neutral-800}" },
+      "source-ai-border": { "$type": "color", "$value": "{color.base.neutral-500}" },
+      "source-human-bg": { "$type": "color", "$value": "{color.base.ink-900}" }
+    }
+  },
+  "font": {
+    "family": { "sans": { "$type": "fontFamily", "$value": ["Archivo", "system-ui", "Segoe UI", "Roboto", "Arial", "sans-serif"] } },
+    "size": {
+      "xs": { "$type": "dimension", "$value": "12px" }, "sm": { "$type": "dimension", "$value": "13px" },
+      "base": { "$type": "dimension", "$value": "14px" }, "md": { "$type": "dimension", "$value": "15px" },
+      "lg": { "$type": "dimension", "$value": "18px" }, "xl": { "$type": "dimension", "$value": "22px" },
+      "2xl": { "$type": "dimension", "$value": "28px" }
+    },
+    "weight": { "regular": { "$type": "fontWeight", "$value": 400 }, "medium": { "$type": "fontWeight", "$value": 500 }, "semibold": { "$type": "fontWeight", "$value": 600 }, "bold": { "$type": "fontWeight", "$value": 700 } }
+  },
+  "space": {
+    "1": { "$type": "dimension", "$value": "4px" }, "2": { "$type": "dimension", "$value": "8px" }, "3": { "$type": "dimension", "$value": "12px" },
+    "4": { "$type": "dimension", "$value": "16px" }, "5": { "$type": "dimension", "$value": "20px" }, "6": { "$type": "dimension", "$value": "24px" },
+    "8": { "$type": "dimension", "$value": "32px" }, "10": { "$type": "dimension", "$value": "40px" }
+  },
+  "radius": {
+    "sm": { "$type": "dimension", "$value": "4px" }, "md": { "$type": "dimension", "$value": "6px" },
+    "lg": { "$type": "dimension", "$value": "8px" }, "xl": { "$type": "dimension", "$value": "12px" }, "full": { "$type": "dimension", "$value": "999px" }
+  },
+  "shadow": {
+    "sm": { "$type": "shadow", "$value": "0 1px 2px rgb(20 30 40 / 6%), 0 1px 3px rgb(20 30 40 / 4%)" },
+    "md": { "$type": "shadow", "$value": "0 4px 12px rgb(20 30 40 / 8%)" },
+    "lg": { "$type": "shadow", "$value": "0 16px 40px rgb(20 30 40 / 16%)" }
+  },
+  "breakpoint": {
+    "lg": { "$type": "dimension", "$value": "1024px" }, "xl": { "$type": "dimension", "$value": "1280px" }, "2xl": { "$type": "dimension", "$value": "1536px" }
+  },
+  "layout": {
+    "sidebar": { "$type": "dimension", "$value": "232px" }, "sidebar-collapsed": { "$type": "dimension", "$value": "64px" },
+    "gutter": { "$type": "dimension", "$value": "24px" }, "target-min": { "$type": "dimension", "$value": "24px" },
+    "control-height": { "$type": "dimension", "$value": "32px" }, "control-height-lg": { "$type": "dimension", "$value": "40px" }
+  }
+}

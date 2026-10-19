@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Call Audit · Alta fidelidad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Tokens: copia de 08-tokens.css (fuente de verdad), inline para que el archivo funcione solo. */
+:root{--ink-900:#1b1f24;--ink-800:#23272d;--neutral-800:#3a4048;--neutral-700:#545b66;--neutral-600:#6e7682;--neutral-500:#8a929c;--neutral-300:#d6dbe0;--neutral-200:#e2e6ea;--neutral-100:#f3f5f7;--neutral-50:#f5f7f8;--white:#fff;
+--teal-800:#0b4843;--teal-700:#0b5953;--teal-600:#0f766e;--teal-200:#c7e7e2;--teal-100:#e7f4f2;--red-800:#7f2523;--red-700:#a8322f;--red-200:#f8d3d2;--red-100:#fdeeee;--amber-800:#6b4808;--amber-600:#c08a1e;--amber-200:#f7e3b5;--amber-100:#fdf5e4;
+--background:var(--neutral-50);--foreground:var(--ink-900);--card:var(--white);--primary:var(--teal-600);--primary-hover:var(--teal-700);--primary-foreground:#fff;--muted:var(--neutral-100);--muted-foreground:var(--neutral-700);--subtle-foreground:var(--neutral-600);--accent:var(--teal-100);--accent-foreground:var(--teal-800);--destructive:var(--red-700);--border:var(--neutral-200);--input:var(--neutral-500);--ring:var(--teal-600);
+--verdict-fail-bg:var(--red-700);--verdict-fail-fg:#fff;--verdict-fail-soft:var(--red-100);--verdict-doubt-bg:var(--amber-100);--verdict-doubt-fg:var(--amber-800);--verdict-doubt-border:var(--amber-600);--verdict-pass-bg:var(--neutral-100);--verdict-pass-fg:var(--neutral-800);--verdict-pass-border:var(--neutral-300);
+--call-fail-bg:var(--red-100);--call-fail-fg:var(--red-700);--call-fail-border:var(--red-200);--call-doubt-bg:var(--amber-100);--call-doubt-fg:var(--amber-800);--call-doubt-border:var(--amber-200);--call-pass-bg:var(--neutral-100);--call-pass-fg:var(--neutral-800);--call-pass-border:var(--neutral-300);
+--font-sans:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--radius-sm:4px;--radius-md:6px;--radius-lg:8px;--radius-xl:12px;--radius-full:999px;
+--shadow-sm:0 1px 2px rgb(20 30 40/6%),0 1px 3px rgb(20 30 40/4%);--shadow-md:0 4px 12px rgb(20 30 40/8%);--shadow-lg:0 16px 40px rgb(20 30 40/16%);}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--background);color:var(--foreground);font:400 14px/20px var(--font-sans)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus{outline:none}:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+::selection{background:var(--teal-200)}
+a{color:var(--accent-foreground);text-underline-offset:3px}
+.ic{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic.sm{width:14px;height:14px}
+/* barra del prototipo */
+.proto-bar{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:6px 12px;background:#0d0f12;color:#e8eaed;font-size:12px;min-height:36px}
+.proto-bar b{letter-spacing:.06em}
+.proto-bar select,.proto-bar button{background:#22262c;color:#fff;border:1px solid #444b55;border-radius:4px;padding:3px 8px;font-size:12px}
+.proto-bar .sp{flex:1}
+/* shell */
+.app{display:grid;grid-template-columns:232px 1fr;min-height:calc(100vh - 36px)}
+.app.collapsed{grid-template-columns:64px 1fr}
+.side{background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:16px 10px;gap:2px;position:sticky;top:36px;height:calc(100vh - 36px)}
+.brand{display:flex;gap:10px;align-items:center;padding:0 8px 18px}
+.brand svg{flex:none}
+.brand .wm{font-weight:700;letter-spacing:.14em;font-size:15px;line-height:1}
+.brand small{display:block;color:var(--muted-foreground);font-size:12px;letter-spacing:0;font-weight:400;margin-top:3px}
+.nav-i{position:relative;display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:var(--radius-md);background:none;border:0;text-align:left;cursor:pointer;width:100%;color:var(--neutral-800);font-weight:500}
+.nav-i:hover{background:var(--muted)}
+.nav-i.on{background:var(--accent);color:var(--accent-foreground);font-weight:600}
+.nav-i.on::before{content:"";position:absolute;left:-10px;top:6px;bottom:6px;width:3px;background:var(--primary);border-radius:0 2px 2px 0}
+.badge{margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:var(--radius-full);background:var(--primary);color:#fff;font-size:12px;font-weight:600;display:inline-grid;place-items:center;font-variant-numeric:tabular-nums}
+.badge.alert{background:var(--red-700)}
+.collapsed .lbl,.collapsed .brand-t,.collapsed .badge,.collapsed .user-t{display:none}
+.collapsed .nav-i{justify-content:center;padding:0}
+.collapsed .nav-i .dot{position:absolute;top:6px;right:12px;width:8px;height:8px;border-radius:50%;background:var(--primary)}
+.side .user{margin-top:auto;border-top:1px solid var(--border);padding-top:10px;display:grid;gap:2px}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--ink-900);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:600;flex:none}
+.main{padding:24px 28px 40px;min-width:0}
+.ph{display:flex;align-items:flex-start;gap:16px;margin-bottom:16px}
+.ph h1{font-size:22px;line-height:28px;margin:0;font-weight:600;letter-spacing:-.01em}
+.ph p{margin:4px 0 0;color:var(--muted-foreground)}
+.ph .acts{margin-left:auto;display:flex;gap:8px;align-items:center}
+/* botones: etiqueta alineada a la izquierda (Modernist) */
+.btn{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 12px;border:1px solid var(--input);background:var(--card);border-radius:var(--radius-md);cursor:pointer;text-align:left;font-weight:500;white-space:nowrap;transition:background .12s}
+.btn:hover{background:var(--muted)}
+.btn.pri{background:var(--primary);border-color:var(--primary);color:var(--primary-foreground)}
+.btn.pri:hover{background:var(--primary-hover);border-color:var(--primary-hover)}
+.btn.ghost{border-color:transparent;background:none;color:var(--accent-foreground)}
+.btn.ghost:hover{background:var(--accent)}
+.btn.danger{background:var(--destructive);border-color:var(--destructive);color:#fff}
+.btn.lg{height:40px;padding:0 16px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.kbd{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border:1px solid var(--neutral-300);border-bottom-width:2px;border-radius:var(--radius-sm);font-size:11px;font-weight:600;color:var(--muted-foreground);background:var(--card)}
+.btn.pri .kbd{background:transparent;color:#fff;border-color:rgb(255 255 255/.5)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow-sm)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.kpi .v{font-size:28px;line-height:34px;font-weight:600;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi .l{color:var(--muted-foreground);font-size:13px}
+.kpi{cursor:pointer}.kpi:hover{border-color:var(--neutral-300)}
+.src{display:inline-flex;align-items:center;gap:4px;height:20px;font-size:12px;font-weight:500;border:1px dashed var(--input);border-radius:var(--radius-full);padding:0 8px;color:var(--muted-foreground)}
+.src.h{background:var(--ink-900);color:#fff;border:1px solid var(--ink-900)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.sel,.inp{height:32px;border:1px solid var(--input);border-radius:var(--radius-md);padding:0 10px;background:var(--card)}
+.inp.search{padding-left:30px;background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23545b66' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") 10px center no-repeat}
+.chip{display:inline-flex;gap:6px;align-items:center;height:28px;border:1px solid var(--primary);color:var(--accent-foreground);background:var(--accent);border-radius:var(--radius-full);padding:0 6px 0 12px;font-size:13px;font-weight:500}
+.chip button{border:0;background:none;cursor:pointer;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:inherit}
+.chip button:hover{background:var(--teal-200)}
+.help{font-size:12px;color:var(--muted-foreground)}
+.tip{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;border:1px solid var(--input);font-size:11px;font-weight:700;color:var(--muted-foreground);cursor:help;background:var(--card);vertical-align:middle}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm)}
+.tbl th,.tbl td{height:44px;padding:0 12px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+.tbl th{height:36px;font-size:12px;color:var(--muted-foreground);background:var(--muted);font-weight:600}
+.tbl tbody tr{cursor:pointer}.tbl tbody tr:hover td{background:#fafbfc}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl td.num{font-variant-numeric:tabular-nums}
+.mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+/* veredictos */
+.vt{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;white-space:nowrap;border:1px solid transparent}
+.vt.fail{background:var(--verdict-fail-bg);color:var(--verdict-fail-fg)}
+.vt.doubt{background:var(--verdict-doubt-bg);color:var(--verdict-doubt-fg);border:1px dashed var(--verdict-doubt-border)}
+.vt.pass{background:var(--verdict-pass-bg);color:var(--verdict-pass-fg);border-color:var(--verdict-pass-border)}
+.ct{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:var(--radius-full);font-size:12px;font-weight:600;white-space:nowrap;border:1px solid}
+.ct.fail{background:var(--call-fail-bg);color:var(--call-fail-fg);border-color:var(--call-fail-border)}
+.ct.doubt{background:var(--call-doubt-bg);color:var(--call-doubt-fg);border-color:var(--call-doubt-border)}
+.ct.pass{background:var(--call-pass-bg);color:var(--call-pass-fg);border-color:var(--call-pass-border)}
+.st{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:var(--radius-full);font-size:12px;font-weight:500;background:var(--muted);color:var(--neutral-800);border:1px solid var(--neutral-300);white-space:nowrap}
+.st.teal{background:var(--accent);color:var(--accent-foreground);border-color:var(--teal-200)}
+.st.ink{background:var(--ink-900);color:#fff;border-color:var(--ink-900)}
+.empty{border:1px dashed var(--neutral-300);border-radius:var(--radius-lg);padding:40px 32px;background:var(--card)}
+.empty h2{margin:0 0 6px;font-size:18px;font-weight:600}
+.empty p{margin:0 0 16px;color:var(--muted-foreground)}
+.skel{height:14px;background:linear-gradient(90deg,var(--muted),var(--neutral-200),var(--muted));background-size:200% 100%;animation:sh 1.2s infinite;border-radius:4px;margin:10px 0}
+@keyframes sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}}
+.err{border:1px solid var(--red-200);border-left:4px solid var(--red-700);border-radius:var(--radius-lg);padding:14px 16px;background:var(--card)}
+.err b{display:block;margin-bottom:4px}
+.banner{display:flex;gap:8px;align-items:center;border:1px solid var(--neutral-300);border-left:3px solid var(--ink-900);background:var(--card);border-radius:var(--radius-md);padding:8px 12px;margin:10px 0;font-size:13px}
+/* detalle */
+.d-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.d-head h1{font-size:18px;line-height:24px;margin:0;font-weight:600}
+.d-meta{color:var(--muted-foreground);font-size:13px}
+.player{position:sticky;top:36px;z-index:5;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);padding:8px 12px;display:flex;gap:10px;align-items:center;margin:10px 0}
+.play{width:40px;height:40px;border-radius:50%;background:var(--primary);color:#fff;border:0;display:grid;place-items:center;cursor:pointer}
+.play:hover{background:var(--primary-hover)}
+.wave{flex:1;height:48px;position:relative;cursor:pointer}
+.wave svg{width:100%;height:100%;display:block}
+.mk{position:absolute;top:-4px;transform:translateX(-50%);width:24px;height:24px;border:0;background:none;cursor:pointer;padding:0;display:grid;place-items:center}
+.mk span{display:block;width:12px;height:12px;border-radius:2px}
+.mk.fail span{background:var(--red-700);box-shadow:0 0 0 2px #fff}
+.mk.doubt span{border-radius:50%;background:var(--amber-100);border:2px dashed var(--amber-600)}
+.mk.on{outline:2px solid var(--ring);border-radius:4px}
+.time{font-variant-numeric:tabular-nums;color:var(--muted-foreground);font-size:13px;min-width:96px}
+.cols{display:grid;grid-template-columns:4fr 3.5fr 2.5fr;gap:12px;align-items:start}
+.cols.nofi{grid-template-columns:4fr 3.5fr 44px}
+.col{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);min-height:440px;max-height:calc(100vh - 290px);overflow:auto}
+.col-h{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;align-items:center;z-index:2}
+.col-h b{font-size:14px;font-weight:600}
+.turn{display:grid;grid-template-columns:48px 72px 1fr;gap:8px;padding:8px 12px;border-bottom:1px solid var(--neutral-100);cursor:pointer;font-size:15px;line-height:22px}
+.turn:hover{background:#fafbfc}
+.turn.on{background:var(--accent);box-shadow:inset 3px 0 0 var(--primary)}
+.turn .t{color:var(--subtle-foreground);font-size:12px;font-variant-numeric:tabular-nums;padding-top:2px}
+.turn .sp{font-size:12px;font-weight:600;color:var(--muted-foreground);padding-top:2px}
+.turn .sp.cli{color:var(--teal-800)}
+mark{background:var(--amber-200);color:inherit;border-radius:2px;box-shadow:0 0 0 1px var(--amber-600)}
+.blk{border-bottom:1px solid var(--border)}
+.blk>button.bh{width:100%;display:flex;gap:8px;align-items:center;height:40px;padding:0 12px;background:var(--muted);border:0;cursor:pointer;text-align:left;font-weight:600}
+.blk>button.bh small{font-weight:500;color:var(--muted-foreground);margin-left:auto;display:flex;gap:6px}
+.item{padding:10px 12px;border-top:1px solid var(--neutral-100)}
+.item.focus{box-shadow:inset 3px 0 0 var(--primary);background:#fbfcfc}
+.item .top{display:flex;gap:8px;align-items:flex-start}
+.item .nm{flex:1;font-weight:500}
+.item .sup{font-size:12px;color:var(--muted-foreground);margin:2px 0 0}
+.item .sup.fail{color:var(--red-700);font-weight:600}
+.item .sup.doubt{color:var(--amber-800);font-weight:600}
+.item .meta{font-size:12px;color:var(--muted-foreground);margin:6px 0 4px}
+.quote{border-left:3px solid var(--amber-600);padding:6px 10px;margin:6px 0;background:var(--amber-100);border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:13px}
+.unval{display:flex;gap:6px;align-items:flex-start;border:1px solid var(--red-200);background:var(--red-100);color:var(--red-800);border-radius:var(--radius-sm);padding:6px 8px;font-size:12px;margin:6px 0}
+.seg{display:inline-flex;border:1px solid var(--input);border-radius:var(--radius-md);overflow:hidden;margin-top:8px}
+.seg button{height:30px;border:0;border-right:1px solid var(--input);background:var(--card);padding:0 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500}
+.seg button:last-child{border-right:0}
+.seg button:hover{background:var(--muted)}
+.seg button[aria-pressed=true]{background:var(--ink-900);color:#fff}
+.resolved{display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px;color:var(--accent-foreground);font-weight:500}
+.inline-f{border:1px solid var(--border);border-radius:var(--radius-md);padding:10px;margin-top:8px;display:grid;gap:8px;background:var(--neutral-50)}
+.inline-f label,.dlg label{display:grid;gap:4px;font-size:13px;font-weight:500}
+.inline-f select,.inline-f textarea,.inline-f input,.dlg select,.dlg textarea,.dlg input:not([type=checkbox]):not([type=radio]),.drawer textarea,.drawer input:not([type=checkbox]){border:1px solid var(--input);border-radius:var(--radius-md);padding:6px 10px;width:100%;background:var(--card);font-weight:400}
+.ferr{color:var(--red-700);font-size:12px;font-weight:600;display:flex;gap:4px;align-items:center}
+.more{padding:10px 12px;font-size:13px;color:var(--muted-foreground);display:flex;gap:8px;align-items:center;border-top:1px solid var(--neutral-100)}
+.fi-sec{border-top:1px solid var(--neutral-100);padding:10px 12px}
+.fi-sec.hl{border:2px solid var(--primary);border-radius:var(--radius-md);margin:6px;background:var(--accent)}
+.fi-sec dt{font-size:12px;color:var(--muted-foreground)}
+.fi-sec dd{margin:0 0 6px;font-weight:500}
+.fi-sec b{font-size:13px}
+.rel{display:inline-flex;margin-left:6px;font-size:11px;font-weight:600;color:var(--accent-foreground);background:var(--card);border:1px solid var(--primary);border-radius:var(--radius-full);padding:0 8px;height:18px;align-items:center}
+.actbar{position:sticky;bottom:12px;z-index:6;margin-top:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);padding:10px 12px;display:flex;gap:12px;align-items:center}
+.actbar .grow{flex:1;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.saved{font-size:12px;color:var(--muted-foreground);display:inline-flex;gap:4px;align-items:center}
+.diffc{display:inline-flex;gap:6px;align-items:center;font-size:12px;border:1px solid var(--neutral-300);border-radius:var(--radius-sm);padding:2px 8px;margin-top:6px;background:var(--neutral-50)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.tabs button{height:38px;border:0;background:none;padding:0 12px;cursor:pointer;border-bottom:2px solid transparent;font-weight:500;color:var(--muted-foreground);display:inline-flex;gap:6px;align-items:center}
+.tabs button[aria-selected=true]{border-bottom-color:var(--primary);color:var(--foreground);font-weight:600}
+.tabs .cnt{background:var(--muted);border-radius:var(--radius-full);padding:0 6px;font-size:12px}
+/* capas */
+.back{position:fixed;inset:0;background:rgb(13 15 18/.45);display:grid;place-items:center;z-index:80;padding:16px}
+.dlg{background:var(--card);border-radius:var(--radius-xl);width:min(520px,100%);padding:20px;display:grid;gap:12px;box-shadow:var(--shadow-lg)}
+.dlg h2{margin:0;font-size:18px;line-height:24px;font-weight:600}
+.dlg p{margin:0}
+.dlg .row{display:flex;gap:8px;margin-top:4px}
+.dlg .row .sp{flex:1}
+.summary{background:var(--neutral-50);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px 12px;display:grid;gap:4px;font-size:13px}
+.drawer{position:fixed;top:36px;right:0;bottom:0;width:min(440px,100%);background:var(--card);border-left:1px solid var(--border);box-shadow:var(--shadow-lg);z-index:70;padding:20px;display:grid;gap:12px;align-content:start;overflow:auto}
+.drawer h2{margin:0;font-size:18px;font-weight:600}
+.drawer label{display:grid;gap:4px;font-size:13px;font-weight:500}
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--ink-900);color:#fff;padding:10px 14px;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);z-index:90;display:flex;gap:14px;align-items:center}
+.toast button{background:none;border:1px solid rgb(255 255 255/.6);color:#fff;border-radius:var(--radius-sm);height:26px;padding:0 10px;cursor:pointer;font-weight:600}
+fieldset{border:1px solid var(--border);border-radius:var(--radius-md);padding:8px 12px;margin:0}
+legend{font-size:13px;font-weight:500;padding:0 4px}
+.chk{display:flex!important;grid-template-columns:none;align-items:center;gap:8px;font-weight:400!important}
+input[type=checkbox],input[type=radio]{width:16px;height:16px;accent-color:var(--primary)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bars{display:flex;align-items:flex-end;gap:8px;height:140px;padding-top:12px;border-bottom:1px solid var(--border)}
+.bars div{flex:1;background:var(--primary);border-radius:3px 3px 0 0;position:relative}
+.bars div span{position:absolute;top:-18px;left:0;right:0;text-align:center;font-size:11px;color:var(--muted-foreground)}
+.hm td{text-align:center;font-variant-numeric:tabular-nums}
+.login{min-height:calc(100vh - 36px);display:grid;grid-template-columns:1fr 1fr}
+.login .l-art{background:var(--ink-900);color:#fff;padding:48px;display:flex;flex-direction:column;justify-content:space-between}
+.login .l-art h2{font-size:28px;line-height:34px;font-weight:600;max-width:420px;margin:0}
+.login .l-art p{color:#c9ced4;max-width:420px}
+.login .l-form{display:grid;place-items:center;padding:24px}
+.login .l-form .box{width:min(380px,100%);display:grid;gap:12px}
+.login h1{margin:0;font-size:22px;font-weight:600}
+.field{display:grid;gap:4px;font-size:13px;font-weight:500}
+.field input{height:40px;border:1px solid var(--input);border-radius:var(--radius-md);padding:0 12px;font-weight:400}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted-foreground);font-size:12px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--border)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.notes{position:fixed;right:12px;bottom:12px;width:min(380px,92vw);max-height:46vh;overflow:auto;background:#fff;border:1px solid var(--ink-900);box-shadow:var(--shadow-lg);border-radius:var(--radius-lg);padding:12px 14px;z-index:60;font-size:12.5px}
+.notes h3{margin:0 0 6px;font-size:13px}
+.notes ol{margin:0;padding-left:18px}.notes li{margin-bottom:5px}
+.notes code{font-size:11px;background:var(--muted);padding:0 3px;border-radius:3px}
+.ann{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#0d0f12;color:#fff;font-size:10px;font-weight:700;vertical-align:middle;margin:0 4px;flex:none}
+body.no-ann .ann,body.no-ann .notes{display:none}
+.narrow-only{display:none}
+@media (max-width:1279px){.cols,.cols.nofi{grid-template-columns:1fr 1fr}.cols .col.fi,.cols>button.col{display:none}.narrow-only{display:inline-flex}}
+</style>
+</head>
+<body class="no-ann">
+<div class="proto-bar" role="region" aria-label="Controles del prototipo (no forman parte del diseño)">
+  <b>PROTOTIPO · ALTA FIDELIDAD</b>
+  <label>Pantalla <select id="pScreen"></select></label>
+  <label>Estado <select id="pState"><option value="normal">Normal</option><option value="empty">Vacío</option><option value="loading">Cargando</option><option value="error">Error</option></select></label>
+  <button id="pAnn" type="button">Mostrar notas de handoff</button>
+  <span class="sp"></span><span>Contenido 100 % sintético</span>
+</div>
+<div id="root"></div><div id="layer"></div>
+<script>
+"use strict";
+/* Íconos: trazos de Lucide (licencia ISC). */
+const I={inbox:'<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+history:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+home:'<path d="M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z"/>',
+bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+check:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+chart:'<path d="M3 3v18h18"/><path d="M7 16V9M12 16V5M17 16v-3"/>',shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>',
+kbd:'<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/>',side:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/>',
+x:'<path d="M18 6 6 18M6 6l12 12"/>',ok:'<path d="M20 6 9 17l-5-5"/>',q:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/>',
+info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/>',
+lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',play:'<path d="m6 3 14 9-14 9V3z"/>',pause:'<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>',
+back:'<path d="m15 18-6-6 6-6"/>',cloud:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="m9 15 2 2 4-4"/>',layers:'<path d="m12 2 10 5-10 5L2 7l10-5z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/>',
+panel:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/>',plus:'<path d="M12 5v14M5 12h14"/>'};
+const ic=(n,c="")=>`<svg class="ic ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+/* Logo: aproximación vectorial provisional del logo Qubico (reemplazar por el SVG oficial). */
+const LOGO=(s=28)=>`<svg width="${s}" height="${s}" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="#1b1f24" stroke-width="2.6"><path d="M6 13h20v20H6zM14 5h20v20H14zM6 13l8-8M26 13l8-8M26 33l8-8M6 33l8-8"/></g><g fill="#fff" stroke="#1b1f24" stroke-width="2.4">${[[6,13],[26,13],[6,33],[26,33],[14,5],[34,5],[14,25],[34,25]].map(([x,y])=>`<rect x="${x-3}" y="${y-3}" width="6" height="6" rx="2"/>`).join("")}</g></svg>`;
+/* ---------- Datos sintéticos ---------- */
+const BLOCKS=[["A","Acreditación y protocolo de cierre",[31,33,29,30,13,15,27]],["B","Conocimiento del producto",[4,2,6,5,28]],["C","Gestión de la retención",[14,17,9,16,3,12,32,7,26]],["D","Trato",[1,8,11,10]],["E","Tipificación",[18,19,24,20,21,22,23,25]]];
+const MOTIVOS={31:"No valida correctamente al cliente (RUT, nombre, fecha de nacimiento)",33:"No valida correctamente al cliente (email, fono)",29:"No realiza protocolo de cierre",30:"No reitera protocolo de cierre ante respuesta no permitida",13:"No indica número de seguro en protocolo de cierre",15:"No se informa medio de pago en protocolo de cierre",27:"Entrega información a tercero, sin retomar protocolo de cierre con el titular",4:"No indica ninguna característica del seguro a renunciar",2:"Descripción del seguro corresponde a otro seguro",6:"No maneja información del producto o coberturas",5:"No informa que la permanencia la maneja cliente ante consulta directa",28:"Niega devolución de primas",14:"No realiza ningún intento de retención del seguro retenible",17:"Retiene seguro no retenible",9:"Renuncia seguro irrenunciable en este canal",16:"Realiza retención de seguro sin intención de renuncia",3:"Excede 3 objeciones máximo para retención",12:"Induce a renuncia",32:"Predispone al cliente para la aceptación del seguro",7:"No realiza derivación correcta",26:"No se impactan todas las gestiones solicitadas por el cliente",1:"Deja en espera por tiempo excesivo",8:"No responde de forma directa al cliente",11:"Descalifica a los pares, a BancoEstado o a la competencia",10:"Su atención no se ajusta a la política de BancoEstado",18:"Tipifica motivo de renuncia incorrecto",19:"Tipifica renuncia y por grabación es retención",24:"Tipifica retención y por grabación es renuncia",20:"Tipifica renuncia de seguro no mencionado",21:"Tipifica renuncia que corresponde a otro seguro",22:"Tipifica retención de seguro no mencionado",23:"Tipifica retención que corresponde a otro seguro",25:"No tipifica todas las gestiones"};
+const FICHA_REL={28:"devolucion",17:"categoria",14:"categoria",9:"categoria",2:"coberturas",6:"coberturas",4:"coberturas",15:"llamada",13:"llamada"};
+const CALL={id:"LL-1015-0412",fecha:"15 oct 2026 · 09:14",ej:"Rubén Soto",dur:663,seguros:["Seguro Desempleo Consumo"],
+ transcript:[[4,"Ejecutivo","Buenos días, le habla Rubén, ejecutivo de retención. ¿Con quién tengo el gusto?"],[9,"Cliente","Hola, con [nombre del cliente]."],[15,"Ejecutivo","Para validar, ¿me indica su RUT y su fecha de nacimiento?"],[22,"Cliente","Sí, es ••••••-K, y nací el [fecha]."],[40,"Cliente","Llamo porque quiero renunciar al seguro de desempleo del crédito."],[58,"Ejecutivo","Entiendo. ¿Me cuenta el motivo de la renuncia?"],[66,"Cliente","Es que ahora tengo contrato indefinido y no lo necesito."],[95,"Ejecutivo","Le comento que el seguro le cubre hasta seis cuotas del crédito si queda cesante."],[140,"Cliente","Sí, pero igual prefiero no pagarlo."],[190,"Ejecutivo","¿Y si lo mantiene unos meses más mientras se asienta en el trabajo nuevo?"],[250,"Cliente","No, gracias."],[310,"Ejecutivo","Además tiene asistencia de orientación laboral sin costo."],[328,"Cliente","No, de verdad no me interesa."],[400,"Ejecutivo","Muy bien, procedo con la renuncia."],[462,"Cliente","¿Y me devuelven lo que ya pagué este mes?"],[470,"Ejecutivo","No, eso no se devuelve en ningún caso."],[560,"Ejecutivo","Queda renunciado el seguro terminado en •••• 5678, con cargo al crédito."],[640,"Ejecutivo","¿Algo más en que le pueda ayudar? Que tenga buen día."]],
+ findings:{28:{v:"non_compliant",conf:.86,t:470,q:"No, eso no se devuelve en ningún caso.",c:"El cliente pregunta por la devolución y el ejecutivo la niega sin informar la regla del seguro de prima mensual.",crit:true},
+  3:{v:"uncertain",conf:.54,t:190,q:"¿Y si lo mantiene unos meses más mientras se asienta en el trabajo nuevo?",c:"No es claro si el primer argumento cuenta como objeción."},
+  32:{v:"uncertain",conf:.48,t:310,q:"Además tiene asistencia de orientación laboral gratis.",c:"Posible predisposición a mantener el seguro.",unval:true},
+  13:{v:"compliant",conf:.93,t:560,q:"Queda renunciado el seguro terminado en •••• 5678",c:"Indica el número de seguro en el cierre."}}};
+const FICHA={nombre:"Seguro Desempleo Consumo",llamada:[["N° de seguro","•••• 5678"],["N° de póliza","•••• 1234"],["Inicio de vigencia","03 mar 2026"],["Medio de pago","Cargo en el crédito (CRE)"]],categoria:[["Compañía","Aseguradora Ejemplo S.A."],["Categoría","Retenible"],["Regla","Si el cliente pide renunciar, el ejecutivo debe intentar retenerlo."]],prima:[["Tipo de prima","Mensual"]],devolucion:[["Devolución de prima al renunciar","Prima mensual: requerimiento por el canal indicado en la ficha (dato sintético)."]],retracto:[["Retracto","Sí, dentro del plazo indicado en la ficha (dato sintético)."]],coberturas:[["Desempleo","Hasta 6 cuotas del crédito (sintético)"],["Incapacidad temporal","Hasta 6 cuotas (sintético)"]]};
+const EJS=["Camila Vera","Diego Paz","Lucía Rojas","Rubén Soto","Tomás Ibarra"];
+const QUEUE=[["15 oct · 09:14","LL-1015-0412","Rubén Soto","Desempleo Consumo","nc",1,2,"11:03","32 min"],["15 oct · 09:20","LL-1015-0431","Camila Vera","Incendio Hogar","nc",2,0,"08:41","26 min"],["15 oct · 09:41","LL-1015-0477","Diego Paz","Protección Global","du",0,1,"14:12","5 min",true],["15 oct · 09:55","LL-1015-0502","Lucía Rojas","Desempleo Consumo","du",0,2,"06:30","3 min"],["15 oct · 10:02","LL-1015-0519","Tomás Ibarra","Sale Seguro","s",0,0,"09:58","1 min"]];
+const AUDS=["Ana Pérez","Luis Muñoz","Sofía Reyes"];
+const REV_OK=Array.from({length:12},(_,i)=>["LL-1014-0"+(300+i*7),AUDS[i%3],"14 oct · "+String(9+i%8).padStart(2,"0")+":"+String(10+i*3%50).padStart(2,"0"),i%4?"pass":"fail",(1+i%3)+" min "+String(10+i*5%40).padStart(2,"0")+" s"]);
+const REV_FLAG=[["LL-1014-0288","Luis Muñoz","Corrigió a la IA","Evidencia mal interpretada","4 min 02 s"],["LL-1014-0291","Ana Pérez","Revisión rápida (menos de 60 s)","—","0 min 41 s"],["LL-1014-0299","Sofía Reyes","Contradijo en un crítico","Error de transcripción","5 min 30 s"]];
+const LAYERS=[["Capa 1 · Reglas","layer1 0.4.0","—","120 ms","0,000 USD","Incumple (motivo 13: OK)"],["Capa 2 · LLM con checklist","layer2 0.3.0 · prompt 2.7","modelo configurado","1,8 s","0,004 USD","Incumple · 2 dudosos"]];
+/* ---------- Estado ---------- */
+const S={screen:"login",state:"normal",ann:false,collapsed:false,focus:28,cur:465,playing:false,work:{},corrOpen:null,corrErr:null,addOpen:false,fichaOpen:true,onlyAction:true,openBlocks:{},savedAt:null,supEdit:false,
+ alerts:[{id:1,tipo:"Escalamiento",st:"Nueva",call:"LL-1015-0388",txt:"Duda de criterio · Motivo 3 · 04:12",by:"Ana Pérez",q:"No sé si el primer argumento cuenta como objeción."},{id:2,tipo:"Crítico confirmado",st:"Nueva",call:"LL-1015-0412",txt:"Motivo 28 · Niega devolución de primas · 07:50",by:"Luis Muñoz"},{id:3,tipo:"Escalamiento",st:"Gestionada",call:"LL-1014-0201",txt:"Audio inaudible · 02:05",by:"Sofía Reyes"}],
+ revTab:"ok",sel:new Set(),approved:new Set(),accounts:[["Ana Pérez","ana.perez@empresa-ejemplo.cl","Activo","Cuenta de la empresa (SSO)"],["Luis Muñoz","luis.munoz@empresa-ejemplo.cl","Activo","Correo y contraseña"],["Sofía Reyes","sofia.reyes@empresa-ejemplo.cl","Invitado","Cuenta de la empresa (SSO)"],["Pablo Torres","pablo.torres@empresa-ejemplo.cl","Desactivado","Cuenta de la empresa (SSO)"]],
+ ejFilter:null,dialog:null,drawer:null,toast:null,saved:0};
+const SCREENS={login:["Ingreso","—"],"a/queue":["Auditor · Cola de casos","auditor"],"a/call":["Auditor · Detalle de llamada","auditor"],"a/end":["Auditor · Fin de jornada","auditor"],"a/my":["Auditor · Mis revisiones","auditor"],"s/home":["Supervisor · Inicio","supervisor"],"s/alerts":["Supervisor · Alertas","supervisor"],"s/reviews":["Supervisor · Revisiones por aprobar","supervisor"],"s/call":["Supervisor · Detalle (modo supervisor)","supervisor"],"s/agents":["Supervisor · Ejecutivos","supervisor"],"s/agent":["Supervisor · Ficha del ejecutivo","supervisor"],"s/criteria":["Supervisor · Motivos","supervisor"],"s/auditors":["Supervisor · Auditores (desempeño)","supervisor"],"s/accounts":["Supervisor · Auditores (cuentas)","supervisor"],"s/queue":["Supervisor · Cola completa (lectura)","supervisor"]};
+const NAV={auditor:[["Cola","a/queue","inbox",()=>QUEUE.length],["Mis revisiones","a/my","history",()=>1,"alert"]],supervisor:[["Inicio","s/home","home"],["Alertas","s/alerts","bell",()=>S.alerts.filter(a=>a.st==="Nueva").length,"alert"],["Revisiones","s/reviews","check",()=>REV_OK.length+REV_FLAG.length-S.approved.size],["Ejecutivos","s/agents","users"],["Motivos","s/criteria","chart"],["Auditores","s/auditors","shield"],["Cola","s/queue","list"]]};
+let NOTES=[];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const mmss=n=>String(Math.floor(n/60)).padStart(2,"0")+":"+String(Math.floor(n%60)).padStart(2,"0");
+function A(t,r){NOTES.push([t,r]);return `<span class="ann" aria-hidden="true">${NOTES.length}</span>`;}
+/* D-20: por motivo Cumple/Incumple/Dudoso (not_applicable se muestra como Cumple); por llamada Cumple/No cumple/Dudosa */
+const IV={non_compliant:["fail","Incumple","x"],uncertain:["doubt","Dudoso","q"],compliant:["pass","Cumple","ok"],not_applicable:["pass","Cumple","ok"]};
+const CV={non_compliant:["fail","No cumple","x"],uncertain:["doubt","Dudosa","q"],compliant:["pass","Cumple","ok"]};
+const itag=v=>`<span class="vt ${IV[v][0]}">${ic(IV[v][2],"sm")}${IV[v][1]}</span>`;
+const ctag=v=>`<span class="ct ${CV[v][0]}">${ic(CV[v][2],"sm")}${CV[v][1]}</span>`;
+function fnd(n){return CALL.findings[n]||{v:"compliant",conf:.9,t:null,q:null,c:"No se detectó en la llamada."};}
+function finalV(n){const w=S.work[n];return w&&w.v?w.v:fnd(n).v;}
+function pendingCount(){return Object.keys(CALL.findings).filter(n=>fnd(n).v==="uncertain"&&!(S.work[n]&&S.work[n].done)).length;}
+function resultV(){if(Object.keys(MOTIVOS).some(n=>finalV(n)==="non_compliant"))return"non_compliant";if(pendingCount())return"uncertain";return"compliant";}
+function actionable(){return BLOCKS.flatMap(b=>b[2]).filter(n=>["non_compliant","uncertain"].includes(fnd(n).v));}
+function supportLine(v,f){if(v==="non_compliant")return `<p class="sup fail">Se detectó en la llamada${f.t!=null?" · "+mmss(f.t):""}</p>`;if(v==="uncertain")return `<p class="sup doubt">No está claro si ocurrió · revisa la evidencia</p>`;return `<p class="sup">No se detectó en la llamada</p>`;}
+/* ---------- Render ---------- */
+function render(){
+  NOTES=[];document.body.classList.toggle("no-ann",!S.ann);$("#pAnn").textContent=S.ann?"Ocultar notas de handoff":"Mostrar notas de handoff";
+  let html;
+  if(S.screen==="login")html=vLogin();
+  else{const role=SCREENS[S.screen][1];html=`<div class="app ${S.collapsed||S.screen.endsWith("call")?"collapsed":""}">${vSide(role)}<main class="main" id="main">${vMain()}</main></div>`;}
+  const notes=NOTES.length?`<aside class="notes" aria-label="Notas de handoff"><h3>Notas de handoff · ${esc(SCREENS[S.screen][0])}</h3><ol>${NOTES.map(n=>`<li>${n[0]} ${n[1]?`<code>${n[1]}</code>`:""}</li>`).join("")}</ol></aside>`:"";
+  $("#root").innerHTML=html+notes;$("#layer").innerHTML=vLayer();$("#pScreen").value=S.screen;$("#pState").value=S.state;
+  const f=document.querySelector("[data-autofocus]");if(f)f.focus();
+}
+function vSide(role){
+  const items=NAV[role].map(([l,k,icn,c,kind])=>{const on=S.screen===k||(k==="a/queue"&&["a/call","a/end"].includes(S.screen))||(k==="s/agents"&&S.screen==="s/agent")||(k==="s/auditors"&&S.screen==="s/accounts")||(k==="s/reviews"&&S.screen==="s/call");const n=c?c():0;
+   return `<button class="nav-i ${on?"on":""}" data-go="${k}" ${on?'aria-current="page"':""} title="${l}">${ic(icn)}<span class="lbl">${l}</span>${n?`<span class="badge ${kind==="alert"?"alert":""}" aria-label="${n} pendientes">${n}</span><span class="dot" aria-hidden="true"></span>`:""}</button>`;}).join("");
+  const who=role==="auditor"?["AP","Ana Pérez","Auditora"]:["JL","Jorge Lagos","Supervisor"];
+  return `<nav class="side" aria-label="Navegación principal"><div class="brand">${LOGO(30)}<span class="brand-t"><span class="wm">QUBICO</span><small>Auditoría de llamadas</small></span></div>${A("Sidebar: 232 px / 64 px colapsada. Activo: --accent + barra --primary de 3 px. Badges: --primary (trabajo) y --red-700 (alertas o reabiertos).","SidebarNav · 05 §1.1")}
+   ${items}<div class="user"><button class="nav-i" data-act="toggleSide" title="Colapsar menú">${ic("side")}<span class="lbl">${S.collapsed?"Expandir":"Colapsar"} menú</span></button><button class="nav-i" data-dlg="shortcuts" title="Atajos">${ic("kbd")}<span class="lbl">Atajos de teclado</span></button>
+   <button class="nav-i" data-go="login" title="Cerrar sesión"><span class="avatar">${who[0]}</span><span class="user-t" style="line-height:16px">${who[1]}<br><small class="help">${who[2]} · Cerrar sesión</small></span></button></div></nav>`;
+}
+function stateBlock(kind){
+  if(S.state==="loading")return `<div class="card" aria-busy="true"><div class="skel" style="width:35%"></div><div class="skel"></div><div class="skel"></div><div class="skel" style="width:65%"></div><span class="sr">Cargando…</span></div>`;
+  if(S.state==="error")return `<div class="err" role="alert"><b>No pudimos cargar ${kind}.</b><span class="help">Revisa tu conexión e intenta de nuevo.</span><div style="margin-top:10px"><button class="btn pri" data-state="normal">Reintentar</button></div></div>`;
+  return null;
+}
+function vMain(){switch(S.screen){case "a/queue":return vQueue(false);case "s/queue":return vQueue(true);case "a/call":return vCall(false);case "s/call":return vCall(true);case "a/end":return vEnd();case "a/my":return vMy();case "s/home":return vHome();case "s/alerts":return vAlerts();case "s/reviews":return vReviews();case "s/agents":return vAgents();case "s/agent":return vAgent();case "s/criteria":return vCriteria();case "s/auditors":return vAuditors();case "s/accounts":return vAccounts();}return "";}
+function vLogin(){
+  return `<div class="login"><section class="l-art"><div style="display:flex;gap:12px;align-items:center">${LOGO(40).replace(/#1b1f24/g,"#fff").replace(/fill="#fff"/,'fill="#1b1f24"')}<span class="wm" style="font-weight:700;letter-spacing:.14em;font-size:20px">QUBICO</span></div>
+   <div><h2>Auditoría de llamadas</h2><p>La IA propone hallazgos sobre el 100 % de las llamadas. Las personas revisan y deciden.</p></div><p class="help" style="color:#9aa3ad">Contenido sintético · prototipo</p></section>
+   <section class="l-form"><div class="box"><h1>Ingresar</h1>
+   <button class="btn pri lg" data-go="a/queue">${ic("cloud")}Ingresar con la cuenta de tu empresa</button>${A("SSO genérico (#25). Botón primario de 40 px.","D-17")}
+   <div class="or">o ingresa con tu correo</div>
+   <label class="field">Correo<input type="email" autocomplete="username"></label><label class="field">Contraseña<input type="password" autocomplete="current-password"></label>
+   ${S.state==="error"?`<div class="err" role="alert"><b>El correo o la contraseña no son correctos.</b></div>`:""}
+   <button class="btn lg" data-go="a/queue">Ingresar</button>
+   <a href="#" data-act="noop" style="color:var(--accent-foreground)">¿Olvidaste tu contraseña?</a>
+   <div class="help" style="border-top:1px solid var(--border);padding-top:10px">Prototipo: <a href="#" data-go="a/queue">entrar como auditora</a> · <a href="#" data-go="s/home">entrar como supervisor</a></div>
+   <div class="help"><a href="#" data-act="noop">Privacidad</a> · <a href="#" data-act="noop">Términos de uso</a> · <a href="#" data-act="noop">Cookies</a></div></div></section></div>`;
+}
+function vQueue(ro){
+  const st=stateBlock("la cola");const rows=QUEUE.filter(r=>!S.ejFilter||r[2]===S.ejFilter);let body;
+  if(st)body=st;
+  else if(S.state==="empty"||!rows.length)body=S.ejFilter?`<div class="empty"><h2>Terminaste los casos pendientes de ${esc(S.ejFilter)}.</h2><p>Puedes seguir con el resto de la cola.</p><div style="display:flex;gap:8px"><button class="btn pri" data-act="clearEj">Ver toda la cola</button><button class="btn">Mantener filtro</button></div></div>`:`<div class="empty"><h2>No hay casos con estos filtros.</h2><p>Prueba con otros filtros.</p><button class="btn" data-act="clearEj">Limpiar filtros</button></div>`;
+  else body=`<table class="tbl"><thead><tr><th>Fecha</th><th>Llamada</th><th>Ejecutivo</th><th>Seguros</th><th aria-sort="descending">Decisión del motor ↓</th><th>Incumple</th><th>Dudosos</th><th>Duración</th><th>En cola</th>${ro?"<th>Auditor</th>":""}</tr></thead><tbody>
+   ${rows.map(r=>`<tr data-go="${ro?"s/call":"a/call"}" tabindex="0"><td class="mono">${r[0]}</td><td class="mono" style="font-weight:600">${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]==="s"?`<span class="st teal" title="Llamada que la IA marcó como Cumple, incluida al azar para controlar la calidad de la IA.">Muestra cumple</span>`:ctag(r[4]==="nc"?"non_compliant":"uncertain")}</td><td class="num">${r[5]}</td><td class="num">${r[6]}</td><td class="num">${r[7]}</td><td class="num">${r[8]}${r[9]?` <span class="st">${ic("lock","sm")}En revisión por Luis Muñoz</span>`:""}</td>${ro?"<td>"+(r[9]?"Luis Muñoz":"—")+"</td>":""}</tr>`).join("")}</tbody></table>
+   ${A("DataTable (TanStack Table): fila 44 px, encabezado 36 px --muted, fila clicable + Enter. Decisión del motor = CallVerdictBadge (pill).","DataTable · CallVerdictBadge")}`;
+  const cnt=S.ejFilter?`${rows.length} de ${QUEUE.length} con el filtro`:`${QUEUE.length} pendientes · 12 revisados hoy`;
+  return `<div class="ph"><div><h1>${ro?"Cola completa":"Cola de casos"}</h1><p>Ordenada por gravedad y luego por antigüedad.${ro?" Solo lectura.":""}</p></div><div class="acts">${ro?"":`<span class="help">${cnt}</span><button class="btn pri" data-go="a/call">Tomar siguiente</button>`}</div></div>
+  <div class="filters" role="search"><label class="sr" for="ejq">Buscar ejecutivo</label><input id="ejq" class="inp search" list="ejl" placeholder="Buscar ejecutivo" value="${esc(S.ejFilter||"")}" data-act="ejInput" style="width:220px"><datalist id="ejl">${EJS.map(e=>`<option value="${e}">`).join("")}</datalist>
+   <select class="sel" aria-label="Decisión"><option>Decisión: todas</option><option>No cumple</option><option>Dudosa</option><option>Muestra cumple</option></select><select class="sel" aria-label="Bloque"><option>Bloque: todos</option>${BLOCKS.map(b=>`<option>${b[1]}</option>`)}</select><select class="sel" aria-label="Seguro"><option>Seguro: todos</option></select><select class="sel" aria-label="Fechas"><option>Hoy</option><option>Últimos 7 días</option></select>
+   ${S.ejFilter?`<span class="chip">Ejecutivo: ${esc(S.ejFilter)}<button aria-label="Quitar filtro de ejecutivo" data-act="clearEj">${ic("x","sm")}</button></span>`:""}</div>
+  <p class="help" style="margin:-4px 0 12px">Las búsquedas por ejecutivo quedan registradas.</p>${body}`;
+}
+function vCall(sup){
+  const st=stateBlock("el caso");if(st)return st;
+  const head=`<div class="d-head"><button class="btn ghost" data-go="${sup?"s/reviews":"a/queue"}">${ic("back","sm")}Volver a ${sup?"Revisiones":"Cola"}</button><h1 class="mono">Llamada ${CALL.id}</h1><span class="d-meta">${CALL.fecha} · Ejecutivo ${CALL.ej} · ${CALL.seguros.join(", ")}</span>
+   <span class="d-meta">Decisión del motor</span>${ctag("non_compliant")}<span class="st ${sup?"teal":""}">${sup?"Por aprobar · Ana Pérez":"En revisión por ti"}</span><button class="btn ghost narrow-only" data-act="fichaDrawer" style="margin-left:auto">${ic("panel","sm")}Ficha del seguro</button><button class="btn ghost" data-dlg="layers">${ic("layers","sm")}Capas y motor</button></div>
+   <div class="banner" role="note">${ic("info","sm")}<span>Hallazgos generados por IA, pendientes de revisión humana. No constituyen una sanción.</span></div>`;
+  const audioErr=S.state==="empty";const pct=S.cur/CALL.dur*100;
+  const bars=Array.from({length:150},(_,i)=>{const h=6+Math.abs(Math.sin(i*1.7)*24+Math.cos(i*.6)*8);return `<rect x="${i*8}" y="${(48-h)/2}" width="4.5" height="${h}" rx="2" fill="${i/150*100<pct?"#0f766e":"#d6dbe0"}"/>`}).join("");
+  const markers=Object.entries(CALL.findings).filter(([n,f])=>f.t!=null&&f.v!=="compliant").map(([n,f])=>`<button class="mk ${IV[f.v][0]} ${S.focus==n?"on":""}" style="left:${f.t/CALL.dur*100}%" data-focus="${n}" aria-label="Motivo ${n}, ${IV[f.v][1]}, minuto ${mmss(f.t)}"><span></span></button>`).join("");
+  const player=audioErr?`<div class="player"><div class="err" role="alert" style="flex:1;box-shadow:none"><b>No pudimos cargar el audio.</b><span class="help">Puedes revisar con la transcripción o escalar el caso con el motivo «Audio inaudible».</span></div></div>`
+   :`<div class="player" aria-label="Reproductor"><button class="play" data-act="play" aria-label="${S.playing?"Pausar":"Reproducir"}">${ic(S.playing?"pause":"play")}</button><button class="btn ghost" data-act="back5" aria-label="Retroceder 5 segundos">−5 s</button><button class="btn ghost" data-act="fwd5" aria-label="Avanzar 5 segundos">+5 s</button>
+    <span class="time" id="tm">${mmss(S.cur)} / ${mmss(CALL.dur)}</span><div class="wave" data-act="seek"><svg viewBox="0 0 1200 48" preserveAspectRatio="none" aria-hidden="true">${bars}</svg>${markers}</div>
+    <select class="sel" aria-label="Velocidad"><option>1x</option><option>1,25x</option><option selected>1,5x</option><option>2x</option></select></div>
+    ${A("AudioPlayer (wavesurfer.js): reproducido --primary, pendiente --neutral-300. Marcas: Incumple = cuadrado --red-700; Dudoso = círculo punteado --amber-600. Área de clic 24 px.","AudioPlayer · FindingMarker")}`;
+  const curTurn=CALL.transcript.reduce((a,t,i)=>t[0]<=S.cur?i:a,0);const ff=fnd(S.focus);
+  const tx=`<section class="col" aria-label="Transcripción"><div class="col-h"><b>Transcripción</b><span class="help">Datos personales enmascarados</span><input class="inp search" placeholder="Buscar" style="margin-left:auto;width:150px;height:28px" aria-label="Buscar en la transcripción"></div>
+   ${CALL.transcript.map((t,i)=>{let txt=esc(t[2]);if(ff.q&&t[0]===ff.t)txt=txt.replace(esc(ff.q).slice(0,30),m=>`<mark>${m}</mark>`);return `<div class="turn ${i===curTurn?"on":""}" data-seek="${t[0]}" role="button" tabindex="0"><span class="t">${mmss(t[0])}</span><span class="sp ${t[1]==="Cliente"?"cli":""}">${t[1]}</span><span>${txt}${S.work["tx"+i]?' <span class="st">Mal transcrito</span>':""}</span></div>`}).join("")}
+   <div style="padding:10px 12px"><button class="btn ghost" data-act="marktx">Marcar el turno actual como mal transcrito</button></div></section>
+   ${A("Transcript (TanStack Virtual): turno activo --accent con barra --primary; cita resaltada --amber-200; 15/22 px para lectura larga.","Transcript · TranscriptTurn")}`;
+  const blocks=BLOCKS.map(([k,name,ns])=>{const nc=ns.filter(n=>finalV(n)==="non_compliant").length,du=ns.filter(n=>finalV(n)==="uncertain").length,act=ns.filter(n=>["non_compliant","uncertain"].includes(fnd(n).v)||S.focus==n);
+    const open=S.openBlocks[k]!==undefined?S.openBlocks[k]:(nc+du>0);const shown=S.onlyAction?act:ns;const hidden=ns.length-shown.length;
+    return `<div class="blk"><button class="bh" aria-expanded="${open}" data-blk="${k}">${open?"▾":"▸"} ${name}<small>${nc?`<span class="vt fail">${nc} incumple</span>`:""}${du?`<span class="vt doubt">${du} dudoso${du>1?"s":""}</span>`:""}${!nc&&!du?"Todo cumple":""}</small></button>${open?shown.map(n=>vItem(n,sup)).join("")+(hidden?`<div class="more">${ic("ok","sm")} y ${hidden} motivo${hidden>1?"s":""} sin incumplimiento <button class="btn ghost" data-act="showAll">Mostrar</button></div>`:""):""}</div>`}).join("");
+  const ck=`<section class="col" aria-label="Pauta de calidad"><div class="col-h"><b>Pauta de calidad</b><span class="tip" title="Cada motivo describe algo que no debe ocurrir. Incumple = ocurrió.">?</span><span class="help">motivos de no calidad</span>
+    <label class="chk help" style="margin-left:auto"><input type="checkbox" data-act="onlyAction" ${S.onlyAction?"checked":""}> Solo los que piden acción</label></div>${blocks}
+    ${sup?"":`<div style="padding:12px"><button class="btn" data-act="addOpen">${ic("plus","sm")}Agregar hallazgo que la IA no detectó</button>${S.addOpen?`<div class="inline-f"><label>Motivo<select data-autofocus>${Object.keys(MOTIVOS).map(n=>`<option>Motivo ${n} · ${MOTIVOS[n]}</option>`).join("")}</select></label><label>Minuto<input value="${mmss(S.cur)}" class="mono" style="width:90px"></label><span class="help">Se registra en el minuto actual del audio (${mmss(S.cur)}). Puedes cambiarlo.</span><label>Comentario<textarea rows="2"></textarea></label><div style="display:flex;gap:8px"><button class="btn pri" data-act="addSave">Agregar hallazgo</button><button class="btn" data-act="addOpen">Cancelar</button></div></div>`:""}</div>`}</section>
+    ${A("FindingItem: veredicto ANTES del nombre + línea de apoyo en positivo (\"Se detectó en la llamada\"). Por motivo: Cumple / Incumple / Dudoso; sin No aplica.","D-20 · C-01 · HE-01")}${A("Interruptor 'Solo los que piden acción' activado por defecto; el resto, resumido.","C-05")}`;
+  const rel=FICHA_REL[S.focus];
+  const fi=S.fichaOpen?`<section class="col fi" aria-label="Ficha del seguro"><div class="col-h"><b>Ficha del seguro</b><button class="btn ghost" style="margin-left:auto;padding:0 6px" data-act="ficha" aria-label="Plegar ficha">${ic("panel","sm")}</button></div>
+    <div class="tabs" role="tablist" style="margin:0;padding:0 8px"><button role="tab" aria-selected="true">Seguro 1 · ${FICHA.nombre}</button></div>
+    ${FICHA_HTML()}</section>
+    ${A("ProductSheet: sección relevante con borde --primary 2 px y fondo --accent; secciones largas plegables.","ProductSheet · O-03")}`
+   :`<button class="col btn" style="min-height:440px;writing-mode:vertical-rl;justify-content:center" data-act="ficha">Ficha del seguro</button>`;
+  const pend=pendingCount(),rv=resultV();
+  const saved=S.savedAt?`<span class="saved">${ic("cloud","sm")}Guardado · hace un momento</span>`:"";
+  const bar=sup?`<div class="actbar"><span class="grow">Revisión de Ana Pérez · 4 min 12 s · Veredicto del auditor ${ctag("non_compliant")} ${S.supEdit?'<span class="st ink">Editando la decisión</span>':""}</span>
+     ${S.supEdit?`<button class="btn" data-act="supEditCancel">Cancelar</button><button class="btn pri" data-dlg="override">Guardar cambio</button>`:`<button class="btn" data-dlg="reopen">Reabrir</button><button class="btn" data-act="supEdit">Cambiar decisión</button><button class="btn pri" data-act="supApprove">Aprobar y siguiente<span class="kbd">A</span></button>`}</div>${A("Supervisor: 'Aprobar y siguiente' (A). 'Cambiar decisión' entra en modo edición; el motivo se pide al guardar.","C-07 · C-08")}`
+   :`<div class="actbar"><span class="grow" aria-live="polite">Veredicto resultante ${ctag(rv)}<span class="help">${pend?`Te queda${pend>1?"n":""} ${pend} hallazgo${pend>1?"s":""} dudoso${pend>1?"s":""} por resolver.`:"Todo listo para guardar."}</span>${saved}</span>
+     <button class="btn" data-dlg="escalate">Escalar<span class="kbd">E</span></button><button class="btn pri" data-act="save" ${pend?'disabled aria-disabled="true"':""}>Guardar y siguiente<span class="kbd">↵</span></button></div>
+     ${A("ActionBar fija abajo (--shadow-md). Indicador de autoguardado. Guardar deshabilitado con dudosos, con el motivo en texto.","C-02 · HU-AUD-03")}`;
+  return head+player+`<div class="cols ${S.fichaOpen?"":"nofi"}">${tx}${ck}${fi}</div>`+bar;
+}
+function vItem(n,sup){
+  const f=fnd(n),w=S.work[n]||{},foc=S.focus==n,v=finalV(n);const needs=["non_compliant","uncertain"].includes(f.v);
+  let h=`<div class="item ${foc?"focus":""}" id="it${n}"><div class="top">${itag(v)}<span class="nm">Motivo ${n} · ${MOTIVOS[n]}${f.crit?' <span class="st ink">Crítico</span>':""}</span></div>${supportLine(v,f)}`;
+  if(!needs&&!foc)return h+(sup?"":`<div class="meta">La IA propone: Cumple · <span title="Si no lo cambias, queda como aceptado sin cambios al guardar.">aceptado sin cambios al guardar</span> · <a href="#" data-focus="${n}" style="color:var(--accent-foreground)">Revisar</a></div>`)+"</div>";
+  h+=`<div class="meta">La IA propone: ${IV[f.v][1]} · Confianza ${Math.round(f.conf*100)} %</div>`;
+  const evid=f.q?`<button class="btn ghost" data-focus="${n}" style="height:26px;padding:0 6px">${ic("play","sm")}Ir a la evidencia · ${mmss(f.t)}</button><div class="quote">“${esc(f.q)}”</div>${f.unval?`<div class="unval">${ic("alert","sm")}Esta cita no aparece tal cual en la transcripción. Verifícala en el audio.</div>`:""}`:"";
+  const com=f.v==="uncertain"?`<details><summary class="help" style="cursor:pointer">Ver comentario de la IA</summary><p style="margin:4px 0">${esc(f.c)}</p></details>`:`<p style="margin:4px 0;font-size:13px">IA: ${esc(f.c)}</p>`;
+  h+=f.v==="uncertain"?evid+com:com+evid;
+  if(sup){h+=`<div class="diffc">IA: ${IV[f.v][1]} → Auditor: ${n==3?"Cumple · Criterio ambiguo en la pauta":IV[f.v][1]+" (confirmó)"}</div>`;
+    if(S.supEdit)h+=`<div class="seg" role="group" aria-label="Decisión del supervisor sobre el motivo ${n}"><button aria-pressed="false">Cumple</button><button aria-pressed="false">Incumple</button></div>`;return h+"</div>";}
+  if(w.done){return h+`<div class="resolved">${ic("ok","sm")}${w.choice==="confirm"?"Confirmado por ti":"Corregido por ti: "+IV[w.v][1]} · <a href="#" data-undo="${n}" style="color:var(--accent-foreground)">Cambiar</a></div></div>`;}
+  const opts=(f.v!=="uncertain"?[["confirm","Confirmar"]]:[]).concat([["compliant","Cumple"],["non_compliant","Incumple"]].filter(o=>o[0]!==f.v));
+  h+=`<div class="seg" role="group" aria-label="Decisión sobre el motivo ${n}" id="seg${n}">${opts.map(([k,l])=>`<button aria-pressed="${w.choice===k}" data-choose="${n}:${k}">${l}${k==="confirm"?'<span class="kbd">C</span>':""}</button>`).join("")}</div>`;
+  if(S.corrOpen==n)h+=`<div class="inline-f"><label>Motivo de la corrección<select data-autofocus id="cr${n}" ${S.corrErr==n?'aria-invalid="true" aria-describedby="ce'+n+'"':""}><option value="">Elige un motivo…</option><option>Evidencia mal interpretada</option><option>Error de transcripción</option><option>Criterio ambiguo en la pauta</option><option>Evidencia fuera del fragmento</option><option>La situación no se dio en la llamada</option><option>La IA no detectó el incumplimiento</option><option>Otro</option></select></label>${S.corrErr==n?`<span class="ferr" id="ce${n}">${ic("alert","sm")}Elige un motivo de corrección.</span>`:""}<label>Comentario (obligatorio si eliges «Otro»)<textarea rows="2"></textarea></label><div style="display:flex;gap:8px"><button class="btn pri" data-corrok="${n}">Guardar corrección</button><button class="btn" data-act="corrCancel">Cancelar</button></div></div>`;
+  return h+"</div>";
+}
+function vEnd(){return `<div class="ph"><div><h1>No quedan casos pendientes</h1><p>Revisaste ${12+S.saved} casos hoy: ${9+S.saved} sin correcciones y 3 con correcciones.</p></div></div>
+ <div class="kpis"><div class="card kpi"><div class="l">Revisados hoy</div><div class="v">${12+S.saved}</div></div><div class="card kpi"><div class="l">Con correcciones</div><div class="v">3</div></div><div class="card kpi"><div class="l">Tu tiempo de revisión</div><div class="v">1 h 48 min</div><div class="help">para 5 h 30 min de audio</div></div></div>
+ <div style="display:flex;gap:8px"><button class="btn pri" data-go="a/my">Ver mis revisiones</button><button class="btn" data-go="login">${ic("out","sm")}Cerrar sesión</button></div>`;}
+function vMy(){const st=stateBlock("tus revisiones");
+ const body=st||(S.state==="empty"?`<div class="empty"><h2>Aún no tienes revisiones.</h2><p>Empieza desde la Cola.</p><button class="btn pri" data-go="a/queue">Ir a la Cola</button></div>`:
+ `<table class="tbl"><thead><tr><th>Llamada</th><th>Fecha</th><th>Estado</th><th>Tu decisión</th><th>Detalle</th></tr></thead><tbody>
+ <tr data-go="a/call"><td class="mono" style="font-weight:600">LL-1014-0221</td><td class="mono">14 oct · 16:02</td><td><span class="vt fail">${ic("history","sm")}Reabierto</span></td><td>${ctag("compliant")}</td><td style="white-space:normal">Jorge Lagos: «Revisa el motivo 3: el cliente pidió la renuncia dos veces.»</td></tr>
+ <tr><td class="mono" style="font-weight:600">LL-1014-0230</td><td class="mono">14 oct · 16:20</td><td><span class="st">Cambiado por el supervisor</span></td><td>${ctag("non_compliant")}</td><td style="white-space:normal">Tu decisión: No cumple → Supervisor: Cumple (motivo 32 · criterio ambiguo)</td></tr>
+ <tr><td class="mono" style="font-weight:600">LL-1014-0244</td><td class="mono">14 oct · 16:41</td><td><span class="vt doubt">Escalado</span></td><td>—</td><td>Esperando respuesta del supervisor</td></tr>
+ <tr><td class="mono" style="font-weight:600">LL-1015-0101</td><td class="mono">15 oct · 08:55</td><td><span class="st teal">Esperando aprobación</span></td><td>${ctag("non_compliant")}</td><td><button class="btn ghost">Editar revisión</button></td></tr>
+ <tr><td class="mono" style="font-weight:600">LL-1013-0190</td><td class="mono">13 oct · 11:10</td><td><span class="st ink">Cerrado</span></td><td>${ctag("compliant")}</td><td>—</td></tr></tbody></table>`);
+ return `<div class="ph"><div><h1>Mis revisiones</h1><p>Los casos reabiertos aparecen primero. Puedes editar una revisión mientras el supervisor no la apruebe.</p></div></div>${body}`;}
+function vHome(){const st=stateBlock("el panel");const nA=S.alerts.filter(a=>a.st==="Nueva").length;
+ return `<div class="ph"><div><h1>Inicio</h1><p>Operación · últimos 7 días</p></div><div class="acts"><button class="btn" data-dlg="export">Exportar</button></div></div>
+ <div class="filters"><select class="sel"><option>Últimos 7 días</option></select><select class="sel"><option>Seguro: todos</option></select><select class="sel"><option>Equipo: todos</option></select><select class="sel"><option>Pauta v2.7</option></select></div>
+ ${st||`${nA?`<div class="banner" style="border-left-color:var(--red-700)">${ic("bell","sm")}<span><b>${nA} alertas nuevas</b> esperan gestión.</span><button class="btn ghost" data-go="s/alerts" style="margin-left:auto">Ver alertas</button></div>`:""}
+ <div class="kpis">
+  <div class="card kpi"><span class="src" title="Dato aún sin revisión humana">Según IA</span><div class="v">8.420</div><div class="l">Llamadas procesadas · 100 % de cobertura</div></div>
+  <div class="card kpi"><span class="src">Según IA</span><div class="v">71 %</div><div class="l">Decisión del motor: Cumple · No cumple 18 % · Dudosa 11 %</div></div>
+  <div class="card kpi"><span class="src h" title="Dato revisado por una persona">Confirmado</span><div class="v">76,4 %</div><div class="l">Cumplimiento final, después de la revisión humana</div></div>
+  <div class="card kpi"><span class="src">Cola</span><div class="v">142</div><div class="l">Casos pendientes · el más antiguo espera 3 h</div></div>
+  <div class="card kpi"><span class="src h">Confirmado</span><div class="v">6</div><div class="l">Críticos confirmados · 2 sin gestionar</div></div></div>
+ ${A("KpiCard + SourceBadge: 'Según IA' contorno punteado; 'Confirmado' sólido tinta. Tooltip explica la fuente.","KpiCard · SourceBadge · C-10")}
+ <div class="grid2"><div class="card"><div style="display:flex;gap:8px;align-items:center"><b>Cumplimiento final por día</b><span class="src h">Confirmado</span></div><div class="bars">${[74,75,77,76,78,77,76].map((v,i)=>`<div style="height:${v}%"><span>${v} %</span></div>`).join("")}</div><div class="help" style="display:flex;justify-content:space-between;margin-top:4px">${["09","10","11","12","13","14","15"].map(d=>`<span>${d} oct</span>`).join("")}</div></div>
+ <div class="card"><div style="display:flex;gap:8px;align-items:center"><b>Motivos más incumplidos</b><span class="src h">Confirmado</span></div><ol style="padding-left:18px;margin:12px 0"><li>Motivo 28 · Niega devolución de primas · <b>4,1 %</b></li><li>Motivo 13 · No indica número de seguro en el cierre · <b>3,2 %</b></li><li>Motivo 3 · Excede 3 objeciones máximo · <b>2,7 %</b></li></ol><button class="btn ghost" data-go="s/criteria">Ver todos los motivos</button></div></div>`}`;}
+function vAlerts(){const st=stateBlock("las alertas");const list=S.state==="empty"?[]:S.alerts;
+ return `<div class="ph"><div><h1>Alertas</h1><p>Casos escalados por auditores e incumplimientos críticos confirmados.</p></div></div>
+ <div class="tabs" role="tablist"><button role="tab" aria-selected="true">Nuevas <span class="cnt">${S.alerts.filter(a=>a.st==="Nueva").length}</span></button><button role="tab" aria-selected="false">Vistas</button><button role="tab" aria-selected="false">Gestionadas</button></div>
+ ${st||(!list.length?`<div class="empty"><h2>No hay alertas nuevas.</h2><p>Cuando un auditor escale un caso o confirme un crítico, aparecerá aquí.</p></div>`:list.map(a=>`<div class="card" style="margin-bottom:10px;display:flex;gap:14px;align-items:flex-start">${a.tipo==="Escalamiento"?'<span class="vt doubt">Escalamiento</span>':'<span class="vt fail">Crítico confirmado</span>'}<div style="flex:1"><b class="mono">${a.call}</b> · ${a.txt}<div class="help">${a.by} · ${a.st}</div>${a.q?`<div class="quote" style="border-left-color:var(--neutral-500);background:var(--neutral-50)">«${a.q}»</div>`:""}</div>
+  <button class="btn pri" data-go="s/call">Abrir en el minuto</button>${a.st!=="Gestionada"?`<button class="btn" data-gest="${a.id}">Marcar como gestionada</button>`:'<span class="st ink">Gestionada</span>'}</div>`).join(""))}`;}
+function vReviews(){const st=stateBlock("las revisiones");const ok=REV_OK.filter(r=>!S.approved.has(r[0]));
+ const tabs=`<div class="tabs" role="tablist"><button role="tab" aria-selected="${S.revTab==="ok"}" data-rtab="ok">Sin señales <span class="cnt">${ok.length}</span></button><button role="tab" aria-selected="${S.revTab==="flag"}" data-rtab="flag">Con señales <span class="cnt">${REV_FLAG.length}</span></button></div>`;let body;
+ if(st)body=st;else if(S.state==="empty")body=`<div class="empty"><h2>Estás al día.</h2><p>No hay revisiones por aprobar.</p></div>`;
+ else if(S.revTab==="ok")body=`<p class="help" style="margin:0 0 10px">Coinciden con la IA, no tienen correcciones ni escalamientos, y su tiempo de revisión es normal.</p>
+  <div class="filters"><button class="btn" data-act="selAll">Seleccionar las primeras 50</button><span class="help">${S.sel.size} seleccionadas · máximo 50 por lote</span><button class="btn pri" data-dlg="batch" ${S.sel.size?"":"disabled"} style="margin-left:auto">${ic("check","sm")}Aprobar seleccionadas</button></div>
+  <table class="tbl"><thead><tr><th style="width:40px"><span class="sr">Seleccionar</span></th><th>Llamada</th><th>Auditor</th><th>Fecha</th><th>Decisión</th><th>Tiempo de revisión</th></tr></thead><tbody>${ok.map(r=>`<tr><td><input type="checkbox" aria-label="Seleccionar ${r[0]}" data-sel="${r[0]}" ${S.sel.has(r[0])?"checked":""}></td><td class="mono" style="font-weight:600">${r[0]}</td><td>${r[1]}</td><td class="mono">${r[2]}</td><td>${ctag(r[3]==="pass"?"compliant":"non_compliant")}</td><td class="num">${r[4]}</td></tr>`).join("")}</tbody></table>`;
+ else body=`<table class="tbl"><thead><tr><th>Llamada</th><th>Auditor</th><th>Señal</th><th>Motivo de corrección</th><th>Tiempo de revisión</th></tr></thead><tbody>${REV_FLAG.map(r=>`<tr data-go="s/call"><td class="mono" style="font-weight:600">${r[0]}</td><td>${r[1]}</td><td><span class="vt doubt">${r[2]}</span></td><td>${r[3]}</td><td class="num">${r[4]}</td></tr>`).join("")}</tbody></table>`;
+ return `<div class="ph"><div><h1>Revisiones por aprobar</h1><p>Aprueba, reabre o cambia las revisiones antes de que cuenten en los indicadores.</p></div><div class="acts"><button class="btn" data-dlg="export">Exportar</button></div></div>
+ <div class="filters"><select class="sel"><option>Auditor: todos</option></select><select class="sel"><option>Ayer y hoy</option></select><select class="sel"><option>Motivo: todos</option></select></div>${tabs}${body}
+ ${A("ReviewLanes: pestañas con contador. Lote: tope 50, resumen por auditor, Deshacer 10 s.","D-19 · C-13")}`;}
+function vAgents(){const st=stateBlock("los ejecutivos");
+ return `<div class="ph"><div><h1>Ejecutivos</h1><p>Solo cuentan los hallazgos confirmados por un auditor.</p></div><div class="acts"><button class="btn" data-dlg="export">Exportar</button></div></div>
+ <div class="filters"><input class="inp search" placeholder="Buscar ejecutivo" aria-label="Buscar ejecutivo" style="width:220px"><span class="help">Las búsquedas por ejecutivo quedan registradas.</span></div>
+ ${st||`<table class="tbl"><thead><tr><th>Ejecutivo ↑</th><th>Auditadas</th><th>Cumplimiento final</th><th>Motivos más incumplidos</th><th>Tendencia</th><th>Seguimientos pendientes</th></tr></thead><tbody>
+ ${[["Camila Vera",212,"82 %","28 · 13 · 3","↗ +2 pts",1],["Diego Paz",198,"79 %","13 · 15 · 29","→ estable",3],["Lucía Rojas",205,"88 %","3 · 32","↗ +1 pt",0],["Rubén Soto",190,"74 %","28 · 3 · 13","↘ −3 pts",2],["Tomás Ibarra",201,"81 %","15 · 28","→ estable",0]].map(r=>`<tr data-go="s/agent"><td style="font-weight:600">${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td class="num">${r[5]?`<span class="st teal">${r[5]}</span>`:"0"}</td></tr>`).join("")}</tbody></table>`}`;}
+function vAgent(){return `<button class="btn ghost" data-go="s/agents">${ic("back","sm")}Volver a Ejecutivos</button>
+ <div class="ph" style="margin-top:8px"><div><h1>Rubén Soto</h1><p>Retención · equipo 2 (ficticio)</p></div><div class="acts"><button class="btn" data-dlg="export">Exportar</button><button class="btn pri" data-act="fb">Registrar feedback</button></div></div>
+ <div class="kpis"><div class="card kpi"><span class="src h">Confirmado</span><div class="v">190</div><div class="l">Llamadas auditadas</div></div><div class="card kpi"><span class="src h">Confirmado</span><div class="v">74 %</div><div class="l">Cumplimiento final</div></div><div class="card kpi"><div class="l">Seguimientos pendientes</div><div class="v">2</div></div></div>
+ <div class="grid2"><div class="card"><b>Llamadas con hallazgos confirmados</b><table class="tbl" style="margin-top:10px;box-shadow:none"><tbody><tr data-go="s/call"><td class="mono">LL-1015-0412</td><td><span class="vt fail">${ic("x","sm")}Incumple</span> Motivo 28</td><td><span class="st">Pendiente</span></td></tr><tr data-go="s/call"><td class="mono">LL-1013-0170</td><td><span class="vt fail">${ic("x","sm")}Incumple</span> Motivo 3</td><td><span class="st teal">Con feedback</span></td></tr></tbody></table></div>
+ <div class="card" style="border-style:dashed;box-shadow:none"><div style="display:flex;gap:8px;align-items:center"><b>Aún sin revisión humana</b><span class="src">Según IA</span></div><p class="help">No cuentan en los indicadores.</p><table class="tbl" style="box-shadow:none"><tbody><tr><td class="mono">LL-1015-0480</td><td>IA: ${ctag("non_compliant")}</td></tr></tbody></table></div></div>
+ <div class="card" style="margin-top:12px"><b>Historial de feedback</b><p style="margin:8px 0 0"><span class="help">08 oct · Jorge Lagos</span><br>«Revisamos cómo informar la devolución de primas.» <b>Compromiso:</b> informar la regla del seguro. <b>Seguimiento:</b> 22 oct.</p></div>`;}
+function vCriteria(){return `<div class="ph"><div><h1>Motivos</h1><p>Incumplimientos confirmados · últimos 30 días. Haz clic en un motivo para ver sus llamadas.</p></div><div class="acts"><button class="btn" data-dlg="export">Exportar</button></div></div>
+ <table class="tbl"><thead><tr><th>Motivo</th><th>Bloque</th><th>Incumplimientos</th><th>% de llamadas</th><th>vs. periodo anterior</th></tr></thead><tbody>${[[28,"Conocimiento del producto",61,"4,1 %","+0,6 pts"],[13,"Acreditación y cierre",48,"3,2 %","−0,2 pts"],[3,"Gestión de la retención",40,"2,7 %","+0,1 pts"],[15,"Acreditación y cierre",22,"1,5 %","="]].map(r=>`<tr><td style="white-space:normal">Motivo ${r[0]} · ${MOTIVOS[r[0]]}</td><td>${r[1]}</td><td class="num">${r[2]}</td><td class="num">${r[3]}</td><td class="num">${r[4]}</td></tr>`).join("")}</tbody></table>
+ <h2 style="font-size:16px;font-weight:600;margin:20px 0 8px">Motivo × ejecutivo</h2><table class="tbl hm"><thead><tr><th>Motivo</th>${["Camila V.","Diego P.","Lucía R.","Rubén S.","Tomás I."].map(e=>`<th style="text-align:center">${e}</th>`).join("")}</tr></thead><tbody>${[[28,[3,1,0,6,2]],[13,[1,5,2,2,1]],[3,[2,0,4,3,0]]].map(([m,vs])=>`<tr><td>Motivo ${m}</td>${vs.map(v=>`<td style="background:rgba(15,118,110,${v/8});color:${v>4?"#fff":"inherit"};font-weight:600">${v}</td>`).join("")}</tr>`).join("")}</tbody></table>`;}
+function vAuditors(){return `<div class="ph"><div><h1>Auditores</h1><p>Comparado con la media del equipo.</p></div></div>
+ <div class="tabs" role="tablist"><button role="tab" aria-selected="true">Desempeño</button><button role="tab" aria-selected="false" data-go="s/accounts">Cuentas</button></div>
+ <table class="tbl"><thead><tr><th>Auditor ↑</th><th>Casos por día</th><th>Tiempo medio</th><th>Corrige a la IA</th><th>Reabiertos o cambiados</th><th>Escalamientos</th></tr></thead><tbody>
+ <tr><td style="font-weight:600">Ana Pérez</td><td class="num">58</td><td class="num">3 min 40 s</td><td class="num">14 %</td><td class="num">3 %</td><td class="num">2 %</td></tr><tr><td style="font-weight:600">Luis Muñoz</td><td class="num">71</td><td class="num">2 min 05 s <span class="vt doubt">bajo la media</span></td><td class="num">6 %</td><td class="num">9 % <span class="vt doubt">sobre la media</span></td><td class="num">1 %</td></tr><tr><td style="font-weight:600">Sofía Reyes</td><td class="num">52</td><td class="num">4 min 10 s</td><td class="num">17 %</td><td class="num">2 %</td><td class="num">4 %</td></tr></tbody></table>`;}
+function vAccounts(){return `<div class="ph"><div><h1>Auditores</h1><p>Solo puedes crear cuentas de auditor. Las de supervisor las crea Qubico.</p></div><div class="acts"><button class="btn pri" data-dlg="invite">${ic("plus","sm")}Invitar auditor</button></div></div>
+ <div class="tabs" role="tablist"><button role="tab" aria-selected="false" data-go="s/auditors">Desempeño</button><button role="tab" aria-selected="true">Cuentas</button></div>
+ <table class="tbl"><thead><tr><th>Nombre</th><th>Correo</th><th>Estado</th><th>Forma de ingreso</th><th><span class="sr">Acción</span></th></tr></thead><tbody>${S.accounts.map((a,i)=>`<tr><td style="font-weight:600">${a[0]}</td><td>${a[1]}</td><td><span class="st ${a[2]==="Activo"?"teal":a[2]==="Invitado"?"":"ink"}">${a[2]}</span></td><td>${a[3]}</td><td style="text-align:right">${a[2]==="Desactivado"?`<button class="btn ghost" data-react="${i}">Reactivar cuenta</button>`:a[2]==="Invitado"?`<button class="btn ghost">Reenviar invitación</button>`:`<button class="btn ghost" data-deact="${i}" style="color:var(--destructive)">Desactivar</button>`}</td></tr>`).join("")}</tbody></table>`;}
+function FICHA_HTML(){const rel=FICHA_REL[S.focus];const sec=(key,title,rows)=>`<div class="fi-sec ${rel===key?"hl":""}"><b>${title}</b>${rel===key?`<span class="rel">Relevante para el motivo ${S.focus}</span>`:""}<dl style="margin:6px 0 0">${rows.map(r=>`<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join("")}</dl></div>`;
+ return sec("llamada","Datos de la llamada",FICHA.llamada)+sec("categoria","Categoría",FICHA.categoria)+sec("prima","Prima",FICHA.prima)+sec("devolucion","Devolución",FICHA.devolucion)+sec("retracto","Retracto",FICHA.retracto)+`<div class="fi-sec ${rel==="coberturas"?"hl":""}"><details ${rel==="coberturas"?"open":""}><summary><b>Coberturas</b></summary><dl>${FICHA.coberturas.map(r=>`<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join("")}</dl></details></div><div class="fi-sec"><details><summary><b>Asistencias · Primas · Siniestros · Observaciones</b></summary><p class="help">Detalle del catálogo.</p></details></div>`;}
+/* ---------- Capas ---------- */
+function dlg(title,body,acts,w){return `<div class="back" data-act="closeDlg"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dt" ${w?`style="width:min(${w}px,100%)"`:""}><h2 id="dt">${title}</h2>${body}<div class="row">${acts}</div></div></div>`;}
+function vLayer(){let h="";const d=S.dialog;
+ if(d==="escalate")h=dlg("Escalar al supervisor",`<p>El caso sale de tu cola y llega a la bandeja del supervisor. Verás su respuesta en Mis revisiones.</p><div class="summary">Sobre: Motivo ${S.focus} · ${mmss(S.cur)}</div><label>Motivo<select data-autofocus><option>Duda de criterio</option><option>Posible incumplimiento crítico</option><option>Audio inaudible</option><option>Otro</option></select></label><label>¿Qué necesitas que revise el supervisor?<textarea rows="3"></textarea></label>`,`<button class="btn pri" data-act="escOk">Escalar caso</button><button class="btn" data-act="closeDlg">Cancelar</button>`);
+ if(d==="batch"){const ids=[...S.sel];const rows=REV_OK.filter(r=>S.sel.has(r[0]));const byA=AUDS.map(a=>[a,rows.filter(r=>r[1]===a).length]).filter(x=>x[1]);const nc=rows.filter(r=>r[3]==="fail").length;
+  h=dlg(`¿Aprobar ${ids.length} revisiones?`,`<div class="summary"><span>${ids.length} casos · 14 oct · ${nc} No cumple · ${ids.length-nc} Cumple</span>${byA.map(([a,n])=>`<span class="help">${a}: ${n}</span>`).join("")}</div><p><b>Quedarán marcadas como aprobadas en lote con tu nombre.</b></p>`,`<button class="btn pri" data-act="batchOk" data-autofocus>Aprobar ${ids.length} revisiones</button><button class="btn" data-act="closeDlg">Cancelar</button>`);}
+ if(d==="reopen")h=dlg("Reabrir caso",`<label>Devolver a<select data-autofocus><option>Ana Pérez (quien revisó)</option><option>Luis Muñoz</option></select></label><span class="help">Solo se muestran auditores activos.</span><label>Comentario para el auditor (obligatorio)<textarea rows="3"></textarea></label>`,`<button class="btn pri" data-act="reopenOk">Reabrir caso</button><button class="btn" data-act="closeDlg">Cancelar</button>`);
+ if(d==="override")h=dlg("Guardar cambio de decisión",`<p>La decisión del auditor se conserva junto a la tuya.</p><label>Motivo del cambio (obligatorio)<select data-autofocus><option>Criterio mal aplicado</option><option>Evidencia mal interpretada</option><option>Otro</option></select></label><label>Comentario<textarea rows="2"></textarea></label>`,`<button class="btn pri" data-act="overOk">Guardar cambio y cerrar</button><button class="btn" data-act="closeDlg">Cancelar</button>`);
+ if(d==="invite")h=dlg("Invitar auditor",`<label>Nombre<input data-autofocus></label><label>Correo corporativo<input type="email"></label><fieldset><legend>Forma de ingreso</legend><label class="chk"><input type="radio" name="m" checked> Cuenta de la empresa (SSO)</label><label class="chk"><input type="radio" name="m"> Correo y contraseña</label></fieldset><span class="help">Rol: auditor. Solo Qubico crea supervisores.</span>`,`<button class="btn pri" data-act="inviteOk">Invitar auditor</button><button class="btn" data-act="closeDlg">Cancelar</button>`);
+ if(d&&d.startsWith("deact:")){const i=d.split(":")[1],a=S.accounts[+i];h=dlg(`¿Desactivar la cuenta de ${a[0]}?`,`<p>No podrá ingresar. Sus revisiones se conservan y sus casos en revisión vuelven a la cola.</p>`,`<button class="btn danger" data-act="deactOk" data-i="${i}" data-autofocus>Desactivar cuenta</button><button class="btn" data-act="closeDlg">Cancelar</button>`);}
+ if(d==="export")h=dlg("Exportar lo filtrado",`<div class="summary">1.240 llamadas · filtros de la vista actual</div><fieldset><legend>Formato</legend><label class="chk"><input type="radio" name="f" checked> CSV</label><label class="chk"><input type="radio" name="f"> Excel</label></fieldset><label class="chk"><input type="checkbox"> Incluir datos personales</label><span class="help">Requiere permiso. Debes indicar el motivo y quedará en el registro de accesos.</span>`,`<button class="btn pri" data-act="exportOk" data-autofocus>Exportar 1.240 llamadas</button><button class="btn" data-act="closeDlg">Cancelar</button>`);
+ if(d==="layers")h=dlg("Capas y motor de decisión",`<table class="tbl" style="box-shadow:none"><thead><tr><th>Capa</th><th>Versión</th><th>Latencia</th><th>Costo</th><th>Resultado</th></tr></thead><tbody>${LAYERS.map(l=>`<tr><td>${l[0]}</td><td class="mono">${l[1]}</td><td class="num">${l[3]}</td><td class="num">${l[4]}</td><td>${l[5]}</td></tr>`).join("")}</tbody></table><div class="summary"><span><b>Regla aplicada:</b> compliance duro falla → no cumple</span><span class="help">Pauta bancoestado_retention v1.2.0 · contrato de capas v1</span></div>`,`<button class="btn pri" data-act="closeDlg" data-autofocus>Cerrar</button>`,640);
+ if(d==="shortcuts")h=dlg("Atajos de teclado",`<table class="tbl" style="box-shadow:none"><tbody>${[["Espacio","Reproducir o pausar"],["← →","Retroceder o avanzar 5 s"],["J  /  ↓","Hallazgo siguiente"],["K  /  ↑","Hallazgo anterior"],["C","Confirmar"],["X","Corregir (elige Cumple o Incumple)"],["E","Escalar"],["Enter","Guardar y siguiente"],["A","Aprobar y siguiente (supervisor)"],["?","Esta ayuda"],["Ctrl+K","Comandos"]].map(r=>`<tr><td style="width:120px"><span class="kbd">${r[0]}</span></td><td>${r[1]}</td></tr>`).join("")}</tbody></table><span class="help">Los atajos no funcionan mientras escribes en un campo.</span><label class="chk"><input type="checkbox" checked> Usar atajos de una sola tecla</label>`,`<button class="btn pri" data-act="closeDlg" data-autofocus>Cerrar</button>`);
+ if(S.drawer==="fb")h+=`<div class="drawer" role="dialog" aria-modal="false" aria-labelledby="fbt"><h2 id="fbt">Registrar feedback a Rubén Soto</h2><div class="banner" style="margin:0">${ic("info","sm")}<span>Es un registro tuyo de la conversación; no propone ni registra sanciones. No incluyas datos de clientes ni de salud.</span></div><label>Feedback entregado<textarea rows="4" data-autofocus></textarea></label><label>Compromiso<textarea rows="2"></textarea></label><label>Fecha de seguimiento (opcional)<input type="date"></label><fieldset><legend>Llamadas o motivos asociados</legend><label class="chk"><input type="checkbox" checked> LL-1015-0412 · Motivo 28</label><label class="chk"><input type="checkbox"> LL-1013-0170 · Motivo 3</label></fieldset><div style="display:flex;gap:8px"><button class="btn pri" data-act="fbOk">Guardar feedback</button><button class="btn" data-act="fbClose">Cancelar</button></div></div>`;
+ if(S.drawer==="ficha")h+=`<div class="drawer" role="dialog" aria-modal="false" aria-labelledby="fdt"><div style="display:flex;align-items:center"><h2 id="fdt">Ficha del seguro</h2><button class="btn ghost" data-act="fbClose" style="margin-left:auto" aria-label="Cerrar">${ic("x","sm")}</button></div>${FICHA_HTML()}</div>`;
+ if(S.toast)h+=`<div class="toast" role="status">${S.toast.t}${S.toast.undo?` <button data-act="undo">Deshacer</button>`:""}</div>`;
+ return h;}
+/* ---------- Interacción ---------- */
+function go(k){S.screen=k;S.dialog=null;S.drawer=null;S.supEdit=false;if(k.endsWith("call")){S.work={};S.corrOpen=null;S.corrErr=null;S.addOpen=false;S.openBlocks={};S.savedAt=null;const ac=actionable();S.focus=ac[0];S.cur=Math.max(0,fnd(ac[0]).t-5);}render();window.scrollTo(0,0);if(k.endsWith("call"))scrollItem(S.focus);}
+function scrollItem(n){const el=document.getElementById("it"+n);if(!el)return;const col=el.closest(".col");col.scrollTop+=el.getBoundingClientRect().top-col.getBoundingClientRect().top-56;const hl=document.querySelector(".col.fi .fi-sec.hl");if(hl){const c2=hl.closest(".col");c2.scrollTop+=hl.getBoundingClientRect().top-c2.getBoundingClientRect().top-90;}}
+function toast(t,undo){S.toast={t,undo};render();clearTimeout(toast.h);toast.h=setTimeout(()=>{S.toast=null;render();},undo?10000:3500);}
+function focusItem(n){if(n==null)return;S.focus=+n;const f=fnd(n);if(f.t!=null)S.cur=Math.max(0,f.t-4);const b=BLOCKS.find(b=>b[2].includes(+n));S.openBlocks[b[0]]=true;render();scrollItem(n);}
+function touch(){S.savedAt=Date.now();}
+document.addEventListener("click",e=>{
+ const t=e.target.closest("[data-go],[data-act],[data-dlg],[data-focus],[data-seek],[data-blk],[data-choose],[data-corrok],[data-state],[data-rtab],[data-sel],[data-gest],[data-deact],[data-react],[data-undo]");if(!t)return;const ds=t.dataset;
+ if(ds.go!==undefined){e.preventDefault();go(ds.go);return;}
+ if(ds.dlg){S.dialog=ds.dlg;render();return;}
+ if(ds.state){S.state=ds.state;render();return;}
+ if(ds.focus){e.preventDefault();focusItem(ds.focus);return;}
+ if(ds.seek){S.cur=+ds.seek;render();return;}
+ if(ds.undo){e.preventDefault();delete S.work[ds.undo];touch();render();return;}
+ if(ds.blk){const k=ds.blk;const cur=S.openBlocks[k]!==undefined?S.openBlocks[k]:BLOCKS.find(b=>b[0]===k)[2].some(n=>["non_compliant","uncertain"].includes(finalV(n)));S.openBlocks[k]=!cur;render();return;}
+ if(ds.choose){const [n,k]=ds.choose.split(":");S.focus=+n;if(k==="confirm"){S.work[n]={choice:"confirm",done:true};S.corrOpen=null;}else{S.work[n]={choice:k,v:k};S.corrOpen=+n;}S.corrErr=null;touch();render();return;}
+ if(ds.corrok){const n=ds.corrok;if(!document.getElementById("cr"+n).value){S.corrErr=+n;render();return;}S.work[n].done=true;S.corrOpen=null;S.corrErr=null;touch();render();return;}
+ if(ds.rtab){S.revTab=ds.rtab;render();return;}
+ if(ds.sel){S.sel.has(ds.sel)?S.sel.delete(ds.sel):(S.sel.size<50&&S.sel.add(ds.sel));render();return;}
+ if(ds.gest){S.alerts.find(a=>a.id==ds.gest).st="Gestionada";toast("Alerta marcada como gestionada.");return;}
+ if(ds.deact){S.dialog="deact:"+ds.deact;render();return;}
+ if(ds.react){S.accounts[+ds.react][2]="Activo";toast("Cuenta reactivada.");return;}
+ const a=ds.act;
+ if(a==="noop"){e.preventDefault();return;}
+ if(a==="closeDlg"){if(e.target===t||t.tagName==="BUTTON"){S.dialog=null;render();}return;}
+ if(a==="toggleSide"){S.collapsed=!S.collapsed;render();}
+ if(a==="clearEj"){S.ejFilter=null;render();}
+ if(a==="play"){S.playing=!S.playing;render();}
+ if(a==="back5"){S.cur=Math.max(0,S.cur-5);render();}
+ if(a==="fwd5"){S.cur=Math.min(CALL.dur,S.cur+5);render();}
+ if(a==="seek"&&e.target.closest("svg")){const r=t.getBoundingClientRect();S.cur=Math.round((e.clientX-r.left)/r.width*CALL.dur);render();}
+ if(a==="ficha"){S.fichaOpen=!S.fichaOpen;render();}
+ if(a==="onlyAction"){S.onlyAction=t.checked;render();}
+ if(a==="showAll"){S.onlyAction=false;render();}
+ if(a==="addOpen"){S.addOpen=!S.addOpen;render();}
+ if(a==="addSave"){S.addOpen=false;touch();toast("Hallazgo agregado en el minuto "+mmss(S.cur)+".");}
+ if(a==="corrCancel"){delete S.work[S.corrOpen];S.corrOpen=null;S.corrErr=null;render();}
+ if(a==="marktx"){const i=CALL.transcript.reduce((x,tt,j)=>tt[0]<=S.cur?j:x,0);S.work["tx"+i]=true;touch();render();}
+ if(a==="save"){if(pendingCount())return;S.saved++;if(S.saved>=2){go("a/end");toast("Caso enviado a aprobación.");}else{go("a/call");toast("Caso enviado a aprobación. Abriendo el siguiente.");}}
+ if(a==="escOk"){S.dialog=null;go("a/call");toast("Caso escalado. Abriendo el siguiente.");}
+ if(a==="selAll"){REV_OK.filter(r=>!S.approved.has(r[0])).slice(0,50).forEach(r=>S.sel.add(r[0]));render();}
+ if(a==="batchOk"){S.lastBatch=[...S.sel];S.lastBatch.forEach(x=>S.approved.add(x));const n=S.sel.size;S.sel.clear();S.dialog=null;toast(n+" revisiones aprobadas.",true);}
+ if(a==="undo"){(S.lastBatch||[]).forEach(x=>S.approved.delete(x));S.toast=null;toast("Aprobación deshecha.");}
+ if(a==="reopenOk"){S.dialog=null;go("s/reviews");toast("Caso reabierto. Le avisamos al auditor.");}
+ if(a==="supEdit"){S.supEdit=true;render();}
+ if(a==="supEditCancel"){S.supEdit=false;render();}
+ if(a==="overOk"){S.dialog=null;go("s/reviews");toast("Decisión cambiada. Se conserva la del auditor.");}
+ if(a==="supApprove"){go("s/call");toast("Revisión aprobada. Abriendo la siguiente con señales.");}
+ if(a==="inviteOk"){S.dialog=null;S.accounts.push(["Auditor nuevo","nuevo@empresa-ejemplo.cl","Invitado","Cuenta de la empresa (SSO)"]);toast("Enviamos la invitación a nuevo@empresa-ejemplo.cl.");}
+ if(a==="deactOk"){S.accounts[+t.dataset.i][2]="Desactivado";S.dialog=null;toast("Cuenta desactivada.");}
+ if(a==="exportOk"){S.dialog=null;toast("Estamos preparando el archivo. Te avisaremos cuando esté listo.");}
+ if(a==="fb"){S.drawer="fb";render();}
+ if(a==="fichaDrawer"){S.drawer="ficha";render();}
+ if(a==="fbClose"){S.drawer=null;render();}
+ if(a==="fbOk"){S.drawer=null;toast("Feedback guardado. Las llamadas asociadas quedaron «Con feedback».");}
+});
+document.addEventListener("change",e=>{if(e.target.dataset.act==="ejInput"){const v=e.target.value.trim();S.ejFilter=v&&EJS.includes(v)?v:null;render();}});
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape"&&(S.dialog||S.drawer)){S.dialog=null;S.drawer=null;render();return;}
+ const tag=(e.target.tagName||"").toLowerCase();if(["input","textarea","select"].includes(tag)||S.dialog||S.drawer)return;
+ if(e.key==="?"){S.dialog="shortcuts";render();return;}
+ if(S.screen==="s/call"&&(e.key==="a"||e.key==="A")&&!S.supEdit){document.querySelector('[data-act="supApprove"]').click();return;}
+ if(S.screen!=="a/call")return;
+ const ac=actionable();const i=ac.indexOf(S.focus);
+ if(e.key==="j"||e.key==="J"||e.key==="ArrowDown"){e.preventDefault();focusItem(ac[Math.min(ac.length-1,i+1)]);}
+ else if(e.key==="k"||e.key==="K"||e.key==="ArrowUp"){e.preventDefault();focusItem(ac[Math.max(0,i-1)]);}
+ else if(e.key==="c"||e.key==="C"){if(fnd(S.focus).v!=="uncertain"){S.work[S.focus]={choice:"confirm",done:true};touch();render();}}
+ else if(e.key==="x"||e.key==="X"){const b=document.querySelector(`#seg${S.focus} button:not([data-choose$=":confirm"])`);if(b)b.focus();}
+ else if(e.key==="e"||e.key==="E"){S.dialog="escalate";render();}
+ else if(e.key===" "){e.preventDefault();S.playing=!S.playing;render();}
+ else if(e.key==="ArrowLeft"){S.cur=Math.max(0,S.cur-5);render();}
+ else if(e.key==="ArrowRight"){S.cur=Math.min(CALL.dur,S.cur+5);render();}
+ else if(e.key==="Enter"&&!pendingCount()&&e.target===document.body){document.querySelector('[data-act="save"]').click();}
+});
+setInterval(()=>{if(S.playing&&S.screen.endsWith("call")){S.cur=Math.min(CALL.dur,S.cur+1);const el=$("#tm");if(el)el.textContent=mmss(S.cur)+" / "+mmss(CALL.dur);}},1000);
+$("#pScreen").innerHTML=Object.entries(SCREENS).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join("");
+$("#pScreen").addEventListener("change",e=>go(e.target.value));
+$("#pState").addEventListener("change",e=>{S.state=e.target.value;render();});
+$("#pAnn").addEventListener("click",()=>{S.ann=!S.ann;render();});
+render();
+</script>
+</body>
+</html>
