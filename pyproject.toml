@@ -1,0 +1,46 @@
+[project]
+name = "call-audit"
+version = "0.1.0"
+description = "Auditoría automática de llamadas de contact center (Qubico)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "argon2-cffi>=23.1",
+    "itsdangerous>=2.2",
+    "psycopg[binary]>=3.2",
+    "boto3>=1.34",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Importador de corridas del bench (scripts/prompt_bench): lee el Excel de metadata y el prompt YAML.
+bench = ["openpyxl>=3.1"]
+
+[dependency-groups]
+dev = ["pytest>=8.2", "httpx>=0.27", "ruff>=0.5", "openpyxl>=3.1"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/call_audit"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+src = ["src", "tests"]
+extend-exclude = ["scripts", "frontend", "tests/fixtures"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["external: llama a proveedores reales; no corre en CI por defecto"]
+addopts = "-m 'not external'"

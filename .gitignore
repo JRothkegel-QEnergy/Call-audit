@@ -46,3 +46,6 @@ revision/
 Thumbs.db
 .idea/
 .vscode/
+
+# Base local de desarrollo (SQLite)
+*.db
