@@ -5,12 +5,15 @@ Las reglas de visibilidad del diseño se aplican aquí, en el backend, y no en e
 - D-22: el prompt y la respuesta del modelo solo van a cuentas con el permiso view_model_io.
 """
 
+import logging
 from datetime import datetime
 from typing import Any
 
 from call_audit.config import get_settings
 from call_audit.persistence.models import Agent, Case, ModelRun, Note, PromptVersion, Review, User
 from call_audit.rubric import Rubric
+
+logger = logging.getLogger(__name__)
 
 
 def iso(value: datetime | None) -> str | None:
@@ -135,17 +138,23 @@ def presigned_audio(recording: str) -> str | None:
     if not settings.s3_bucket:
         return None
     import boto3
+    from botocore.exceptions import BotoCoreError, ClientError
 
-    s3 = boto3.client("s3", region_name=settings.aws_region)
-    return s3.generate_presigned_url(
-        "get_object",
-        Params={
-            "Bucket": settings.s3_bucket,
-            "Key": f"{settings.s3_prefix}{recording}.mp3",
-            "ResponseContentType": "audio/mpeg",
-        },
-        ExpiresIn=settings.audio_url_ttl_sec,
-    )
+    try:
+        s3 = boto3.client("s3", region_name=settings.aws_region)
+        return s3.generate_presigned_url(
+            "get_object",
+            Params={
+                "Bucket": settings.s3_bucket,
+                "Key": f"{settings.s3_prefix}{recording}.mp3",
+                "ResponseContentType": "audio/mpeg",
+            },
+            ExpiresIn=settings.audio_url_ttl_sec,
+        )
+    except (BotoCoreError, ClientError):
+        # Sin audio el caso se revisa igual (el front muestra "No pudimos cargar el audio"); no se cae el detalle.
+        logger.exception("No se pudo firmar la URL del audio %s", recording)
+        return None
 
 
 def case_detail(

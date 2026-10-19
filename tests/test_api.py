@@ -1,3 +1,4 @@
+import pytest
 from fastapi.testclient import TestClient
 
 from call_audit.persistence.models import User
@@ -141,3 +142,22 @@ def test_criteria_stats_count_only_confirmed_findings(client: TestClient, users:
     assert client.post(f"/api/cases/{cid}/review", json={"items": items}).status_code == 204
     login(client, users["supervisor"])
     assert client.get("/api/criteria/stats").json() == [{"criterionId": 12, "count": 1, "pct": 100.0, "deltaPts": 0}]
+
+
+def test_case_opens_without_audio_when_signing_fails(
+    client: TestClient, users: dict[str, User], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from botocore.exceptions import NoCredentialsError
+
+    from call_audit.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "s3_bucket", "bucket-de-prueba")
+
+    def fail(*args: object, **kwargs: object) -> None:
+        raise NoCredentialsError()
+
+    monkeypatch.setattr("boto3.client", fail)
+    login(client, users["supervisor"])
+    response = client.get(f"/api/cases/{case_id(client, '1001')}")
+    assert response.status_code == 200
+    assert response.json()["audioUrl"] is None

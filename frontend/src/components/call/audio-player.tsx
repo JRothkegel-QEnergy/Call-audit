@@ -12,8 +12,8 @@ export const PLAYBACK_RATES = [1, 1.25, 1.5, 2];
 
 /**
  * Reproductor con forma de onda y marcas de hallazgos.
- * En la demo no hay audio real: la reproducción se simula con un reloj (ver useSimulatedClock).
- * Con el backend, `src` apunta al audio y se reemplaza el reloj por wavesurfer.js.
+ * Solo dibuja: la reproducción la maneja useAudio (audio real de S3 en modo http, reloj simulado en la demo).
+ * La forma de onda es decorativa.
  */
 export function AudioPlayer({
   durationMs,

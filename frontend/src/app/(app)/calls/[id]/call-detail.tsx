@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AudioPlayer } from "@/components/call/audio-player";
+import { useAudio } from "@/components/call/use-audio";
 import { EscalateDialog, OverrideDialog, ReopenDialog } from "@/components/call/call-dialogs";
 import { ModelPanel } from "@/components/call/model-panel";
 import { NoteEditor, NoteList } from "@/components/call/notes";
@@ -148,21 +149,17 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
   );
   const [supEdit, setSupEdit] = useState<Record<number, "compliant" | "non_compliant">>(auditorVerdicts);
 
-  // Reloj simulado del audio (la demo no tiene archivo de audio).
-  useEffect(() => {
-    if (!playing) return;
-    const t = setInterval(() => {
-      setCurrentMs((ms) => {
-        const next = ms + 250 * rate;
-        if (next >= data.durationMs) {
-          setPlaying(false);
-          return data.durationMs;
-        }
-        return next;
-      });
-    }, 250);
-    return () => clearInterval(t);
-  }, [playing, rate, data.durationMs]);
+  // Audio real desde S3 (modo http) o reloj simulado (demo sin archivo de audio).
+  const { unavailable: audioUnavailable } = useAudio({
+    src: data.audioUrl,
+    simulate: !isRealMode,
+    durationMs: data.durationMs,
+    playing,
+    rate,
+    currentMs,
+    setCurrentMs,
+    setPlaying,
+  });
 
   const touch = () => setSavedAt(Date.now());
 
@@ -386,7 +383,7 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
         rate={rate}
         markers={markers}
         focusId={focusId}
-        unavailable={false}
+        unavailable={audioUnavailable}
         onTogglePlay={() => setPlaying((p) => !p)}
         onSeek={setCurrentMs}
         onRate={setRate}

@@ -9,6 +9,10 @@ Cada componente tiene además su propio historial detallado:
 
 ## 2026-10-19
 
+- **Audio real en el detalle de llamada:**
+  - `useAudio` reproduce la URL firmada de S3 con un `<audio>` real, sincronizado con la transcripción, las evidencias, ±5 s y la velocidad. Hasta ahora el reproductor simulaba la reproducción en silencio.
+  - En modo real, sin audio se muestra "No pudimos cargar el audio".
+  - Si falla la firma de S3, la API devuelve el caso sin audio en vez de un error 500.
 - **Scripts de despliegue en AWS** (`scripts/deploy/`):
   - `aws_setup.sh` crea ECR, los security groups, el rol IAM, el RDS privado y el EC2 con IP elástica.
   - `deploy.sh` construye y sube las imágenes y actualiza el EC2.
