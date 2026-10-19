@@ -1,0 +1,137 @@
+/*
+ * Call Audit · Design tokens (Fase 8) · v1.0 · 2026-10-16
+ * Base: app.css del zip (Modernist retocado: acento teal, superficies blancas, radios suaves) + marca Qubico (negro).
+ * Nombres semánticos compatibles con shadcn/ui (--background, --foreground, --primary, ...) + tokens propios del dominio.
+ * Contrastes validados (WCAG 2.2): ver 08-alta-fidelidad.md §1.2. Solo modo claro en el MVP.
+ * Para Tailwind: mapear estas variables en el tema (ej. colors.primary = "var(--primary)").
+ */
+
+:root {
+  /* ---------- Paleta base (rampas) ---------- */
+  --ink-900: #1b1f24;      /* texto principal · marca */
+  --ink-800: #23272d;
+  --neutral-800: #3a4048;
+  --neutral-700: #545b66;  /* texto secundario (6.85:1 sobre blanco) */
+  --neutral-600: #6e7682;  /* texto terciario: SOLO sobre blanco (4.59:1); sobre --background no alcanza */
+  --neutral-500: #8a929c;  /* borde de controles (3.15:1, WCAG 1.4.11) */
+  --neutral-300: #d6dbe0;
+  --neutral-200: #e2e6ea;  /* divisores decorativos */
+  --neutral-100: #f3f5f7;
+  --neutral-50:  #f5f7f8;
+  --white: #ffffff;
+
+  --teal-800: #0b4843;
+  --teal-700: #0b5953;
+  --teal-600: #0f766e;     /* acento de marca / acción (5.47:1 con blanco) */
+  --teal-200: #c7e7e2;
+  --teal-100: #e7f4f2;
+
+  --red-800: #7f2523;
+  --red-700: #a8322f;      /* Incumple (6.64:1 con blanco) */
+  --red-200: #f8d3d2;
+  --red-100: #fdeeee;
+
+  --amber-800: #6b4808;    /* Dudoso (7.57:1 sobre amber-100) */
+  --amber-600: #c08a1e;    /* borde de Dudoso (3.05:1) */
+  --amber-200: #f7e3b5;
+  --amber-100: #fdf5e4;
+
+  /* ---------- Semánticos (shadcn/ui) ---------- */
+  --background: var(--neutral-50);
+  --foreground: var(--ink-900);
+  --card: var(--white);
+  --card-foreground: var(--ink-900);
+  --popover: var(--white);
+  --popover-foreground: var(--ink-900);
+  --primary: var(--teal-600);
+  --primary-hover: var(--teal-700);
+  --primary-foreground: var(--white);
+  --secondary: var(--white);
+  --secondary-foreground: var(--ink-900);
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-700);
+  --subtle-foreground: var(--neutral-600);
+  --accent: var(--teal-100);          /* hover y elemento activo de navegación */
+  --accent-foreground: var(--teal-800);
+  --destructive: var(--red-700);      /* acciones destructivas (desactivar cuenta) */
+  --destructive-foreground: var(--white);
+  --border: var(--neutral-200);       /* divisores */
+  --input: var(--neutral-500);        /* borde de inputs, selects, checkboxes */
+  --ring: var(--teal-600);            /* foco: 2px + offset 2px */
+
+  /* ---------- Dominio: resultado por MOTIVO (D-20) ---------- */
+  --verdict-fail-bg: var(--red-700);       /* Incumple: sólido, máxima atención */
+  --verdict-fail-fg: var(--white);
+  --verdict-fail-soft: var(--red-100);     /* fondo del ítem en foco */
+  --verdict-doubt-bg: var(--amber-100);    /* Dudoso */
+  --verdict-doubt-fg: var(--amber-800);
+  --verdict-doubt-border: var(--amber-600);
+  --verdict-pass-bg: var(--neutral-100);   /* Cumple: discreto a propósito (es lo normal) y distinto del teal de acción */
+  --verdict-pass-fg: var(--neutral-800);
+  --verdict-pass-border: var(--neutral-300);
+
+  /* ---------- Dominio: veredicto de LLAMADA (Cumple / No cumple / Dudosa) ---------- */
+  --call-fail-bg: var(--red-100);   --call-fail-fg: var(--red-700);   --call-fail-border: var(--red-200);
+  --call-doubt-bg: var(--amber-100); --call-doubt-fg: var(--amber-800); --call-doubt-border: var(--amber-200);
+  --call-pass-bg: var(--neutral-100); --call-pass-fg: var(--neutral-800); --call-pass-border: var(--neutral-300);
+
+  /* ---------- Dominio: fuente del dato ---------- */
+  --source-ai-fg: var(--neutral-700);      /* "Según IA": contorno punteado */
+  --source-ai-border: var(--neutral-500);
+  --source-human-bg: var(--ink-900);       /* "Confirmado": sólido tinta */
+  --source-human-fg: var(--white);
+
+  /* ---------- Tipografía ---------- */
+  --font-sans: var(--font-archivo), "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --text-xs: 12px;   --leading-xs: 16px;
+  --text-sm: 13px;   --leading-sm: 18px;
+  --text-base: 14px; --leading-base: 20px;   /* cuerpo y tablas (herramienta densa) */
+  --text-md: 15px;   --leading-md: 22px;     /* transcripción */
+  --text-lg: 18px;   --leading-lg: 24px;
+  --text-xl: 22px;   --leading-xl: 28px;     /* título de página */
+  --text-2xl: 28px;  --leading-2xl: 34px;    /* KPI */
+  --weight-regular: 400; --weight-medium: 500; --weight-semibold: 600; --weight-bold: 700;
+
+  /* ---------- Espaciado (base 4) ---------- */
+  --space-0: 0; --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
+
+  /* ---------- Radios ---------- */
+  --radius-sm: 4px;   /* tags, kbd */
+  --radius-md: 6px;   /* botones, inputs */
+  --radius-lg: 8px;   /* cards, paneles */
+  --radius-xl: 12px;  /* diálogos */
+  --radius-full: 999px; /* badges, chips */
+
+  /* ---------- Sombras ---------- */
+  --shadow-sm: 0 1px 2px rgb(20 30 40 / 6%), 0 1px 3px rgb(20 30 40 / 4%);
+  --shadow-md: 0 4px 12px rgb(20 30 40 / 8%);
+  --shadow-lg: 0 16px 40px rgb(20 30 40 / 16%);
+
+  /* ---------- Layout ---------- */
+  --sidebar-width: 232px;
+  --sidebar-width-collapsed: 64px;
+  --page-gutter: 24px;
+  --topbar-height: 0px;           /* no hay top bar: la navegación es la sidebar */
+  --detail-col-transcript: 40%;
+  --detail-col-checklist: 35%;
+  --detail-col-sheet: 25%;
+  --target-min: 24px;             /* WCAG 2.5.8 */
+  --control-height: 32px;
+  --control-height-lg: 40px;
+
+  /* ---------- Movimiento ---------- */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --ease: cubic-bezier(.2,.8,.2,1);
+}
+
+/* Breakpoints (referencia; en Tailwind: lg=1024, xl=1280, 2xl=1536)
+ *  < 1024  : solo lectura de Inicio y Alertas (supervisor)
+ *  1024–1279: sidebar colapsada; ficha del seguro en drawer
+ *  ≥ 1280  : layout completo
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root { --duration-fast: 0ms; --duration-base: 0ms; }
+}

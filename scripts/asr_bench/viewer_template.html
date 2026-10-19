@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comparador ASR</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --text: #1d2330; --muted: #667085; --border: #e3e6eb;
+    --accent: #2f6fde; --accent-soft: #e6eefc; --hit: #fff1a8;
+    --spk-a: #2f6fde; --spk-b: #c2410c; --spk-c: #667085;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151b; --panel: #1b1f27; --text: #e6e9ef; --muted: #98a2b3; --border: #2c323d;
+      --accent: #6a9cff; --accent-soft: #1f2d4a; --hit: #5c4d00;
+      --spk-a: #6a9cff; --spk-b: #fb923c; --spk-c: #98a2b3;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; height: 100vh; display: flex; flex-direction: column; }
+  header { background: var(--panel); border-bottom: 1px solid var(--border); padding: 12px 16px; display: grid; gap: 10px; }
+  h1 { font-size: 15px; margin: 0; font-weight: 600; }
+  h1 span { color: var(--muted); font-weight: 400; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  audio { width: min(640px, 100%); height: 36px; }
+  button, .chip { font: inherit; font-size: 13px; border: 1px solid var(--border); background: var(--panel); color: var(--text); border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+  button.on, .chip.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  input[type=search] { font: inherit; font-size: 13px; padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); color: var(--text); width: 220px; }
+  label.toggle { font-size: 13px; color: var(--muted); display: flex; gap: 4px; align-items: center; }
+  .meta { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--muted); }
+  .meta b { color: var(--text); font-weight: 500; }
+  main { flex: 1; min-height: 0; display: flex; gap: 12px; padding: 12px 16px; overflow-x: auto; }
+  .col { flex: 0 0 360px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; min-height: 0; }
+  .col h2 { font-size: 13px; margin: 0; padding: 10px 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; gap: 8px; }
+  .col h2 small { color: var(--muted); font-weight: 400; white-space: nowrap; }
+  .cost { padding: 6px 12px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .cost b { color: var(--text); font-weight: 600; }
+  .segs { overflow-y: auto; padding: 6px; }
+  .seg { padding: 5px 6px; border-radius: 6px; display: grid; grid-template-columns: 42px 1fr; gap: 6px; }
+  .seg[data-t] { cursor: pointer; }
+  .seg[data-t]:hover { background: var(--bg); }
+  .seg.active { background: var(--accent-soft); }
+  .ts { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; padding-top: 1px; }
+  .spk { font-weight: 600; font-size: 12px; margin-right: 4px; }
+  .spk.a { color: var(--spk-a); } .spk.b { color: var(--spk-b); } .spk.c { color: var(--spk-c); }
+  .notime { padding: 6px 8px; color: var(--muted); font-size: 12px; border-bottom: 1px dashed var(--border); }
+  mark { background: var(--hit); color: inherit; border-radius: 2px; }
+  @media (max-width: 600px) { .col { flex-basis: 85vw; } input[type=search] { width: 100%; } }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title"></h1>
+  <div class="row">
+    <audio id="player" controls preload="metadata"></audio>
+    <span id="speeds" class="row"></span>
+    <label class="toggle"><input type="checkbox" id="follow" checked> Seguir audio</label>
+    <input type="search" id="q" placeholder="Resaltar texto (ej. póliza, RUT)">
+  </div>
+  <div class="row" id="chips"></div>
+  <div class="meta" id="meta"></div>
+</header>
+<main id="cols"></main>
+
+<script>
+const DATA = /*__DATA__*/null;
+const $ = (id) => document.getElementById(id);
+const player = $("player");
+// Cargar como blob permite saltar a cualquier punto aunque el servidor no soporte Range.
+fetch(DATA.audio)
+  .then((r) => (r.ok ? r.blob() : Promise.reject()))
+  .then((b) => { player.src = URL.createObjectURL(b); })
+  .catch(() => { player.src = DATA.audio; });
+$("title").innerHTML = `Comparador ASR <span>· ${DATA.recording}</span>`;
+
+const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const spkClass = (s) => /^(EJECUTIVO|A)$/i.test(s) ? "a" : /^(CLIENTE|B)$/i.test(s) ? "b" : "c";
+
+$("meta").innerHTML = Object.entries(DATA.metadata).map(([k, v]) => `<span>${esc(k)}: <b>${esc(v)}</b></span>`).join("");
+
+[0.75, 1, 1.25, 1.5, 2].forEach((r) => {
+  const b = document.createElement("button");
+  b.textContent = `${r}×`;
+  b.className = r === 1 ? "on" : "";
+  b.onclick = () => { player.playbackRate = r; document.querySelectorAll("#speeds button").forEach((x) => x.classList.toggle("on", x === b)); };
+  $("speeds").append(b);
+});
+
+let hidden = new Set();
+try { hidden = new Set(JSON.parse(localStorage.getItem("asr-hidden") || "[]")); } catch {}
+
+const usd = (v, d) => "US$" + v.toLocaleString("es-CL", { minimumFractionDigits: d, maximumFractionDigits: d });
+function costLine(m) {
+  if (m.cost == null) return `<div class="cost">Costo: sin dato</div>`;
+  let out = `<div class="cost"><b>${usd(m.cost, 4)}</b> esta llamada`;
+  if (DATA.audio_seconds) {
+    const perMin = m.cost / (DATA.audio_seconds / 60);
+    out += ` · ${usd(perMin, 4)}/min · ~${usd(perMin * DATA.monthly_minutes, 0)}/mes a ${DATA.monthly_minutes.toLocaleString("es-CL")} min`;
+  }
+  return out + "</div>";
+}
+
+function renderCols() {
+  const q = $("q").value.trim();
+  const re = q ? new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi") : null;
+  const hl = (t) => re ? esc(t).replace(re, (m) => `<mark>${m}</mark>`) : esc(t);
+  $("cols").innerHTML = "";
+  for (const m of DATA.models) {
+    if (hidden.has(m.id)) continue;
+    const hasTime = m.segments.some((s) => s.start !== null);
+    const col = document.createElement("section");
+    col.className = "col";
+    col.innerHTML = `<h2>${esc(m.label)}<small>${m.words} palabras${m.seconds != null ? ` · ${m.seconds}s` : ""}</small></h2>`
+      + costLine(m)
+      + (hasTime ? "" : `<div class="notime">Sin timestamps: no se sincroniza con el audio.</div>`);
+    const segs = document.createElement("div");
+    segs.className = "segs";
+    segs.innerHTML = m.segments.map((s) => `<div class="seg"${s.start !== null ? ` data-t="${s.start}"` : ""}>`
+      + `<span class="ts">${s.start !== null ? fmt(s.start) : ""}</span>`
+      + `<span>${s.speaker ? `<span class="spk ${spkClass(s.speaker)}">${esc(s.speaker)}</span>` : ""}${hl(s.text)}</span></div>`).join("");
+    col.append(segs);
+    $("cols").append(col);
+  }
+  syncActive(true);
+}
+
+function renderChips() {
+  $("chips").innerHTML = "";
+  for (const m of DATA.models) {
+    const c = document.createElement("button");
+    c.className = "chip" + (hidden.has(m.id) ? "" : " on");
+    c.textContent = m.label;
+    c.onclick = () => {
+      hidden.has(m.id) ? hidden.delete(m.id) : hidden.add(m.id);
+      try { localStorage.setItem("asr-hidden", JSON.stringify([...hidden])); } catch {}
+      renderChips(); renderCols();
+    };
+    $("chips").append(c);
+  }
+}
+
+function syncActive(force) {
+  const t = player.currentTime;
+  document.querySelectorAll(".segs").forEach((box) => {
+    let active = null;
+    box.querySelectorAll(".seg[data-t]").forEach((el) => {
+      if (parseFloat(el.dataset.t) <= t + 0.05) active = el;
+      el.classList.remove("active");
+    });
+    if (!active) return;
+    active.classList.add("active");
+    if ($("follow").checked && (force || !player.paused)) {
+      const top = active.offsetTop - box.offsetTop - box.clientHeight / 3;
+      box.scrollTo({ top, behavior: force ? "auto" : "smooth" });
+    }
+  });
+}
+
+$("cols").addEventListener("click", (e) => {
+  const seg = e.target.closest(".seg[data-t]");
+  if (!seg) return;
+  player.currentTime = parseFloat(seg.dataset.t);
+  player.play();
+});
+let last = -1;
+player.addEventListener("timeupdate", () => {
+  const s = Math.floor(player.currentTime * 2);
+  if (s !== last) { last = s; syncActive(false); }
+});
+player.addEventListener("seeked", () => syncActive(true));
+$("q").addEventListener("input", renderCols);
+
+renderChips();
+renderCols();
+</script>
+</body>
+</html>

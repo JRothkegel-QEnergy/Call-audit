@@ -1,0 +1,41 @@
+# Precios de ASR usados por el benchmark. Verificados el 2026-10-13; revisar antes de cada corrida.
+# Fuentes:
+#   OpenAI: https://developers.openai.com/api/docs/pricing y /models/gpt-4o-transcribe-diarize
+#   Groq:   https://groq.com/pricing (vía https://eesel.ai/blog/groq-pricing, editado 2026-06-08)
+#   OpenRouter: costo real devuelto en usage.cost de cada respuesta
+
+[openai_gpt-transcribe]
+basis = "per_minute"
+usd = 0.0045
+
+[openai_whisper-1]
+basis = "per_minute"
+usd = 0.006
+
+[openai_gpt-4o-transcribe-diarize]
+basis = "tokens"
+audio_in_per_m = 2.5
+text_in_per_m = 2.5   # la página del modelo no lista texto; se asume igual al de audio
+out_per_m = 10.0
+
+[openai_gpt-4o-mini-transcribe]
+basis = "tokens"
+audio_in_per_m = 1.25
+text_in_per_m = 1.25
+out_per_m = 5.0
+
+[groq_whisper-large-v3]
+basis = "per_hour"
+usd = 0.111
+min_seconds = 10
+
+[groq_whisper-large-v3-turbo]
+basis = "per_hour"
+usd = 0.04
+min_seconds = 10
+
+["openrouter_gemini-3.8-flash"]
+basis = "reported"
+
+["openrouter_gemini-3.1-pro"]
+basis = "reported"
