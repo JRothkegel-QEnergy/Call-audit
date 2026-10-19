@@ -278,13 +278,12 @@ def build_call(
 def build(args, rows: dict) -> list[dict]:
     catalog = render.load_catalog()
     sheet = render.read_code_blocks(render.SHEET_DOC)
-    blocks = render.read_code_blocks(render.PROMPT_DOC)
-    system = blocks[0] + "\n" + render.JSON_OUTPUT_INSTRUCTION.format(
-        schema=json.dumps(json.loads(blocks[3])["input_schema"], ensure_ascii=False)
-    )
+    spec = render.layer2_prompt.load_spec()
+    system = render.layer2_prompt.chat_system_prompt(spec, render.layer2_prompt.load_schema())
     prompts = args.out / "prompts"
     prompts.mkdir(parents=True, exist_ok=True)
     (prompts / "system.txt").write_text(system + "\n", encoding="utf-8")
+    (prompts / "prompt_version.txt").write_text(f"{spec['version']}\n", encoding="utf-8")
 
     index = []
     for name in args.names:

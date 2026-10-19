@@ -9,7 +9,7 @@ paths:
 # LLM y ASR
 
 - **Adaptadores**: todo proveedor va detrás de `Transcriber` o `Layer`. El proveedor y el modelo se eligen por configuración; el resto del código no importa SDKs de proveedores.
-- **Prompts versionados** en `prompts/` con versión semántica. El `prompt_version` viaja en cada resultado. El prompt de referencia de la capa 2 está en `docs/layer2-prompt-example.md`.
+- **Prompts versionados** en `prompts/` con versión semántica. El `prompt_version` viaja en cada resultado. El prompt de la capa 2 está en `prompts/layer2/prompt.yaml`: cada regla lleva su origen y su historial, y `python scripts/prompt_bench/layer2_prompt.py build` exige subir la versión y registrar el origen de lo que cambió.
 - **Salida estructurada**: se fuerza JSON con tool use (`tool_choice`) y se valida con Pydantic. Si no valida, el resultado es `uncertain`; no se reintenta en silencio indefinidamente.
 - **Validación de citas**: toda cita del LLM se busca en la transcripción (match exacto normalizado o fuzzy con umbral configurable). Si no aparece, el ítem pasa a `uncertain`.
 - **Batches**: el volumen va por Message Batches API. La rúbrica va en `system` con `cache_control`. Solo lo urgente usa la API síncrona.

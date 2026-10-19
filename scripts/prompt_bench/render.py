@@ -9,7 +9,7 @@ Genera en scripts/prompt_bench/prompts/:
     synth_NN.txt        mensaje de usuario de cada llamada
     synth_NN_full.txt   system + usuario en un solo texto, para chats sin campo de system prompt
 
-Cada seguro de los metadatos se completa con la ficha estándar (docs/layer2-product-sheet.md) y los datos de
+El system prompt sale de prompts/layer2/ (layer2_prompt.py). Cada seguro de los metadatos se completa con la ficha estándar (docs/layer2-product-sheet.md) y los datos de
 data/catalog/products.json.
 """
 
@@ -18,8 +18,9 @@ import sys
 import unicodedata
 from pathlib import Path
 
+import layer2_prompt
+
 ROOT = Path(__file__).resolve().parents[2]
-PROMPT_DOC = ROOT / "docs" / "layer2-prompt-example.md"
 CALLS_DIR = ROOT / "tests" / "fixtures" / "calls"
 CATALOG = ROOT / "data" / "catalog" / "products.json"
 OUT_DIR = Path(__file__).resolve().parent / "prompts"
@@ -66,15 +67,6 @@ METLIFE_BENEFITS = (
 # Las celdas de detalle a veces traen párrafos largos (causales, documentos). Se recortan para no inflar el prompt.
 MAX_DETAIL = 900
 MAX_DOCUMENTS = 300
-
-JSON_OUTPUT_INSTRUCTION = """
-## Formato de respuesta (modo chat, sin herramientas)
-Si no tienes disponible la herramienta registrar_auditoria, responde ÚNICAMENTE con un
-objeto JSON válido que cumpla este esquema, sin texto antes ni después y sin bloques de código:
-{schema}
-Evalúa los 33 motivos: incluye un elemento en "criterios" por cada id del 1 al 33.
-"""
-
 
 def read_code_blocks(path: Path) -> list[str]:
     blocks, current, inside = [], [], False
@@ -244,14 +236,14 @@ def main() -> None:
     catalog = load_catalog()
     sheet_blocks = read_code_blocks(SHEET_DOC)
     templates = (sheet_blocks[0], sheet_blocks[1])
-    blocks = read_code_blocks(PROMPT_DOC)
-    system_prompt, schema = blocks[0], blocks[3]
-    system_prompt += "\n" + JSON_OUTPUT_INSTRUCTION.format(schema=json.dumps(json.loads(schema)["input_schema"], ensure_ascii=False))
+    spec = layer2_prompt.load_spec()
+    system_prompt = layer2_prompt.chat_system_prompt(spec, layer2_prompt.load_schema())
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for old in OUT_DIR.glob("synth_*.txt"):
         old.unlink()
     (OUT_DIR / "system.txt").write_text(system_prompt + "\n", encoding="utf-8")
+    (OUT_DIR / "prompt_version.txt").write_text(f"{spec['version']}\n", encoding="utf-8")
     for path in sorted(CALLS_DIR.glob("synth_*.json")):
         call = json.loads(path.read_text(encoding="utf-8"))
         user = render_user_message(call, catalog, templates)

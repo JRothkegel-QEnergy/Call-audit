@@ -24,7 +24,7 @@ Scopes sugeridos: `ingestion`, `asr`, `preprocessing`, `layer1`, `layer2`, `laye
 
 - `ruff check`, `ruff format --check` y `pytest` en verde.
 - Nada de audios (`*.wav`, `*.mp3`, ...), transcripciones reales, `.env` ni credenciales.
-- Si cambia una rúbrica o un prompt, sube su versión.
+- Si cambia una rúbrica o un prompt, sube su versión (prompt de la capa 2: `python scripts/prompt_bench/layer2_prompt.py check` en verde).
 
 ## Prohibido sin pedirlo explícitamente
 

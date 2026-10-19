@@ -47,7 +47,7 @@ frontend/        Next.js (cola del auditor, dashboard del supervisor)
 docs/            contexto, ADRs, preguntas abiertas al cliente, prompt de ejemplo de capa 2
 ```
 
-Prompt de referencia de la capa 2 (pauta de retención completa): `docs/layer2-prompt-example.md`.
+Prompt de la capa 2 (pauta de retención completa): fuente versionada en `prompts/layer2/prompt.yaml`, con el origen de cada regla (ver `prompts/layer2/README.md`). Explicación de diseño en `docs/layer2-prompt-example.md`.
 
 ## Git
 

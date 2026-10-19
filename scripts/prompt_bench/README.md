@@ -1,6 +1,6 @@
 # Prompt bench · comparar IA con el prompt de la capa 2
 
-Prueba el prompt de `docs/layer2-prompt-example.md` con distintas IA sobre las llamadas sintéticas de `tests/fixtures/calls/` y compara los resultados.
+Prueba el prompt de la capa 2 (`prompts/layer2/`, ver su README para versionarlo) con distintas IA sobre las llamadas sintéticas de `tests/fixtures/calls/` y compara los resultados.
 
 ## 0. Armar el catálogo de seguros (una vez, o cuando cambie el Excel de apoyo)
 
@@ -19,6 +19,7 @@ python scripts/prompt_bench/render.py
 En `prompts/` quedan:
 
 - `system.txt`: el system prompt (igual para todas las llamadas). Incluye el esquema JSON para responder sin herramientas.
+- `prompt_version.txt`: versión del prompt usada; `run.py` la guarda en cada `.meta.json`.
 - `synth_NN.txt`: el mensaje de usuario de cada llamada.
 - `synth_NN_full.txt`: los dos juntos, para chats que no tienen campo de system prompt.
 

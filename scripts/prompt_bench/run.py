@@ -8,7 +8,7 @@ Uso:
 
 Lee las API keys desde .env (raíz del repo). Por cada llamada guarda en results/<nombre>/:
     synth_NN.json        respuesta de la IA, tal cual
-    synth_NN.meta.json   modelo devuelto por la API, tokens, costo, latencia, fecha
+    synth_NN.meta.json   versión del prompt, modelo devuelto por la API, tokens, costo, latencia, fecha
     synth_NN.error.txt   si falló
 Todas las IA reciben exactamente el mismo texto (prompts/system.txt + prompts/synth_NN.txt).
 """
@@ -27,7 +27,6 @@ BENCH_DIR = Path(__file__).resolve().parent
 PROMPTS_DIR = BENCH_DIR / "prompts"
 RESULTS_DIR = BENCH_DIR / "results"
 CONFIG = BENCH_DIR / "models.toml"
-PROMPT_DOC = ROOT / "docs" / "layer2-prompt-example.md"
 
 # Proveedores con API compatible con OpenAI. La key se lee de la variable indicada en .env.
 OPENAI_COMPATIBLE = {
@@ -159,9 +158,9 @@ def openai_client(provider: str):
 
 def audit_tool() -> dict:
     """La herramienta registrar_auditoria del doc del prompt, en formato de function calling."""
-    from render import read_code_blocks
+    from layer2_prompt import load_schema
 
-    schema = json.loads(read_code_blocks(PROMPT_DOC)[3])
+    schema = load_schema()
     return {
         "type": "function",
         "function": {"name": schema["name"], "description": "Registra la auditoría de la llamada.", "parameters": schema["input_schema"]},
@@ -216,6 +215,12 @@ def is_transient(exc: Exception) -> bool:
     return status in (413, 429, 500, 502, 503, 529) or "tool call validation failed" in message
 
 
+def prompt_version() -> str | None:
+    """Versión del prompt con que render.py o real_calls.py generaron los textos de PROMPTS_DIR."""
+    path = PROMPTS_DIR / "prompt_version.txt"
+    return path.read_text(encoding="utf-8").strip() if path.exists() else None
+
+
 def run_one(cfg: dict, stem: str, system: str, force: bool) -> str:
     out_dir = RESULTS_DIR / cfg["name"]
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -245,6 +250,7 @@ def run_one(cfg: dict, stem: str, system: str, force: bool) -> str:
     meta = {
         "name": cfg["name"],
         "provider": cfg["provider"],
+        "prompt_version": prompt_version(),
         "requested_model": cfg["model"],
         "returned_model": returned_model,
         "settings": {k: cfg[k] for k in ("temperature", "effort", "json_mode", "tool_mode", "max_tokens") if k in cfg},

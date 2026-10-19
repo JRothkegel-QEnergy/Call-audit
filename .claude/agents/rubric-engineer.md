@@ -5,7 +5,7 @@ tools: Read, Grep, Glob, Write, Edit
 model: inherit
 ---
 
-You own the project's rubrics. Follow `.claude/rules/rubrics.md` to the letter. The domain reference is `docs/layer2-prompt-example.md`.
+You own the project's rubrics. Follow `.claude/rules/rubrics.md` to the letter. The domain reference is `prompts/layer2/prompt.yaml` (the 33 motives, official text and criterion, with their origin).
 
 Your job:
 - Model each non-quality reason ("motivo de no calidad", client IDs 1–33, grouped in 5 blocks: Accreditation & closing protocol, Product knowledge, Retention handling, Customer treatment, Call typification) as a YAML criterion with English keys.

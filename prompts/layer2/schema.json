@@ -1,0 +1,296 @@
+{
+  "name": "registrar_auditoria",
+  "input_schema": {
+    "type": "object",
+    "required": [
+      "resumen",
+      "informacion_seguro",
+      "intencion_renuncia",
+      "termino_llamada",
+      "solicitudes_cliente",
+      "afirmaciones_producto",
+      "gestiones",
+      "criterios"
+    ],
+    "properties": {
+      "resumen": {
+        "type": "string",
+        "description": "2-3 frases sobre la llamada"
+      },
+      "informacion_seguro": {
+        "type": "object",
+        "description": "Si la ficha del seguro sirve para auditar esta llamada (regla 13)",
+        "required": [
+          "estado",
+          "comentario"
+        ],
+        "properties": {
+          "estado": {
+            "enum": [
+              "OK",
+              "SIN_FICHA",
+              "NO_CORRESPONDE"
+            ]
+          },
+          "comentario": {
+            "type": "string",
+            "description": "Si no es OK: qué información del seguro falta o qué no cuadra"
+          }
+        }
+      },
+      "intencion_renuncia": {
+        "type": "object",
+        "properties": {
+          "expresada": {
+            "type": "boolean"
+          },
+          "cita": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      },
+      "termino_llamada": {
+        "type": "object",
+        "description": "Cómo termina la llamada",
+        "properties": {
+          "tipo": {
+            "enum": [
+              "NORMAL",
+              "CORTADA",
+              "ABIERTA_SIN_CORTAR"
+            ],
+            "description": "NORMAL: despedida y fin. CORTADA: se interrumpe antes de terminar la gestión. ABIERTA_SIN_CORTAR: la gestión terminó pero la línea sigue tomada (silencio, ruido o espera tras la despedida)."
+          },
+          "comentario": {
+            "type": "string"
+          }
+        }
+      },
+      "solicitudes_cliente": {
+        "type": "array",
+        "description": "Pedidos y preguntas directas del cliente, aparte de renunciar (ver Definiciones: Solicitudes del cliente)",
+        "items": {
+          "type": "object",
+          "properties": {
+            "t": {
+              "type": "string"
+            },
+            "cita": {
+              "type": "string"
+            },
+            "tipo": {
+              "enum": [
+                "DESCONOCE_COBRO",
+                "DEVOLUCION",
+                "COBRO_INCORRECTO",
+                "OTRO_SEGURO",
+                "PREGUNTA_PRODUCTO",
+                "COPIA_POLIZA",
+                "OTRA"
+              ]
+            },
+            "respuesta": {
+              "enum": [
+                "RESPONDIDA",
+                "DERIVADA_CORRECTA",
+                "DERIVADA_INCORRECTA",
+                "ELUDIDA",
+                "NO_ATENDIDA"
+              ]
+            },
+            "motivos": {
+              "type": "array",
+              "description": "Motivos de la pauta que esta entrada hace incumplir (vacío si ninguno)",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "afirmaciones_producto": {
+        "type": "array",
+        "description": "Afirmaciones del ejecutivo sobre coberturas, montos, cobros, fechas, devolución o ahorro, contrastadas con FICHA y CONTRATO (máximo 10)",
+        "items": {
+          "type": "object",
+          "properties": {
+            "t": {
+              "type": "string"
+            },
+            "cita": {
+              "type": "string"
+            },
+            "tema": {
+              "enum": [
+                "COBERTURA",
+                "MONTO",
+                "COBRO_FECHAS",
+                "DEVOLUCION",
+                "AHORRO",
+                "OTRO"
+              ]
+            },
+            "verificacion": {
+              "enum": [
+                "CORRECTA",
+                "INCORRECTA",
+                "NO_VERIFICABLE"
+              ]
+            },
+            "material": {
+              "type": "boolean",
+              "description": "Solo si es INCORRECTA: cambia lo que el cliente entiende que tiene o paga Y se usa para retener o responder una pregunta"
+            },
+            "motivos": {
+              "type": "array",
+              "description": "Motivos de la pauta que esta entrada hace incumplir (vacío si ninguno)",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "gestiones": {
+        "type": "array",
+        "description": "Resultado según la grabación, uno por cada seguro de los metadatos que se mencionó en la llamada",
+        "items": {
+          "type": "object",
+          "properties": {
+            "mus_a_neto": {
+              "type": "string"
+            },
+            "decision_final": {
+              "type": "object",
+              "description": "Última frase del cliente sobre mantener o renunciar tras el último argumento (ver Definiciones)",
+              "properties": {
+                "t": {
+                  "type": "string"
+                },
+                "cita": {
+                  "type": "string"
+                },
+                "tipo": {
+                  "enum": [
+                    "GENUINA",
+                    "CONDICIONADA",
+                    "NO_ACEPTADA",
+                    "NO_APLICA"
+                  ]
+                }
+              }
+            },
+            "resultado_grabacion": {
+              "enum": [
+                "RENUNCIA",
+                "RETENCION",
+                "CONSULTA",
+                "SIN_GESTION"
+              ]
+            },
+            "motivos_renuncia": {
+              "type": "array",
+              "description": "Todos los motivos de renuncia que expresa el cliente, de la lista válida. Vacío si no pidió renunciar.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "n_objeciones": {
+              "type": "integer"
+            },
+            "cliente_tajante": {
+              "type": "boolean"
+            },
+            "argumentos_retencion": {
+              "type": "array",
+              "description": "Argumentos de retención en el orden en que se dijeron",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "t": {
+                    "type": "string"
+                  },
+                  "tipo": {
+                    "enum": [
+                      "COBERTURA",
+                      "BENEFICIO",
+                      "FECHA_RENOVACION",
+                      "OTRO"
+                    ]
+                  },
+                  "cita": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "evidencia": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "criterios": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "comentario",
+            "estado",
+            "confianza"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 33
+            },
+            "mus_a_neto": {
+              "type": "string",
+              "description": "Seguro al que corresponde el hallazgo. Vacío si es de toda la llamada."
+            },
+            "comentario": {
+              "type": "string",
+              "description": "Análisis del motivo. Se escribe ANTES de decidir el estado. 1 frase si cumple o no aplica."
+            },
+            "evidencia": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "t": {
+                    "type": "string"
+                  },
+                  "hablante": {
+                    "enum": [
+                      "AGENTE",
+                      "CLIENTE"
+                    ]
+                  },
+                  "cita": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "estado": {
+              "enum": [
+                "cumple",
+                "incumple",
+                "no_aplica",
+                "indeterminado"
+              ]
+            },
+            "confianza": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -12,4 +12,4 @@ paths:
 - **No inventar datos del cliente.** Gravedad, guiones de cierre/acreditación, umbrales de espera y seguros retenibles van como `TBD` hasta que el cliente los confirme (ver `docs/client-open-questions.md`).
 - Frases obligatorias o prohibidas de capa 1 viven en la rúbrica, no en el código.
 - Toda versión nueva se valida contra el golden set antes de publicarse y el reporte de métricas queda junto a la rúbrica.
-- Referencia del dominio: `docs/layer2-prompt-example.md` tiene los 33 motivos con su gravedad sugerida (no confirmada) y los 27 motivos de renuncia.
+- Referencia del dominio: `prompts/layer2/prompt.yaml` tiene los 33 motivos (texto oficial y criterio, con su origen) y los motivos de renuncia; `docs/layer2-prompt-example.md` explica el diseño.
