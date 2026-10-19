@@ -4,6 +4,7 @@ prefirmada de S3, así nadie necesita los audios en su PC ni credenciales de AWS
 Uso (desde "Qubico Develop"):
     python call-audit/scripts/prompt_bench/share_dashboard.py transcripts/layer2_real_100_v2.7/dashboard.html \
         --bucket qubico-call-audit [--prefix audios/] [--region sa-east-1] [--days 7] [--out DIR/dashboard.html]
+    python call-audit/scripts/prompt_bench/share_dashboard.py <dashboard.html> --no-audio   # solo transcripciones
 
 Requiere boto3 y credenciales de AWS (aws configure). Los audios tienen que estar en s3://<bucket>/<prefix><grabación>.mp3.
 Las URLs duran como máximo 7 días y solo si se firman con la clave de acceso de un usuario IAM: con credenciales
@@ -29,18 +30,7 @@ def read_data(html: str) -> dict:
     return data
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("dashboard", type=Path)
-    parser.add_argument("--bucket", required=True)
-    parser.add_argument("--prefix", default="audios/")
-    parser.add_argument("--region", default="sa-east-1")
-    parser.add_argument("--days", type=int, default=MAX_DAYS)
-    parser.add_argument("--out", type=Path, help="por defecto <carpeta del dashboard>/compartir/dashboard.html")
-    args = parser.parse_args()
-    if not 1 <= args.days <= MAX_DAYS:
-        sys.exit(f"--days tiene que estar entre 1 y {MAX_DAYS} (límite de S3 para URLs prefirmadas)")
-
+def presign_audios(data: dict, args: argparse.Namespace) -> None:
     import boto3
     from botocore.config import Config
 
@@ -63,7 +53,6 @@ def main() -> None:
     for page in s3.get_paginator("list_objects_v2").paginate(Bucket=args.bucket, Prefix=args.prefix):
         keys.update(o["Key"] for o in page.get("Contents", []))
 
-    data = read_data(args.dashboard.read_text(encoding="utf-8"))
     missing = []
     for call in data["calls"]:
         key = f"{args.prefix}{call['recording']}.mp3"
@@ -74,17 +63,44 @@ def main() -> None:
             Params={"Bucket": args.bucket, "Key": key, "ResponseContentType": "audio/mpeg"},
             ExpiresIn=args.days * 86400,
         )
-        call["asr_viewer"] = None  # el visor de ASR es local: no viaja con el dashboard compartido
     if missing:
         print(f"Faltan {len(missing)} audios en s3://{args.bucket}/{args.prefix}:", *missing, sep="\n  ", file=sys.stderr)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("dashboard", type=Path)
+    parser.add_argument("--bucket")
+    parser.add_argument("--no-audio", action="store_true", help="solo transcripciones: no incluye audios ni usa AWS")
+    parser.add_argument("--prefix", default="audios/")
+    parser.add_argument("--region", default="sa-east-1")
+    parser.add_argument("--days", type=int, default=MAX_DAYS)
+    parser.add_argument("--out", type=Path, help="por defecto <carpeta del dashboard>/compartir/dashboard.html")
+    args = parser.parse_args()
+    if not args.no_audio and not args.bucket:
+        parser.error("falta --bucket (o --no-audio para compartir solo las transcripciones)")
+    if not 1 <= args.days <= MAX_DAYS:
+        sys.exit(f"--days tiene que estar entre 1 y {MAX_DAYS} (límite de S3 para URLs prefirmadas)")
+
+    data = read_data(args.dashboard.read_text(encoding="utf-8"))
+    if args.no_audio:
+        for call in data["calls"]:
+            call["audio"] = None
+    else:
+        presign_audios(data, args)
+    for call in data["calls"]:
+        call["asr_viewer"] = None  # el visor de ASR es local: no viaja con el dashboard compartido
 
     template = (Path(__file__).parent / "dashboard_template.html").read_text(encoding="utf-8")
     page = template.replace("/*__DATA__*/null", json.dumps(data, ensure_ascii=False).replace("</", "<\\/"))
     out = args.out or args.dashboard.parent / "compartir" / "dashboard.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(page, encoding="utf-8")
-    until = (datetime.now() + timedelta(days=args.days)).strftime("%d-%m-%Y %H:%M")
-    print(f"{out}  ({len(data['calls'])} llamadas, audios válidos hasta el {until})")
+    if args.no_audio:
+        print(f"{out}  ({len(data['calls'])} llamadas, sin audios)")
+    else:
+        until = (datetime.now() + timedelta(days=args.days)).strftime("%d-%m-%Y %H:%M")
+        print(f"{out}  ({len(data['calls'])} llamadas, audios válidos hasta el {until})")
 
 
 if __name__ == "__main__":

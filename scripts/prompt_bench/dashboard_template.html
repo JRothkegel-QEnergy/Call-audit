@@ -500,6 +500,14 @@ function renderModel() {
 async function loadAudio(c) {
   const player = $("#player");
   if (audioUrl) { URL.revokeObjectURL(audioUrl); audioUrl = null; }
+  if (!c.audio) {
+    // Dashboard compartido con share_dashboard.py --no-audio: solo transcripciones.
+    player.removeAttribute("src");
+    player.style.display = "none";
+    document.querySelectorAll(".spd").forEach((b) => (b.style.display = "none"));
+    $("#astate").textContent = "Esta versión no incluye audios: solo la transcripción.";
+    return;
+  }
   if (/^https?:/.test(c.audio)) {
     // URL prefirmada de S3 (share_dashboard.py): S3 soporta Range, así que se reproduce directo y sin CORS.
     player.src = c.audio;
