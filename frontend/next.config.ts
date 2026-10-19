@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   // Reactivarlo cuando la sesión y los datos se rendericen en el servidor.
   // El indicador de desarrollo tapa la sidebar y la barra de acciones fija; los errores igual se muestran.
   devIndicators: false,
+  // La imagen Docker (frontend/Dockerfile) construye en modo standalone; en local no hace falta.
+  output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
   turbopack: {
     rules: {
       "*.css": {

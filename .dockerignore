@@ -1,0 +1,16 @@
+# Nada de datos ni secretos en las imágenes.
+.env
+.env.*
+!.env.example
+*.db
+.venv
+**/__pycache__
+.pytest_cache
+.ruff_cache
+.git
+.claude
+frontend
+scripts
+tests
+docs
+golden_set

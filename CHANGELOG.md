@@ -9,6 +9,10 @@ Cada componente tiene además su propio historial detallado:
 
 ## 2026-10-19
 
+- **Despliegue v0:**
+  - Imágenes `Dockerfile` (API: aplica las migraciones al arrancar) y `frontend/Dockerfile` (Next standalone en modo http).
+  - `docker-compose.yml` para probar en local (Postgres + API + front) y `docker-compose.prod.yml` + `Caddyfile` para un EC2 con RDS y HTTPS.
+  - Pasos en `docs/deploy.md`.
 - **Datos personales visibles** (decisión de Johannes; registro legal L-34):
   - `import_bench --asr-dir` muestra la transcripción original del ASR y el comentario del cliente sin enmascarar.
   - Las citas y comentarios de la IA se reconstruyen con el texto original (`Unmasker`). En v2.7 quedaron 4 marcadores de datos personales entre unos 33 mil textos.

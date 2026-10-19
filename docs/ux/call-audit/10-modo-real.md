@@ -23,3 +23,15 @@ El front pasa de mock a backend FastAPI real para Vero, el equipo externo (Audit
 ## Riesgo legal que condiciona el despliegue
 - **L-28 sigue abierto (Alto):** no exponer llamadas reales a Vero ni al equipo externo sin transcripciones enmascaradas antes del front, DPA y confidencialidad por escrito. Si el backend sirve datos reales este fin de semana, Johannes debe confirmar que esas condiciones se cumplen o usar datos sintéticos/enmascarados.
 - **Contraseñas por consola (L-33, nuevo):** la contraseña inicial se entrega por un canal distinto al correo de la cuenta, se exige cambiarla o se rota al cerrar la calibración; cuentas dadas de baja al terminar (L-28). Sin flujo de restablecimiento en la app, Qubico es el único canal: debe verificar identidad antes de restablecer. Requiere abogado: no.
+
+## Adenda — datos sin enmascarar en el front (L-34, decisión de Johannes)
+No se reabre la decisión de enmascarado; solo se ajusta el microcopy para que no sea falso.
+
+| # | Elemento | Modo http | Modo mock |
+|---|---|---|---|
+| 4 | Ayuda junto a "Transcripción" (`components/call/transcript.tsx:68`) | Reemplazar por **"Transcripción automática; puede tener errores."** | Se mantiene "Datos personales enmascarados". |
+| 5 | Panel "Prompt y respuesta del modelo" | Sí lleva nota, sobre el aviso de confidencialidad ya aprobado: **"Esto es lo que se envió al modelo. Los datos personales van anonimizados, por eso ves marcas como [NOMBRE_CLIENTE]."** Texto plano (`help`), siempre visible, sin tooltip. | Igual (el mock también muestra marcas). |
+
+- El aviso fijo del panel ("Contenido técnico confidencial de Qubico y datos del cliente. No lo compartas fuera de la app.", L-29) se mantiene.
+- Ningún otro texto de la app puede afirmar que los datos están enmascarados en modo http (revisar tooltips, ayuda de exportación y Discrepancias).
+- L-03 se actualiza en el registro para remitir a L-34; L-28 y L-32 ya estaban actualizados y no se tocan.

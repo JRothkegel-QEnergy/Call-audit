@@ -1,0 +1,28 @@
+# Producción v0 en un EC2 (ver docs/deploy.md). La base es el RDS de DATABASE_URL en .env.
+#   DOMAIN=audit.qubicoenergy.com docker compose -f docker-compose.prod.yml up -d --build
+services:
+  api:
+    build: .
+    env_file: .env
+    restart: unless-stopped
+
+  front:
+    build:
+      context: frontend
+      args: {API_URL: "http://api:8000"}
+    depends_on: [api]
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMAIN: ${DOMAIN:?Define DOMAIN, ej. audit.qubicoenergy.com}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on: [front]
+    restart: unless-stopped
+
+volumes:
+  caddy_data:

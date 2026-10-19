@@ -1,0 +1,11 @@
+# HTTPS automático (Let's Encrypt) para el dominio de DOMAIN. Todo va al front; el front reenvía /api/* a la API.
+{$DOMAIN} {
+	encode gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy same-origin
+		X-Frame-Options DENY
+	}
+	reverse_proxy front:3000
+}

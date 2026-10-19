@@ -6,6 +6,7 @@ Audita automáticamente grabaciones de contact center: transcribe el 100 % de la
 - Preguntas abiertas al cliente: [docs/client-open-questions.md](docs/client-open-questions.md)
 - Prompt de ejemplo de la capa 2: [docs/layer2-prompt-example.md](docs/layer2-prompt-example.md)
 - Decisiones de arquitectura: [docs/adr/](docs/adr/)
+- Despliegue v0 en AWS: [docs/deploy.md](docs/deploy.md)
 - Revisión manual de llamadas reales en equipo: [docs/revision-manual.md](docs/revision-manual.md)
 - Reglas para trabajar con Claude Code: [CLAUDE.md](CLAUDE.md) y [.claude/rules/](.claude/rules/)
 

@@ -1,0 +1,37 @@
+# Prueba local del despliegue: Postgres + API + front, igual que en AWS (RDS + 2 contenedores).
+#   docker compose up --build        → front en http://localhost:3200
+# Después, importar datos y crear cuentas desde el PC contra el Postgres del compose:
+#   DATABASE_URL=postgresql+psycopg://audit:audit@localhost:5433/audit uv run python -m call_audit.ingestion.import_bench ...
+#   DATABASE_URL=... uv run python -m call_audit.admin create-user ...
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: audit
+      POSTGRES_PASSWORD: audit
+      POSTGRES_DB: audit
+    ports: ["5433:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U audit"]
+      interval: 3s
+      retries: 20
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg://audit:audit@db:5432/audit
+      SESSION_SECRET: solo-para-la-prueba-local
+      COOKIE_SECURE: "false"
+    depends_on:
+      db: {condition: service_healthy}
+
+  front:
+    build:
+      context: frontend
+      args: {API_URL: "http://api:8000"}
+    ports: ["3200:3000"]
+    depends_on: [api]
+
+volumes:
+  pgdata:
