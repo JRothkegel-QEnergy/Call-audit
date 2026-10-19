@@ -9,6 +9,10 @@ Cada componente tiene además su propio historial detallado:
 
 ## 2026-10-19
 
+- **Front conectado a la API:**
+  - `NEXT_PUBLIC_API_MODE=http` usa `frontend/src/lib/api/http-api.ts`; Next reenvía `/api/*` a `API_URL`, así la cookie es del mismo origen. El modo mock sigue siendo el de por defecto.
+  - Verificado en el navegador con las 100 llamadas de v2.7: login, cola, detalle con hallazgos y evidencia, panel del modelo y árbol de discrepancias.
+  - La API ahora toma el caso al abrirlo, como el mock. Las estadísticas que v0 no calcula vuelven vacías y "Mis revisiones" incluye los escalados.
 - **Backend v0** (`src/call_audit/`): API FastAPI sobre las corridas del bench, sin pipeline todavía.
   - Postgres o SQLite con Alembic, login por cookie firmada y contraseñas argon2; las cuentas las crea `call_audit.admin`.
   - Endpoints del contrato `frontend/src/lib/api/client.ts`: cola, caso, revisión, escalamiento, notas por motivo, aprobaciones y árbol de discrepancias. Lo que todavía no tiene datos responde 501.

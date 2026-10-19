@@ -216,7 +216,10 @@ def import_run(
 ) -> int:
     prompts = out_dir / "prompts"
     version_file = prompts / "prompt_version.txt"
-    prompt_version = version_file.read_text(encoding="utf-8").strip() if version_file.exists() else label
+    # Corridas anteriores a prompt_version.txt: la versión sale del label ("v2.7 corrida 2" → "2.7").
+    prompt_version = (
+        version_file.read_text(encoding="utf-8").strip() if version_file.exists() else label.split()[0].lstrip("v")
+    )
     if session.get(PromptVersion, prompt_version) is None:
         session.add(
             PromptVersion(version=prompt_version, system_text=(prompts / "system.txt").read_text(encoding="utf-8"))

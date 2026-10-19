@@ -18,6 +18,7 @@ router = APIRouter(prefix="/api")
 Verdict = Literal["compliant", "non_compliant", "uncertain", "not_applicable"]
 CallVerdict = Literal["compliant", "non_compliant", "uncertain"]
 OPEN_STATUSES = ("pending", "in_review", "reopened")
+REOPEN_PREFIX = "Reabierto: "
 
 
 def get_rubric() -> Rubric:
@@ -118,7 +119,13 @@ def list_queue(
         .select_from(Review)
         .where(Review.auditor_id == user.id, Review.submitted_at >= start_of_today())
     )
-    return {"rows": rows, "total": len(rows), "reviewedToday": reviewed or 0}
+    # total = toda la cola, sin filtros (igual que el mock): el front muestra "n de total".
+    total = (
+        len(rows)
+        if not (agentId or engineVerdict or blockId)
+        else len(queue_rows(session, user, rubric, None, None, None))
+    )
+    return {"rows": rows, "total": total, "reviewedToday": reviewed or 0}
 
 
 class QueueFiltersIn(BaseModel):
@@ -150,6 +157,10 @@ def list_agents(session: DbSession, _: CurrentUser, query: str = ""):
 @router.get("/cases/{case_id}")
 def case_detail(case_id: str, session: DbSession, user: CurrentUser, rubric: RubricDep):
     case = get_case(session, case_id)
+    # Al abrir un caso de la cola, el auditor lo toma (igual que el mock): nadie más lo revisa en paralelo.
+    if user.role == "auditor" and case.status in OPEN_STATUSES and case.locked_by_id is None:
+        case.status, case.locked_by_id = "in_review", user.id
+        session.commit()
     review = session.scalar(select(Review).where(Review.case_id == case.id))
     notes = session.scalars(select(Note).where(Note.case_id == case.id).order_by(Note.created_at)).all()
     prompts = {p.version: p for p in session.scalars(select(PromptVersion)).all()}
@@ -239,13 +250,18 @@ def escalate_case(case_id: str, body: EscalateIn, session: DbSession, user: Curr
 
 @router.get("/my-reviews")
 def my_reviews(session: DbSession, user: CurrentUser):
-    reviews = session.scalars(select(Review).where(Review.auditor_id == user.id).order_by(Review.submitted_at.desc()))
     rows = []
-    for r in reviews:
+    for r in session.scalars(select(Review).where(Review.auditor_id == user.id)):
         case = session.get(Case, r.case_id)
-        note = session.scalar(
-            select(Note.text).where(Note.case_id == r.case_id, Note.author_id == user.id, Note.scope == "case")
-        )
+        note = ""
+        if case.status == "reopened":
+            reopen = session.scalar(
+                select(Note)
+                .where(Note.case_id == case.id, Note.text.startswith(REOPEN_PREFIX))
+                .order_by(Note.created_at.desc())
+            )
+            if reopen:
+                note = f"{reopen.author.name} reabrió este caso: «{reopen.text.removeprefix(REOPEN_PREFIX)}»"
         rows.append(
             {
                 "caseId": r.case_id,
@@ -253,9 +269,27 @@ def my_reviews(session: DbSession, user: CurrentUser):
                 "submittedAt": out.iso(r.submitted_at),
                 "status": case.status,
                 "myVerdict": r.final_verdict,
-                "note": note or "",
+                "note": note,
             }
         )
+    escalated = session.scalars(
+        select(Alert).where(Alert.raised_by_id == user.id, Alert.kind == "escalation", Alert.status != "handled")
+    )
+    for a in escalated:
+        if a.case.status == "escalated" and all(row["caseId"] != a.case_id for row in rows):
+            rows.append(
+                {
+                    "caseId": a.case_id,
+                    "callId": a.case.call_id,
+                    "submittedAt": out.iso(a.created_at),
+                    "status": "escalated",
+                    "myVerdict": None,
+                    "note": "Esperando respuesta del supervisor",
+                }
+            )
+    # Reabiertos primero; después lo más reciente.
+    rows.sort(key=lambda row: row["submittedAt"], reverse=True)
+    rows.sort(key=lambda row: row["status"] != "reopened")
     return rows
 
 

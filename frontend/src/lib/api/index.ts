@@ -1,16 +1,13 @@
 import type { ApiClient } from "./client";
+import { httpApi } from "./http-api";
 import { mockApi } from "./mock/mock-api";
 
 /**
- * Punto único de acceso a la API. Hoy solo existe el modo mock.
- * Cuando exista el backend: agregar `http-api.ts` con la misma interfaz y elegirlo con
- * NEXT_PUBLIC_API_MODE=http.
+ * Punto único de acceso a la API. NEXT_PUBLIC_API_MODE elige el adaptador:
+ * - "mock" (por defecto): datos sintéticos en el navegador, para la demo.
+ * - "http": backend FastAPI (src/call_audit/api) a través del proxy /api de next.config.ts.
  */
-const mode = process.env.NEXT_PUBLIC_API_MODE ?? "mock";
+export const apiMode: "mock" | "http" = process.env.NEXT_PUBLIC_API_MODE === "http" ? "http" : "mock";
 
-if (mode !== "mock") {
-  console.warn(`NEXT_PUBLIC_API_MODE=${mode} aún no está implementado; se usa el mock.`);
-}
-
-export const api: ApiClient = mockApi;
+export const api: ApiClient = apiMode === "http" ? httpApi : mockApi;
 export type { ApiClient };

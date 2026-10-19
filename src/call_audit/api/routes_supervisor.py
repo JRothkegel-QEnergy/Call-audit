@@ -14,7 +14,7 @@ from sqlalchemy import select
 
 from call_audit.api import serializers as out
 from call_audit.api.deps import CurrentUser, DbSession, Supervisor
-from call_audit.api.routes_auditor import RubricDep, get_case
+from call_audit.api.routes_auditor import REOPEN_PREFIX, RubricDep, get_case
 from call_audit.persistence.models import AccessLog, Alert, Case, DiscrepancyClassification, Note, Review, User
 
 router = APIRouter(prefix="/api")
@@ -172,7 +172,7 @@ class ReopenIn(BaseModel):
 def reopen(case_id: str, body: ReopenIn, session: DbSession, user: Supervisor) -> None:
     case = get_case(session, case_id)
     case.status, case.assigned_auditor_id, case.locked_by_id = "reopened", body.auditorId, None
-    session.add(Note(case_id=case.id, scope="case", text=f"Reabierto: {body.comment}", author_id=user.id))
+    session.add(Note(case_id=case.id, scope="case", text=f"{REOPEN_PREFIX}{body.comment}", author_id=user.id))
     session.commit()
 
 
@@ -284,7 +284,10 @@ class PresentationIn(BaseModel):
 @router.post("/discrepancies/{case_id}/presentation", status_code=204)
 def set_presentation(case_id: str, body: PresentationIn, session: DbSession, user: Supervisor) -> None:
     get_case(session, case_id)
-    item = classification_for(session, case_id, user)
+    item = session.get(DiscrepancyClassification, case_id)
+    if item is None or item.classification != "ai_correct":
+        raise HTTPException(409, "Solo se presentan los casos donde la IA acertó")
+    item.updated_by_id, item.updated_at = user.id, datetime.now(UTC)
     item.presentation = "presented" if body.presented else "pending"
     session.commit()
 
@@ -298,10 +301,24 @@ def log_agent_search(agent_id: str, session: DbSession, user: CurrentUser) -> No
     session.commit()
 
 
+# Estadísticas que v0 todavía no calcula: listas vacías, para que el front muestre su estado "no disponible"
+# (Cambio 10 de UX). Las acciones que fallarían al enviar se ocultan en el front y aquí responden 501.
 @router.get("/agents/stats")
-@router.get("/agents/{agent_id}/detail")
-@router.get("/criteria/heatmap")
 @router.get("/auditors/stats")
+def empty_stats(_: Supervisor) -> list:
+    return []
+
+
+@router.get("/criteria/heatmap")
+def empty_heatmap(_: Supervisor) -> dict:
+    return {"agents": [], "rows": []}
+
+
+@router.get("/agents/{agent_id}/detail")
+def agent_detail(agent_id: str, _: Supervisor):
+    raise HTTPException(404, "Detalle por ejecutivo disponible en una próxima versión")
+
+
 @router.post("/cases/{case_id}/override")
 @router.post("/feedback")
 @router.post("/auditors/invite")

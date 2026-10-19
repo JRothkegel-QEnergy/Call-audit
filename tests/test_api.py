@@ -23,7 +23,9 @@ def test_queue_puts_rejections_first(client: TestClient, users: dict[str, User])
     login(client, users["auditor"])
     rows = client.get("/api/queue").json()["rows"]
     assert [r["engineVerdict"] for r in rows] == ["non_compliant", "non_compliant", "compliant"]
-    assert client.get("/api/queue", params={"engineVerdict": "compliant"}).json()["total"] == 1
+    filtered = client.get("/api/queue", params={"engineVerdict": "compliant"}).json()
+    assert len(filtered["rows"]) == 1
+    assert filtered["total"] == 3
 
 
 def test_auditor_never_sees_client_verdict_or_model_io(client: TestClient, users: dict[str, User]) -> None:
@@ -101,7 +103,30 @@ def test_discrepancy_tree(client: TestClient, users: dict[str, User]) -> None:
     assert row["presentation"] == "presented"
 
 
-def test_pending_features_answer_501(client: TestClient, users: dict[str, User]) -> None:
+def test_presentation_only_for_ai_correct(client: TestClient, users: dict[str, User]) -> None:
     login(client, users["supervisor"])
-    assert client.get("/api/agents/stats").status_code == 501
+    cid = next(r["caseId"] for r in client.get("/api/discrepancies").json() if r["callId"] == "1002")
+    assert client.post(f"/api/discrepancies/{cid}/presentation", json={"presented": True}).status_code == 409
+
+
+def test_opening_a_case_locks_it_for_the_auditor(client: TestClient, users: dict[str, User]) -> None:
+    login(client, users["auditor"])
+    cid = case_id(client, "1001")
+    case = client.get(f"/api/cases/{cid}").json()
+    assert case["status"] == "in_review"
+    assert case["lockedBy"]["name"] == "Auditora"
+
+
+def test_escalated_case_shows_in_my_reviews(client: TestClient, users: dict[str, User]) -> None:
+    login(client, users["auditor"])
+    cid = case_id(client, "1003")
+    assert client.post(f"/api/cases/{cid}/escalate", json={"reason": "Duda de criterio"}).status_code == 204
+    row = client.get("/api/my-reviews").json()[0]
+    assert row["status"] == "escalated" and row["myVerdict"] is None
+
+
+def test_stats_not_in_v0_are_empty_and_actions_501(client: TestClient, users: dict[str, User]) -> None:
+    login(client, users["supervisor"])
+    assert client.get("/api/agents/stats").json() == []
+    assert client.get("/api/criteria/heatmap").json() == {"agents": [], "rows": []}
     assert client.post("/api/export").status_code == 501
