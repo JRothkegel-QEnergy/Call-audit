@@ -4,22 +4,29 @@ Uso (desde call-audit-rcv, con DATABASE_URL apuntando a la base de destino):
     uv run python -m call_audit.ingestion.import_bench --out ../transcripts/layer2_real_100_v2.7 \
         --metadata "../audios/Retenciones BECS Para Revision.xlsx" \
         --catalog ../call-audit/data/catalog/products.json \
-        --label v2.7 --current-model gemini-3-8-flash [--models a,b] [--reviews CSV --reviewer EMAIL]
+        --label v2.7 --current-model gemini-3-8-flash --asr-dir ../transcripts/asr_bench \
+        [--models a,b] [--reviews CSV --reviewer EMAIL]
 
 Se puede correr varias veces: el caso se identifica por call_id y la corrida por (caso, modelo, --label). Una segunda
 corrida del mismo prompt se importa con otro --label (ej. "v2.7 corrida 2").
 
 Reutiliza el parser y la regla de veredicto del bench (real_calls.verdict, run.extract_audit) para que la app muestre
-exactamente lo mismo que el dashboard. Todo lo que entra ya viene anonimizado por real_calls.py build --anonymize;
-el comentario del cliente se enmascara aquí con el mismo Anonymizer.
+exactamente lo mismo que el dashboard.
+
+Datos personales (decisión de Johannes, 2026-10-19): la app muestra todo sin enmascarar. Con --asr-dir, la
+transcripción del caso sale del ASR original (sin la anonimización de real_calls.py build --anonymize) y el
+comentario del cliente va tal cual. Lo que se envió al modelo (prompt y respuesta) se guarda como salió: enmascarado.
+Sin --asr-dir se usa la transcripción del bench, que viene enmascarada.
 """
 
 import argparse
 import csv
+import difflib
 import hashlib
 import json
 import re
 import sys
+from collections import Counter
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -73,8 +80,13 @@ def agent_for(session: Session, name: str, fallback: str) -> Agent:
     return agent
 
 
-def transcript_turns(call: dict) -> list[dict]:
+def transcript_turns(call: dict, original: list[dict] | None = None) -> list[dict]:
+    """Turnos del caso. `original` son los segmentos del ASR sin enmascarar: real_calls.build arma un turno por
+    segmento, así que se reemplaza el texto por posición. Si no calzan, queda la transcripción del bench."""
     raw = call["transcript"]
+    if original is not None and len(original) != len(raw):
+        print(f"call_{call['call_id']}: el ASR original no calza con el bench; queda la transcripción enmascarada")
+        original = None
     turns = []
     for i, t in enumerate(raw):
         end = raw[i + 1]["start_ms"] if i + 1 < len(raw) else t["start_ms"] + 3000
@@ -84,10 +96,54 @@ def transcript_turns(call: dict) -> list[dict]:
                 "speaker": t["channel"],
                 "startMs": t["start_ms"],
                 "endMs": max(end, t["start_ms"]),
-                "text": t["text"],
+                "text": str(original[i]["text"]).strip() if original else t["text"],
             }
         )
     return turns
+
+
+PLACEHOLDER = re.compile(r"\[[A-ZÑ_]+\]")
+
+
+class Unmasker:
+    """Devuelve el texto original en lo que escribió el modelo (citas y comentarios), que vio la transcripción
+    enmascarada. Primero busca la cita en la transcripción original con cada marcador como comodín; si no la
+    encuentra (citas resumidas con "..."), cambia cada marcador por el valor que más veces le corresponde en la
+    llamada, sacado de alinear palabra por palabra la transcripción enmascarada con la original."""
+
+    def __init__(self, masked: list[str], original: list[str]):
+        self.original = original
+        values: dict[str, Counter[str]] = {}
+        for m, o in zip(masked, original, strict=True):
+            m_words, o_words = m.split(), o.split()
+            matcher = difflib.SequenceMatcher(a=m_words, b=o_words, autojunk=False)
+            for op, i1, i2, j1, j2 in matcher.get_opcodes():
+                if op != "replace":
+                    continue
+                chunk = " ".join(m_words[i1:i2])
+                found = PLACEHOLDER.findall(chunk)
+                if len(found) == 1 and i2 - i1 == 1:
+                    value = " ".join(o_words[j1:j2]).strip(".,;:¿?¡!\"'")
+                    values.setdefault(found[0], Counter())[value] += 1
+        self.values = {k: c.most_common(1)[0][0] for k, c in values.items()}
+
+    def __call__(self, text: str) -> str:
+        if not text or not PLACEHOLDER.search(text):
+            return text
+        parts = [r"\s+".join(map(re.escape, p.split())) for p in PLACEHOLDER.split(text.strip())]
+        # Sin texto fijo suficiente la búsqueda calzaría en cualquier parte.
+        if "..." not in text and sum(len(p) for p in parts) >= 8:
+            # Entre dos textos fijos el marcador puede ser varias palabras (un RUT dictado); en los bordes, una.
+            pieces = [parts[0]]
+            for i in range(1, len(parts)):
+                edge = (i == 1 and not parts[0]) or (i == len(parts) - 1 and not parts[i])
+                pieces += [r"\s*" + (r"(\S+)" if edge else "(.{1,80}?)") + r"\s*", parts[i]]
+            pattern = "".join(pieces)
+            for turn in self.original:
+                match = re.search(pattern, turn, re.I)
+                if match:
+                    return match.group(0).strip()
+        return PLACEHOLDER.sub(lambda m: self.values.get(m.group(0), m.group(0)), text)
 
 
 def product_sheet(product: dict | None, policy: dict) -> dict:
@@ -125,7 +181,11 @@ def product_sheet(product: dict | None, policy: dict) -> dict:
     }
 
 
-def findings_from(audit: dict, transcript_text: str, holds: list[int], rubric: Rubric) -> list[dict]:
+def findings_from(
+    audit: dict, transcript_text: str, holds: list[int], rubric: Rubric, unmask: Unmasker | None = None
+) -> list[dict]:
+    """La cita se valida contra lo que vio el modelo (enmascarado) y después se muestra con el texto original."""
+    show = unmask or (lambda text: text)
     findings = []
     for c in audit.get("criterios", []):
         cid = c.get("id")
@@ -137,7 +197,7 @@ def findings_from(audit: dict, transcript_text: str, holds: list[int], rubric: R
             q = quotes[0]
             start = mmss_to_ms(q.get("t"))
             evidence = {
-                "quote": q.get("cita", ""),
+                "quote": show(q.get("cita", "")),
                 "startMs": start,
                 "endMs": start + 5000,
                 "quoteValidated": real_calls.quote_found(q.get("cita", ""), transcript_text),
@@ -152,7 +212,7 @@ def findings_from(audit: dict, transcript_text: str, holds: list[int], rubric: R
                 "verdict": verdict,
                 "confidence": float(c.get("confianza") or 0),
                 "evidence": evidence,
-                "comment": c.get("comentario", ""),
+                "comment": show(c.get("comentario", "")),
             }
         )
     # Motivo 1 en código (holds_sec contra el umbral de la rúbrica), igual que el veredicto del bench.
@@ -213,6 +273,8 @@ def import_run(
     label: str,
     current_model: str | None,
     models: list[str] | None = None,
+    asr_dir: Path | None = None,
+    asr_model: str = "gemini_3.8-flash",
 ) -> int:
     prompts = out_dir / "prompts"
     version_file = prompts / "prompt_version.txt"
@@ -250,16 +312,23 @@ def import_run(
         case.duration_ms = call["metadata"]["duration_sec"] * 1000
         case.products = [p["name"] for p in policies]
         case.product_sheets = [product_sheet(product if i == 0 else None, p) for i, p in enumerate(policies)]
-        case.transcript = transcript_turns(call)
+        asr_file = asr_dir / recording / f"{asr_model}.json" if asr_dir else None
+        original = (
+            json.loads(asr_file.read_text(encoding="utf-8"))["segments"] if asr_file and asr_file.exists() else None
+        )
+        case.transcript = transcript_turns(call, original)
+        masked = [t["text"] for t in call["transcript"]]
+        shown = [t["text"] for t in case.transcript]
+        unmask = Unmasker(masked, shown) if shown != masked else None
         case.call_metadata = call["metadata"]
         case.external_verdict = VERDICTS.get(external) if external in ("APROBADA", "RECHAZADA") else None
-        case.external_comment = real_calls.Anonymizer(row)(comment) if comment else None
+        case.external_comment = (comment if asr_dir else real_calls.Anonymizer(row)(comment)) or None
 
         user_prompt = (prompts / f"{path.stem}.txt").read_text(encoding="utf-8")
         transcript_text = user_prompt.split("## Transcripción", 1)[-1]
         holds = call["metadata"]["holds_sec"]
         for model in models:
-            run = import_model_run(results / model, path.stem, row, transcript_text, holds, rubric)
+            run = import_model_run(results / model, path.stem, row, transcript_text, holds, rubric, unmask)
             if run is None:
                 continue
             existing = next((r for r in case.runs if r.model == model and r.run_label == label), None)
@@ -281,7 +350,13 @@ def import_run(
 
 
 def import_model_run(
-    model_dir: Path, stem: str, row: dict, transcript_text: str, holds: list[int], rubric: Rubric
+    model_dir: Path,
+    stem: str,
+    row: dict,
+    transcript_text: str,
+    holds: list[int],
+    rubric: Rubric,
+    unmask: Unmasker | None = None,
 ) -> dict | None:
     out, meta_path, err = (model_dir / f"{stem}{ext}" for ext in (".json", ".meta.json", ".error.txt"))
     meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.exists() else {}
@@ -319,7 +394,7 @@ def import_model_run(
         "verdict": VERDICTS[verdict],
         "minor_only": minor_only,
         "applied_rule": applied_rule(verdict, bad, unsure, minor_only),
-        "findings": findings_from(audit, transcript_text, holds, rubric),
+        "findings": findings_from(audit, transcript_text, holds, rubric, unmask),
         "raw_response": audit,
         "error": None,
     }
@@ -367,6 +442,8 @@ def main() -> None:
     parser.add_argument("--models", help="lista separada por coma; por defecto todos los de results/")
     parser.add_argument("--reviews", type=Path, help="revision_capa2.csv del dashboard")
     parser.add_argument("--reviewer", help="email del usuario a quien se atribuye --reviews")
+    parser.add_argument("--asr-dir", type=Path, help="asr_bench/: transcripción original, sin enmascarar")
+    parser.add_argument("--asr-model", default="gemini_3.8-flash", help="archivo del ASR usado por el bench")
     args = parser.parse_args()
     if args.reviews and not args.reviewer:
         parser.error("--reviews requiere --reviewer")
@@ -376,7 +453,18 @@ def main() -> None:
     catalog = json.loads(args.catalog.read_text(encoding="utf-8"))
     models = [m for m in args.models.split(",") if m] if args.models else None
     with get_sessionmaker()() as session, session.begin():
-        n = import_run(session, args.out, rows, catalog, rubric, args.label, args.current_model, models)
+        n = import_run(
+            session,
+            args.out,
+            rows,
+            catalog,
+            rubric,
+            args.label,
+            args.current_model,
+            models,
+            args.asr_dir,
+            args.asr_model,
+        )
         print(f"{n} llamadas importadas ({args.label})")
         if args.reviews:
             classified = import_reviews(session, args.reviews, args.reviewer)

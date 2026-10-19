@@ -9,6 +9,10 @@ Cada componente tiene además su propio historial detallado:
 
 ## 2026-10-19
 
+- **Datos personales visibles** (decisión de Johannes; registro legal L-34):
+  - `import_bench --asr-dir` muestra la transcripción original del ASR y el comentario del cliente sin enmascarar.
+  - Las citas y comentarios de la IA se reconstruyen con el texto original (`Unmasker`). En v2.7 quedaron 4 marcadores de datos personales entre unos 33 mil textos.
+  - Lo que se envía al LLM sigue anonimizado, y el panel del modelo lo muestra tal como salió.
 - **Front conectado a la API:**
   - `NEXT_PUBLIC_API_MODE=http` usa `frontend/src/lib/api/http-api.ts`; Next reenvía `/api/*` a `API_URL`, así la cookie es del mismo origen. El modo mock sigue siendo el de por defecto.
   - Verificado en el navegador con las 100 llamadas de v2.7: login, cola, detalle con hallazgos y evidencia, panel del modelo y árbol de discrepancias.
