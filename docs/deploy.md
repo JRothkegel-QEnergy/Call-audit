@@ -37,7 +37,7 @@ en `.deploy/`, que está ignorado por git.
    ```bash
    bash scripts/deploy/deploy.sh
    ```
-   Construye las imágenes, las sube a ECR, copia `docker-compose.prod.yml`, `Caddyfile` y `.env` al EC2, y levanta todo. La API aplica las migraciones al arrancar.
+   Construye las imágenes en el PC, las copia al EC2 por SSH (`docker save | docker load`), copia `docker-compose.prod.yml`, `Caddyfile` y `.env`, y levanta todo. La API aplica las migraciones al arrancar. No pasa por ECR: en Windows, `docker login` a ECR falla porque el token es más largo de lo que acepta el almacén de credenciales. Los repositorios de ECR que crea `aws_setup.sh` quedan sin uso.
 5. **Cargar los datos desde el PC con los datos**, por un túnel SSH al RDS. El túnel lo imprime `deploy.sh`; se deja abierto en otra terminal mientras se carga:
    ```bash
    DATABASE_URL=postgresql+psycopg://audit:<clave de .deploy/db_password>@localhost:5433/audit      uv run python -m call_audit.ingestion.import_bench --out ../transcripts/layer2_real_100_v2.7        --metadata "../audios/Retenciones BECS Para Revision.xlsx" --catalog ../call-audit/data/catalog/products.json        --label v2.7 --current-model gemini-3-8-flash --asr-dir ../transcripts/asr_bench        --reviews ../transcripts/layer2_real_100_v2.7/revision_capa2.csv --reviewer <tu email>
