@@ -25,6 +25,7 @@ El esquema de salida (`schema.json`) y la instrucción JSON se versionan junto c
 - **Motivo 18:**
   - "Disconformidad con coberturas" exige quejarse de las coberturas de ESTE seguro (230632).
   - Si incumple, la IA sugiere de 1 a 3 motivos de la lista válida que sí calzan, del más al menos adecuado, cada uno con la frase del cliente que lo respalda.
+- **Resultado medido (2026-10-20, 100 llamadas, 1 corrida, pauta v1.0.1):** contra la auditoría manual, Gemini se mantiene en 72 % y Sonnet baja de 70 % a 62 %. La regla nueva del 32 ("basta una coletilla") produjo 8 rechazos de más en Sonnet y 4 en Gemini, por cierres como "Mantenemos la vigencia, ¿correcto?" que el auditor aprobó, y aun así no detecta 230530. Con el 32 de v2.7, el resto de v2.8 daría 76 % en Gemini y 74 % en Sonnet (estimación). Los cambios de 24 + 26 y del 7 sí funcionaron: Sonnet bajó de 8 a 2 rechazos de más por 24 + 26.
 - **Esquema:** `gestiones[].motivos_sugeridos` (`motivo`, `cita`; máximo 3). Vacío si el 18 no incumple.
 
 **2.7 (2026-10-15)**:
