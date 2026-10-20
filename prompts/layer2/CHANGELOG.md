@@ -4,6 +4,13 @@ Una entrada por versión de `prompt.yaml`, con el porqué del cambio (métricas,
 
 El esquema de salida (`schema.json`) y la instrucción JSON se versionan junto con el prompt.
 
+**2.9 (2026-10-20)**, criterio de Johannes para el motivo 32 tras medir v2.8:
+
+- **Motivo 32:** una coletilla ("¿verdad?", "¿correcto?") o una frase que da la decisión por tomada se juzga según el momento de la llamada.
+  - **Cumple** si antes de esa frase el ejecutivo ya informó el precio (prima) y las condiciones del seguro, y el cliente ya dijo que lo mantiene: la coletilla solo confirma una decisión tomada.
+  - **Incumple** si falta cualquiera de las dos, incluida una coletilla en medio de un argumento (230530).
+  - Reemplaza la regla de v2.8 ("basta una coletilla"), con la que Sonnet marcó el 32 en 23 de 100 llamadas, 8 de ellas aprobadas por el auditor.
+
 **2.8 (2026-10-20)**, tras la auditoría manual de 50 llamadas de v2.7 (`revision_capa2.csv`, 2026-10-16). Gemini acertó 66–70 % y Sonnet 66–68 % contra esa auditoría. Los cambios atacan los motivos que más rechazaban de más y los que se pasaban:
 
 - **Decisión final NO_ACEPTADA, más estricta.** Exige una prueba en la llamada después del último argumento: el cliente vuelve a pedir la renuncia, cree que se renunció, o aceptó porque le dijeron que no podía renunciar. No cuentan:

@@ -358,10 +358,20 @@ aclaraciones del cliente para aplicar el motivo.
    renunciar?", "¿eso es un Sí?"), una pregunta neutra ("¿Está de acuerdo con la
    gestión?") ni las preguntas que ofrecen una alternativa como argumento de retención
    ("¿no prefiere mantenerlo un tiempo más?"): esas son argumentos (motivo 3).
-   Revísalo SIEMPRE en la pregunta con que se confirma la retención o se inicia el cierre:
-   basta UNA coletilla ("¿verdad?", "¿cierto?", "¿no?") o una frase que da la decisión por
-   tomada ("entonces lo dejamos vigente") para que incumpla, aunque el resto del cierre
-   siga el script. Cita la frase exacta con la coletilla.
+   Una coletilla ("¿verdad?", "¿cierto?", "¿correcto?", "¿no?") o una frase que da la
+   decisión por tomada ("entonces lo dejamos vigente", "mantenemos la vigencia") se juzga
+   según lo que ya había pasado en la llamada en ese momento:
+   · CUMPLE si antes de esa frase se cumplieron las dos condiciones: (1) el ejecutivo ya
+     informó el precio (la prima que paga el cliente) y las condiciones del seguro (al
+     menos sus coberturas o características principales), y (2) el cliente ya dijo que lo
+     mantiene ("ya, lo dejo", "sí, lo mantengo", "bueno, sigamos con él"). La coletilla
+     solo confirma una decisión que el cliente ya tomó. Anótalo en el comentario.
+   · INCUMPLE si falta cualquiera de las dos: el cliente todavía no había aceptado
+     mantenerlo (por ejemplo, una coletilla en medio de un argumento: "sería sugerible,
+     ¿cierto?, que lo conversara con su familia") o no se le había informado el precio y
+     las condiciones.
+   Para marcarlo, cita la frase exacta con la coletilla y di qué faltaba antes: el precio,
+   las condiciones o la aceptación del cliente.
  7 No realiza derivación correcta.
    Criterio: la situación requiere orientar al cliente a otro canal (ver "Derivar") y el
    ejecutivo no lo hace, lo orienta a un canal equivocado o transfiere la llamada.

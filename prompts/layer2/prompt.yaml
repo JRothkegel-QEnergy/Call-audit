@@ -3,7 +3,7 @@
 # Fuente única del system prompt. Cómo versionar y qué significa cada origen: prompts/layer2/README.md.
 # Después de editar: python scripts/prompt_bench/layer2_prompt.py build
 
-version: "2.8"
+version: "2.9"
 date: "2026-10-20"
 
 # Tipos de origen de cada regla. Cada entrada de "history" usa uno de estos.
@@ -709,16 +709,27 @@ sections:
         renunciar?", "¿eso es un Sí?"), una pregunta neutra ("¿Está de acuerdo con la
         gestión?") ni las preguntas que ofrecen una alternativa como argumento de retención
         ("¿no prefiere mantenerlo un tiempo más?"): esas son argumentos (motivo 3).
-        Revísalo SIEMPRE en la pregunta con que se confirma la retención o se inicia el cierre:
-        basta UNA coletilla ("¿verdad?", "¿cierto?", "¿no?") o una frase que da la decisión por
-        tomada ("entonces lo dejamos vigente") para que incumpla, aunque el resto del cierre
-        siga el script. Cita la frase exacta con la coletilla.
+        Una coletilla ("¿verdad?", "¿cierto?", "¿correcto?", "¿no?") o una frase que da la
+        decisión por tomada ("entonces lo dejamos vigente", "mantenemos la vigencia") se juzga
+        según lo que ya había pasado en la llamada en ese momento:
+        · CUMPLE si antes de esa frase se cumplieron las dos condiciones: (1) el ejecutivo ya
+          informó el precio (la prima que paga el cliente) y las condiciones del seguro (al
+          menos sus coberturas o características principales), y (2) el cliente ya dijo que lo
+          mantiene ("ya, lo dejo", "sí, lo mantengo", "bueno, sigamos con él"). La coletilla
+          solo confirma una decisión que el cliente ya tomó. Anótalo en el comentario.
+        · INCUMPLE si falta cualquiera de las dos: el cliente todavía no había aceptado
+          mantenerlo (por ejemplo, una coletilla en medio de un argumento: "sería sugerible,
+          ¿cierto?, que lo conversara con su familia") o no se le había informado el precio y
+          las condiciones.
+        Para marcarlo, cita la frase exacta con la coletilla y di qué faltaba antes: el precio,
+        las condiciones o la aceptación del cliente.
       history:
         - {version: "1.1", origin: official_text, note: "Texto oficial de la Pauta de Calidad Actualizada."}
         - {version: "1.1", origin: validation_feedback, note: "Excluye la confirmación neutra del cierre."}
         - {version: "2.1", origin: client_script, note: "Las preguntas del script no son el 32."}
         - {version: "2.3", origin: validation_feedback, note: "Las preguntas que ofrecen una alternativa son argumentos."}
         - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: rechazadas por predisponer en 3 llamadas (229975, 230530, 230642: 'lo vamos a mantener vigente, ¿verdad?'); Gemini y Sonnet aprobaron 230530 en las 2 corridas."}
+        - {version: "2.9", origin: validation_feedback, note: "Criterio de Johannes (2026-10-20): la coletilla no incumple si antes se informaron el precio y las condiciones y el cliente ya había aceptado mantenerlo. En v2.8 ('basta una coletilla') Sonnet marcó el 32 en 23 de 100 llamadas y en 8 que el auditor aprobó (ej. 'Mantenemos la vigencia, ¿correcto?')."}
     - id: m7
       number: 7
       official: |-
