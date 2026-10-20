@@ -162,13 +162,21 @@ def premium_text(value) -> str:
 
 WORDS_PER_SEC = 3.0  # habla rápida; si se subestima el tiempo de habla, aparecen esperas falsas
 # El cliente que rompe el silencio para ver si lo siguen atendiendo también estaba esperando al ejecutivo.
+# El ejecutivo anuncia que hará esperar al cliente: la espera dura hasta que vuelve a hablar, aunque el cliente hable
+# con otra persona mientras tanto (en 230764 la clienta habla con un niño 38 s y el ASR no deja silencio).
+HOLD_ANNOUNCE = re.compile(
+    r"permanezca en l[ií]nea|un (momento|momentito|segundo|segundito)|d[eé]me un|le (dejo|dejar[eé]) en espera"
+    r"|me espera|espere un|voy a (revisar|verificar|consultar)",
+    re.I,
+)
 CHECK_IN = re.compile(r"^\W*(eh\W+)?(al[oó]|hola|sigue ah[ií]|est[aá] ah[ií]|me escucha|se[nñ]orita|se[nñ]or)\b", re.I)
 
 
 def executive_holds(segments: list[dict]) -> list[int]:
     """Esperas en que el CLIENTE espera al EJECUTIVO (motivo 1): silencios >= MIN_GAP_SEC entre segmentos que terminan
     cuando vuelve a hablar el ejecutivo, o cuando el cliente pregunta si lo siguen atendiendo ("¿aló?"). Si el que se
-    demora es el cliente (busca un dato, piensa) y retoma con contenido, no cuenta: el que espera es el ejecutivo."""
+    demora es el cliente (busca un dato, piensa) y retoma con contenido, no cuenta: el que espera es el ejecutivo.
+    También cuentan las esperas que el ejecutivo anuncia (announced_holds)."""
     return [round(end - start) for start, end, _ in executive_hold_spans(segments)]
 
 
@@ -187,6 +195,28 @@ def executive_hold_spans(segments: list[dict]) -> list[tuple[float, float, int]]
         text = str(nxt.get("text", "")).strip()
         if speaker == "AGENTE" or (speaker == "CLIENTE" and CHECK_IN.match(text) and len(text.split()) <= 8):
             spans.append((end, parse_ts(nxt["start"]), i + 1))
+    for span in announced_holds(segments):
+        # La espera anunciada reemplaza a los silencios que quedan dentro de ella.
+        spans = [s for s in spans if not (span[0] <= s[0] and s[1] <= span[1] + 1)] + [span]
+    return sorted(spans)
+
+
+def announced_holds(segments: list[dict]) -> list[tuple[float, float, int]]:
+    """Esperas que el ejecutivo anuncia ("permanezca en línea", "un momento"): desde que termina de anunciarla hasta
+    que vuelve a hablar. Cuentan desde MIN_GAP_SEC, como las demás."""
+    spans = []
+    for i, seg in enumerate(segments):
+        if SPEAKERS.get(str(seg.get("speaker", "")).upper()) != "AGENTE" or not HOLD_ANNOUNCE.search(str(seg["text"])):
+            continue
+        back = next(
+            (j for j in range(i + 1, len(segments)) if SPEAKERS.get(str(segments[j].get("speaker", "")).upper()) == "AGENTE"),
+            None,
+        )
+        if back is None:
+            continue
+        start = parse_ts(seg["end"]) if seg.get("end") else parse_ts(seg["start"])
+        if parse_ts(segments[back]["start"]) - start >= MIN_GAP_SEC:
+            spans.append((start, parse_ts(segments[back]["start"]), back))
     return spans
 
 
@@ -329,16 +359,17 @@ def run_models(args, index: list[dict]) -> None:
 # --- Report --------------------------------------------------------------------------
 
 
-# Motivo 1 en código: la espera más larga de holds_sec (silencios >= MIN_GAP_SEC entre segmentos del ASR) contra
-# este umbral. La nota del cliente dice "más de 30 s"; en las 100 llamadas reales el auditor aprobó silencios de 31 a
-# 35 s y rechazó desde 40 s. TBD con el cliente (docs/client-open-questions.md, n.º 3).
-HOLD_LIMIT_SEC = 35
+# Motivo 1 en código: la espera más larga de holds_sec contra este umbral. La nota del cliente dice "más de 30 s".
+# Hasta el 2026-10-19 era 35 s porque el auditor del cliente aprobó silencios de 31 a 35 s en el Excel; Johannes
+# decidió seguir la pauta (30 s) tras su auditoría manual, que rechazó esperas de 31 y 33 s (230760, 230698).
+# Mismo valor que hold_limit_sec de rubrics/bancoestado_retention/v1.0.1.yaml.
+HOLD_LIMIT_SEC = 30
 
-# Severidad por motivo: todo incumplimiento rechaza, pero si solo hay leves el rechazo queda marcado para revisión
-# (hasta v2.7 los leves no rechazaban; el usuario pidió rechazarlos con marca el 2026-10-16). Propuesta
-# empírica sacada de las 100 llamadas reales (transcripts/layer2_real_100/analisis_discrepancias_v2.6.md): el auditor
-# aprobó llamadas con 3, 18, 28 por omisión, 30, 32, 16 y 25. TBD con el cliente (client-open-questions, n.º 1).
-MINOR_CRITERIA = {2, 3, 16, 18, 25, 28, 30, 32}
+# Severidad por motivo: todo incumplimiento rechaza; si solo hay leves, el rechazo queda marcado para revisión.
+# Desde el 2026-10-19 todos los motivos son graves (decisión de Johannes tras su auditoría manual: rechazó llamadas
+# solo por 18 o 32). La propuesta anterior de leves era {2, 3, 16, 18, 25, 28, 30, 32}. Gravedad oficial: TBD con el
+# cliente (client-open-questions, n.º 1).
+MINOR_CRITERIA: set[int] = set()
 
 
 def minor_only(bad: list[int], minor: set[int]) -> bool:
@@ -368,7 +399,8 @@ def verdict_options(args, out_dir: Path, stem: str, model: str | None = None) ->
 
 
 def verdict(audit: dict, unevaluable: set[int], holds: list[int] | None = None,
-            minor: set[int] = frozenset(), overrides: dict[int, str] | None = None) -> tuple[str, list[int], list[int]]:
+            minor: set[int] = frozenset(), overrides: dict[int, str] | None = None,
+            hold_limit: int = HOLD_LIMIT_SEC) -> tuple[str, list[int], list[int]]:
     """APROBADA / RECHAZADA / DUDOSA. Con holds, el motivo 1 sale del código y no del LLM. Todo motivo incumplido
     rechaza; si son solo de `minor`, el rechazo es leve (ver minor_only) y el dashboard lo marca para revisar. Un
     motivo de `minor` indeterminado no deja la llamada DUDOSA. `overrides` reemplaza el estado de esos motivos (2 y 6
@@ -376,7 +408,7 @@ def verdict(audit: dict, unevaluable: set[int], holds: list[int] | None = None,
     Sin holds, minor ni overrides, se comporta como hasta v2.6."""
     crit = [c for c in audit.get("criterios", []) if c.get("id") not in unevaluable]
     if holds is not None:
-        crit = [c for c in crit if c.get("id") != 1] + [{"id": 1, "estado": "incumple" if hold_finding(holds) else "cumple"}]
+        crit = [c for c in crit if c.get("id") != 1] + [{"id": 1, "estado": "incumple" if hold_finding(holds, hold_limit) else "cumple"}]
     if overrides:
         crit = [c for c in crit if c.get("id") not in overrides] + [{"id": k, "estado": v} for k, v in overrides.items()]
     bad = sorted({c["id"] for c in crit if c.get("estado") == "incumple"})

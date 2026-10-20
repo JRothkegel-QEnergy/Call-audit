@@ -517,10 +517,16 @@ sections:
       criterion: |-
         debe decir el N° de seguro (MUS A Neto) del seguro gestionado; bastan los 4
         últimos dígitos. Decir solo el N° de póliza no reemplaza al N° de seguro.
+        Si dice el número pero con una diferencia menor que no cambia de qué seguro se trata
+        (omite un cero inicial: "389" por "0389"; dice 3 de los 4 dígitos; cambia el orden de
+        dos dígitos), NO lo marques como incumple: márcalo indeterminado y explica en el
+        comentario qué dijo y qué debía decir, para que lo revise el auditor.
+      pending: "Confirmar con el cliente si un cero inicial omitido o una diferencia menor en los 4 dígitos incumple el 13."
       history:
         - {version: "1.1", origin: official_text, note: "Texto oficial de la Pauta de Calidad Actualizada."}
         - {version: "2.0", origin: client_feedback, note: "N° de seguro MUS A Neto."}
         - {version: "2.1", origin: client_script, note: "Bastan los 4 últimos dígitos."}
+        - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: rechazada solo porque omitió el 0 de '0389' (229668); Johannes pidió dejar estos casos para revisión en vez de rechazar. Pendiente confirmar con el cliente."}
     - id: m15
       number: 15
       official: |-

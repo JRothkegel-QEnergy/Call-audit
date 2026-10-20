@@ -1,0 +1,57 @@
+# Pauta de retención BancoEstado Corredores de Seguros: 33 motivos en 5 bloques.
+# Versión publicada = inmutable; para cambiar algo, crear v1.0.1 (o la que corresponda) al lado.
+# Descripciones: texto oficial de la pauta (docs/context.md). Gravedad y tipo: TBD con el cliente
+# (docs/client-open-questions.md, n.º 1); mientras tanto el motor usa `decision.minor_proposal`.
+id: bancoestado_retention
+version: "1.0.1"
+
+decision:
+  # Todo motivo incumplido rechaza la llamada. Si todos los incumplidos están en minor_proposal, el rechazo es
+  # leve y queda marcado para revisión. v1.0.1 (2026-10-20): todos graves, decisión de Johannes tras su auditoría
+  # manual (rechazó llamadas solo por 18 o 32). Gravedad oficial: TBD con el cliente.
+  minor_proposal: []
+  # Motivo 1 en código: espera más larga del ejecutivo (holds_sec) contra este umbral. v1.0.1: 30 s, como dice la
+  # nota de la pauta ("más de 30 s"); la auditoría manual rechazó esperas de 31 y 33 s. Antes era 35 s.
+  hold_limit_sec: 30
+
+blocks:
+  - {id: A, name: Acreditación y protocolo de cierre, criteria: [31, 33, 29, 30, 13, 15, 27]}
+  - {id: B, name: Conocimiento del producto, criteria: [4, 2, 6, 5, 28]}
+  - {id: C, name: Gestión de la retención, criteria: [14, 17, 9, 16, 3, 12, 32, 7, 26]}
+  - {id: D, name: Trato, criteria: [1, 8, 11, 10]}
+  - {id: E, name: Tipificación, criteria: [18, 19, 24, 20, 21, 22, 23, 25]}
+
+criteria:
+  - {id: M1, block: D, description: "Deja en espera por tiempo excesivo", type: TBD, severity: TBD, layers: [layer1], decision_rule: hold_over_limit}
+  - {id: M2, block: B, description: "Descripción del seguro corresponde a otro seguro", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects, product_sheet_section: coverages}
+  - {id: M3, block: C, description: "Excede 3 objeciones máximo para retención", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M4, block: B, description: "No indica ninguna característica del seguro a renunciar", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects, product_sheet_section: coverages}
+  - {id: M5, block: B, description: "No informa que la permanencia la maneja cliente ante consulta directa", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M6, block: B, description: "No maneja información del producto o coberturas", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects, product_sheet_section: coverages}
+  - {id: M7, block: C, description: "No realiza derivación correcta", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M8, block: D, description: "No responde de forma directa al cliente", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M9, block: C, description: "Renuncia seguro irrenunciable en este canal", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects, product_sheet_section: category}
+  - {id: M10, block: D, description: "Su atención no se ajusta a la política de BancoEstado", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M11, block: D, description: "Descalifica a los pares, a BancoEstado o a la competencia", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M12, block: C, description: "Induce a renuncia", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M13, block: A, description: "No indica número de seguro en protocolo de cierre", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects, product_sheet_section: call}
+  - {id: M14, block: C, description: "No realiza ningún intento de retención del seguro retenible", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects, product_sheet_section: category}
+  - {id: M15, block: A, description: "No se informa medio de pago en protocolo de cierre", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects, product_sheet_section: call}
+  - {id: M16, block: C, description: "Realiza retención de seguro sin intención de renuncia", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M17, block: C, description: "Retiene seguro no retenible", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects, product_sheet_section: category}
+  - {id: M18, block: E, description: "Tipifica motivo de renuncia incorrecto", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M19, block: E, description: "Tipifica renuncia y por grabación es retención", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M20, block: E, description: "Tipifica renuncia de seguro no mencionado", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M21, block: E, description: "Tipifica renuncia que corresponde a otro seguro", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M22, block: E, description: "Tipifica retención de seguro no mencionado", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M23, block: E, description: "Tipifica retención que corresponde a otro seguro", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M24, block: E, description: "Tipifica retención y por grabación es renuncia", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M25, block: E, description: "No tipifica todas las gestiones", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M26, block: C, description: "No se impactan todas las gestiones solicitadas por el cliente", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M27, block: A, description: "Entrega información a tercero, sin retomar protocolo de cierre con el titular", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M28, block: B, description: "Niega devolución de primas", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects, product_sheet_section: refund}
+  - {id: M29, block: A, description: "No realiza protocolo de cierre", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M30, block: A, description: "No reitera protocolo de cierre ante respuesta no permitida", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M31, block: A, description: "No valida correctamente al cliente (RUT, nombre, fecha de nacimiento)", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M32, block: C, description: "Predispone al cliente para la aceptación del seguro", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}
+  - {id: M33, block: A, description: "No valida correctamente al cliente (email, fono)", type: TBD, severity: TBD, layers: [layer2], decision_rule: non_compliant_rejects}

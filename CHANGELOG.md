@@ -9,6 +9,13 @@ Cada componente tiene además su propio historial detallado:
 
 ## 2026-10-20
 
+- **Pauta v1.0.1** (decisiones de Johannes tras su auditoría manual):
+  - Umbral del motivo 1 en 30 s, como dice la pauta; antes era 35 s.
+  - Todos los motivos son graves; la lista de leves queda vacía.
+  - El bench también cuenta las esperas que el ejecutivo anuncia ("permanezca en línea"), aunque el cliente hable con otra persona. En 230764 la espera era de 38 s y no se detectaba.
+  - Con estas tres decisiones, v2.7 contra la auditoría manual sube a 72 % y 74 % en Gemini, y a 70 % y 72 % en Sonnet (antes 66–70 %).
+  - Reimportado en local y en AWS.
+- **Prompt v2.8, motivo 13:** una diferencia menor en el N° de seguro (cero inicial omitido) queda indeterminada para revisión. Pregunta n.º 28 al cliente.
 - **Prompt capa 2 v2.8**, a partir de la auditoría manual de 50 llamadas:
   - NO_ACEPTADA más estricta: era la causa de los 24 + 26 de más de Sonnet.
   - El 7 solo aplica ante un reclamo.

@@ -13,7 +13,7 @@ Un ítem cuenta en cada origen que aparece en su historial.
 | Feedback del cliente | 20 | Aclaraciones del cliente (notas de la pauta, reuniones de revisión). Indica quién y cuándo en la nota. |
 | Script del cliente | 13 | Script Retención BECS (julio 2026). Si contradice al Excel de apoyo, manda el script. |
 | Catálogo del cliente | 8 | Excel Apoyo nuevo v1 (catálogo de seguros, fichas, medios de pago, hoja Otros). |
-| Feedback de validación | 27 | Ajuste nuestro tras revisar errores de las IA en una corrida (sintéticas o llamadas reales). La nota dice qué fallaba. |
+| Feedback de validación | 28 | Ajuste nuestro tras revisar errores de las IA en una corrida (sintéticas o llamadas reales). La nota dice qué fallaba. |
 | Diseño Qubico | 25 | Decisión nuestra de formato o de método de evaluación, sin un error concreto detrás. |
 
 ## Reglas que vienen de feedback
@@ -81,6 +81,7 @@ Un ítem cuenta en cada origen que aparece en su historial.
 | 2.8 | `def_final_decision` - Decisión final del cliente ("decision_final", por cada seguro con… | Auditoría manual de 50 llamadas (2026-10-16): Sonnet marcó 24 + 26 de más en 6 llamadas aprobadas (ej. 'Sí, sí, sí lo mantengo' como NO_ACEPTADA). Insistir antes y luego aceptar es retención; mantenerlo hasta que la compañía responda también (229669, 229898). |
 | 2.8 | `m11` 11 Descalifica a los pares, a BancoEstado o a la competencia. | Auditoría manual: el ejecutivo confirmó que la ejecutiva de venta informó mal al cliente y ningún modelo lo marcó (230459). |
 | 2.8 | `m12` 12 Induce a renuncia. | Auditoría manual: 12 mal aplicado; el ejecutivo gestionaba la renuncia pedida (230188). |
+| 2.8 | `m13` 13 No indica número de seguro en protocolo de cierre. | Auditoría manual: rechazada solo porque omitió el 0 de '0389' (229668); Johannes pidió dejar estos casos para revisión en vez de rechazar. Pendiente confirmar con el cliente. |
 | 2.8 | `m16` 16 Realiza retención de seguro sin intención de renuncia. | Auditoría manual: 16 mal aplicado; el cliente sí quería renunciar (230188). |
 | 2.8 | `m18` 18 Tipifica motivo de renuncia incorrecto. | Auditoría manual: 'Disconformidad con coberturas' tipificado a una clienta que habló de su pensión baja y mencionó otro seguro de salud (230632); otras dos rechazadas por motivo mal tipificado (230196, 229864). |
 | 2.8 | `m2` 2 Descripción del seguro corresponde a otro seguro. | Auditoría manual: 2 mal aplicado en 3 llamadas aprobadas (229739, 230212, 230248); Gemini lo marcó de más en 2 corridas. Exige citar la línea de la ficha o el contrato que se contradice. |
@@ -108,7 +109,7 @@ Motivos con aclaración (`criterion`) sobre el texto oficial, y de dónde viene.
 | 10 | Su atención no se ajusta a la política de BancoEstado. | Feedback de validación, Feedback del cliente |
 | 11 | Descalifica a los pares, a BancoEstado o a la competencia. | Feedback de validación, Feedback del cliente |
 | 12 | Induce a renuncia. | Diseño Qubico, Feedback de validación |
-| 13 | No indica número de seguro en protocolo de cierre. | Feedback del cliente, Script del cliente |
+| 13 | No indica número de seguro en protocolo de cierre. | Feedback de validación, Feedback del cliente, Script del cliente |
 | 14 | No realiza ningún intento de retención del seguro retenible. | Catálogo del cliente |
 | 15 | No se informa medio de pago en protocolo de cierre. | Feedback del cliente |
 | 16 | Realiza retención de seguro sin intención de renuncia. | Feedback de validación, Feedback del cliente |
@@ -135,6 +136,7 @@ Sin aclaración (solo texto oficial): 22, 23.
 - `def_objection`: Confirmar con el cliente el conteo de objeciones.
 - `def_client_requests`: Confirmar si se acepta la mesa del banco 800 80 20 20 para reclamos de cobro.
 - `def_closing`: Si faltar la información de devolución es motivo 28 o 29.
+- `m13`: Confirmar con el cliente si un cero inicial omitido o una diferencia menor en los 4 dígitos incumple el 13.
 
 ## Detalle por ítem
 
@@ -178,7 +180,7 @@ Sin aclaración (solo texto oficial): 22, 23.
 | rubric_a | `m33` 33 No valida correctamente al cliente, (Email, Fono). Protocolo de… | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: Un dato distinto al registrado es solo observación. |
 | rubric_a | `m29` 29 No realiza protocolo de cierre. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.1 · Script del cliente: Cierre según el script.<br>2.2 · Feedback de validación: Solo incumple sin ningún resumen; ejemplos. Haiku 4.5 y GPT-6 Luna marcaban cierres que no seguían el guion al pie de la letra. |
 | rubric_a | `m30` 30 No reitera protocolo de cierre ante respuesta no permitida. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.1 · Script del cliente: Respuestas válidas a la confirmación y repregunta. |
-| rubric_a | `m13` 13 No indica número de seguro en protocolo de cierre. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: N° de seguro MUS A Neto.<br>2.1 · Script del cliente: Bastan los 4 últimos dígitos. |
+| rubric_a | `m13` 13 No indica número de seguro en protocolo de cierre. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: N° de seguro MUS A Neto.<br>2.1 · Script del cliente: Bastan los 4 últimos dígitos.<br>2.8 · Feedback de validación: Auditoría manual: rechazada solo porque omitió el 0 de '0389' (229668); Johannes pidió dejar estos casos para revisión en vez de rechazar. Pendiente confirmar con el cliente. |
 | rubric_a | `m15` 15 No se informa medio de pago en protocolo de cierre. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: No aplica con medio de pago OTRO. |
 | rubric_a | `m27` 27 Entrega información a tercero, sin retomar protocolo de cierre con el… | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.1 · Script del cliente: Solo con el titular o el representante legal. |
 | rubric_b | `m4` 4 No indica ninguna característica del seguro a renunciar. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: Mínimo 1 característica; el nombre no cuenta. |

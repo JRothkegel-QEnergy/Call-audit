@@ -21,6 +21,7 @@ El esquema de salida (`schema.json`) y la instrucción JSON se versionan junto c
 - **Motivos 5, 12 y 16:** no aplican si el ejecutivo informa que el cliente decide, si gestiona la renuncia pedida, o si el cliente sí pidió renunciar.
 - **Motivo 11:** incluye confirmar que la ejecutiva de venta informó mal al cliente. Ningún modelo lo marcó en 230459.
 - **Motivo 32:** se revisa siempre en la pregunta de confirmación; basta una coletilla ("¿verdad?") para que incumpla. Gemini y Sonnet aprobaron 230530 en las 2 corridas.
+- **Motivo 13:** si dice el número con una diferencia menor (un cero inicial omitido, 3 de los 4 dígitos), queda indeterminado para revisión en vez de incumplir (229668). Pendiente confirmar con el cliente.
 - **Motivo 18:**
   - "Disconformidad con coberturas" exige quejarse de las coberturas de ESTE seguro (230632).
   - Si incumple, la IA sugiere de 1 a 3 motivos de la lista válida que sí calzan, del más al menos adecuado, cada uno con la frase del cliente que lo respalda.

@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     # Orígenes del front que pueden llamar a la API con cookie (coma separada).
     cors_origins: str = "http://localhost:3000"
 
-    rubric_path: Path = ROOT / "rubrics" / "bancoestado_retention" / "v1.0.0.yaml"
+    rubric_path: Path = ROOT / "rubrics" / "bancoestado_retention" / "v1.0.1.yaml"
 
     # Audio desde S3 con URL prefirmada. Sin bucket, el caso viaja sin audio.
     s3_bucket: str = ""

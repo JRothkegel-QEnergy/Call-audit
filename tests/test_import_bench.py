@@ -17,12 +17,30 @@ def case_by_call(session: Session, call_id: str) -> Case:
 def test_import_creates_cases_with_bench_verdicts(imported: sessionmaker[Session]) -> None:
     with imported() as session:
         assert session.scalar(select(func.count()).select_from(Case)) == 3
-        approved, minor, rejected = (case_by_call(session, c).runs[0] for c in ("1001", "1002", "1003"))
+        approved, closing, rejected = (case_by_call(session, c).runs[0] for c in ("1001", "1002", "1003"))
         assert approved.verdict == "compliant"
-        assert minor.verdict == "non_compliant" and minor.minor_only
-        assert minor.applied_rule.startswith("Rechazo leve")
+        # Pauta v1.0.1: todos los motivos son graves, también el 30.
+        assert closing.verdict == "non_compliant" and not closing.minor_only
+        assert closing.applied_rule == "Rechaza: incumple 30"
         assert rejected.verdict == "non_compliant" and not rejected.minor_only
-        assert all(r.is_current and r.prompt_version == "9.9" for r in (approved, minor, rejected))
+        assert all(r.is_current and r.prompt_version == "9.9" for r in (approved, closing, rejected))
+
+
+def test_hold_over_30_seconds_fails_motivo_1(
+    db: sessionmaker[Session], bench_dir: tuple[Path, dict], rubric: Rubric
+) -> None:
+    out, rows = bench_dir
+    call_path = out / "calls" / "call_1001.json"
+    call = json.loads(call_path.read_text(encoding="utf-8"))
+    call["metadata"]["holds_sec"] = [31]
+    call_path.write_text(json.dumps(call), encoding="utf-8")
+    with db() as session, session.begin():
+        import_run(session, out, rows, CATALOG, rubric, "v9.9", "modelo-a")
+    with db() as session:
+        run = case_by_call(session, "1001").runs[0]
+        assert rubric.hold_limit_sec == 30
+        assert run.verdict == "non_compliant"
+        assert next(f for f in run.findings if f["criterionId"] == 1)["verdict"] == "non_compliant"
 
 
 def test_import_computes_hold_finding_and_validates_quotes(imported: sessionmaker[Session]) -> None:
@@ -134,3 +152,25 @@ def test_hold_evidence_points_to_the_longest_executive_wait() -> None:
         "quoteValidated": True,
     }
     assert hold_evidence(segments, turns[:2]) is None
+
+
+def test_announced_hold_counts_even_if_the_client_talks_to_someone_else() -> None:
+    import sys
+
+    from call_audit.config import ROOT
+
+    sys.path.insert(0, str(ROOT / "scripts" / "prompt_bench"))
+    import real_calls
+
+    segments = [
+        {
+            "speaker": "EJECUTIVO",
+            "start": "02:23",
+            "end": "02:26",
+            "text": "Voy a revisar, permanezca en línea, por favor.",
+        },
+        {"speaker": "CLIENTE", "start": "02:26", "end": "02:27", "text": "Ya."},
+        {"speaker": "CLIENTE", "start": "02:40", "end": "03:03", "text": "Mira, dice, mira. Hipopótamos."},
+        {"speaker": "EJECUTIVO", "start": "03:04", "end": "03:10", "text": "Ya, perfecto. Me aparece su seguro."},
+    ]
+    assert real_calls.executive_holds(segments) == [38]

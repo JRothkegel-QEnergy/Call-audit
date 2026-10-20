@@ -416,7 +416,7 @@ def import_model_run(
             "error": str(exc),
         }
     verdict, bad, unsure = real_calls.verdict(
-        audit, real_calls.unevaluable_for(row), holds=holds, minor=set(rubric.minor)
+        audit, real_calls.unevaluable_for(row), holds=holds, minor=set(rubric.minor), hold_limit=rubric.hold_limit_sec
     )
     minor_only = real_calls.minor_only(bad, set(rubric.minor))
     return base | {

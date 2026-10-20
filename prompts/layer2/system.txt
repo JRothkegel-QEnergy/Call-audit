@@ -280,6 +280,10 @@ aclaraciones del cliente para aplicar el motivo.
 13 No indica número de seguro en protocolo de cierre.
    Criterio: debe decir el N° de seguro (MUS A Neto) del seguro gestionado; bastan los 4
    últimos dígitos. Decir solo el N° de póliza no reemplaza al N° de seguro.
+   Si dice el número pero con una diferencia menor que no cambia de qué seguro se trata
+   (omite un cero inicial: "389" por "0389"; dice 3 de los 4 dígitos; cambia el orden de
+   dos dígitos), NO lo marques como incumple: márcalo indeterminado y explica en el
+   comentario qué dijo y qué debía decir, para que lo revise el auditor.
 15 No se informa medio de pago en protocolo de cierre.
    Criterio: si el medio de pago del seguro es "OTRO", no se debe mencionar: no aplica.
 27 Entrega información a tercero, sin retomar protocolo de cierre con el titular.
