@@ -232,7 +232,8 @@ function renderMain() {
     return g.map((x, k) => {
       const e = (exp.outcomes || []).find(o => o.mus_a_neto === String(x.mus_a_neto));
       const ok = (a, b) => e ? (a === b ? "" : ` style="color:var(--bad);font-weight:600"`) : "";
-      const reasons = (x.motivos_renuncia || []).join(" / ");
+      const suggested = (x.motivos_sugeridos || []).map(s => s.motivo).join(" > ");
+      const reasons = (x.motivos_renuncia || []).join(" / ") + (suggested ? ` · sugeridos: ${suggested}` : "");
       const args = (x.argumentos_retencion || []).map(a => a.tipo).join(" → ");
       return `<tr>${k === 0 ? `<td rowspan="${g.length}">${esc(name)}</td>` : ""}<td>${esc(x.mus_a_neto)}</td><td${ok(x.resultado_grabacion, e?.outcome)}>${esc(x.resultado_grabacion)}</td><td>${esc(reasons)}</td><td${ok(x.n_objeciones, e?.objections)}>${esc(x.n_objeciones)}</td><td>${esc(args)}</td></tr>`;
     }).join("");

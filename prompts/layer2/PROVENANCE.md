@@ -1,4 +1,4 @@
-# Origen de las reglas · prompt capa 2 v2.7 (2026-10-15)
+# Origen de las reglas · prompt capa 2 v2.8 (2026-10-20)
 
 > Generado por `python scripts/prompt_bench/layer2_prompt.py build` desde `prompt.yaml`. No editar a mano.
 > `base` = la regla ya estaba antes del historial detallado (v2.0 o anterior).
@@ -13,8 +13,8 @@ Un ítem cuenta en cada origen que aparece en su historial.
 | Feedback del cliente | 20 | Aclaraciones del cliente (notas de la pauta, reuniones de revisión). Indica quién y cuándo en la nota. |
 | Script del cliente | 13 | Script Retención BECS (julio 2026). Si contradice al Excel de apoyo, manda el script. |
 | Catálogo del cliente | 8 | Excel Apoyo nuevo v1 (catálogo de seguros, fichas, medios de pago, hoja Otros). |
-| Feedback de validación | 21 | Ajuste nuestro tras revisar errores de las IA en una corrida (sintéticas o llamadas reales). La nota dice qué fallaba. |
-| Diseño Qubico | 24 | Decisión nuestra de formato o de método de evaluación, sin un error concreto detrás. |
+| Feedback de validación | 27 | Ajuste nuestro tras revisar errores de las IA en una corrida (sintéticas o llamadas reales). La nota dice qué fallaba. |
+| Diseño Qubico | 25 | Decisión nuestra de formato o de método de evaluación, sin un error concreto detrás. |
 
 ## Reglas que vienen de feedback
 
@@ -77,6 +77,18 @@ Un ítem cuenta en cada origen que aparece en su historial.
 | 2.7 | `outcomes` Primero determina, según la grabación, el resultado de cada seguro:… | Con decision_final NO_ACEPTADA el resultado es RENUNCIA. |
 | 2.7 | `r13` 13. Información del seguro: antes de evaluar, revisa si la FICHA sirve para… | SIN_FICHA solo si faltan coberturas, montos, primas o devolución: GPT-6 Luna marcaba SIN_FICHA en 60 de 100. |
 | 2.7 | `r14` 14. Antes de los "criterios", completa en este orden "solicitudes_cliente",… | Completar solicitudes, afirmaciones y decisión final antes de los criterios (revisión de discrepancias v2.6 en 100 llamadas reales). |
+| 2.8 | `def_client_requests` - Solicitudes del cliente ("solicitudes_cliente"): registra cada pedido o… | Auditoría manual: Sonnet marcó el 7 de más en 4 llamadas aprobadas porque el cliente 'no se acordaba' del seguro y luego decidía en la llamada. Solo un reclamo (devolución, cobro incorrecto, contratación no consentida) exige derivar. El 7 sí es real cuando no se le indica adónde ir (229668). |
+| 2.8 | `def_final_decision` - Decisión final del cliente ("decision_final", por cada seguro con… | Auditoría manual de 50 llamadas (2026-10-16): Sonnet marcó 24 + 26 de más en 6 llamadas aprobadas (ej. 'Sí, sí, sí lo mantengo' como NO_ACEPTADA). Insistir antes y luego aceptar es retención; mantenerlo hasta que la compañía responda también (229669, 229898). |
+| 2.8 | `m11` 11 Descalifica a los pares, a BancoEstado o a la competencia. | Auditoría manual: el ejecutivo confirmó que la ejecutiva de venta informó mal al cliente y ningún modelo lo marcó (230459). |
+| 2.8 | `m12` 12 Induce a renuncia. | Auditoría manual: 12 mal aplicado; el ejecutivo gestionaba la renuncia pedida (230188). |
+| 2.8 | `m16` 16 Realiza retención de seguro sin intención de renuncia. | Auditoría manual: 16 mal aplicado; el cliente sí quería renunciar (230188). |
+| 2.8 | `m18` 18 Tipifica motivo de renuncia incorrecto. | Auditoría manual: 'Disconformidad con coberturas' tipificado a una clienta que habló de su pensión baja y mencionó otro seguro de salud (230632); otras dos rechazadas por motivo mal tipificado (230196, 229864). |
+| 2.8 | `m2` 2 Descripción del seguro corresponde a otro seguro. | Auditoría manual: 2 mal aplicado en 3 llamadas aprobadas (229739, 230212, 230248); Gemini lo marcó de más en 2 corridas. Exige citar la línea de la ficha o el contrato que se contradice. |
+| 2.8 | `m24` 24 Tipifica retencion y por grabacion es renuncia. | Auditoría manual: 24 marcado de más cuando el cliente mantenía el seguro (229598, 229669, 229898; Sonnet en 6 llamadas aprobadas). |
+| 2.8 | `m3` 3 Excede 3 objeciones máximo para retención. | Auditoría manual: para revisar el 3 hace falta ver todas las objeciones (229669); Sonnet lo marcó de más en 3 llamadas y Gemini en 2. |
+| 2.8 | `m32` 32 Predispone al cliente para la aceptación del seguro, condiciona la… | Auditoría manual: rechazadas por predisponer en 3 llamadas (229975, 230530, 230642: 'lo vamos a mantener vigente, ¿verdad?'); Gemini y Sonnet aprobaron 230530 en las 2 corridas. |
+| 2.8 | `m5` 5 No informa que la permanencia la maneja cliente ante consulta directa. | Auditoría manual: 5 mal aplicado cuando el ejecutivo sí informaba que el cliente decide (229668, 229669). |
+| 2.8 | `m8` 8 No responde de forma directa al cliente. Elude las preguntas. | Auditoría manual: 8 mal aplicado en 3 llamadas (229668, 229669, 229739); los 'claro, claro' eran escucha activa y el ejecutivo respondía después. Sí es real cuando la respuesta no es clara (229888, 230188). |
 
 ## Personalizaciones de la pauta oficial
 
@@ -86,7 +98,7 @@ Motivos con aclaración (`criterion`) sobre el texto oficial, y de dónde viene.
 |---:|---|---|
 | 1 | Deja en espera por tiempo excesivo. | Feedback de validación, Feedback del cliente |
 | 2 | Descripción del seguro corresponde a otro seguro. | Diseño Qubico, Feedback de validación |
-| 3 | Excede 3 objeciones máximo para retención. | Feedback del cliente |
+| 3 | Excede 3 objeciones máximo para retención. | Feedback de validación, Feedback del cliente |
 | 4 | No indica ninguna característica del seguro a renunciar. | Feedback del cliente |
 | 5 | No informa que la permanencia la maneja cliente ante consulta directa. | Feedback de validación, Feedback del cliente |
 | 6 | No maneja información del producto o coberturas. | Feedback de validación, Feedback del cliente |
@@ -94,17 +106,18 @@ Motivos con aclaración (`criterion`) sobre el texto oficial, y de dónde viene.
 | 8 | No responde de forma directa al cliente. Elude las preguntas. | Feedback de validación |
 | 9 | Renuncia seguro irrenunciable en este canal. | Catálogo del cliente |
 | 10 | Su atención no se ajusta a la política de BancoEstado. | Feedback de validación, Feedback del cliente |
-| 11 | Descalifica a los pares, a BancoEstado o a la competencia. | Feedback del cliente |
-| 12 | Induce a renuncia. | Diseño Qubico |
+| 11 | Descalifica a los pares, a BancoEstado o a la competencia. | Feedback de validación, Feedback del cliente |
+| 12 | Induce a renuncia. | Diseño Qubico, Feedback de validación |
 | 13 | No indica número de seguro en protocolo de cierre. | Feedback del cliente, Script del cliente |
 | 14 | No realiza ningún intento de retención del seguro retenible. | Catálogo del cliente |
 | 15 | No se informa medio de pago en protocolo de cierre. | Feedback del cliente |
-| 16 | Realiza retención de seguro sin intención de renuncia. | Feedback del cliente |
+| 16 | Realiza retención de seguro sin intención de renuncia. | Feedback de validación, Feedback del cliente |
 | 17 | Retiene seguro no retenible. | Catálogo del cliente |
-| 18 | Tipifica motivo de renuncia incorrecto. | Feedback del cliente |
+| 18 | Tipifica motivo de renuncia incorrecto. | Diseño Qubico, Feedback de validación, Feedback del cliente |
 | 19 | Tipifica renuncia y por grabacion es retencion. | Feedback del cliente |
 | 20 | Tipifica renuncia de seguro no mencionado. | Diseño Qubico |
 | 21 | Tipifica renuncia que corresponde a otro seguro. | Diseño Qubico |
+| 24 | Tipifica retencion y por grabacion es renuncia. | Feedback de validación |
 | 25 | No tipifica todas las gestiones. | Diseño Qubico |
 | 26 | No se impactan todas las gestiones solicitadas por el cliente. | Feedback de validación |
 | 27 | Entrega información a tercero, sin retomar protocolo de cierre con el titular. | Script del cliente |
@@ -115,7 +128,7 @@ Motivos con aclaración (`criterion`) sobre el texto oficial, y de dónde viene.
 | 32 | Predispone al cliente para la aceptación del seguro, condiciona la respuesta a un Si. | Feedback de validación, Script del cliente |
 | 33 | No valida correctamente al cliente, (Email, Fono). Protocolo de acreditación titularidad. | Feedback del cliente |
 
-Sin aclaración (solo texto oficial): 22, 23, 24.
+Sin aclaración (solo texto oficial): 22, 23.
 
 ## Pendiente con el cliente
 
@@ -150,8 +163,8 @@ Sin aclaración (solo texto oficial): 22, 23, 24.
 | definitions | `def_retention_argument` - Argumento de retención: lo que dice el ejecutivo para que el cliente… | 2.0 · Diseño Qubico: argumentos_retencion con tipo y orden (indicador del dashboard).<br>2.1 · Script del cliente: Orden de argumentos del script; fecha de renovación al final. |
 | definitions | `def_objection` - Objeción (n_objeciones): cada argumento de retención que el ejecutivo da… | 1.1 · Diseño Qubico: Definición explícita de objeción: cuenta el primer argumento.<br>2.0 · Feedback del cliente: Límite de objeciones condicionado a que el cliente sea tajante.<br>2.1 · Script del cliente: Cliente molesto: decir que es parte del protocolo y gestionar la renuncia. Origen inferido al migrar a YAML; confirmar. |
 | definitions | `def_client_decides` - El cliente decide cuándo renunciar: no hay restricción de fecha para… | 2.0 · Feedback del cliente: No condicionar la renuncia a una fecha (motivo 5).<br>2.7 · Feedback de validación: Tampoco condicionarla a una acción previa (retirar el ahorro, validar un cobro). |
-| definitions | `def_final_decision` - Decisión final del cliente ("decision_final", por cada seguro con… | 2.7 · Feedback de validación: Retención NO_ACEPTADA = RENUNCIA por grabación: causa más común de llamadas rechazadas que Gemini aprobaba. |
-| definitions | `def_client_requests` - Solicitudes del cliente ("solicitudes_cliente"): registra cada pedido o… | 2.7 · Feedback de validación: Desconocimiento, devolución o cobro incorrecto exigen orientar al requerimiento; otro seguro mencionado debe gestionarse. |
+| definitions | `def_final_decision` - Decisión final del cliente ("decision_final", por cada seguro con… | 2.7 · Feedback de validación: Retención NO_ACEPTADA = RENUNCIA por grabación: causa más común de llamadas rechazadas que Gemini aprobaba.<br>2.8 · Feedback de validación: Auditoría manual de 50 llamadas (2026-10-16): Sonnet marcó 24 + 26 de más en 6 llamadas aprobadas (ej. 'Sí, sí, sí lo mantengo' como NO_ACEPTADA). Insistir antes y luego aceptar es retención; mantenerlo hasta que la compañía responda también (229669, 229898). |
+| definitions | `def_client_requests` - Solicitudes del cliente ("solicitudes_cliente"): registra cada pedido o… | 2.7 · Feedback de validación: Desconocimiento, devolución o cobro incorrecto exigen orientar al requerimiento; otro seguro mencionado debe gestionarse.<br>2.8 · Feedback de validación: Auditoría manual: Sonnet marcó el 7 de más en 4 llamadas aprobadas porque el cliente 'no se acordaba' del seguro y luego decidía en la llamada. Solo un reclamo (devolución, cobro incorrecto, contratación no consentida) exige derivar. El 7 sí es real cuando no se le indica adónde ir (229668). |
 | definitions | `def_product_claims` - Afirmaciones sobre el producto ("afirmaciones_producto"): registra lo que… | 2.7 · Feedback de validación: Materialidad en 2 y 6: GPT-6 Luna marcaba diferencias de redondeo y Gemini no contrastaba con la ficha. |
 | definitions | `def_closing` - Protocolo de cierre (script). Aplica cuando hubo gestión de renuncia o de… | 1.1 · Diseño Qubico: Cuándo aplica el protocolo de cierre.<br>2.1 · Script del cliente: Protocolo de cierre del script, separado para retención y renuncia; respuestas válidas; devolución automática en cobro anticipado. |
 | definitions | `def_identity` - Acreditación de titularidad (script): el ejecutivo pide el RUT y valida… | 2.1 · Script del cliente: Acreditación de titularidad del script. |
@@ -169,27 +182,27 @@ Sin aclaración (solo texto oficial): 22, 23, 24.
 | rubric_a | `m15` 15 No se informa medio de pago en protocolo de cierre. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: No aplica con medio de pago OTRO. |
 | rubric_a | `m27` 27 Entrega información a tercero, sin retomar protocolo de cierre con el… | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.1 · Script del cliente: Solo con el titular o el representante legal. |
 | rubric_b | `m4` 4 No indica ninguna característica del seguro a renunciar. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: Mínimo 1 característica; el nombre no cuenta. |
-| rubric_b | `m2` 2 Descripción del seguro corresponde a otro seguro. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Diseño Qubico: Distinción 2 vs 6: el 2 es lo que describe por iniciativa propia.<br>2.5 · Feedback de validación: El CONTRATO del cliente no incumple.<br>2.7 · Feedback de validación: Solo afirmaciones incorrectas MATERIALES. |
+| rubric_b | `m2` 2 Descripción del seguro corresponde a otro seguro. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Diseño Qubico: Distinción 2 vs 6: el 2 es lo que describe por iniciativa propia.<br>2.5 · Feedback de validación: El CONTRATO del cliente no incumple.<br>2.7 · Feedback de validación: Solo afirmaciones incorrectas MATERIALES.<br>2.8 · Feedback de validación: Auditoría manual: 2 mal aplicado en 3 llamadas aprobadas (229739, 230212, 230248); Gemini lo marcó de más en 2 corridas. Exige citar la línea de la ficha o el contrato que se contradice. |
 | rubric_b | `m6` 6 No maneja información del producto o coberturas. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: No negar ni desviar información, salvo fechas de pago.<br>2.7 · Feedback de validación: Solo datos incorrectos MATERIALES. |
-| rubric_b | `m5` 5 No informa que la permanencia la maneja cliente ante consulta directa. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: No condicionar la renuncia a una fecha.<br>2.7 · Feedback de validación: Ni a una acción previa del cliente. |
+| rubric_b | `m5` 5 No informa que la permanencia la maneja cliente ante consulta directa. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: No condicionar la renuncia a una fecha.<br>2.7 · Feedback de validación: Ni a una acción previa del cliente.<br>2.8 · Feedback de validación: Auditoría manual: 5 mal aplicado cuando el ejecutivo sí informaba que el cliente decide (229668, 229669). |
 | rubric_b | `m28` 28 Niega devolución de primas. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>1.1 · Diseño Qubico: Usa el tipo de prima del seguro.<br>2.0 · Catálogo del cliente: Regla de devolución por tipo de prima. |
 | rubric_c | `m14` 14 No realiza ningún intento de retención del seguro retenible. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Catálogo del cliente: Aplica a seguros de categoría RETENIBLE. |
 | rubric_c | `m17` 17 Retiene seguro no retenible. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Catálogo del cliente: Categoría distinta de RETENIBLE. |
 | rubric_c | `m9` 9 Renuncia seguro irrenunciable en este canal. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Catálogo del cliente: Seguros NO RENUNCIABLES del catálogo. |
-| rubric_c | `m16` 16 Realiza retención de seguro sin intención de renuncia. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>base · Feedback del cliente: Origen inferido al migrar a YAML; confirmar.<br>2.6 · Feedback del cliente: Solo se retiene el seguro cuya cancelación pidió el cliente (reunión con Verónica). |
-| rubric_c | `m3` 3 Excede 3 objeciones máximo para retención. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: Máximo de objeciones condicionado a cliente tajante. |
-| rubric_c | `m12` 12 Induce a renuncia. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>base · Diseño Qubico: Origen inferido al migrar a YAML; confirmar. |
-| rubric_c | `m32` 32 Predispone al cliente para la aceptación del seguro, condiciona la… | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>1.1 · Feedback de validación: Excluye la confirmación neutra del cierre.<br>2.1 · Script del cliente: Las preguntas del script no son el 32.<br>2.3 · Feedback de validación: Las preguntas que ofrecen una alternativa son argumentos. |
+| rubric_c | `m16` 16 Realiza retención de seguro sin intención de renuncia. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>base · Feedback del cliente: Origen inferido al migrar a YAML; confirmar.<br>2.6 · Feedback del cliente: Solo se retiene el seguro cuya cancelación pidió el cliente (reunión con Verónica).<br>2.8 · Feedback de validación: Auditoría manual: 16 mal aplicado; el cliente sí quería renunciar (230188). |
+| rubric_c | `m3` 3 Excede 3 objeciones máximo para retención. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: Máximo de objeciones condicionado a cliente tajante.<br>2.8 · Feedback de validación: Auditoría manual: para revisar el 3 hace falta ver todas las objeciones (229669); Sonnet lo marcó de más en 3 llamadas y Gemini en 2. |
+| rubric_c | `m12` 12 Induce a renuncia. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>base · Diseño Qubico: Origen inferido al migrar a YAML; confirmar.<br>2.8 · Feedback de validación: Auditoría manual: 12 mal aplicado; el ejecutivo gestionaba la renuncia pedida (230188). |
+| rubric_c | `m32` 32 Predispone al cliente para la aceptación del seguro, condiciona la… | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>1.1 · Feedback de validación: Excluye la confirmación neutra del cierre.<br>2.1 · Script del cliente: Las preguntas del script no son el 32.<br>2.3 · Feedback de validación: Las preguntas que ofrecen una alternativa son argumentos.<br>2.8 · Feedback de validación: Auditoría manual: rechazadas por predisponer en 3 llamadas (229975, 230530, 230642: 'lo vamos a mantener vigente, ¿verdad?'); Gemini y Sonnet aprobaron 230530 en las 2 corridas. |
 | rubric_c | `m7` 7 No realiza derivación correcta. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>1.1 · Diseño Qubico: Incluye seguros no renunciables en el canal.<br>2.0 · Feedback del cliente: No se transfieren llamadas. |
 | rubric_c | `m26` 26 No se impactan todas las gestiones solicitadas por el cliente. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.3 · Feedback de validación: No basta con "quedó todo listo": los modelos le creían.<br>2.7 · Feedback de validación: decision_final NO_ACEPTADA incumple. |
 | rubric_d | `m1` 1 Deja en espera por tiempo excesivo. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: Espera de más de 30 s.<br>2.7 · Feedback de validación: Solo esperas atribuibles al ejecutivo. |
-| rubric_d | `m8` 8 No responde de forma directa al cliente. Elude las preguntas. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.3 · Feedback de validación: Se marca junto con el 6 cuando elude una pregunta del producto. |
-| rubric_d | `m11` 11 Descalifica a los pares, a BancoEstado o a la competencia. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: Incluye a otros ejecutivos. |
+| rubric_d | `m8` 8 No responde de forma directa al cliente. Elude las preguntas. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.3 · Feedback de validación: Se marca junto con el 6 cuando elude una pregunta del producto.<br>2.8 · Feedback de validación: Auditoría manual: 8 mal aplicado en 3 llamadas (229668, 229669, 229739); los 'claro, claro' eran escucha activa y el ejecutivo respondía después. Sí es real cuando la respuesta no es clara (229888, 230188). |
+| rubric_d | `m11` 11 Descalifica a los pares, a BancoEstado o a la competencia. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: Incluye a otros ejecutivos.<br>2.8 · Feedback de validación: Auditoría manual: el ejecutivo confirmó que la ejecutiva de venta informó mal al cliente y ningún modelo lo marcó (230459). |
 | rubric_d | `m10` 10 Su atención no se ajusta a la política de BancoEstado. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>1.1 · Feedback de validación: Los modelos lo marcaban casi siempre.<br>2.0 · Feedback del cliente: Motivo 10 = mal trato (ya no es residual). |
 | rubric_e | `outcomes` Primero determina, según la grabación, el resultado de cada seguro:… | 2.0 · Diseño Qubico: Resultado CONSULTA y lista de motivos de renuncia.<br>2.7 · Feedback de validación: Con decision_final NO_ACEPTADA el resultado es RENUNCIA. |
-| rubric_e | `m18` 18 Tipifica motivo de renuncia incorrecto. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: Basta con uno de los motivos.<br>2.6 · Feedback del cliente: Más flexible: basta con que tenga sentido (reunión con Verónica). En v2.4 se marcaba en 29 a 34 de 100. |
+| rubric_e | `m18` 18 Tipifica motivo de renuncia incorrecto. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.0 · Feedback del cliente: Basta con uno de los motivos.<br>2.6 · Feedback del cliente: Más flexible: basta con que tenga sentido (reunión con Verónica). En v2.4 se marcaba en 29 a 34 de 100.<br>2.8 · Diseño Qubico: Si incumple, sugiere de 1 a 3 motivos correctos, del más al menos adecuado, con la cita que los respalda (motivos_sugeridos), para que el auditor corrija la tipificación.<br>2.8 · Feedback de validación: Auditoría manual: 'Disconformidad con coberturas' tipificado a una clienta que habló de su pensión baja y mencionó otro seguro de salud (230632); otras dos rechazadas por motivo mal tipificado (230196, 229864). |
 | rubric_e | `m19` 19 Tipifica renuncia y por grabacion es retencion. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>base · Feedback del cliente: Origen inferido al migrar a YAML; confirmar. |
-| rubric_e | `m24` 24 Tipifica retencion y por grabacion es renuncia. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada. |
+| rubric_e | `m24` 24 Tipifica retencion y por grabacion es renuncia. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>2.8 · Feedback de validación: Auditoría manual: 24 marcado de más cuando el cliente mantenía el seguro (229598, 229669, 229898; Sonnet en 6 llamadas aprobadas). |
 | rubric_e | `m20` 20 Tipifica renuncia de seguro no mencionado. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>base · Diseño Qubico: Origen inferido al migrar a YAML; confirmar. |
 | rubric_e | `m21` 21 Tipifica renuncia que corresponde a otro seguro. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada.<br>base · Diseño Qubico: Origen inferido al migrar a YAML; confirmar. |
 | rubric_e | `m22` 22 Tipifica retención de seguro no mencionado. | 1.1 · Texto oficial: Texto oficial de la Pauta de Calidad Actualizada. |

@@ -133,14 +133,29 @@ CONSUMO" no es "DESEMPLEO ITT CRE. CONSUMO"): usa siempre el de los metadatos.
   NO_ACEPTADA → resultado_grabacion = RENUNCIA: marca 26 (la renuncia pedida no se
   gestionó) y, si se tipificó retención, 24. CONDICIONADA no incumple: anótalo como
   observación. Si la causa fue un condicionamiento del ejecutivo, marca también el 5.
+  NO_ACEPTADA exige una prueba EN la llamada, después del último argumento: el cliente
+  vuelve a pedir la renuncia, dice que cree que se renunció, o acepta por (c). NO es
+  NO_ACEPTADA:
+  · que el cliente haya insistido en renunciar antes (dos, tres o más veces) y después
+    deje de objetar: eso son objeciones (motivo 3), y la retención vale;
+  · un "sí" a la pregunta de cierre sin una nueva petición de renuncia en medio;
+  · una frase final que dice mantenerlo ("sí, lo mantengo", "déjemelo así no más",
+    "déjelo grabado"): es GENUINA o CONDICIONADA aunque antes haya dudado;
+  · mantenerlo mientras espera algo ("hasta que la compañía responda", "hasta revisar el
+    cobro"): es CONDICIONADA, y por grabación es RETENCION, no renuncia.
+  Si dudas entre NO_ACEPTADA y otra clase, elige la otra y explica la duda en el comentario.
 - Solicitudes del cliente ("solicitudes_cliente"): registra cada pedido o pregunta
   directa del cliente (aparte de renunciar) y cómo respondió el ejecutivo. Las que exigen
   orientar a otro canal:
-  · Desconoce el cobro o la contratación, pide que le devuelvan lo cobrado, o reporta
-    un cobro doble o incorrecto: el ejecutivo debe orientarlo a ingresar un requerimiento
-    (600 660 1212, opción 2). Para reclamos por cobros también se acepta la mesa del
-    banco 800 80 20 20 [DEFINIR: confirmar con el cliente]. Si no lo orienta → 7; si
-    además dice que no hay devolución → 28.
+  · Reclama un cobro o la contratación: pide que le devuelvan lo cobrado, reporta un
+    cobro doble o incorrecto, o dice que lo contrataron sin su consentimiento y quiere
+    que se revise. El ejecutivo debe orientarlo a ingresar un requerimiento (600 660
+    1212, opción 2). Para reclamos por cobros también se acepta la mesa del banco 800 80
+    20 20 [DEFINIR: confirmar con el cliente]. Si no lo orienta → 7; si además dice que
+    no hay devolución → 28.
+    Que el cliente solo diga que no recuerda haberlo contratado o por qué se lo cobran,
+    y después resuelva en la llamada (lo renuncia o lo mantiene) sin pedir devolución ni
+    revisión, NO es un reclamo: no exige derivar.
   · Menciona otro seguro que quiere renunciar o que desconoce: debe gestionarlo o
     explicar por qué no se puede; si no → 26 (y 25 si falta en la tipificación).
   · Pregunta sobre el producto (qué cubre, cuánto paga, si sirve para su caso): debe
@@ -283,6 +298,9 @@ aclaraciones del cliente para aplicar el motivo.
    Solo compara con la ficha lo que no está en el contrato (coberturas, asistencias).
    Incumple SOLO con una afirmación incorrecta MATERIAL (ver "Afirmaciones sobre el
    producto"); las no materiales van como observación en el comentario.
+   Para marcarlo, cita en el comentario la línea de la FICHA o del CONTRATO que la
+   afirmación contradice. Si la ficha no trae ese dato, o no puedes citar la línea, no es
+   2: anótalo como observación.
  6 No maneja información del producto o coberturas.
    Criterio: el ejecutivo siempre tiene la información y debe darla. Incumple si, ante
    preguntas del cliente sobre el producto, responde con datos que contradicen la ficha,
@@ -295,6 +313,9 @@ aclaraciones del cliente para aplicar el motivo.
    Criterio: el ejecutivo puede sugerir fechas para renunciar, pero no puede decir que esa
    es la única fecha de renuncia. Incumple si, ante la consulta, no informa que el cliente
    decide, o si condiciona la renuncia a una fecha o a que el cliente haga algo antes.
+   Solo aplica si el cliente PREGUNTA directamente cuándo o si puede renunciar (o el
+   ejecutivo le pone una condición). Si el ejecutivo le informa que puede renunciar
+   cuando quiera, con cualquier palabra y en cualquier momento de la llamada, cumple.
 28 Niega devolución de primas.
    Criterio: aplica la regla de devolución del tipo de prima del seguro (ver
    "Devolución de prima"). Incumple si dice que no hay devolución cuando corresponde, o si
@@ -313,11 +334,18 @@ aclaraciones del cliente para aplicar el motivo.
    Criterio: el cliente tiene que decir que quiere renunciar o dar de baja (o una frase
    equivalente). Solo se retiene el seguro que el cliente pidió cancelar: intentar retener
    otro seguro que el cliente no pidió cancelar incumple.
+   Si el cliente pidió renunciar ese seguro en cualquier momento de la llamada, retenerlo
+   NO es 16, aunque la frase sea indirecta ("no lo quiero seguir pagando", "quiero
+   sacarlo").
  3 Excede 3 objeciones máximo para retención.
    Criterio: ver "Objeción" y "Cliente tajante".
+   Si incumple, pon en la evidencia CADA objeción contada (timestamp y frase del cliente),
+   en orden, para que el auditor pueda contarlas.
 12 Induce a renuncia.
    Criterio: sugiere o propone renunciar un seguro que el cliente no pidió cancelar (por
    ejemplo, uno que no era el motivo de la consulta).
+   Gestionar la renuncia que el cliente pidió, o explicarle cómo renunciar cuando lo
+   pregunta, NO es inducir.
 32 Predispone al cliente para la aceptación del seguro, condiciona la respuesta a un Si.
    Criterio: preguntas que dan por hecha la respuesta, normalmente con una coletilla:
    "¿Usted está de acuerdo en mantenerlo, cierto?", "lo dejamos vigente, ¿verdad?",
@@ -326,6 +354,10 @@ aclaraciones del cliente para aplicar el motivo.
    renunciar?", "¿eso es un Sí?"), una pregunta neutra ("¿Está de acuerdo con la
    gestión?") ni las preguntas que ofrecen una alternativa como argumento de retención
    ("¿no prefiere mantenerlo un tiempo más?"): esas son argumentos (motivo 3).
+   Revísalo SIEMPRE en la pregunta con que se confirma la retención o se inicia el cierre:
+   basta UNA coletilla ("¿verdad?", "¿cierto?", "¿no?") o una frase que da la decisión por
+   tomada ("entonces lo dejamos vigente") para que incumpla, aunque el resto del cierre
+   siga el script. Cita la frase exacta con la coletilla.
  7 No realiza derivación correcta.
    Criterio: la situación requiere orientar al cliente a otro canal (ver "Derivar") y el
    ejecutivo no lo hace, lo orienta a un canal equivocado o transfiere la llamada.
@@ -352,9 +384,18 @@ aclaraciones del cliente para aplicar el motivo.
    y el ejecutivo le propone renunciar o le habla de mantener el seguro). Mide la
    conducta de eludir; si la pregunta era sobre el producto, marca además el 6.
    Responder directo aunque con un dato errado NO es 8 (es 6, 28 u otro).
+   Revisa todo lo que dice el ejecutivo después de la pregunta, no solo su primera frase:
+   "claro, claro", "ya", "sí", "entiendo" mientras el cliente habla son escucha activa, no
+   una respuesta. Si contesta la pregunta más adelante en la conversación, cumple.
+   Incumple solo si la pregunta queda sin respuesta. En la evidencia cita la pregunta del
+   cliente y el momento en que el ejecutivo debió contestarla.
 11 Descalifica a los pares, a BancoEstado o a la competencia.
    Criterio: hablar mal de ejecutivos de venta, ejecutivos del banco, otros ejecutivos,
    BancoEstado, la compañía o la competencia.
+   Incluye confirmar o dar por hecho que el cliente fue mal informado o engañado por quien
+   le vendió el seguro ("sí, la ejecutiva le informó mal", "a usted le vendieron mal",
+   "eso no se lo debieron decir"), aunque sea para empatizar. Lo correcto es explicar la
+   información sin juzgar a la otra persona.
 10 Su atención no se ajusta a la política de BancoEstado.
    Criterio: mal trato al cliente: tono de voz alto, lenguaje soez, agresivo o grosero,
    burlas o impaciencia hostil.
@@ -384,10 +425,19 @@ Y todos los motivos de renuncia que expresa el cliente. Luego compara con lo tip
      reconoce que lo contrató).
    - Si el cliente no explicó sus razones, cualquier motivo genérico (No desea contraer
      más obligaciones, No informado) está bien.
+   - "Disconformidad con coberturas" exige que el cliente se queje de las coberturas de
+     ESTE seguro. Si solo menciona de pasada otro seguro que no le cubrió algo, y su razón
+     para este es la plata o no recordar por qué lo tiene, el motivo no calza: incumple.
    "Retracto" solo es válido si se cumplen sus condiciones (ver "Retracto").
+   Si incumple, completa "motivos_sugeridos" en la gestión de ese seguro: de 1 a 3 motivos
+   de la lista válida que sí calzan con lo que dijo el cliente, del más al menos adecuado,
+   cada uno con la frase textual del cliente que lo respalda. Si no incumple, déjalo vacío.
 19 Tipifica renuncia y por grabacion es retencion.
    Criterio: es un error muy común; revísalo siempre.
 24 Tipifica retencion y por grabacion es renuncia.
+   Criterio: solo si se ingresó la renuncia en la llamada o la decision_final es NO_ACEPTADA (con
+   la prueba que exige "Decisión final del cliente"). Si el cliente terminó manteniendo el
+   seguro, por grabación es retención y NO incumple.
 20 Tipifica renuncia de seguro no mencionado.
    Criterio: tipifica la renuncia de un seguro que nunca se mencionó en la grabación.
 21 Tipifica renuncia que corresponde a otro seguro.

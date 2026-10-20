@@ -3,8 +3,8 @@
 # Fuente única del system prompt. Cómo versionar y qué significa cada origen: prompts/layer2/README.md.
 # Después de editar: python scripts/prompt_bench/layer2_prompt.py build
 
-version: "2.7"
-date: "2026-10-15"
+version: "2.8"
+date: "2026-10-20"
 
 # Tipos de origen de cada regla. Cada entrada de "history" usa uno de estos.
 origins:
@@ -286,18 +286,34 @@ sections:
           NO_ACEPTADA → resultado_grabacion = RENUNCIA: marca 26 (la renuncia pedida no se
           gestionó) y, si se tipificó retención, 24. CONDICIONADA no incumple: anótalo como
           observación. Si la causa fue un condicionamiento del ejecutivo, marca también el 5.
+          NO_ACEPTADA exige una prueba EN la llamada, después del último argumento: el cliente
+          vuelve a pedir la renuncia, dice que cree que se renunció, o acepta por (c). NO es
+          NO_ACEPTADA:
+          · que el cliente haya insistido en renunciar antes (dos, tres o más veces) y después
+            deje de objetar: eso son objeciones (motivo 3), y la retención vale;
+          · un "sí" a la pregunta de cierre sin una nueva petición de renuncia en medio;
+          · una frase final que dice mantenerlo ("sí, lo mantengo", "déjemelo así no más",
+            "déjelo grabado"): es GENUINA o CONDICIONADA aunque antes haya dudado;
+          · mantenerlo mientras espera algo ("hasta que la compañía responda", "hasta revisar el
+            cobro"): es CONDICIONADA, y por grabación es RETENCION, no renuncia.
+          Si dudas entre NO_ACEPTADA y otra clase, elige la otra y explica la duda en el comentario.
       history:
         - {version: "2.7", origin: validation_feedback, note: "Retención NO_ACEPTADA = RENUNCIA por grabación: causa más común de llamadas rechazadas que Gemini aprobaba."}
+        - {version: "2.8", origin: validation_feedback, note: "Auditoría manual de 50 llamadas (2026-10-16): Sonnet marcó 24 + 26 de más en 6 llamadas aprobadas (ej. 'Sí, sí, sí lo mantengo' como NO_ACEPTADA). Insistir antes y luego aceptar es retención; mantenerlo hasta que la compañía responda también (229669, 229898)."}
     - id: def_client_requests
       text: |-
         - Solicitudes del cliente ("solicitudes_cliente"): registra cada pedido o pregunta
           directa del cliente (aparte de renunciar) y cómo respondió el ejecutivo. Las que exigen
           orientar a otro canal:
-          · Desconoce el cobro o la contratación, pide que le devuelvan lo cobrado, o reporta
-            un cobro doble o incorrecto: el ejecutivo debe orientarlo a ingresar un requerimiento
-            (600 660 1212, opción 2). Para reclamos por cobros también se acepta la mesa del
-            banco 800 80 20 20 [DEFINIR: confirmar con el cliente]. Si no lo orienta → 7; si
-            además dice que no hay devolución → 28.
+          · Reclama un cobro o la contratación: pide que le devuelvan lo cobrado, reporta un
+            cobro doble o incorrecto, o dice que lo contrataron sin su consentimiento y quiere
+            que se revise. El ejecutivo debe orientarlo a ingresar un requerimiento (600 660
+            1212, opción 2). Para reclamos por cobros también se acepta la mesa del banco 800 80
+            20 20 [DEFINIR: confirmar con el cliente]. Si no lo orienta → 7; si además dice que
+            no hay devolución → 28.
+            Que el cliente solo diga que no recuerda haberlo contratado o por qué se lo cobran,
+            y después resuelva en la llamada (lo renuncia o lo mantiene) sin pedir devolución ni
+            revisión, NO es un reclamo: no exige derivar.
           · Menciona otro seguro que quiere renunciar o que desconoce: debe gestionarlo o
             explicar por qué no se puede; si no → 26 (y 25 si falta en la tipificación).
           · Pregunta sobre el producto (qué cubre, cuánto paga, si sirve para su caso): debe
@@ -305,6 +321,7 @@ sections:
       pending: "Confirmar si se acepta la mesa del banco 800 80 20 20 para reclamos de cobro."
       history:
         - {version: "2.7", origin: validation_feedback, note: "Desconocimiento, devolución o cobro incorrecto exigen orientar al requerimiento; otro seguro mencionado debe gestionarse."}
+        - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: Sonnet marcó el 7 de más en 4 llamadas aprobadas porque el cliente 'no se acordaba' del seguro y luego decidía en la llamada. Solo un reclamo (devolución, cobro incorrecto, contratación no consentida) exige derivar. El 7 sí es real cuando no se le indica adónde ir (229668)."}
     - id: def_product_claims
       text: |-
         - Afirmaciones sobre el producto ("afirmaciones_producto"): registra lo que el ejecutivo
@@ -548,11 +565,15 @@ sections:
         Solo compara con la ficha lo que no está en el contrato (coberturas, asistencias).
         Incumple SOLO con una afirmación incorrecta MATERIAL (ver "Afirmaciones sobre el
         producto"); las no materiales van como observación en el comentario.
+        Para marcarlo, cita en el comentario la línea de la FICHA o del CONTRATO que la
+        afirmación contradice. Si la ficha no trae ese dato, o no puedes citar la línea, no es
+        2: anótalo como observación.
       history:
         - {version: "1.1", origin: official_text, note: "Texto oficial de la Pauta de Calidad Actualizada."}
         - {version: "2.0", origin: design, note: "Distinción 2 vs 6: el 2 es lo que describe por iniciativa propia."}
         - {version: "2.5", origin: validation_feedback, note: "El CONTRATO del cliente no incumple."}
         - {version: "2.7", origin: validation_feedback, note: "Solo afirmaciones incorrectas MATERIALES."}
+        - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: 2 mal aplicado en 3 llamadas aprobadas (229739, 230212, 230248); Gemini lo marcó de más en 2 corridas. Exige citar la línea de la ficha o el contrato que se contradice."}
     - id: m6
       number: 6
       official: |-
@@ -577,10 +598,14 @@ sections:
         el ejecutivo puede sugerir fechas para renunciar, pero no puede decir que esa
         es la única fecha de renuncia. Incumple si, ante la consulta, no informa que el cliente
         decide, o si condiciona la renuncia a una fecha o a que el cliente haga algo antes.
+        Solo aplica si el cliente PREGUNTA directamente cuándo o si puede renunciar (o el
+        ejecutivo le pone una condición). Si el ejecutivo le informa que puede renunciar
+        cuando quiera, con cualquier palabra y en cualquier momento de la llamada, cumple.
       history:
         - {version: "1.1", origin: official_text, note: "Texto oficial de la Pauta de Calidad Actualizada."}
         - {version: "2.0", origin: client_feedback, note: "No condicionar la renuncia a una fecha."}
         - {version: "2.7", origin: validation_feedback, note: "Ni a una acción previa del cliente."}
+        - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: 5 mal aplicado cuando el ejecutivo sí informaba que el cliente decide (229668, 229669)."}
     - id: m28
       number: 28
       official: |-
@@ -633,19 +658,26 @@ sections:
         el cliente tiene que decir que quiere renunciar o dar de baja (o una frase
         equivalente). Solo se retiene el seguro que el cliente pidió cancelar: intentar retener
         otro seguro que el cliente no pidió cancelar incumple.
+        Si el cliente pidió renunciar ese seguro en cualquier momento de la llamada, retenerlo
+        NO es 16, aunque la frase sea indirecta ("no lo quiero seguir pagando", "quiero
+        sacarlo").
       history:
         - {version: "1.1", origin: official_text, note: "Texto oficial de la Pauta de Calidad Actualizada."}
         - {version: "base", origin: client_feedback, note: "Origen inferido al migrar a YAML; confirmar."}
         - {version: "2.6", origin: client_feedback, note: "Solo se retiene el seguro cuya cancelación pidió el cliente (reunión con Verónica)."}
+        - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: 16 mal aplicado; el cliente sí quería renunciar (230188)."}
     - id: m3
       number: 3
       official: |-
         Excede 3 objeciones máximo para retención.
       criterion: |-
         ver "Objeción" y "Cliente tajante".
+        Si incumple, pon en la evidencia CADA objeción contada (timestamp y frase del cliente),
+        en orden, para que el auditor pueda contarlas.
       history:
         - {version: "1.1", origin: official_text, note: "Texto oficial de la Pauta de Calidad Actualizada."}
         - {version: "2.0", origin: client_feedback, note: "Máximo de objeciones condicionado a cliente tajante."}
+        - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: para revisar el 3 hace falta ver todas las objeciones (229669); Sonnet lo marcó de más en 3 llamadas y Gemini en 2."}
     - id: m12
       number: 12
       official: |-
@@ -653,9 +685,12 @@ sections:
       criterion: |-
         sugiere o propone renunciar un seguro que el cliente no pidió cancelar (por
         ejemplo, uno que no era el motivo de la consulta).
+        Gestionar la renuncia que el cliente pidió, o explicarle cómo renunciar cuando lo
+        pregunta, NO es inducir.
       history:
         - {version: "1.1", origin: official_text, note: "Texto oficial de la Pauta de Calidad Actualizada."}
         - {version: "base", origin: design, note: "Origen inferido al migrar a YAML; confirmar."}
+        - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: 12 mal aplicado; el ejecutivo gestionaba la renuncia pedida (230188)."}
     - id: m32
       number: 32
       official: |-
@@ -668,11 +703,16 @@ sections:
         renunciar?", "¿eso es un Sí?"), una pregunta neutra ("¿Está de acuerdo con la
         gestión?") ni las preguntas que ofrecen una alternativa como argumento de retención
         ("¿no prefiere mantenerlo un tiempo más?"): esas son argumentos (motivo 3).
+        Revísalo SIEMPRE en la pregunta con que se confirma la retención o se inicia el cierre:
+        basta UNA coletilla ("¿verdad?", "¿cierto?", "¿no?") o una frase que da la decisión por
+        tomada ("entonces lo dejamos vigente") para que incumpla, aunque el resto del cierre
+        siga el script. Cita la frase exacta con la coletilla.
       history:
         - {version: "1.1", origin: official_text, note: "Texto oficial de la Pauta de Calidad Actualizada."}
         - {version: "1.1", origin: validation_feedback, note: "Excluye la confirmación neutra del cierre."}
         - {version: "2.1", origin: client_script, note: "Las preguntas del script no son el 32."}
         - {version: "2.3", origin: validation_feedback, note: "Las preguntas que ofrecen una alternativa son argumentos."}
+        - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: rechazadas por predisponer en 3 llamadas (229975, 230530, 230642: 'lo vamos a mantener vigente, ¿verdad?'); Gemini y Sonnet aprobaron 230530 en las 2 corridas."}
     - id: m7
       number: 7
       official: |-
@@ -728,9 +768,15 @@ sections:
         y el ejecutivo le propone renunciar o le habla de mantener el seguro). Mide la
         conducta de eludir; si la pregunta era sobre el producto, marca además el 6.
         Responder directo aunque con un dato errado NO es 8 (es 6, 28 u otro).
+        Revisa todo lo que dice el ejecutivo después de la pregunta, no solo su primera frase:
+        "claro, claro", "ya", "sí", "entiendo" mientras el cliente habla son escucha activa, no
+        una respuesta. Si contesta la pregunta más adelante en la conversación, cumple.
+        Incumple solo si la pregunta queda sin respuesta. En la evidencia cita la pregunta del
+        cliente y el momento en que el ejecutivo debió contestarla.
       history:
         - {version: "1.1", origin: official_text, note: "Texto oficial de la Pauta de Calidad Actualizada."}
         - {version: "2.3", origin: validation_feedback, note: "Se marca junto con el 6 cuando elude una pregunta del producto."}
+        - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: 8 mal aplicado en 3 llamadas (229668, 229669, 229739); los 'claro, claro' eran escucha activa y el ejecutivo respondía después. Sí es real cuando la respuesta no es clara (229888, 230188)."}
     - id: m11
       number: 11
       official: |-
@@ -738,9 +784,14 @@ sections:
       criterion: |-
         hablar mal de ejecutivos de venta, ejecutivos del banco, otros ejecutivos,
         BancoEstado, la compañía o la competencia.
+        Incluye confirmar o dar por hecho que el cliente fue mal informado o engañado por quien
+        le vendió el seguro ("sí, la ejecutiva le informó mal", "a usted le vendieron mal",
+        "eso no se lo debieron decir"), aunque sea para empatizar. Lo correcto es explicar la
+        información sin juzgar a la otra persona.
       history:
         - {version: "1.1", origin: official_text, note: "Texto oficial de la Pauta de Calidad Actualizada."}
         - {version: "2.0", origin: client_feedback, note: "Incluye a otros ejecutivos."}
+        - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: el ejecutivo confirmó que la ejecutiva de venta informó mal al cliente y ningún modelo lo marcó (230459)."}
     - id: m10
       number: 10
       official: |-
@@ -788,11 +839,19 @@ sections:
           reconoce que lo contrató).
         - Si el cliente no explicó sus razones, cualquier motivo genérico (No desea contraer
           más obligaciones, No informado) está bien.
+        - "Disconformidad con coberturas" exige que el cliente se queje de las coberturas de
+          ESTE seguro. Si solo menciona de pasada otro seguro que no le cubrió algo, y su razón
+          para este es la plata o no recordar por qué lo tiene, el motivo no calza: incumple.
         "Retracto" solo es válido si se cumplen sus condiciones (ver "Retracto").
+        Si incumple, completa "motivos_sugeridos" en la gestión de ese seguro: de 1 a 3 motivos
+        de la lista válida que sí calzan con lo que dijo el cliente, del más al menos adecuado,
+        cada uno con la frase textual del cliente que lo respalda. Si no incumple, déjalo vacío.
       history:
         - {version: "1.1", origin: official_text, note: "Texto oficial de la Pauta de Calidad Actualizada."}
         - {version: "2.0", origin: client_feedback, note: "Basta con uno de los motivos."}
         - {version: "2.6", origin: client_feedback, note: "Más flexible: basta con que tenga sentido (reunión con Verónica). En v2.4 se marcaba en 29 a 34 de 100."}
+        - {version: "2.8", origin: design, note: "Si incumple, sugiere de 1 a 3 motivos correctos, del más al menos adecuado, con la cita que los respalda (motivos_sugeridos), para que el auditor corrija la tipificación."}
+        - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: 'Disconformidad con coberturas' tipificado a una clienta que habló de su pensión baja y mencionó otro seguro de salud (230632); otras dos rechazadas por motivo mal tipificado (230196, 229864)."}
     - id: m19
       number: 19
       official: |-
@@ -806,8 +865,13 @@ sections:
       number: 24
       official: |-
         Tipifica retencion y por grabacion es renuncia.
+      criterion: |-
+        solo si se ingresó la renuncia en la llamada o la decision_final es NO_ACEPTADA (con
+        la prueba que exige "Decisión final del cliente"). Si el cliente terminó manteniendo el
+        seguro, por grabación es retención y NO incumple.
       history:
         - {version: "1.1", origin: official_text, note: "Texto oficial de la Pauta de Calidad Actualizada."}
+        - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: 24 marcado de más cuando el cliente mantenía el seguro (229598, 229669, 229898; Sonnet en 6 llamadas aprobadas)."}
     - id: m20
       number: 20
       official: |-

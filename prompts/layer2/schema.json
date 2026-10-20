@@ -198,6 +198,19 @@
                 "type": "string"
               }
             },
+            "motivos_sugeridos": {
+              "type": "array",
+              "description": "Solo si el motivo 18 incumple para este seguro: de 1 a 3 motivos de la lista válida que sí calzan con lo que dijo el cliente, del más al menos adecuado. Vacío en otro caso.",
+              "maxItems": 3,
+              "items": {
+                "type": "object",
+                "required": ["motivo", "cita"],
+                "properties": {
+                  "motivo": {"type": "string", "description": "Motivo de la lista válida"},
+                  "cita": {"type": "string", "description": "Frase del cliente que lo respalda, textual"}
+                }
+              }
+            },
             "n_objeciones": {
               "type": "integer"
             },

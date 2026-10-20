@@ -4,6 +4,28 @@ Una entrada por versión de `prompt.yaml`, con el porqué del cambio (métricas,
 
 El esquema de salida (`schema.json`) y la instrucción JSON se versionan junto con el prompt.
 
+**2.8 (2026-10-20)**, tras la auditoría manual de 50 llamadas de v2.7 (`revision_capa2.csv`, 2026-10-16). Gemini acertó 66–70 % y Sonnet 66–68 % contra esa auditoría. Los cambios atacan los motivos que más rechazaban de más y los que se pasaban:
+
+- **Decisión final NO_ACEPTADA, más estricta.** Exige una prueba en la llamada después del último argumento: el cliente vuelve a pedir la renuncia, cree que se renunció, o aceptó porque le dijeron que no podía renunciar. No cuentan:
+  - haber insistido antes y luego aceptar;
+  - un "sí" al cierre sin una nueva petición de renuncia;
+  - "lo mantengo";
+  - mantenerlo hasta que la compañía responda (es CONDICIONADA, y por grabación retención).
+
+  Sonnet marcaba 24 + 26 de más en 6 llamadas aprobadas.
+- **Motivo 24:** solo si se ingresó la renuncia o la decisión final es NO_ACEPTADA.
+- **Motivo 7 / solicitudes:** solo un reclamo exige derivar al requerimiento (devolución, cobro incorrecto, contratación no consentida). "No me acuerdo de haberlo contratado" no lo exige si el cliente resuelve en la llamada. Sonnet marcaba el 7 de más en 4 llamadas.
+- **Motivo 8:** "claro, claro" y similares son escucha activa. Se revisa toda la respuesta posterior, y solo incumple si la pregunta queda sin responder. Estaba mal aplicado en 3 llamadas.
+- **Motivo 2:** para marcarlo hay que citar la línea de la ficha o del contrato que se contradice. Estaba mal aplicado en 3 llamadas.
+- **Motivo 3:** si incumple, la evidencia lista cada objeción con timestamp, para que el auditor las cuente.
+- **Motivos 5, 12 y 16:** no aplican si el ejecutivo informa que el cliente decide, si gestiona la renuncia pedida, o si el cliente sí pidió renunciar.
+- **Motivo 11:** incluye confirmar que la ejecutiva de venta informó mal al cliente. Ningún modelo lo marcó en 230459.
+- **Motivo 32:** se revisa siempre en la pregunta de confirmación; basta una coletilla ("¿verdad?") para que incumpla. Gemini y Sonnet aprobaron 230530 en las 2 corridas.
+- **Motivo 18:**
+  - "Disconformidad con coberturas" exige quejarse de las coberturas de ESTE seguro (230632).
+  - Si incumple, la IA sugiere de 1 a 3 motivos de la lista válida que sí calzan, del más al menos adecuado, cada uno con la frase del cliente que lo respalda.
+- **Esquema:** `gestiones[].motivos_sugeridos` (`motivo`, `cita`; máximo 3). Vacío si el 18 no incumple.
+
 **2.7 (2026-10-15)**:
 
 - Tras revisar una por una las discrepancias de v2.6 contra el Excel en 100 llamadas reales (`transcripts/layer2_real_100/analisis_discrepancias_v2.6.md`, fuera del repo):

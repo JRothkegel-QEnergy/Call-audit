@@ -7,6 +7,21 @@ Cada componente tiene además su propio historial detallado:
 - Prompt de verificación de afirmaciones: historial al final de `docs/layer2-claims-prompt.md`.
 - Diseño del front: `docs/ux/call-audit/estado.md` (fases y cambios aprobados).
 
+## 2026-10-20
+
+- **Prompt capa 2 v2.8**, a partir de la auditoría manual de 50 llamadas:
+  - NO_ACEPTADA más estricta: era la causa de los 24 + 26 de más de Sonnet.
+  - El 7 solo aplica ante un reclamo.
+  - En el 8, la escucha activa no cuenta como no responder.
+  - El 2 exige citar la ficha.
+  - El 3 lista las objeciones.
+  - Se precisan el 5, el 12 y el 16.
+  - El 11 incluye descalificar a la ejecutiva de venta.
+  - En el 32 basta una coletilla.
+  - En el 18, la IA sugiere de 1 a 3 motivos correctos.
+
+  Detalle en `prompts/layer2/CHANGELOG.md`; todavía no se corre contra las 100 llamadas.
+
 ## 2026-10-19
 
 - **Evidencias en el detalle:**

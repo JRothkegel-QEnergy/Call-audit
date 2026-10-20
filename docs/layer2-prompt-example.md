@@ -105,6 +105,7 @@ En **`prompts/layer2/schema.json`** (herramienta `registrar_auditoria`). Se vers
       "mus_a_neto": "48213302",
       "resultado_grabacion": "RENUNCIA",
       "motivos_renuncia": ["Problemas Económicos", "No desea contraer más obligaciones"],
+      "motivos_sugeridos": [],
       "n_objeciones": 5,
       "cliente_tajante": true,
       "argumentos_retencion": [
