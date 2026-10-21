@@ -7,6 +7,18 @@ Cada componente tiene además su propio historial detallado:
 - Prompt de verificación de afirmaciones: historial al final de `docs/layer2-claims-prompt.md`.
 - Diseño del front: `docs/ux/call-audit/estado.md` (fases y cambios aprobados).
 
+## 2026-10-21
+
+- **Pipeline automático** (`python -m call_audit.ingestion.pipeline`, servicio `worker` en el EC2, cada 15 min):
+  - Lee los audios `.mp3` y la metadata del lote (`.xlsx` o `.csv`, una fila por grabación) que el cliente sube a `input/` de su SFTP.
+  - Transcribe con Gemini 3.8 Flash, el mismo ASR del bench, lo que todavía no está en `output/`. Deja `output/<grabación>.json` con la transcripción y la metadata.
+  - Sin `TIPIFICACION` en la metadata se asume RETENCION. Sin fila de metadata, el audio espera a la siguiente pasada.
+  - Valida con el prompt vigente (v2.9) solo con Gemini 3.8 Flash, con la transcripción anonimizada, y deja la llamada en la app con la corrida "v<versión> automático".
+  - Sube el audio a S3 para que la app lo reproduzca.
+  - Tres fallas de ASR seguidas en el mismo audio y deja de reintentarlo.
+  - Probado en local con 230244: US$0,025 de validación y ~1,5 min por llamada de 9 min.
+- **SFTP propio en el EC2** (`scripts/deploy/sftp_setup.sh`): usuario `bancoestado` enjaulado, solo SFTP y con llave. Las IP del cliente se abren con `SFTP_CIDRS` en `aws_setup.sh`.
+
 ## 2026-10-20
 
 - **Pauta v1.0.1** (decisiones de Johannes tras su auditoría manual):

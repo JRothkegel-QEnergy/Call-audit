@@ -33,6 +33,12 @@ class Settings(BaseSettings):
     aws_region: str = "sa-east-1"
     audio_url_ttl_sec: int = 3600
 
+    # Pipeline automático (python -m call_audit.ingestion.pipeline). En el EC2 el SFTP se monta en el worker.
+    pipeline_sftp_dir: Path = ROOT.parent / "sftp" / "bancoestado"
+    pipeline_work_dir: Path = ROOT.parent / "transcripts" / "pipeline"
+    pipeline_model: str = "gemini-3-8-flash"  # nombre en scripts/prompt_bench/models.toml
+    pipeline_asr_model: str = "gemini_3.8-flash"  # proveedor de scripts/asr_bench/run.py, el mismo del bench
+
 
 @lru_cache
 def get_settings() -> Settings:

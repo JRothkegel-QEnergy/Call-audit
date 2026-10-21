@@ -1,11 +1,21 @@
-# Producción v0 en el EC2 (ver docs/deploy.md). Las imágenes vienen de ECR (scripts/deploy/deploy.sh las construye y
-# las sube); la base es el RDS de DATABASE_URL en .env. deploy.sh deja este archivo, el Caddyfile y .env en
+# Producción v0 en el EC2 (ver docs/deploy.md). scripts/deploy/deploy.sh construye las imágenes en el PC y las copia
+# por SSH; la base es el RDS de DATABASE_URL en .env. deploy.sh deja este archivo, el Caddyfile y .env en
 # /opt/call-audit y corre:
-#   API_IMAGE=... FRONT_IMAGE=... DOMAIN=audit.qubicoenergy.com docker compose -f docker-compose.prod.yml up -d
+#   API_IMAGE=... WORKER_IMAGE=... FRONT_IMAGE=... DOMAIN=audit.qubicoenergy.com docker compose -f docker-compose.prod.yml up -d
 services:
   api:
     image: ${API_IMAGE:?Falta API_IMAGE}
     env_file: .env
+    restart: unless-stopped
+
+  # Pipeline automático cada 15 min: lee el SFTP del cliente (scripts/deploy/sftp_setup.sh), transcribe, valida con
+  # el prompt de la capa 2 y deja las llamadas en la base. Corre con uid 10001, dueño de input/ y output/.
+  worker:
+    image: ${WORKER_IMAGE:?Falta WORKER_IMAGE}
+    env_file: .env
+    volumes:
+      - /srv/sftp/bancoestado:/data/sftp
+      - /opt/call-audit/work:/data/work
     restart: unless-stopped
 
   front:

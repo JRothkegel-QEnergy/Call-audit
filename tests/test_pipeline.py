@@ -1,0 +1,177 @@
+"""Pipeline SFTP → ASR → validación → base, con dobles del ASR y del modelo (no llama APIs)."""
+
+import json
+import os
+import time
+from pathlib import Path
+
+import pytest
+from sqlalchemy import select
+from sqlalchemy.orm import Session, sessionmaker
+
+from call_audit.config import Settings
+from call_audit.ingestion import pipeline
+from call_audit.ingestion.import_bench import bench, real_calls
+from call_audit.persistence.models import Case
+from tests.conftest import CATALOG
+
+RECORDING = "10000001_20261015_300001"
+SEGMENTS = [
+    {"speaker": "EJECUTIVO", "start": "00:00", "end": "00:04", "text": "Buenos días, le habla la ejecutiva."},
+    {"speaker": "CLIENTE", "start": "00:04", "end": "00:08", "text": "Quiero renunciar al seguro."},
+]
+CSV = (
+    "GRABACION;EJECUTIVO;NOMBRE_DEL_SEGURO;MOTIVO RENUNCIA;NUM_MUS_ANETO;FECHA_GESTION;PRIMA_SEGURO\n"
+    f"{RECORDING};Ejecutivo Ficticio;Seguro Ficticio;Problemas Económicos;999;15-10-2026;0,5\n"
+)
+
+
+# Mismo formato que data/catalog/products.json (extract_catalog.py), que no está en el repo.
+SYNTHETIC_CATALOG = {
+    "products": [
+        CATALOG["products"][0]
+        | {
+            "system_names": ["Seguro Ficticio"],
+            "channels": [],
+            "premium_type": "mensual",
+            "policies": "",
+            "assistances": [],
+            "premiums": [],
+            "claims": [],
+            "temporary_disability_table": [],
+            "observations": [],
+        }
+    ],
+    "payment_methods": {},
+}
+
+
+def age(path: Path) -> None:
+    """Marca el archivo como subido hace rato (el pipeline ignora lo que puede estar subiéndose)."""
+    old = time.time() - pipeline.MIN_AGE_SEC - 5
+    os.utime(path, (old, old))
+
+
+@pytest.fixture
+def env(tmp_path: Path, db: sessionmaker[Session], monkeypatch: pytest.MonkeyPatch) -> dict:
+    settings = Settings(pipeline_sftp_dir=tmp_path / "sftp", pipeline_work_dir=tmp_path / "work", s3_bucket="")
+    inbox = settings.pipeline_sftp_dir / "input"
+    inbox.mkdir(parents=True)
+    catalog = tmp_path / "products.json"
+    catalog.write_text(json.dumps(SYNTHETIC_CATALOG), encoding="utf-8")
+    monkeypatch.setattr(real_calls.render, "CATALOG", catalog)
+    monkeypatch.setattr(pipeline, "get_sessionmaker", lambda: db)
+    calls = {"asr": 0, "llm": 0}
+
+    def fake_transcribe(audio: Path, asr_dir: Path, asr_model: str) -> None:
+        calls["asr"] += 1
+        target = asr_dir / audio.stem
+        target.mkdir(parents=True, exist_ok=True)
+        (target / f"{asr_model}.json").write_text(json.dumps({"segments": SEGMENTS}), encoding="utf-8")
+        summary = [{"provider": asr_model, "audio_seconds": 8.0, "error": None}]
+        (target / "_summary.json").write_text(json.dumps(summary), encoding="utf-8")
+
+    def fake_run_one(cfg: dict, stem: str, system: str, force: bool) -> str:
+        calls["llm"] += 1
+        out = bench.RESULTS_DIR / cfg["name"]
+        out.mkdir(parents=True, exist_ok=True)
+        audit = {
+            "criterios": [
+                {
+                    "id": 30,
+                    "estado": "incumple",
+                    "confianza": 0.9,
+                    "comentario": "No cerró la gestión.",
+                    "evidencia": [{"t": "00:04", "hablante": "CLIENTE", "cita": "Quiero renunciar al seguro."}],
+                }
+            ]
+        }
+        (out / f"{stem}.json").write_text(json.dumps(audit, ensure_ascii=False), encoding="utf-8")
+        return "ok"
+
+    monkeypatch.setattr(pipeline, "transcribe", fake_transcribe)
+    monkeypatch.setattr(bench, "run_one", fake_run_one)
+    return {"settings": settings, "inbox": inbox, "calls": calls, "db": db}
+
+
+def drop(inbox: Path, name: str, content: bytes | str) -> None:
+    path = inbox / name
+    path.write_bytes(content if isinstance(content, bytes) else content.encode("utf-8"))
+    age(path)
+
+
+def test_new_audio_is_transcribed_validated_and_imported(env: dict) -> None:
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(env["inbox"], "lote.csv", CSV)
+
+    stats = pipeline.run_once(env["settings"])
+
+    assert stats["transcribed"] == 1 and stats["validated"] == 1
+    output = json.loads((env["settings"].pipeline_sftp_dir / "output" / f"{RECORDING}.json").read_text("utf-8"))
+    assert output["segments"] == SEGMENTS
+    # Sin columna TIPIFICACION se asume retención; ID y fecha salen del nombre del archivo.
+    assert output["metadata"]["TIPIFICACION"] == "RETENCION"
+    with env["db"]() as session:
+        case = session.scalar(select(Case).where(Case.recording == RECORDING))
+        assert case.call_id == "300001" and case.call_date == "2026-10-15"
+        assert case.external_verdict is None
+        [run] = case.runs
+        assert run.model == "gemini-3-8-flash" and run.is_current
+        assert run.run_label.endswith(" automático")
+        assert run.verdict == "non_compliant"
+        # Al modelo le llega la transcripción anonimizada; la app muestra la original.
+        assert case.transcript[1]["text"] == "Quiero renunciar al seguro."
+
+
+def test_second_pass_does_not_repeat_work(env: dict) -> None:
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(env["inbox"], "lote.csv", CSV)
+    pipeline.run_once(env["settings"])
+
+    stats = pipeline.run_once(env["settings"])
+
+    assert stats["transcribed"] == 0 and stats["validated"] == 0
+    assert env["calls"] == {"asr": 1, "llm": 1}
+
+
+def test_audio_without_metadata_waits(env: dict) -> None:
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+
+    stats = pipeline.run_once(env["settings"])
+
+    assert stats["waiting_metadata"] == 1 and env["calls"]["asr"] == 0
+    drop(env["inbox"], "lote.csv", CSV)
+    assert pipeline.run_once(env["settings"])["validated"] == 1
+
+
+def test_file_still_uploading_is_skipped(env: dict) -> None:
+    (env["inbox"] / f"{RECORDING}.mp3").write_bytes(b"subiendo")
+    drop(env["inbox"], "lote.csv", CSV)
+
+    assert pipeline.run_once(env["settings"])["audios"] == 0
+
+
+def test_asr_failures_stop_after_max_attempts(env: dict, monkeypatch: pytest.MonkeyPatch) -> None:
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(env["inbox"], "lote.csv", CSV)
+    attempts = []
+
+    def failing(audio: Path, asr_dir: Path, asr_model: str) -> None:
+        attempts.append(audio.stem)
+        raise RuntimeError("proveedor caído")
+
+    monkeypatch.setattr(pipeline, "transcribe", failing)
+    for _ in range(pipeline.MAX_ASR_ATTEMPTS + 2):
+        pipeline.run_once(env["settings"])
+
+    assert len(attempts) == pipeline.MAX_ASR_ATTEMPTS
+    assert not (env["settings"].pipeline_sftp_dir / "output" / f"{RECORDING}.json").exists()
+
+
+def test_csv_dates_and_defaults() -> None:
+    row = {"FECHA_GESTION": pipeline.parse_date("15/10/2026 10:30")}
+    pipeline.complete_row("1_20261001_42", row)
+    assert row["FECHA_GESTION"].day == 15 and row["ID"] == "42" and row["TIPIFICACION"] == "RETENCION"
+    row = {"TIPIFICACION": "OTRA GESTION"}
+    pipeline.complete_row("1_20261001_42", row)
+    assert row["TIPIFICACION"] == "OTRA GESTION" and row["FECHA_GESTION"].month == 10

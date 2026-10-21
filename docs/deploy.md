@@ -50,6 +50,23 @@ en `.deploy/`, que está ignorado por git.
    Tu cuenta va primero, con `--role supervisor --model-io`; `--reviews` la necesita.
 7. **Prueba antes de compartir:** entrar con una cuenta de prueba, abrir una llamada, escuchar el audio, guardar una nota y recargar.
 
+## Pipeline automático (SFTP → ASR → capa 2)
+
+```
+cliente ──SFTP :22──> /srv/sftp/bancoestado/input/   (audios .mp3 + metadata .xlsx/.csv del lote)
+worker (cada 15 min) ──> Gemini ASR ──> output/<grabación>.json ──> prompt capa 2 (Gemini) ──> RDS + audio a S3
+```
+
+- **Qué hace cada pasada:** está en el docstring de `src/call_audit/ingestion/pipeline.py`. Un audio sin fila de metadata espera; uno con `output/<grabación>.json` no se vuelve a transcribir; una grabación que ya tiene corrida "automático" no se vuelve a validar, ni siquiera cuando cambia el prompt (eso se decide a mano).
+- **Metadata:** las mismas columnas del Excel "Retenciones BECS", con el nombre del archivo sin extensión en la primera columna. Si no viene `ID` ni `FECHA_GESTION`, se sacan del nombre (`<n>_<AAAAMMDD>_<id>.mp3`). Si no viene `TIPIFICACION`, se asume `RETENCION`.
+- **Puesta en marcha** (una vez):
+  1. Agregar `GEMINI_API_KEY=...` a `.deploy/server.env`. `deploy.sh` no despliega sin ella.
+  2. `bash scripts/deploy/aws_setup.sh`: le da al EC2 permiso de subir audios a S3. Con `SFTP_CIDRS="<ip>/32 ..."` abre el puerto 22 a las IP del cliente.
+  3. `bash scripts/deploy/sftp_setup.sh`: crea el usuario SFTP con una llave de prueba en `.deploy/sftp-bancoestado`. Con la llave pública del cliente: `bash scripts/deploy/sftp_setup.sh cliente.pub`.
+  4. `bash scripts/deploy/deploy.sh`: construye y levanta también el worker.
+- **Ver qué hace:** `ssh -i .deploy/call-audit-admin.pem ec2-user@<IP> "cd /opt/call-audit && docker compose -f docker-compose.prod.yml logs -f worker"`. Los prompts y respuestas de cada pasada quedan en `/opt/call-audit/work/runs/`, y las fallas de ASR en `/opt/call-audit/work/asr_failures.json`.
+- **En local:** `PIPELINE_SFTP_DIR=<carpeta con input/> uv run --extra bench python -m call_audit.ingestion.pipeline` (una pasada; necesita `GEMINI_API_KEY` y `data/catalog/products.json`).
+
 **Bajar todo al terminar la calibración:** borrar el EC2, liberar la IP elástica y borrar el RDS (primero se quita
 `--deletion-protection`). Los audios quedan en S3, como antes.
 

@@ -1,4 +1,4 @@
-# Nada de datos ni secretos en las imágenes.
+# Nada de datos ni secretos en las imágenes. El worker solo copia de scripts/ y docs/ lo que necesita (ver Dockerfile).
 .env
 .env.*
 !.env.example
@@ -10,7 +10,10 @@
 .git
 .claude
 frontend
-scripts
+scripts/prompt_bench/archive
+scripts/prompt_bench/results
+scripts/prompt_bench/prompts
 tests
-docs
 golden_set
+*.mp3
+*.wav
