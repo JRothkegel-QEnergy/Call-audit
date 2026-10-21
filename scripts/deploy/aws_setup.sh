@@ -49,8 +49,6 @@ SG_DB=$(sg "$NAME-db" "Call Audit: Postgres solo desde el servidor web")
 allow --group-id "$SG_WEB" --protocol tcp --port 80 --cidr 0.0.0.0/0
 allow --group-id "$SG_WEB" --protocol tcp --port 443 --cidr 0.0.0.0/0
 allow --group-id "$SG_WEB" --protocol tcp --port 22 --cidr "$MY_IP/32"
-# SFTP del cliente (mismo puerto 22): SFTP_CIDRS="200.1.2.3/32 200.1.2.4/32" con las IP que informe el cliente.
-for cidr in ${SFTP_CIDRS:-}; do allow --group-id "$SG_WEB" --protocol tcp --port 22 --cidr "$cidr"; done
 allow --group-id "$SG_DB" --protocol tcp --port 5432 --source-group "$SG_WEB"
 
 # --- IAM: rol del EC2 (leer imágenes de ECR y audios de S3) -----------------------------------------
@@ -63,7 +61,7 @@ if ! aws iam get-role --role-name "$ROLE" >/dev/null 2>&1; then
   aws iam add-role-to-instance-profile --instance-profile-name "$ROLE" --role-name "$ROLE"
   sleep 10  # el perfil tarda en propagarse
 fi
-# La API lee los audios y el worker sube ahí los que llegan por SFTP.
+# La API lee los audios y el worker sube ahí los que baja del SFTP de S4P.
 aws iam put-role-policy --role-name "$ROLE" --policy-name read-audios --policy-document \
   "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"s3:GetObject\",\"s3:PutObject\"],\"Resource\":\"arn:aws:s3:::$BUCKET/$AUDIO_PREFIX*\"}]}"
 

@@ -8,13 +8,12 @@ services:
     env_file: .env
     restart: unless-stopped
 
-  # Pipeline automático cada 15 min: lee el SFTP del cliente (scripts/deploy/sftp_setup.sh), transcribe, valida con
+  # Pipeline automático cada 15 min: lee el SFTP de S4P (SFTP_* en .env), transcribe, valida con
   # el prompt de la capa 2 y deja las llamadas en la base. Corre con uid 10001, dueño de input/ y output/.
   worker:
     image: ${WORKER_IMAGE:?Falta WORKER_IMAGE}
     env_file: .env
     volumes:
-      - /srv/sftp/bancoestado:/data/sftp
       - /opt/call-audit/work:/data/work
     restart: unless-stopped
 

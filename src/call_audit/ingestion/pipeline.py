@@ -1,17 +1,20 @@
 """Pipeline automático: audios del SFTP → transcripción → metadata → validación con el prompt de la capa 2 → app.
 
-Uso (desde call-audit-rcv, con DATABASE_URL, GEMINI_API_KEY y S3_BUCKET en el entorno o en .env):
+Uso (desde call-audit-rcv, con DATABASE_URL, GEMINI_API_KEY, S3_BUCKET y SFTP_* en el entorno o en .env):
     uv run --extra bench python -m call_audit.ingestion.pipeline              # una pasada
     uv run --extra bench python -m call_audit.ingestion.pipeline --loop 900   # cada 15 min (worker del EC2)
+    uv run --extra bench python -m call_audit.ingestion.pipeline --host-key   # llave del servidor para .env
+    uv run --extra bench python -m call_audit.ingestion.pipeline --list       # qué ve en el SFTP, sin procesar
 
-Carpetas (PIPELINE_SFTP_DIR; en el EC2 es la del usuario SFTP del cliente):
-    input/   el cliente sube los audios .mp3 y la metadata del lote en .xlsx o .csv: una fila por grabación, con el
-             nombre del archivo (sin extensión) en la primera columna, como el Excel "Retenciones BECS".
-    output/  <grabación>.json con la transcripción y la metadata. Si existe, el audio ya se transcribió y no se
-             vuelve a pagar el ASR.
+Carpeta de entrada: la cuenta SFTP de S4P (SFTP_HOST, SFTP_USER, SFTP_PASSWORD, SFTP_HOST_KEY, SFTP_DIR) o, sin
+SFTP_HOST, la carpeta local PIPELINE_LOCAL_DIR. En las dos:
+    <raíz>   S4P deja los audios .mp3 y la metadata del lote en .xlsx o .csv: una fila por grabación, con el nombre
+             del archivo (sin extensión) en la primera columna, como el Excel "Retenciones BECS".
+    output/  la crea el pipeline: <grabación>.json con la transcripción y la metadata. Si existe, el audio ya se
+             transcribió y no se vuelve a pagar el ASR.
 
 Cada pasada:
-    1. Cada audio de input/ que tiene fila de metadata y no tiene output/<grabación>.json se transcribe (mismo ASR
+    1. Cada audio que tiene fila de metadata y no tiene output/<grabación>.json se baja, se transcribe (mismo ASR
        del bench) y se escribe su output. Sin fila de metadata, el audio espera a la siguiente pasada.
     2. Si la metadata no trae TIPIFICACION, se asume RETENCION.
     3. Las grabaciones transcritas que aún no tienen corrida automática en la base se validan con el prompt vigente
@@ -27,6 +30,7 @@ import importlib.util
 import json
 import logging
 import time
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
@@ -37,11 +41,13 @@ from sqlalchemy.orm import Session
 
 from call_audit.config import ROOT, Settings, get_settings
 from call_audit.ingestion.import_bench import bench, import_run, real_calls
+from call_audit.ingestion.sftp_store import Entry, LocalStore, SftpStore, server_key
 from call_audit.persistence.db import get_sessionmaker
 from call_audit.persistence.models import Case, ModelRun
 from call_audit.rubric import load_rubric
 
 logger = logging.getLogger("call_audit.pipeline")
+Store = LocalStore | SftpStore
 
 AUDIO_EXT = ".mp3"  # la app firma audios/<grabación>.mp3
 METADATA_EXT = (".xlsx", ".csv")
@@ -84,7 +90,7 @@ def parse_date(value: Any) -> Any:
 
 
 def read_rows(path: Path) -> list[dict]:
-    if path.suffix == ".xlsx":
+    if path.suffix.lower() == ".xlsx":
         import openpyxl
 
         rows = openpyxl.load_workbook(path, read_only=True).active.iter_rows(values_only=True)
@@ -104,19 +110,17 @@ def read_rows(path: Path) -> list[dict]:
     return rows
 
 
-def load_metadata(input_dir: Path) -> dict[str, dict]:
-    """Todas las filas de los .xlsx/.csv de input/, por nombre de grabación. Un archivo más nuevo pisa al anterior."""
+def load_metadata(store: Store, entries: list[Entry]) -> dict[str, dict]:
+    """Todas las filas de los .xlsx/.csv, por nombre de grabación. Un archivo más nuevo pisa al anterior."""
     out: dict[str, dict] = {}
-    files = sorted(
-        (p for p in input_dir.iterdir() if p.suffix.lower() in METADATA_EXT), key=lambda p: p.stat().st_mtime
-    )
-    for path in files:
-        if not settled(path):
+    files = sorted((e for e in entries if Path(e.name).suffix.lower() in METADATA_EXT), key=lambda e: e.mtime)
+    for entry in files:
+        if not settled(entry):
             continue
         try:
-            rows = read_rows(path)
+            rows = read_rows(store.fetch(entry))
         except Exception:  # noqa: BLE001 - un archivo malo no frena a los demás
-            logger.exception("No se pudo leer la metadata %s", path.name)
+            logger.exception("No se pudo leer la metadata %s", entry.name)
             continue
         for row in rows:
             key = real_calls.clean(next(iter(row.values())))
@@ -141,8 +145,8 @@ def complete_row(stem: str, row: dict) -> None:
         row.setdefault(key, "")
 
 
-def settled(path: Path) -> bool:
-    return time.time() - path.stat().st_mtime >= MIN_AGE_SEC
+def settled(entry: Entry) -> bool:
+    return time.time() - entry.mtime >= MIN_AGE_SEC
 
 
 # --- Transcripción -----------------------------------------------------------------------
@@ -159,7 +163,7 @@ def transcribe(audio: Path, asr_dir: Path, asr_model: str) -> None:
         raise RuntimeError("el ASR no devolvió segmentos (JSON inválido o vacío)")
 
 
-def write_output(path: Path, stem: str, row: dict, asr_dir: Path, asr_model: str) -> None:
+def output_json(stem: str, row: dict, asr_dir: Path, asr_model: str) -> bytes:
     asr = json.loads((asr_dir / stem / f"{asr_model}.json").read_text(encoding="utf-8"))
     summary = json.loads((asr_dir / stem / "_summary.json").read_text(encoding="utf-8"))
     output = {
@@ -170,17 +174,15 @@ def write_output(path: Path, stem: str, row: dict, asr_dir: Path, asr_model: str
         "metadata": row,
         "segments": asr.get("segments", []),
     }
-    tmp = path.with_suffix(".tmp")
-    tmp.write_text(json.dumps(output, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
-    tmp.replace(path)
+    return json.dumps(output, ensure_ascii=False, indent=1, default=str).encode("utf-8")
 
 
-def restore_asr(output: Path, asr_dir: Path, asr_model: str) -> None:
+def restore_asr(store: Store, stem: str, asr_dir: Path, asr_model: str) -> None:
     """Si se perdió el directorio de trabajo, el output basta para reconstruir lo que leen build e import."""
-    data = json.loads(output.read_text(encoding="utf-8"))
-    target = asr_dir / data["recording"]
+    target = asr_dir / stem
     if (target / f"{asr_model}.json").exists():
         return
+    data = json.loads(store.read_output(stem))
     target.mkdir(parents=True, exist_ok=True)
     (target / f"{asr_model}.json").write_text(json.dumps({"segments": data["segments"]}, ensure_ascii=False), "utf-8")
     summary = [{"provider": asr_model, "audio_seconds": data["audio_seconds"], "error": None}]
@@ -233,8 +235,11 @@ def upload_audio(audio: Path, settings: Settings) -> None:
     )
 
 
-def validate(stems: list[str], rows: dict[str, dict], audios: dict[str, Path], settings: Settings) -> int:
-    """Una corrida del bench con las grabaciones pendientes, en work/runs/<fecha>, importada a la base."""
+def validate(
+    stems: list[str], rows: dict[str, dict], audio: Callable[[str], Path], settings: Settings
+) -> tuple[int, list[Path]]:
+    """Una corrida del bench con las grabaciones pendientes, en work/runs/<fecha>, importada a la base. Devuelve
+    cuántas se importaron y los audios locales que ya quedaron en S3."""
     work = settings.pipeline_work_dir
     out = work / "runs" / datetime.now().strftime("%Y%m%d-%H%M%S")
     asr_dir = work / "asr"
@@ -249,13 +254,16 @@ def validate(stems: list[str], rows: dict[str, dict], audios: dict[str, Path], s
         except Exception:  # noqa: BLE001 - una fila con datos raros no frena el lote
             logger.exception("No se pudo armar el prompt de %s", stem)
     if not index:
-        return 0
+        return 0, []
     (out / "calls.json").write_text(json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8")
     real_calls.run_models(SimpleNamespace(out=out, models=[model], force=False, workers=4), index)
 
+    uploaded = []
     for item in index:
         try:
-            upload_audio(audios[item["recording"]], settings)
+            path = audio(item["recording"])
+            upload_audio(path, settings)
+            uploaded.append(path)
         except Exception:  # noqa: BLE001 - sin audio la llamada igual se puede revisar
             logger.exception("No se pudo subir el audio de %s a S3", item["recording"])
 
@@ -263,7 +271,7 @@ def validate(stems: list[str], rows: dict[str, dict], audios: dict[str, Path], s
     catalog = json.loads(real_calls.render.CATALOG.read_text(encoding="utf-8"))
     rubric = load_rubric(settings.rubric_path)
     with get_sessionmaker()() as session, session.begin():
-        return import_run(
+        count = import_run(
             session,
             out,
             rows,
@@ -275,65 +283,111 @@ def validate(stems: list[str], rows: dict[str, dict], audios: dict[str, Path], s
             asr_dir=asr_dir,
             asr_model=settings.pipeline_asr_model,
         )
+    return count, uploaded
 
 
 # --- Pasada ----------------------------------------------------------------------------------
 
 
+def open_store(settings: Settings) -> Store:
+    if not settings.sftp_host:
+        return LocalStore(settings.pipeline_local_dir)
+    return SftpStore(
+        settings.sftp_host,
+        settings.sftp_port,
+        settings.sftp_user,
+        settings.sftp_password,
+        settings.sftp_host_key,
+        settings.sftp_dir,
+        settings.pipeline_work_dir / "inbox",
+    )
+
+
 def run_once(settings: Settings | None = None) -> dict[str, int]:
     settings = settings or get_settings()
     bench.load_dotenv(ROOT / ".env")
-    input_dir = settings.pipeline_sftp_dir / "input"
-    output_dir = settings.pipeline_sftp_dir / "output"
     work = settings.pipeline_work_dir
-    for d in (input_dir, output_dir, work / "asr"):
-        d.mkdir(parents=True, exist_ok=True)
+    (work / "asr").mkdir(parents=True, exist_ok=True)
     asr_model = settings.pipeline_asr_model
     failures = Failures(work / "asr_failures.json")
+    store = open_store(settings)
+    try:
+        entries = store.entries()
+        rows = load_metadata(store, entries)
+        audios = {e.stem: e for e in entries if e.name.lower().endswith(AUDIO_EXT) and settled(e)}
+        outputs = store.outputs()
+        stats = {"audios": len(audios), "waiting_metadata": 0, "transcribed": 0, "asr_errors": 0, "validated": 0}
 
-    rows = load_metadata(input_dir)
-    audios = {p.stem: p for p in sorted(input_dir.glob(f"*{AUDIO_EXT}")) if settled(p)}
-    stats = {"audios": len(audios), "waiting_metadata": 0, "transcribed": 0, "asr_errors": 0, "validated": 0}
+        for stem, entry in audios.items():
+            if stem in outputs:
+                restore_asr(store, stem, work / "asr", asr_model)
+                continue
+            row = rows.get(stem)
+            if row is None:
+                stats["waiting_metadata"] += 1
+                continue
+            if failures.blocked(stem):
+                continue
+            try:
+                transcribe(store.fetch(entry), work / "asr", asr_model)
+                store.write_output(stem, output_json(stem, row, work / "asr", asr_model))
+            except Exception as exc:  # noqa: BLE001 - se registra y se reintenta en la próxima pasada
+                logger.warning("Falló la transcripción de %s: %s", stem, exc)
+                failures.add(stem, f"{type(exc).__name__}: {exc}")
+                stats["asr_errors"] += 1
+                continue
+            failures.clear(stem)
+            outputs.add(stem)
+            stats["transcribed"] += 1
 
-    for stem, audio in audios.items():
-        output = output_dir / f"{stem}.json"
-        if output.exists():
-            restore_asr(output, work / "asr", asr_model)
-            continue
-        row = rows.get(stem)
-        if row is None:
-            stats["waiting_metadata"] += 1
-            continue
-        if failures.blocked(stem):
-            continue
-        try:
-            transcribe(audio, work / "asr", asr_model)
-            write_output(output, stem, row, work / "asr", asr_model)
-        except Exception as exc:  # noqa: BLE001 - se registra y se reintenta en la próxima pasada
-            logger.warning("Falló la transcripción de %s: %s", stem, exc)
-            failures.add(stem, f"{type(exc).__name__}: {exc}")
-            stats["asr_errors"] += 1
-            continue
-        failures.clear(stem)
-        stats["transcribed"] += 1
-
-    with get_sessionmaker()() as session:
-        done = validated(session, settings.pipeline_model)
-    pending = [s for s in audios if (output_dir / f"{s}.json").exists() and s in rows and s not in done]
-    if pending:
-        stats["validated"] = validate(pending, rows, audios, settings)
+        with get_sessionmaker()() as session:
+            done = validated(session, settings.pipeline_model)
+        pending = [s for s in audios if s in outputs and s in rows and s not in done]
+        if pending:
+            stats["validated"], uploaded = validate(pending, rows, lambda s: store.fetch(audios[s]), settings)
+            for path in uploaded:
+                store.release(path)
+    finally:
+        store.close()
     logger.info("Pasada: %s", stats)
     return stats
+
+
+def show_listing(settings: Settings) -> None:
+    store = open_store(settings)
+    try:
+        entries = store.entries()
+        outputs = store.outputs()
+    finally:
+        store.close()
+    audios = [e for e in entries if e.name.lower().endswith(AUDIO_EXT)]
+    metadata = [e for e in entries if Path(e.name).suffix.lower() in METADATA_EXT]
+    others = len(entries) - len(audios) - len(metadata)
+    print(f"{len(audios)} audios, {len(metadata)} de metadata, {others} otros, {len(outputs)} ya en output/")
+    for e in metadata:
+        print(f"  metadata: {e.name} ({datetime.fromtimestamp(e.mtime):%Y-%m-%d %H:%M})")
+    pending = [e.name for e in audios if e.stem not in outputs]
+    print(f"Sin transcribir: {len(pending)}" + (f" (ej. {', '.join(pending[:5])})" if pending else ""))
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--loop", type=int, metavar="SEG", help="repite cada SEG segundos (sin esto, una pasada)")
+    parser.add_argument("--host-key", action="store_true", help="muestra la llave del servidor SFTP para .env")
+    parser.add_argument("--list", action="store_true", help="muestra qué hay en el SFTP, sin procesar nada")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    settings = get_settings()
+    if args.host_key:
+        key, fingerprint = server_key(settings.sftp_host, settings.sftp_port)
+        print(f"Huella: {fingerprint}\nSFTP_HOST_KEY={key}")
+        return
+    if args.list:
+        show_listing(settings)
+        return
     while True:
         try:
-            run_once()
+            run_once(settings)
         except Exception:  # noqa: BLE001 - el worker no se cae por una pasada fallida
             logger.exception("Falló la pasada")
             if not args.loop:

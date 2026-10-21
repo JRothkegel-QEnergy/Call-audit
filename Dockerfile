@@ -2,7 +2,7 @@
 #   api (por defecto)  FastAPI: aplica las migraciones y levanta uvicorn en el puerto 8000.
 #                      DATABASE_URL, SESSION_SECRET, COOKIE_SECURE, S3_BUCKET, S3_PREFIX, AWS_REGION.
 #   worker             pipeline automático (python -m call_audit.ingestion.pipeline): SFTP → ASR → capa 2 → base.
-#                      Además GEMINI_API_KEY, PIPELINE_SFTP_DIR y PIPELINE_WORK_DIR (volúmenes del compose).
+#                      Además GEMINI_API_KEY, SFTP_* (cuenta de S4P) y PIPELINE_WORK_DIR (volumen del compose).
 FROM python:3.12-slim AS base
 
 COPY --from=ghcr.io/astral-sh/uv:0.8.17 /uv /usr/local/bin/uv
@@ -21,7 +21,7 @@ RUN useradd --system --uid 10001 app
 
 
 # El worker reutiliza el ASR y el bench de prompts (scripts/), el prompt versionado y el catálogo de productos.
-# ffprobe mide la duración del audio. Corre con uid 10001, el mismo dueño de la carpeta del SFTP en el EC2.
+# ffprobe mide la duración del audio. Corre con uid 10001, dueño de /opt/call-audit/work en el EC2.
 FROM base AS worker
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
 RUN uv sync --frozen --no-dev --extra bench
@@ -30,7 +30,7 @@ COPY scripts/prompt_bench/*.py scripts/prompt_bench/models.toml ./scripts/prompt
 COPY prompts ./prompts
 COPY docs/layer2-product-sheet.md ./docs/
 COPY data/catalog/products.json ./data/catalog/
-ENV PIPELINE_SFTP_DIR=/data/sftp PIPELINE_WORK_DIR=/data/work
+ENV PIPELINE_WORK_DIR=/data/work
 USER app
 CMD ["python", "-m", "call_audit.ingestion.pipeline", "--loop", "900"]
 

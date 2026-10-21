@@ -13,8 +13,11 @@ WORKER_IMAGE="$NAME-worker:$TAG"
 FRONT_IMAGE="$NAME-front:$TAG"
 SSH=(ssh -i "$KEY" -o StrictHostKeyChecking=accept-new "ec2-user@$HOST")
 
-# El worker (pipeline SFTP → ASR → capa 2) necesita la llave de Gemini y el catálogo de productos (no está en git).
-grep -q '^GEMINI_API_KEY=.' .deploy/server.env || { echo "Falta GEMINI_API_KEY=... en .deploy/server.env"; exit 1; }
+# El worker (pipeline SFTP → ASR → capa 2) necesita la llave de Gemini, la cuenta SFTP de S4P y el catálogo de
+# productos (no está en git).
+for var in GEMINI_API_KEY SFTP_HOST SFTP_USER SFTP_PASSWORD SFTP_HOST_KEY; do
+  grep -q "^$var=." .deploy/server.env || { echo "Falta $var=... en .deploy/server.env (docs/deploy.md)"; exit 1; }
+done
 [ -f data/catalog/products.json ] || { echo "Falta data/catalog/products.json (extract_catalog.py)"; exit 1; }
 
 docker build --platform linux/amd64 --target api -t "$API_IMAGE" .

@@ -33,8 +33,15 @@ class Settings(BaseSettings):
     aws_region: str = "sa-east-1"
     audio_url_ttl_sec: int = 3600
 
-    # Pipeline automático (python -m call_audit.ingestion.pipeline). En el EC2 el SFTP se monta en el worker.
-    pipeline_sftp_dir: Path = ROOT.parent / "sftp" / "bancoestado"
+    # Pipeline automático (python -m call_audit.ingestion.pipeline). Lee del SFTP de S4P si hay SFTP_HOST; si no, de
+    # una carpeta local con la misma forma (audios y metadata en la raíz, resultados en output/).
+    sftp_host: str = ""
+    sftp_port: int = 22
+    sftp_user: str = ""
+    sftp_password: str = ""
+    sftp_host_key: str = ""  # "ssh-ed25519 AAAA...": se obtiene con --host-key
+    sftp_dir: str = "."  # carpeta de los audios en el servidor, relativa al inicio de la cuenta
+    pipeline_local_dir: Path = ROOT.parent / "sftp"
     pipeline_work_dir: Path = ROOT.parent / "transcripts" / "pipeline"
     pipeline_model: str = "gemini-3-8-flash"  # nombre en scripts/prompt_bench/models.toml
     pipeline_asr_model: str = "gemini_3.8-flash"  # proveedor de scripts/asr_bench/run.py, el mismo del bench

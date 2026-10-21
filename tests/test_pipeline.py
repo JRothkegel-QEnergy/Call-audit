@@ -54,8 +54,10 @@ def age(path: Path) -> None:
 
 @pytest.fixture
 def env(tmp_path: Path, db: sessionmaker[Session], monkeypatch: pytest.MonkeyPatch) -> dict:
-    settings = Settings(pipeline_sftp_dir=tmp_path / "sftp", pipeline_work_dir=tmp_path / "work", s3_bucket="")
-    inbox = settings.pipeline_sftp_dir / "input"
+    settings = Settings(
+        pipeline_local_dir=tmp_path / "sftp", pipeline_work_dir=tmp_path / "work", s3_bucket="", sftp_host=""
+    )
+    inbox = settings.pipeline_local_dir
     inbox.mkdir(parents=True)
     catalog = tmp_path / "products.json"
     catalog.write_text(json.dumps(SYNTHETIC_CATALOG), encoding="utf-8")
@@ -107,7 +109,7 @@ def test_new_audio_is_transcribed_validated_and_imported(env: dict) -> None:
     stats = pipeline.run_once(env["settings"])
 
     assert stats["transcribed"] == 1 and stats["validated"] == 1
-    output = json.loads((env["settings"].pipeline_sftp_dir / "output" / f"{RECORDING}.json").read_text("utf-8"))
+    output = json.loads((env["settings"].pipeline_local_dir / "output" / f"{RECORDING}.json").read_text("utf-8"))
     assert output["segments"] == SEGMENTS
     # Sin columna TIPIFICACION se asume retención; ID y fecha salen del nombre del archivo.
     assert output["metadata"]["TIPIFICACION"] == "RETENCION"
@@ -165,7 +167,7 @@ def test_asr_failures_stop_after_max_attempts(env: dict, monkeypatch: pytest.Mon
         pipeline.run_once(env["settings"])
 
     assert len(attempts) == pipeline.MAX_ASR_ATTEMPTS
-    assert not (env["settings"].pipeline_sftp_dir / "output" / f"{RECORDING}.json").exists()
+    assert not (env["settings"].pipeline_local_dir / "output" / f"{RECORDING}.json").exists()
 
 
 def test_csv_dates_and_defaults() -> None:
@@ -175,3 +177,62 @@ def test_csv_dates_and_defaults() -> None:
     row = {"TIPIFICACION": "OTRA GESTION"}
     pipeline.complete_row("1_20261001_42", row)
     assert row["TIPIFICACION"] == "OTRA GESTION" and row["FECHA_GESTION"].month == 10
+
+
+class FakeSftp:
+    """Lo que SftpStore usa de paramiko.SFTPClient, sobre una carpeta local."""
+
+    def __init__(self, root: Path):
+        self.root = root
+        self.downloads: list[str] = []
+
+    def path(self, remote: str) -> Path:
+        return self.root / remote
+
+    def listdir_attr(self, remote: str) -> list:
+        import paramiko
+
+        return [paramiko.SFTPAttributes.from_stat(p.stat(), p.name) for p in self.path(remote).iterdir()]
+
+    def mkdir(self, remote: str) -> None:
+        self.path(remote).mkdir()
+
+    def get(self, remote: str, local: str) -> None:
+        self.downloads.append(remote)
+        Path(local).write_bytes(self.path(remote).read_bytes())
+
+    def open(self, remote: str, mode: str):
+        return self.path(remote).open(mode)
+
+    def posix_rename(self, old: str, new: str) -> None:
+        self.path(old).replace(self.path(new))
+
+
+def test_pipeline_over_sftp_store(env: dict, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from call_audit.ingestion.sftp_store import SftpStore
+
+    remote = tmp_path / "s4p"
+    remote.mkdir()
+    drop(remote, f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(remote, "lote.csv", CSV)
+    fake = FakeSftp(remote)
+
+    def open_store(settings: Settings) -> SftpStore:
+        store = SftpStore.__new__(SftpStore)
+        store.client = type("Client", (), {"close": lambda self: None})()
+        store.sftp, store.dir, store.out = fake, ".", "./output"
+        (remote / "output").mkdir(exist_ok=True)
+        store.cache = tmp_path / "inbox"
+        store.cache.mkdir(exist_ok=True)
+        return store
+
+    monkeypatch.setattr(pipeline, "open_store", open_store)
+    stats = pipeline.run_once(env["settings"])
+
+    assert stats["transcribed"] == 1 and stats["validated"] == 1
+    assert json.loads((remote / "output" / f"{RECORDING}.json").read_text("utf-8"))["recording"] == RECORDING
+    # Con el audio en S3, se borra del caché; la metadata queda para no bajarla de nuevo.
+    assert not (tmp_path / "inbox" / f"{RECORDING}.mp3").exists()
+    assert (tmp_path / "inbox" / "lote.csv").exists()
+    pipeline.run_once(env["settings"])
+    assert fake.downloads.count("./lote.csv") == 1

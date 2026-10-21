@@ -10,14 +10,15 @@ Cada componente tiene además su propio historial detallado:
 ## 2026-10-21
 
 - **Pipeline automático** (`python -m call_audit.ingestion.pipeline`, servicio `worker` en el EC2, cada 15 min):
-  - Lee los audios `.mp3` y la metadata del lote (`.xlsx` o `.csv`, una fila por grabación) que el cliente sube a `input/` de su SFTP.
+  - Se conecta a la cuenta SFTP de S4P con usuario y contraseña y con la llave del servidor fijada. Lee los audios `.mp3` y la metadata del lote (`.xlsx` o `.csv`, una fila por grabación) que S4P deja en su carpeta, y crea ahí `output/`.
   - Transcribe con Gemini 3.8 Flash, el mismo ASR del bench, lo que todavía no está en `output/`. Deja `output/<grabación>.json` con la transcripción y la metadata.
   - Sin `TIPIFICACION` en la metadata se asume RETENCION. Sin fila de metadata, el audio espera a la siguiente pasada.
   - Valida con el prompt vigente (v2.9) solo con Gemini 3.8 Flash, con la transcripción anonimizada, y deja la llamada en la app con la corrida "v<versión> automático".
   - Sube el audio a S3 para que la app lo reproduzca.
   - Tres fallas de ASR seguidas en el mismo audio y deja de reintentarlo.
   - Probado en local con 230244: US$0,025 de validación y ~1,5 min por llamada de 9 min.
-- **SFTP propio en el EC2** (`scripts/deploy/sftp_setup.sh`): usuario `bancoestado` enjaulado, solo SFTP y con llave. Las IP del cliente se abren con `SFTP_CIDRS` en `aws_setup.sh`.
+  - Baja cada audio solo cuando lo necesita y lo borra del EC2 cuando ya está en S3.
+- Se descarta el SFTP propio en el EC2 (primer diseño, mismo día): se usa la cuenta de S4P que ya existe.
 
 ## 2026-10-20
 
