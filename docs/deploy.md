@@ -69,6 +69,10 @@ worker (EC2, cada 15 min) ──SFTP──> baja lo nuevo ──> Gemini ASR ─
   SFTP_DIR=.              # carpeta de los audios, relativa al inicio de la cuenta
   SFTP_HOST_KEY=...       # sale de: uv run python -m call_audit.ingestion.pipeline --host-key
   ```
+  En el servidor (EC2 `sftp-s4p`, sa-east-1, Ubuntu), `qubico` está enjaulado en `/sftp/qubico` y ve la carpeta de S4P (`/sftp/s4p/upload`) por un montaje `bind,ro`. Para que pueda escribir solo en `output/`, `/etc/fstab` tiene encima un segundo `bind` de escritura (2026-10-21; respaldo en `/etc/fstab.bak-*`):
+  ```
+  /sftp/s4p/upload/Retenciones\040A\040Evaluar/output /sftp/qubico/s4p/Retenciones\040A\040Evaluar/output none bind 0 0
+  ```
   La llave del servidor se fija para que el worker no le entregue la contraseña a un servidor impostor. Si S4P la cambia, el worker deja de conectarse hasta actualizarla. `--list` muestra qué ve en la carpeta sin procesar nada.
 - **Puesta en marcha** (una vez):
   1. Agregar `GEMINI_API_KEY` y las `SFTP_*` a `.deploy/server.env`. `deploy.sh` no despliega sin ellas.
