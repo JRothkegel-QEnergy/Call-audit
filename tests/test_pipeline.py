@@ -112,6 +112,8 @@ def test_new_audio_is_transcribed_validated_and_imported(env: dict) -> None:
     # El audio procesado pasa a output/: en la raíz quedan solo los pendientes.
     root = env["settings"].pipeline_local_dir
     assert not (root / f"{RECORDING}.mp3").exists() and (root / "output" / f"{RECORDING}.mp3").exists()
+    # Todas las filas del lote terminaron: el archivo de metadata también pasa a output/.
+    assert not (root / "lote.csv").exists() and (root / "output" / "lote.csv").exists()
     output = json.loads((env["settings"].pipeline_local_dir / "output" / f"{RECORDING}.json").read_text("utf-8"))
     assert output["segments"] == SEGMENTS
     # Sin columna TIPIFICACION se asume retención; ID y fecha salen del nombre del archivo.
@@ -259,4 +261,6 @@ def test_adopt_moves_bench_calls_without_spending(env: dict, tmp_path: Path) -> 
     assert json.loads((root / "output" / f"{RECORDING}.json").read_text("utf-8"))["segments"] == SEGMENTS
     # La que no tiene transcripción del bench queda pendiente; nada llamó al ASR ni al LLM.
     assert (root / "otra_20261015_300002.mp3").exists()
+    # El lote tiene una grabación pendiente: la metadata se queda en la raíz.
+    assert (root / "lote.csv").exists()
     assert env["calls"] == {"asr": 0, "llm": 0}

@@ -18,7 +18,7 @@ Cada componente tiene además su propio historial detallado:
   - Tres fallas de ASR seguidas en el mismo audio y deja de reintentarlo.
   - Probado en local con 230244: US$0,025 de validación y ~1,5 min por llamada de 9 min.
   - Baja cada audio solo cuando lo necesita y lo borra del EC2 cuando ya está en S3.
-  - El audio procesado se mueve a `output/` junto a su `.json`: en la carpeta quedan solo los pendientes. `--adopt` marca como hechas, sin gastar, las grabaciones que ya estaban en la app.
+  - El audio procesado se mueve a `output/` junto a su `.json`, y el archivo de metadata cuando todas sus grabaciones terminaron: en la carpeta quedan solo los pendientes. `--adopt` marca como hechas, sin gastar, las grabaciones que ya estaban en la app.
 - Se descarta el SFTP propio en el EC2 (primer diseño, mismo día): se usa la cuenta de S4P que ya existe.
 
 ## 2026-10-20

@@ -58,7 +58,7 @@ worker (EC2, cada 15 min) ──SFTP──> baja lo nuevo ──> Gemini ASR ─
                           ──> prompt capa 2 (Gemini) ──> RDS + audio a S3 (la app lo reproduce desde S3)
 ```
 
-- **Qué hace cada pasada:** está en el docstring de `src/call_audit/ingestion/pipeline.py`. Lo procesado (audio y su `.json`) queda en `output/`; en la carpeta quedan solo los pendientes. Un audio sin fila de metadata espera; uno con `output/<grabación>.json` no se vuelve a transcribir; una grabación que ya tiene corrida "automático" no se vuelve a validar, ni siquiera cuando cambia el prompt (eso se decide a mano).
+- **Qué hace cada pasada:** está en el docstring de `src/call_audit/ingestion/pipeline.py`. Lo procesado (audio y su `.json`) queda en `output/`, y también cada archivo de metadata cuando todas sus grabaciones terminaron; en la carpeta quedan solo los pendientes. Un audio sin fila de metadata espera; uno con `output/<grabación>.json` no se vuelve a transcribir; una grabación que ya tiene corrida "automático" no se vuelve a validar, ni siquiera cuando cambia el prompt (eso se decide a mano).
 - **Metadata:** las mismas columnas del Excel "Retenciones BECS", con el nombre del archivo sin extensión en la primera columna. Si no viene `ID` ni `FECHA_GESTION`, se sacan del nombre (`<n>_<AAAAMMDD>_<id>.mp3`). Si no viene `TIPIFICACION`, se asume `RETENCION`.
 - **Cuenta SFTP** (variables en `.env` para local y en `.deploy/server.env` para el EC2; las escribes tú, no van al chat ni a git):
   ```

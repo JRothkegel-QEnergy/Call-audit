@@ -20,7 +20,8 @@ Cada pasada:
     3. Las grabaciones transcritas que aún no tienen corrida automática en la base se validan con el prompt vigente
        (real_calls.py: build anonimizado + run) y se importan con import_bench, igual que una corrida del bench.
        El audio se sube a S3 para que la app lo reproduzca.
-    4. El audio transcrito y validado se mueve a output/: en la raíz quedan solo los pendientes.
+    4. El audio transcrito y validado se mueve a output/, y el archivo de metadata cuando todas sus grabaciones
+       terminaron: en la raíz quedan solo los pendientes.
 Las grabaciones que ya estaban en la app (bench) se marcan como hechas sin gastar con --adopt <asr_bench>.
 
 El trabajo de cada pasada (prompts, respuestas del modelo, errores) queda en PIPELINE_WORK_DIR, fuera del repo.
@@ -112,8 +113,9 @@ def read_rows(path: Path) -> list[dict]:
     return rows
 
 
-def load_metadata(store: Store, entries: list[Entry]) -> dict[str, dict]:
-    """Todas las filas de los .xlsx/.csv, por nombre de grabación. Un archivo más nuevo pisa al anterior."""
+def load_metadata(store: Store, entries: list[Entry], sources: dict[str, set[str]] | None = None) -> dict[str, dict]:
+    """Todas las filas de los .xlsx/.csv, por nombre de grabación. Un archivo más nuevo pisa al anterior.
+    En `sources` deja qué grabaciones trae cada archivo (para moverlo a output/ cuando todas terminaron)."""
     out: dict[str, dict] = {}
     files = sorted((e for e in entries if Path(e.name).suffix.lower() in METADATA_EXT), key=lambda e: e.mtime)
     for entry in files:
@@ -124,9 +126,13 @@ def load_metadata(store: Store, entries: list[Entry]) -> dict[str, dict]:
         except Exception:  # noqa: BLE001 - un archivo malo no frena a los demás
             logger.exception("No se pudo leer la metadata %s", entry.name)
             continue
+        stems = set()
         for row in rows:
-            key = real_calls.clean(next(iter(row.values())))
-            out[key.removesuffix(AUDIO_EXT)] = row
+            stem = real_calls.clean(next(iter(row.values()))).removesuffix(AUDIO_EXT)
+            out[stem] = row
+            stems.add(stem)
+        if sources is not None:
+            sources[entry.name] = stems
     for stem, row in out.items():
         complete_row(stem, row)
     return out
@@ -315,7 +321,8 @@ def run_once(settings: Settings | None = None) -> dict[str, int]:
     store = open_store(settings)
     try:
         entries = store.entries()
-        rows = load_metadata(store, entries)
+        sources: dict[str, set[str]] = {}
+        rows = load_metadata(store, entries, sources)
         audios = {e.stem: e for e in entries if e.name.lower().endswith(AUDIO_EXT) and settled(e)}
         outputs = store.outputs()
         stats = {"audios": len(audios), "waiting_metadata": 0, "transcribed": 0, "asr_errors": 0, "validated": 0}
@@ -352,6 +359,7 @@ def run_once(settings: Settings | None = None) -> dict[str, int]:
             with get_sessionmaker()() as session:
                 done = validated(session, settings.pipeline_model)
         stats["archived"] = archive_finished(store, audios, outputs & done)
+        archive_metadata(store, entries, sources, outputs, waiting={e.name for e in store.entries()})
     finally:
         store.close()
     logger.info("Pasada: %s", stats)
@@ -370,13 +378,30 @@ def archive_finished(store: Store, audios: dict[str, Entry], finished: set[str])
     return count
 
 
+def archive_metadata(
+    store: Store, entries: list[Entry], sources: dict[str, set[str]], outputs: set[str], waiting: set[str]
+) -> None:
+    """Mueve a output/ cada archivo de metadata cuyas grabaciones ya terminaron: tienen output y su audio ya no está
+    en la raíz. Si queda alguna pendiente, el archivo se queda (la validación lo necesita)."""
+    pending = {Path(name).stem for name in waiting if name.lower().endswith(AUDIO_EXT)}
+    for entry in entries:
+        stems = sources.get(entry.name)
+        if not stems or not stems <= outputs or stems & pending:
+            continue
+        try:
+            store.archive(entry)
+        except OSError as exc:
+            logger.warning("No se pudo mover %s a output/: %s", entry.name, exc)
+
+
 def adopt(settings: Settings, asr_dir: Path) -> int:
     """Grabaciones que ya están en la app (transcritas y validadas en el bench): escribe su output con la
     transcripción del bench y mueve el audio a output/, sin llamar al ASR ni al LLM. El pipeline ya no las mira."""
     store = open_store(settings)
     try:
         entries = store.entries()
-        rows = load_metadata(store, entries)
+        sources: dict[str, set[str]] = {}
+        rows = load_metadata(store, entries, sources)
         outputs = store.outputs()
         count = 0
         for entry in entries:
@@ -389,7 +414,9 @@ def adopt(settings: Settings, asr_dir: Path) -> int:
             if stem not in outputs:
                 store.write_output(stem, output_json(stem, rows[stem], asr_dir, settings.pipeline_asr_model))
             store.archive(entry)
+            outputs.add(stem)
             count += 1
+        archive_metadata(store, entries, sources, outputs, waiting={e.name for e in store.entries()})
     finally:
         store.close()
     return count
