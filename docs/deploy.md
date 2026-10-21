@@ -58,7 +58,7 @@ worker (EC2, cada 15 min) ──SFTP──> baja lo nuevo ──> Gemini ASR ─
                           ──> prompt capa 2 (Gemini) ──> RDS + audio a S3 (la app lo reproduce desde S3)
 ```
 
-- **Qué hace cada pasada:** está en el docstring de `src/call_audit/ingestion/pipeline.py`. Un audio sin fila de metadata espera; uno con `output/<grabación>.json` no se vuelve a transcribir; una grabación que ya tiene corrida "automático" no se vuelve a validar, ni siquiera cuando cambia el prompt (eso se decide a mano).
+- **Qué hace cada pasada:** está en el docstring de `src/call_audit/ingestion/pipeline.py`. Lo procesado (audio y su `.json`) queda en `output/`; en la carpeta quedan solo los pendientes. Un audio sin fila de metadata espera; uno con `output/<grabación>.json` no se vuelve a transcribir; una grabación que ya tiene corrida "automático" no se vuelve a validar, ni siquiera cuando cambia el prompt (eso se decide a mano).
 - **Metadata:** las mismas columnas del Excel "Retenciones BECS", con el nombre del archivo sin extensión en la primera columna. Si no viene `ID` ni `FECHA_GESTION`, se sacan del nombre (`<n>_<AAAAMMDD>_<id>.mp3`). Si no viene `TIPIFICACION`, se asume `RETENCION`.
 - **Cuenta SFTP** (variables en `.env` para local y en `.deploy/server.env` para el EC2; las escribes tú, no van al chat ni a git):
   ```
@@ -69,11 +69,12 @@ worker (EC2, cada 15 min) ──SFTP──> baja lo nuevo ──> Gemini ASR ─
   SFTP_DIR=.              # carpeta de los audios, relativa al inicio de la cuenta
   SFTP_HOST_KEY=...       # sale de: uv run python -m call_audit.ingestion.pipeline --host-key
   ```
-  En el servidor (EC2 `sftp-s4p`, sa-east-1, Ubuntu), `qubico` está enjaulado en `/sftp/qubico` y ve la carpeta de S4P (`/sftp/s4p/upload`) por un montaje `bind,ro`. Para que pueda escribir solo en `output/`, `/etc/fstab` tiene encima un segundo `bind` de escritura (2026-10-21; respaldo en `/etc/fstab.bak-*`):
+  En el servidor (EC2 `sftp-s4p`, sa-east-1, Ubuntu), `qubico` está enjaulado en `/sftp/qubico` y ve la carpeta de S4P (`/sftp/s4p/upload`) por un montaje `bind,ro`. Para que el pipeline pueda escribir `output/` y mover ahí los audios procesados, `/etc/fstab` tiene encima un `bind` de escritura solo de `Retenciones A Evaluar` (2026-10-21; respaldos en `/etc/fstab.bak-*`), y esa carpeta tiene `770` (grupo `sftpusers`):
   ```
-  /sftp/s4p/upload/Retenciones\040A\040Evaluar/output /sftp/qubico/s4p/Retenciones\040A\040Evaluar/output none bind 0 0
+  /sftp/s4p/upload/Retenciones A Evaluar /sftp/qubico/s4p/Retenciones A Evaluar none bind 0 0
   ```
-  La llave del servidor se fija para que el worker no le entregue la contraseña a un servidor impostor. Si S4P la cambia, el worker deja de conectarse hasta actualizarla. `--list` muestra qué ve en la carpeta sin procesar nada.
+  La llave del servidor se fija para que el worker no le entregue la contraseña a un servidor impostor.
+  Las grabaciones que ya estaban en la app se movieron sin gastar con `--adopt ../transcripts/asr_bench`: usa la transcripción del bench para su `.json`. Si S4P la cambia, el worker deja de conectarse hasta actualizarla. `--list` muestra qué ve en la carpeta sin procesar nada.
 - **Puesta en marcha** (una vez):
   1. Agregar `GEMINI_API_KEY` y las `SFTP_*` a `.deploy/server.env`. `deploy.sh` no despliega sin ellas.
   2. Si el SFTP de S4P filtra por IP, pedir que habiliten la IP del EC2 (`HOST` en `.deploy/deploy.env`).

@@ -108,7 +108,10 @@ def test_new_audio_is_transcribed_validated_and_imported(env: dict) -> None:
 
     stats = pipeline.run_once(env["settings"])
 
-    assert stats["transcribed"] == 1 and stats["validated"] == 1
+    assert stats["transcribed"] == 1 and stats["validated"] == 1 and stats["archived"] == 1
+    # El audio procesado pasa a output/: en la raíz quedan solo los pendientes.
+    root = env["settings"].pipeline_local_dir
+    assert not (root / f"{RECORDING}.mp3").exists() and (root / "output" / f"{RECORDING}.mp3").exists()
     output = json.loads((env["settings"].pipeline_local_dir / "output" / f"{RECORDING}.json").read_text("utf-8"))
     assert output["segments"] == SEGMENTS
     # Sin columna TIPIFICACION se asume retención; ID y fecha salen del nombre del archivo.
@@ -132,7 +135,7 @@ def test_second_pass_does_not_repeat_work(env: dict) -> None:
 
     stats = pipeline.run_once(env["settings"])
 
-    assert stats["transcribed"] == 0 and stats["validated"] == 0
+    assert stats["audios"] == 0 and stats["transcribed"] == 0 and stats["validated"] == 0
     assert env["calls"] == {"asr": 1, "llm": 1}
 
 
@@ -231,8 +234,29 @@ def test_pipeline_over_sftp_store(env: dict, tmp_path: Path, monkeypatch: pytest
 
     assert stats["transcribed"] == 1 and stats["validated"] == 1
     assert json.loads((remote / "output" / f"{RECORDING}.json").read_text("utf-8"))["recording"] == RECORDING
+    assert (remote / "output" / f"{RECORDING}.mp3").exists() and not (remote / f"{RECORDING}.mp3").exists()
     # Con el audio en S3, se borra del caché; la metadata queda para no bajarla de nuevo.
     assert not (tmp_path / "inbox" / f"{RECORDING}.mp3").exists()
     assert (tmp_path / "inbox" / "lote.csv").exists()
     pipeline.run_once(env["settings"])
     assert fake.downloads.count("./lote.csv") == 1
+
+
+def test_adopt_moves_bench_calls_without_spending(env: dict, tmp_path: Path) -> None:
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(env["inbox"], "otra_20261015_300002.mp3", b"ID3 sin transcripcion del bench")
+    drop(env["inbox"], "lote.csv", CSV + "otra_20261015_300002;Ejecutivo;Seguro Ficticio;Retracto;1;15-10-2026;1\n")
+    asr_dir = tmp_path / "asr_bench"
+    target = asr_dir / RECORDING
+    target.mkdir(parents=True)
+    (target / "gemini_3.8-flash.json").write_text(json.dumps({"segments": SEGMENTS}), encoding="utf-8")
+    (target / "_summary.json").write_text(json.dumps([{"audio_seconds": 8.0}]), encoding="utf-8")
+
+    assert pipeline.adopt(env["settings"], asr_dir) == 1
+
+    root = env["settings"].pipeline_local_dir
+    assert (root / "output" / f"{RECORDING}.mp3").exists()
+    assert json.loads((root / "output" / f"{RECORDING}.json").read_text("utf-8"))["segments"] == SEGMENTS
+    # La que no tiene transcripción del bench queda pendiente; nada llamó al ASR ni al LLM.
+    assert (root / "otra_20261015_300002.mp3").exists()
+    assert env["calls"] == {"asr": 0, "llm": 0}

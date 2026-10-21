@@ -1,5 +1,6 @@
 """Carpeta de entrada del pipeline: el SFTP de S4P (SftpStore) o una carpeta local para desarrollo y tests
-(LocalStore). Las dos tienen los audios y la metadata en la raíz, y los resultados en output/."""
+(LocalStore). Las dos tienen en la raíz los audios pendientes y la metadata, y en output/ el resultado de cada audio
+(<grabación>.json) y el audio ya procesado, que se mueve ahí para que la raíz muestre solo lo que falta."""
 
 import base64
 import contextlib
@@ -47,6 +48,9 @@ class LocalStore:
         tmp = self.root / OUTPUT_DIR / f"{stem}.json.tmp"
         tmp.write_bytes(data)
         tmp.replace(self.root / OUTPUT_DIR / f"{stem}.json")
+
+    def archive(self, entry: Entry) -> None:
+        (self.root / entry.name).replace(self.root / OUTPUT_DIR / entry.name)
 
     def close(self) -> None:
         pass
@@ -112,12 +116,19 @@ class SftpStore:
         target, tmp = f"{self.out}/{stem}.json", f"{self.out}/{stem}.json.tmp"
         with self.sftp.open(tmp, "wb") as fh:
             fh.write(data)
+        self._rename(tmp, target)
+
+    def archive(self, entry: Entry) -> None:
+        """Mueve el audio a output/. Requiere escritura en la carpeta y que output/ esté en el mismo montaje."""
+        self._rename(f"{self.dir}/{entry.name}", f"{self.out}/{entry.name}")
+
+    def _rename(self, old: str, new: str) -> None:
         try:
-            self.sftp.posix_rename(tmp, target)
+            self.sftp.posix_rename(old, new)
         except OSError:  # servidores sin la extensión posix-rename
             with contextlib.suppress(OSError):
-                self.sftp.remove(target)
-            self.sftp.rename(tmp, target)
+                self.sftp.remove(new)
+            self.sftp.rename(old, new)
 
     def close(self) -> None:
         self.client.close()

@@ -20,6 +20,8 @@ Cada pasada:
     3. Las grabaciones transcritas que aún no tienen corrida automática en la base se validan con el prompt vigente
        (real_calls.py: build anonimizado + run) y se importan con import_bench, igual que una corrida del bench.
        El audio se sube a S3 para que la app lo reproduzca.
+    4. El audio transcrito y validado se mueve a output/: en la raíz quedan solo los pendientes.
+Las grabaciones que ya estaban en la app (bench) se marcan como hechas sin gastar con --adopt <asr_bench>.
 
 El trabajo de cada pasada (prompts, respuestas del modelo, errores) queda en PIPELINE_WORK_DIR, fuera del repo.
 """
@@ -347,10 +349,50 @@ def run_once(settings: Settings | None = None) -> dict[str, int]:
             stats["validated"], uploaded = validate(pending, rows, lambda s: store.fetch(audios[s]), settings)
             for path in uploaded:
                 store.release(path)
+            with get_sessionmaker()() as session:
+                done = validated(session, settings.pipeline_model)
+        stats["archived"] = archive_finished(store, audios, outputs & done)
     finally:
         store.close()
     logger.info("Pasada: %s", stats)
     return stats
+
+
+def archive_finished(store: Store, audios: dict[str, Entry], finished: set[str]) -> int:
+    """Mueve a output/ los audios ya transcritos y validados: en la raíz quedan solo los pendientes."""
+    count = 0
+    for stem in sorted(finished & audios.keys()):
+        try:
+            store.archive(audios[stem])
+            count += 1
+        except OSError as exc:
+            logger.warning("No se pudo mover %s a output/: %s", audios[stem].name, exc)
+    return count
+
+
+def adopt(settings: Settings, asr_dir: Path) -> int:
+    """Grabaciones que ya están en la app (transcritas y validadas en el bench): escribe su output con la
+    transcripción del bench y mueve el audio a output/, sin llamar al ASR ni al LLM. El pipeline ya no las mira."""
+    store = open_store(settings)
+    try:
+        entries = store.entries()
+        rows = load_metadata(store, entries)
+        outputs = store.outputs()
+        count = 0
+        for entry in entries:
+            stem = entry.stem
+            if not entry.name.lower().endswith(AUDIO_EXT) or stem not in rows:
+                continue
+            if not (asr_dir / stem / f"{settings.pipeline_asr_model}.json").exists():
+                logger.warning("Sin transcripción del bench para %s: queda pendiente", stem)
+                continue
+            if stem not in outputs:
+                store.write_output(stem, output_json(stem, rows[stem], asr_dir, settings.pipeline_asr_model))
+            store.archive(entry)
+            count += 1
+    finally:
+        store.close()
+    return count
 
 
 def show_listing(settings: Settings) -> None:
@@ -375,6 +417,12 @@ def main() -> None:
     parser.add_argument("--loop", type=int, metavar="SEG", help="repite cada SEG segundos (sin esto, una pasada)")
     parser.add_argument("--host-key", action="store_true", help="muestra la llave del servidor SFTP para .env")
     parser.add_argument("--list", action="store_true", help="muestra qué hay en el SFTP, sin procesar nada")
+    parser.add_argument(
+        "--adopt",
+        type=Path,
+        metavar="ASR_DIR",
+        help="marca como hechas las grabaciones ya transcritas en el bench (ej. ../transcripts/asr_bench), sin gastar",
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     settings = get_settings()
@@ -384,6 +432,9 @@ def main() -> None:
         return
     if args.list:
         show_listing(settings)
+        return
+    if args.adopt:
+        print(f"{adopt(settings, args.adopt)} grabaciones movidas a output/ sin procesar")
         return
     while True:
         try:
