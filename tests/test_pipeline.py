@@ -264,3 +264,20 @@ def test_adopt_moves_bench_calls_without_spending(env: dict, tmp_path: Path) -> 
     # El lote tiene una grabación pendiente: la metadata se queda en la raíz.
     assert (root / "lote.csv").exists()
     assert env["calls"] == {"asr": 0, "llm": 0}
+
+
+def test_validation_uses_db_catalog_and_records_version(env: dict) -> None:
+    from call_audit.catalog import store
+
+    with env["db"]() as session, session.begin():
+        store.seed(session, {"payment_methods": {}, "procedures": [], "products": [SYNTHETIC_CATALOG["products"][0]]})
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(env["inbox"], "lote.csv", CSV)
+
+    pipeline.run_once(env["settings"])
+
+    with env["db"]() as session:
+        case = session.scalar(select(Case).where(Case.recording == RECORDING))
+        # La ficha y su versión quedan en la validación (D-29): el mismo seguro que matcheó la metadata.
+        assert case.runs[0].catalog_refs == [{"productId": "P99", "version": 1}]
+        assert case.product_sheets[0]["version"] == 1

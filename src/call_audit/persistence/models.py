@@ -8,7 +8,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, LargeBinary, String, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -104,6 +104,9 @@ class ModelRun(Base):
     user_prompt: Mapped[str] = mapped_column(Text, default="")
     raw_response: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     error: Mapped[str | None] = mapped_column(Text)
+    # Fichas usadas en la validación: [{"productId": "P01", "version": 3}] (Cambio 11, D-29). Vacío en las corridas
+    # del bench, que leían products.json sin versión.
+    catalog_refs: Mapped[list[Any]] = mapped_column(default=list)
 
     case: Mapped[Case] = relationship(back_populates="runs")
 
@@ -182,3 +185,77 @@ class AccessLog(Base):
     action: Mapped[str] = mapped_column(String(50))
     target: Mapped[str] = mapped_column(String(100))
     created_at: Mapped[datetime] = mapped_column(default=now)
+
+
+class Product(Base):
+    """Seguro del catálogo (Cambio 11). La ficha vive en ProductVersion; nunca se sobrescribe ni se borra."""
+
+    __tablename__ = "products"
+
+    id: Mapped[str] = mapped_column(String(20), primary_key=True)  # P01, H05, ... (nuevos: C0001, ...)
+    # Clave única: nombre normalizado + aseguradora (D-27). Se recalcula al guardar una versión.
+    key: Mapped[str] = mapped_column(String(400), unique=True)
+    status: Mapped[str] = mapped_column(String(10), default="active")  # active | archived
+    current_version: Mapped[int] = mapped_column(Integer, default=1)
+    updated_at: Mapped[datetime] = mapped_column(default=now)
+    updated_by_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+
+    versions: Mapped[list["ProductVersion"]] = relationship(back_populates="product", order_by="ProductVersion.version")
+    updated_by: Mapped[User | None] = relationship()
+
+
+class ProductVersion(Base):
+    __tablename__ = "product_versions"
+    __table_args__ = (UniqueConstraint("product_id", "version"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    product_id: Mapped[str] = mapped_column(ForeignKey("products.id"))
+    version: Mapped[int] = mapped_column(Integer)
+    data: Mapped[dict[str, Any]] = mapped_column()  # CatalogProduct en snake_case
+    schema_version: Mapped[str] = mapped_column(String(20))
+    # {"kind": "initial_load" | "upload" | "manual" | "restore" | "status", ...}
+    origin: Mapped[dict[str, Any]] = mapped_column()
+    note: Mapped[str | None] = mapped_column(Text)
+    author_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(default=now)
+
+    product: Mapped[Product] = relationship(back_populates="versions")
+    author: Mapped[User | None] = relationship()
+
+
+class CatalogReference(Base):
+    """Datos de referencia del catálogo que no se editan en la app (medios de pago, procedimientos; D7)."""
+
+    __tablename__ = "catalog_reference"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    data: Mapped[dict[str, Any]] = mapped_column()
+    created_at: Mapped[datetime] = mapped_column(default=now)
+
+
+class CatalogUpload(Base):
+    """Excel subido por un supervisor: la IA propone fichas (items) y el supervisor decide cada una."""
+
+    __tablename__ = "catalog_uploads"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    file_name: Mapped[str] = mapped_column(String(255))
+    file_size: Mapped[int] = mapped_column(Integer)
+    # El Excel original (máx. 10 MB, D3). Se borra al descartar la carga (L-35).
+    content: Mapped[bytes | None] = mapped_column(LargeBinary)
+    status: Mapped[str] = mapped_column(String(20), default="processing")
+    step: Mapped[str | None] = mapped_column(String(20), default="reading")
+    error: Mapped[str | None] = mapped_column(String(40))
+    error_detail: Mapped[str | None] = mapped_column(Text)
+    model: Mapped[str] = mapped_column(String(100), default="")
+    extraction_prompt_version: Mapped[str] = mapped_column(String(20), default="")
+    schema_version: Mapped[str] = mapped_column(String(20), default="")
+    unused_sheets: Mapped[list[Any]] = mapped_column(default=list)
+    items: Mapped[list[Any]] = mapped_column(default=list)
+    cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
+    raw_response: Mapped[str | None] = mapped_column(Text)
+    uploaded_by_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    uploaded_at: Mapped[datetime] = mapped_column(default=now)
+    updated_at: Mapped[datetime] = mapped_column(default=now)
+
+    uploaded_by: Mapped[User] = relationship()

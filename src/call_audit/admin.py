@@ -3,9 +3,11 @@
 Uso:
     uv run python -m call_audit.admin create-user --email E --name N --role auditor|supervisor [--model-io]
     uv run python -m call_audit.admin set-password --email E
+    uv run python -m call_audit.admin grant --email E --permission view_model_io|manage_catalog [--revoke]
 
 La contraseña se pide por consola (no queda en el historial de la terminal). --model-io activa el permiso
-view_model_io (ver el prompt y la respuesta del modelo, D-22).
+view_model_io (ver el prompt y la respuesta del modelo, D-22). --manage-catalog activa manage_catalog (subir y
+editar el catálogo de seguros; solo supervisores, D-28).
 """
 
 import argparse
@@ -18,6 +20,13 @@ from call_audit.persistence.db import get_sessionmaker
 from call_audit.persistence.models import User
 
 hasher = PasswordHasher()
+PERMISSIONS = ["view_model_io", "manage_catalog"]
+
+
+def permissions(args) -> list[str]:
+    if args.manage_catalog and args.role != "supervisor":
+        raise SystemExit("manage_catalog es solo para supervisores.")
+    return [p for p, on in (("view_model_io", args.model_io), ("manage_catalog", args.manage_catalog)) if on]
 
 
 def ask_password() -> str:
@@ -37,8 +46,13 @@ def main() -> None:
     create.add_argument("--name", required=True)
     create.add_argument("--role", choices=["auditor", "supervisor"], required=True)
     create.add_argument("--model-io", action="store_true", help="permiso view_model_io")
+    create.add_argument("--manage-catalog", action="store_true", help="permiso manage_catalog (solo supervisor)")
     reset = sub.add_parser("set-password")
     reset.add_argument("--email", required=True)
+    grant = sub.add_parser("grant")
+    grant.add_argument("--email", required=True)
+    grant.add_argument("--permission", choices=PERMISSIONS, required=True)
+    grant.add_argument("--revoke", action="store_true")
     args = parser.parse_args()
 
     email = args.email.strip().lower()
@@ -52,10 +66,17 @@ def main() -> None:
                     email=email,
                     name=args.name,
                     role=args.role,
-                    permissions=["view_model_io"] if args.model_io else [],
+                    permissions=permissions(args),
                     password_hash=hasher.hash(ask_password()),
                 )
             )
+        elif args.command == "grant":
+            if user is None:
+                raise SystemExit(f"No existe {email}.")
+            if args.permission == "manage_catalog" and user.role != "supervisor" and not args.revoke:
+                raise SystemExit("manage_catalog es solo para supervisores.")
+            current = [p for p in user.permissions or [] if p != args.permission]
+            user.permissions = current if args.revoke else [*current, args.permission]
         else:
             if user is None:
                 raise SystemExit(f"No existe {email}.")

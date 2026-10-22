@@ -42,6 +42,8 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from call_audit.catalog import store as catalog_store
+from call_audit.catalog import uploads
 from call_audit.config import ROOT, Settings, get_settings
 from call_audit.ingestion.import_bench import bench, import_run, real_calls
 from call_audit.ingestion.sftp_store import Entry, LocalStore, SftpStore, server_key
@@ -58,6 +60,7 @@ DEFAULT_TYPIFICATION = "RETENCION"
 # Un archivo que se modificó hace menos que esto puede estar subiéndose todavía por SFTP.
 MIN_AGE_SEC = 120
 MAX_ASR_ATTEMPTS = 3
+UPLOAD_POLL_SEC = 15
 LABEL_SUFFIX = "automático"
 DATE_FORMATS = ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y")
 TIME_FORMATS = ("", " %H:%M", " %H:%M:%S")
@@ -252,6 +255,7 @@ def validate(
     out = work / "runs" / datetime.now().strftime("%Y%m%d-%H%M%S")
     asr_dir = work / "asr"
     model = settings.pipeline_model
+    catalog = use_catalog(out)
     index = []
     for stem in stems:
         args = SimpleNamespace(
@@ -276,7 +280,6 @@ def validate(
             logger.exception("No se pudo subir el audio de %s a S3", item["recording"])
 
     version = (out / "prompts" / "prompt_version.txt").read_text(encoding="utf-8").strip()
-    catalog = json.loads(real_calls.render.CATALOG.read_text(encoding="utf-8"))
     rubric = load_rubric(settings.rubric_path)
     with get_sessionmaker()() as session, session.begin():
         count = import_run(
@@ -291,7 +294,43 @@ def validate(
             asr_dir=asr_dir,
             asr_model=settings.pipeline_asr_model,
         )
+        record_catalog_refs(session, index, rows, catalog, model, f"v{version} {LABEL_SUFFIX}")
     return count, uploaded
+
+
+def use_catalog(out: Path) -> dict:
+    """Foto del catálogo vigente en la base (Cambio 11), guardada en la corrida y usada por render.py. Sin catálogo en
+    la base (desarrollo), se usa data/catalog/products.json como antes."""
+    with get_sessionmaker()() as session:
+        catalog = catalog_store.snapshot(session)
+    if not catalog["products"]:
+        return json.loads(real_calls.render.CATALOG.read_text(encoding="utf-8"))
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / "catalog.json"
+    path.write_text(json.dumps(catalog, ensure_ascii=False), encoding="utf-8")
+    real_calls.render.CATALOG = path
+    return catalog
+
+
+def record_catalog_refs(
+    session: Session, index: list[dict], rows: dict[str, dict], catalog: dict, model: str, label: str
+) -> None:
+    """Qué ficha y qué versión usó cada validación (D-29, L-39): el mismo match que hizo real_calls.build."""
+    for item in index:
+        found, _, _ = real_calls.catalog_match.match_row(rows[item["recording"]], catalog)
+        if not found or not found.get("catalog_id"):
+            continue
+        ref = {"productId": found["catalog_id"], "version": found["version"]}
+        case = session.scalar(select(Case).where(Case.recording == item["recording"]))
+        run = next((r for r in case.runs if r.model == model and r.run_label == label), None) if case else None
+        if run is None:
+            continue
+        run.catalog_refs = [ref]
+        if case.product_sheets:
+            sheets = [dict(sheet) for sheet in case.product_sheets]
+            sheets[0]["version"] = ref["version"]
+            sheets[0]["catalogId"] = ref["productId"]
+            case.product_sheets = sheets
 
 
 # --- Pasada ----------------------------------------------------------------------------------
@@ -463,16 +502,24 @@ def main() -> None:
     if args.adopt:
         print(f"{adopt(settings, args.adopt)} grabaciones movidas a output/ sin procesar")
         return
+    last_pass = 0.0
     while True:
+        # Las cargas de Excel al catálogo se atienden cada UPLOAD_POLL_SEC: el supervisor espera la propuesta.
         try:
-            run_once(settings)
-        except Exception:  # noqa: BLE001 - el worker no se cae por una pasada fallida
-            logger.exception("Falló la pasada")
-            if not args.loop:
-                raise
+            uploads.process_pending(get_sessionmaker())
+        except Exception:  # noqa: BLE001 - el worker no se cae por una carga fallida
+            logger.exception("Falló el procesamiento de cargas del catálogo")
+        if not args.loop or time.time() - last_pass >= args.loop:
+            last_pass = time.time()
+            try:
+                run_once(settings)
+            except Exception:  # noqa: BLE001 - el worker no se cae por una pasada fallida
+                logger.exception("Falló la pasada")
+                if not args.loop:
+                    raise
         if not args.loop:
             return
-        time.sleep(args.loop)
+        time.sleep(UPLOAD_POLL_SEC)
 
 
 if __name__ == "__main__":

@@ -9,8 +9,10 @@ import logging
 from datetime import datetime
 from typing import Any
 
+from sqlalchemy.orm import object_session
+
 from call_audit.config import get_settings
-from call_audit.persistence.models import Agent, Case, ModelRun, Note, PromptVersion, Review, User
+from call_audit.persistence.models import Agent, Case, ModelRun, Note, Product, PromptVersion, Review, User
 from call_audit.rubric import Rubric
 
 logger = logging.getLogger(__name__)
@@ -157,6 +159,19 @@ def presigned_audio(recording: str) -> str | None:
         return None
 
 
+def product_sheets_out(case: Case) -> list[dict]:
+    """Fichas del caso con la versión usada en la validación y la vigente hoy (Cambio 11, R-11.1)."""
+    session = object_session(case)
+    out = []
+    for sheet in case.product_sheets or []:
+        sheet = dict(sheet)
+        product = session.get(Product, sheet["catalogId"]) if session and sheet.get("catalogId") else None
+        sheet.setdefault("version", None)
+        sheet["latestVersion"] = product.current_version if product else None
+        out.append(sheet)
+    return out
+
+
 def case_detail(
     case: Case,
     rubric: Rubric,
@@ -181,7 +196,7 @@ def case_detail(
         "audioUrl": presigned_audio(case.recording),
         "transcript": case.transcript,
         "findings": run.findings if run else [],
-        "productSheets": case.product_sheets,
+        "productSheets": product_sheets_out(case),
         "modelRuns": runs,
         "rubricId": rubric.id,
         "rubricVersion": rubric.version,
