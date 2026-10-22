@@ -34,8 +34,18 @@ export interface Assistance { name: string; detail: string | null; events: strin
 export interface Premium {
   plan: string | null; insured: string | null; ageBand: string | null; amountInsured: string | null;
   premiumUf: string | null; premiumClp: string | null; periodicity: string | null;
+  policyTable: string | null; note: string | null;
 }
-export interface Claim { coverage: string | null; deadline: string | null; channel: string | null; documents: string | null }
+export interface Claim {
+  coverage: string | null; deadline: string | null; channel: string | null; documents: string | null; coverageTerm: string | null;
+}
+export interface Exclusion { type: string | null; detail: string | null }
+/** Tasa por mil sobre el monto del crédito, según plazo en meses. */
+export interface CreditRate {
+  coverage: string | null; termFrom: string | null; termTo: string | null;
+  netRate: string | null; vat: string | null; grossRate: string | null; note: string | null;
+}
+export interface MaxAgeByTerm { termFrom: string | null; termTo: string | null; maxAge: string | null }
 export interface DisabilityRow { fromDay: string | null; toDay: string | null; amount: string | null }
 /** Lo del Excel que no calza en otro campo, tal cual. Se guarda y se muestra; no va al prompt de validación. */
 export interface ExtraInfo { title: string; text: string; source: string | null }
@@ -70,6 +80,9 @@ export interface CatalogProduct {
   claims: Claim[];
   temporaryDisabilityTable: DisabilityRow[];
   observations: string[];
+  exclusions: Exclusion[];
+  creditRates: CreditRate[];
+  maxAgeByTerm: MaxAgeByTerm[];
   extraInfo: ExtraInfo[];
 }
 

@@ -14,8 +14,9 @@ Cada componente tiene además su propio historial detallado:
   - Clave única: nombre del seguro normalizado + aseguradora. La póliza y el nombre en sistema solo avisan "posible duplicado".
   - Campos de la ficha: los de `products.json` más "Descripción para identificarlo" y "Información adicional" (lo del Excel que no calza en otro campo; se guarda y se muestra, no va al prompt). Esquema `catalog.schema` v1.0.0.
   - Subir Excel: la IA (Gemini 3.8 Flash, prompt `catalog_extraction` v1.0.0) lista los seguros y extrae sus fichas de a 8; el supervisor revisa cada una (origen hoja/fila de cada campo, comparación Actual vs Propuesto) y decide. Duplicados, datos personales y campos obligatorios los revisan reglas, sin IA.
+  - Esquema v1.1.0 y prompt de extracción v1.1.0 tras revisar el Excel de apoyo: la ficha suma exclusiones (47, Protección Global MyPE HDI), tasas por plazo del crédito (4 seguros), edad máxima por plazo (6), póliza/tabla y nota en primas y plazo de cobertura en siniestros; la comparativa de mercado (300 filas) queda como dato de referencia. `extract_catalog.py` lee esas hojas; lo que ya había no cambió. No van al prompt de validación.
+  - Prueba real del prompt v1.0.0 con Apoyo_Seguros_MetLife_HDI.xlsx (US$1,02, 18 min): 47 de 47 retenibles, 100 % en categoría, prima, pólizas, devolución, retracto y tablas; se le pasaron los 19 no retenibles / no renunciables (corregido en la v1.1.0, sin volver a correr).
   - El worker valida con la foto del catálogo vigente y guarda en cada validación la ficha y la versión usadas (`model_runs.catalog_refs`); el detalle de llamada muestra "Ficha v{n}".
-  - Pendiente legal antes de usarlo con Excel nuevos del cliente: L-36 (enviar condiciones comerciales al proveedor del LLM).
 
 ## 2026-10-21
 

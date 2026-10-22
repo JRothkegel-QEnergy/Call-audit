@@ -9,7 +9,9 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
-SCHEMA_VERSION = "1.0.0"
+# 1.1.0 (2026-10-22): exclusiones, tasas y edad máxima por plazo del crédito; póliza/tabla y nota en primas; plazo de
+# cobertura en siniestros. Son hojas del Excel de apoyo que la 1.0.0 no tenía dónde guardar.
+SCHEMA_VERSION = "1.1.0"
 
 ProductCategory = Literal[
     "RETENIBLE",
@@ -50,6 +52,8 @@ class Premium(_Model):
     premium_uf: str | None = None
     premium_clp: str | None = None
     periodicity: str | None = None
+    policy_table: str | None = None  # póliza o tabla a la que corresponde la prima
+    note: str | None = None
 
 
 class Claim(_Model):
@@ -57,6 +61,32 @@ class Claim(_Model):
     deadline: str | None = None
     channel: str | None = None
     documents: str | None = None
+    coverage_term: str | None = None  # plazo de cobertura (ej. "Hasta 2 horas desde el giro")
+
+
+class Exclusion(_Model):
+    type: str | None = None
+    detail: str | None = None
+
+
+class CreditRate(_Model):
+    """Tasa por mil sobre el monto del crédito, según plazo (seguros asociados a créditos)."""
+
+    coverage: str | None = None
+    term_from: str | None = None  # meses
+    term_to: str | None = None
+    net_rate: str | None = None
+    vat: str | None = None
+    gross_rate: str | None = None
+    note: str | None = None
+
+
+class MaxAgeByTerm(_Model):
+    """Edad máxima del asegurado al otorgar el crédito, según plazo."""
+
+    term_from: str | None = None  # meses
+    term_to: str | None = None
+    max_age: str | None = None
 
 
 class DisabilityRow(_Model):
@@ -106,6 +136,9 @@ class CatalogProduct(_Model):
     claims: list[Claim] = []
     temporary_disability_table: list[DisabilityRow] = []
     observations: list[str] = []
+    exclusions: list[Exclusion] = []
+    credit_rates: list[CreditRate] = []
+    max_age_by_term: list[MaxAgeByTerm] = []
     extra_info: list[ExtraInfo] = []
 
 
@@ -139,6 +172,9 @@ LABELS = {
     "claims": "Siniestros",
     "temporary_disability_table": "Incapacidad temporal",
     "observations": "Observaciones",
+    "exclusions": "Exclusiones",
+    "credit_rates": "Tasas por plazo del crédito",
+    "max_age_by_term": "Edad máxima por plazo del crédito",
     "extra_info": "Información adicional",
 }
 REQUIRED = ("name", "category")

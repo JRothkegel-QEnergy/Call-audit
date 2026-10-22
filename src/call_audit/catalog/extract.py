@@ -11,12 +11,14 @@ import json
 import tomllib
 import zipfile
 from dataclasses import dataclass, field
-from typing import Any
 
 from call_audit.catalog.schema import CatalogProduct
 from call_audit.config import ROOT
 
-EXTRACTION_PROMPT_VERSION = "1.0.0"
+# 1.1.0 (2026-10-22): lista también los no retenibles / no renunciables y llena exclusiones, tasas y edad máxima por
+# plazo (esquema 1.1.0). En la corrida real con la 1.0.0 (Apoyo_Seguros_MetLife_HDI.xlsx, US$1,02) se le pasaron los 19
+# seguros sin ficha y esas hojas quedaron a medias en "Información adicional".
+EXTRACTION_PROMPT_VERSION = "1.1.0"
 PROMPT_DIR = ROOT / "prompts" / "catalog_extraction" / f"v{EXTRACTION_PROMPT_VERSION}"
 CATALOG_MODEL = "gemini-3-8-flash"
 MAX_BYTES = 10 * 1024 * 1024  # D3
@@ -128,7 +130,3 @@ def extract(content: bytes, llm=call_llm, on_step=lambda step: None) -> Extracti
     if not out.products:
         raise UploadError("extraction_failed", "la IA no devolvió fichas")
     return out
-
-
-def as_dict(value: Any) -> dict:
-    return value if isinstance(value, dict) else {}

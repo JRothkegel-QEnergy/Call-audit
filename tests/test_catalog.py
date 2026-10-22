@@ -271,3 +271,22 @@ def test_edit_conflicts_and_permissions(
 def test_bad_file_is_rejected(api: TestClient) -> None:
     response = api.post("/api/catalog/uploads", content=b"a;b", headers={"X-File-Name": "pauta.csv"})
     assert response.status_code == 400 and response.json()["detail"] == "invalid_format"
+
+
+def test_v1_1_fields_are_stored_but_not_sent_to_prompt(db: sessionmaker[Session]) -> None:
+    item = LEGACY["products"][0] | {
+        "exclusions": [{"type": "Negocio no asegurable", "detail": "Discotecas"}],
+        "credit_rates": [
+            {"coverage": "Desgravamen", "term_from": 1, "term_to": 12, "net_rate": 0.5, "vat": 0.1, "gross_rate": 0.6}
+        ],
+        "max_age_by_term": [{"term_from": 1, "term_to": 12, "max_age": "74 años"}],
+    }
+    with db() as session, session.begin():
+        store.seed(session, LEGACY | {"products": [item], "market_comparison": [{"Segmento": "Desempleo"}]})
+    with db() as session:
+        stored = store.current(session.get(Product, "P01")).data
+        assert stored["exclusions"][0]["detail"] == "Discotecas"
+        assert stored["credit_rates"][0]["term_to"] == "12"  # los números del Excel quedan como texto
+        snap = store.snapshot(session)
+        assert snap["market_comparison"] == [{"Segmento": "Desempleo"}]
+        assert not {"exclusions", "credit_rates", "max_age_by_term"} & set(snap["products"][0])

@@ -59,9 +59,13 @@ def from_legacy(item: dict) -> CatalogProduct:
     return CatalogProduct.model_validate(data)
 
 
+# Se guardan y se muestran en la ficha, pero no van al prompt de validación (render.py tampoco los lee).
+NOT_IN_PROMPT = ("extra_info", "policies_note", "identification_notes", "exclusions", "credit_rates", "max_age_by_term")
+
+
 def to_legacy(product_id: str, version: int, data: dict) -> dict:
-    """Lo que leen render.py y catalog_match.py. `extra_info` no va: no se usa para auditar la llamada."""
-    out = {k: v for k, v in data.items() if k not in ("extra_info", "policies_note", "identification_notes")}
+    """Lo que leen render.py y catalog_match.py, sin los campos de NOT_IN_PROMPT."""
+    out = {k: v for k, v in data.items() if k not in NOT_IN_PROMPT}
     out["policies"] = " / ".join(data.get("policies") or []) or None
     # Solo los retenibles tienen ficha: render.py arma la ficha si hay id y catalog_match busca por similitud solo
     # entre los que tienen id. Los demás (no retenibles, no renunciables) se reconocen por nombre en sistema.

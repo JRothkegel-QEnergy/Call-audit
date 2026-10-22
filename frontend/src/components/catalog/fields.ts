@@ -4,7 +4,16 @@ import type { CatalogProduct } from "@/lib/api/catalog-types";
 export type TextField = { key: keyof CatalogProduct; label: string; multiline?: boolean };
 export type ListField = { key: "systemNames" | "policies" | "channels" | "observations"; label: string; help?: string };
 export type TableField = {
-  key: "coverages" | "assistances" | "premiums" | "claims" | "temporaryDisabilityTable" | "extraInfo";
+  key:
+    | "coverages"
+    | "assistances"
+    | "premiums"
+    | "claims"
+    | "temporaryDisabilityTable"
+    | "exclusions"
+    | "creditRates"
+    | "maxAgeByTerm"
+    | "extraInfo";
   label: string;
   columns: { key: string; label: string; multiline?: boolean }[];
   help?: string;
@@ -67,6 +76,8 @@ export const TABLES: TableField[] = [
       { key: "premiumUf", label: "Prima UF" },
       { key: "premiumClp", label: "Prima $" },
       { key: "periodicity", label: "Periodicidad" },
+      { key: "policyTable", label: "Póliza / tabla" },
+      { key: "note", label: "Nota", multiline: true },
     ],
   },
   {
@@ -77,6 +88,7 @@ export const TABLES: TableField[] = [
       { key: "deadline", label: "Plazo" },
       { key: "channel", label: "Canal" },
       { key: "documents", label: "Documentos", multiline: true },
+      { key: "coverageTerm", label: "Plazo de cobertura" },
     ],
   },
   {
@@ -86,6 +98,37 @@ export const TABLES: TableField[] = [
       { key: "fromDay", label: "Desde el día" },
       { key: "toDay", label: "Hasta el día" },
       { key: "amount", label: "Monto" },
+    ],
+  },
+  {
+    key: "exclusions",
+    label: "Exclusiones",
+    columns: [
+      { key: "type", label: "Tipo" },
+      { key: "detail", label: "Detalle", multiline: true },
+    ],
+  },
+  {
+    key: "creditRates",
+    label: "Tasas por plazo del crédito",
+    help: "Tasa por mil sobre el monto del crédito.",
+    columns: [
+      { key: "coverage", label: "Cobertura" },
+      { key: "termFrom", label: "Plazo desde (meses)" },
+      { key: "termTo", label: "Plazo hasta (meses)" },
+      { key: "netRate", label: "Tasa neta ‰" },
+      { key: "vat", label: "IVA ‰" },
+      { key: "grossRate", label: "Tasa bruta ‰" },
+      { key: "note", label: "Nota", multiline: true },
+    ],
+  },
+  {
+    key: "maxAgeByTerm",
+    label: "Edad máxima por plazo del crédito",
+    columns: [
+      { key: "termFrom", label: "Plazo desde (meses)" },
+      { key: "termTo", label: "Plazo hasta (meses)" },
+      { key: "maxAge", label: "Edad máxima al otorgar" },
     ],
   },
   {
