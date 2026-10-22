@@ -163,6 +163,11 @@ flowchart TD
     CQ[Cola completa<br/>/queue · lectura] --> D
     LST --> D
     D[Detalle de llamada · modo supervisor<br/>/calls/:id]
+    DI[Discrepancias<br/>/discrepancies · Cambio 09] --> D
+    SG[Seguros<br/>/catalog · Cambio 11 · manage_catalog] --> SGF[Ficha del seguro<br/>/catalog/:productId]
+    SG --> SGC[Cargas<br/>/catalog/uploads]
+    SG --> SGU[Subir Excel<br/>diálogo] --> SGR[Revisión de la carga<br/>/catalog/uploads/:uploadId]
+    SGC --> SGR
   end
   H -. Exportar .-> EX[Exportar lo filtrado<br/>diálogo]
   E -. Exportar .-> EX
@@ -183,6 +188,8 @@ flowchart TD
 | Ejecutivos | Ficha del ejecutivo | Registrar feedback | `/agents`, `/agents/[id]` | S |
 | Motivos | Llamadas de un motivo | Exportar | `/dashboard/criteria` | S |
 | Auditores | Desempeño · Ficha del auditor · Cuentas | Invitar, desactivar | `/auditors`, `/auditors/[id]`, `/auditors/accounts` | S |
+| Discrepancias *(Cambio 09)* | — | Clasificar, marcar presentado | `/discrepancies` | S |
+| Seguros *(Cambio 11)* | Pestañas Seguros · Cargas · Ficha del seguro (Ficha · Identificación · Historial) · Revisión de la carga | Subir Excel, editar, archivar / reactivar, restaurar versión, actualizar / descartar seguros de una carga | `/catalog`, `/catalog/[productId]`, `/catalog/[productId]/edit`, `/catalog/uploads`, `/catalog/uploads/[uploadId]`, `/catalog/uploads/[uploadId]/[itemId]` | S con `manage_catalog` |
 | Menú de usuario | Preferencias, Privacidad | Ayuda de atajos | `/settings`, `/privacy` | A, S |
 | Acceso | Invitación, recuperar contraseña | — | `/login`, `/invite/[token]`, `/reset` | Todos |
 
@@ -200,7 +207,7 @@ flowchart TD
 | Rol | Etiquetas (en orden) |
 |---|---|
 | Auditor | **Cola** · **Mis revisiones** |
-| Supervisor | **Inicio** · **Alertas** · **Revisiones** · **Ejecutivos** · **Motivos** · **Auditores** · **Cola** |
+| Supervisor | **Inicio** · **Alertas** · **Revisiones** · **Ejecutivos** · **Motivos** · **Auditores** · **Cola** · **Discrepancias** *(Cambio 09)* · **Seguros** *(Cambio 11; solo con `manage_catalog`)* |
 
 ### 4.2 Glosario
 
@@ -237,6 +244,14 @@ Término de UI ↔ identificador en el código (`.claude/rules/frontend.md`: ide
 | **Auditor** / **Supervisor** | Roles de la app | `auditor` / `supervisor` | "revisor", "jefe" |
 | **Seguro** | Producto contratado que aparece en la llamada | `product` | "póliza" como sinónimo (la póliza es un dato del seguro) |
 | **Ficha del seguro** | Condiciones del seguro según el catálogo | `product_sheet` | "ficha técnica" |
+| **Seguros** (sección, Cambio 11) | Catálogo de fichas que la IA usa para validar | `catalog` | "Pautas" (la pauta son los 33 motivos), "Productos" |
+| **Versión de la ficha** | Cada guardado crea una versión; cada validación guarda cuál usó (D-29) | `sheet_version` | "revisión" |
+| **Excel de seguros** / **Carga** | Archivo del cliente con condiciones de seguros / una subida y su revisión | `catalog_upload` / `upload` | "pauta", "plantilla", "importación" |
+| **Nombre en sistema** | Cómo aparece el seguro en los sistemas del cliente (lo que trae la llamada) | `system_names` | "alias" |
+| **Descripción para identificarlo** | Texto libre que ayuda a la IA a reconocer el seguro | `identification_notes` | "prompt" |
+| **Nuevo** / **Ya existe** | Estado de un seguro en una carga según la clave nombre + aseguradora (D-27) | `new` / `exists` | "repetido", "conflicto" |
+| **Posible duplicado** | Advertencia (no estado): comparte póliza o nombre en sistema con otro seguro | `warning = possible_duplicate` | "duplicado" |
+| **Archivar** / **Reactivar** | Dejar de usar / volver a usar una ficha, sin borrarla | `archive` / `restore` | "eliminar", "borrar" |
 | **Feedback** | Registro del supervisor de una conversación con un ejecutivo | `feedback` | "amonestación", "sanción" |
 | **Capas** | Módulos de análisis (reglas, LLM) | `layers` | — |
 | **Regla aplicada** | Regla del motor que produjo la decisión | `applied_rule` | — |

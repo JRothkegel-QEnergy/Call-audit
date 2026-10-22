@@ -307,6 +307,27 @@
 
 > «Bienvenida» o «Bienvenido» se elige según el usuario registrado; si no hay dato, se usa «Te damos la bienvenida a Call Audit» (H-44).
 
+### 3.13 Supervisor · Seguros (Cambio 11)
+
+Textos completos en `11-catalogo-seguros.md` §7.2 (fuente de verdad). Los principales:
+
+| Elemento | Texto |
+|---|---|
+| Nav · ayuda del título | Seguros · Fichas que usa la IA para validar las llamadas. |
+| Botón | Subir Excel |
+| Diálogo · avisos | Excel .xlsx de hasta 10 MB. · Sube solo condiciones de seguros. No incluyas datos de clientes ni de ejecutivos. · La IA lee el archivo y propone las fichas. Nada se guarda en el catálogo hasta que lo revises. |
+| Progreso | Leyendo el Excel · Extrayendo los seguros con IA · Buscando seguros que ya existen · Listo para revisar |
+| Origen / sin dato | Hoja {hoja} · fila {fila} · No viene en el Excel |
+| Ya existe | Ya existe «{nombre}» de {aseguradora} (v{n}). · Comparar |
+| Posible duplicado | Posible duplicado: comparte {la póliza {n°} / el nombre en sistema «{x}»} con «{nombre}» de {aseguradora}. Si son seguros distintos, puedes guardarlo; revisa los nombres en sistema para que la IA los distinga. · Ver ese seguro |
+| Clave existente | Ya existe un seguro llamado «{nombre}» en {aseguradora}. · Ver ese seguro |
+| Acciones | Actualizar el existente · Es otro seguro · Descartar · Guardar como nuevo · Guardar {n} seguros nuevos |
+| Éxito | Guardamos la versión {n} de «{nombre}». Las llamadas ya validadas mantienen la versión con que se validaron. |
+| Archivar | ¿Archivar «{nombre}»? La IA deja de usarlo en validaciones nuevas. Las llamadas ya validadas lo siguen mostrando. Puedes reactivarlo cuando quieras. · Archivar · Cancelar |
+| Detalle de llamada | Ficha v{n} · Hay una versión más nueva de esta ficha (v{m}). Esta llamada se validó con la v{n}. |
+
+> En la UI no se usa "pauta" para el Excel de seguros: "pauta" son los 33 motivos (glosario `03` §4.2).
+
 ---
 
 ## 4. Textos legales en lenguaje claro (resúmenes)

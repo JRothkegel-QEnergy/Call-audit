@@ -1,6 +1,6 @@
 # Estado del proceso UX · Front de Call Audit
 
-- **Estado:** **proceso UX cerrado** (2026-10-16) · **Cambio 09 aprobado** (2026-10-19, `09-cambio-auditoria-ia.md` §0). Fases 0 a 8 aprobadas por Johannes. El diseño está listo para implementar en `frontend/`; los cambios posteriores pasan por la revisión rápida contra lo aprobado.
+- **Estado:** **proceso UX cerrado** (2026-10-16) · **Cambio 09 aprobado** (2026-10-19, `09-cambio-auditoria-ia.md` §0) · **Cambio 10 aprobado e implementado** (2026-10-19) · **Cambio 11 aprobado** (2026-10-22, `11-catalogo-seguros.md` §0: sección Seguros con permiso `manage_catalog`, carga de Excel con IA y confirmación humana, clave única nombre + aseguradora, versionado de fichas). Listo para implementar. Fases 0 a 8 aprobadas por Johannes. El diseño está listo para implementar en `frontend/`; los cambios posteriores pasan por la revisión rápida contra lo aprobado.
 - **Ubicación de los artefactos:** `call-audit/docs/ux/call-audit/` (dentro del repo, junto al resto de `docs/`).
 - **Aprueba los gates:** Johannes (D-04).
 
@@ -63,6 +63,13 @@
 | 2026-10-19 | D-24 · El auditor nunca ve el veredicto ni el comentario del cliente | Diseñador |
 | 2026-10-19 | D-25 · El veredicto del cliente es opcional: no viene / por llamada / por llamada + motivo; más un comentario opcional; el backend lo pasa si viene | Johannes |
 | 2026-10-19 | Cambio 10 (revisión rápida, `10-modo-real.md`): modo real aprobado con cambios; acciones sin backend se ocultan en vez de fallar; L-28 condiciona el uso con datos reales; nuevo L-33; adenda por L-34 (ayuda de la transcripción y nota del panel del modelo) | Diseñador; aprobado por Johannes (2026-10-19) e implementado |
+| 2026-10-22 | Cambio 11 (revisión rápida, `11-catalogo-seguros.md`): **aprobado**. Sección **Seguros** (supervisor), carga de Excel con extracción por IA y confirmación humana por seguro, clave única nombre + aseguradora (D-27), versionado de fichas y L-35 a L-39 | Diseñador; aprobado por Johannes (2026-10-22) |
+| 2026-10-22 | D-26 · Excel de formato variable con varios seguros por archivo: el flujo sirve para el estandarizado, uno por archivo y el formato de cada aseguradora | Johannes |
+| 2026-10-22 | D-27 · Clave única de un seguro: nombre normalizado (sin tildes, mayúsculas, espacios colapsados) + aseguradora. Coincide → "Ya existe" (sin cambios / con cambios / archivado) con comparación y decisión del supervisor (actualizar campo a campo o descartar). Póliza y nombres en sistema compartidos con otro seguro → solo advertencia "Posible duplicado", no bloquea. Ajusta la propuesta del diseñador (que usaba póliza + nombre en sistema como clave), porque el nombre solo se repite entre aseguradoras | Johannes; clave con aseguradora: diseñador |
+| 2026-10-22 | D-28 · Permiso `manage_catalog` por cuenta, lo activa Qubico; sin él no se ve "Seguros" (403 en la API). Sin rol nuevo | Johannes |
+| 2026-10-22 | D-29 · Una ficha nueva o editada aplica solo a validaciones futuras; cada validación guarda `productId` + versión de la ficha | Recomendación del diseñador aplicada (Johannes no respondió explícitamente) |
+| 2026-10-22 | D-30 · Toda la ficha es editable, con Identificación primero; cada guardado crea versión | Johannes |
+| 2026-10-22 | D-31 · Defaults D1–D8 del Cambio 11 aprobados; los 66 productos actuales se cargan como versión 1 y el worker lee el catálogo desde la base | Johannes |
 | 2026-10-14 | En los artefactos solo se usan métricas agregadas de las transcripciones reales; los prototipos usan contenido sintético (L-19) | Diseñador |
 
 ## Preguntas abiertas
@@ -79,3 +86,6 @@ Ninguna bloqueante.
 - Verificar la licencia del design system "Modernist" del zip (L-13).
 - ADR del prompt único vs las capas de `CLAUDE.md` (`pipeline-architect`, H-52).
 - L-28: no desplegar datos reales a externos sin enmascarado ni DPA.
+- L-36: confirmar contrato/NDA para enviar las condiciones comerciales del cliente al proveedor del LLM (Cambio 11).
+- H-65: anonimización del Excel antes del LLM sin enmascarar teléfonos de empresas (`privacy-reviewer`).
+- Cambio 11: antes de la carga inicial, verificar que los 66 productos no tengan claves nombre + aseguradora repetidas (§9.3).
