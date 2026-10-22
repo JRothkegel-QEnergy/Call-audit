@@ -7,6 +7,16 @@ Cada componente tiene además su propio historial detallado:
 - Prompt de verificación de afirmaciones: historial al final de `docs/layer2-claims-prompt.md`.
 - Diseño del front: `docs/ux/call-audit/estado.md` (fases y cambios aprobados).
 
+## 2026-10-22
+
+- **Catálogo de seguros versionado (Cambio 11)**, sección **Seguros** del supervisor con el permiso `manage_catalog`:
+  - Las fichas pasan de `data/catalog/products.json` a la base (`products`, `product_versions`). Cada guardado crea una versión; nada se sobrescribe ni se borra (se archiva). Los 66 seguros actuales entran como v1 (`python -m call_audit.catalog seed`).
+  - Clave única: nombre del seguro normalizado + aseguradora. La póliza y el nombre en sistema solo avisan "posible duplicado".
+  - Campos de la ficha: los de `products.json` más "Descripción para identificarlo" y "Información adicional" (lo del Excel que no calza en otro campo; se guarda y se muestra, no va al prompt). Esquema `catalog.schema` v1.0.0.
+  - Subir Excel: la IA (Gemini 3.8 Flash, prompt `catalog_extraction` v1.0.0) lista los seguros y extrae sus fichas de a 8; el supervisor revisa cada una (origen hoja/fila de cada campo, comparación Actual vs Propuesto) y decide. Duplicados, datos personales y campos obligatorios los revisan reglas, sin IA.
+  - El worker valida con la foto del catálogo vigente y guarda en cada validación la ficha y la versión usadas (`model_runs.catalog_refs`); el detalle de llamada muestra "Ficha v{n}".
+  - Pendiente legal antes de usarlo con Excel nuevos del cliente: L-36 (enviar condiciones comerciales al proveedor del LLM).
+
 ## 2026-10-21
 
 - **Pipeline automático** (`python -m call_audit.ingestion.pipeline`, servicio `worker` en el EC2, cada 15 min):

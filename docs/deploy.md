@@ -83,6 +83,16 @@ worker (EC2, cada 15 min) ──SFTP──> baja lo nuevo ──> Gemini ASR ─
 - **Ver qué hace:** `ssh -i .deploy/call-audit-admin.pem ec2-user@<IP> "cd /opt/call-audit && docker compose -f docker-compose.prod.yml logs -f worker"`. Los prompts y respuestas de cada pasada quedan en `/opt/call-audit/work/runs/`, y las fallas de ASR en `/opt/call-audit/work/asr_failures.json`.
 - **En local sin SFTP:** sin `SFTP_HOST`, lee de `PIPELINE_LOCAL_DIR` (audios y metadata en la raíz). Necesita `GEMINI_API_KEY` y `data/catalog/products.json`.
 
+## Catálogo de seguros (Cambio 11)
+
+- **Una vez, después del deploy que trae la migración 0002:** cargar los 66 seguros actuales como v1, desde el worker (tiene `products.json` en la imagen):
+  ```bash
+  ssh -i .deploy/call-audit-admin.pem ec2-user@<IP> "docker exec call-audit-worker-1 python -m call_audit.catalog seed --file data/catalog/products.json"
+  ```
+  Desde ahí el worker valida con el catálogo de la base; `products.json` queda solo como respaldo si la base está vacía.
+- **Permiso para gestionarlo** (solo supervisores): `python -m call_audit.admin grant --email <correo> --permission manage_catalog` (por el túnel al RDS, o con `docker exec call-audit-api-1 ...`).
+- Las cargas de Excel las procesa el worker cada 15 s; el Excel original queda en la base (`catalog_uploads.content`) hasta que se descarta la carga.
+
 **Bajar todo al terminar la calibración:** borrar el EC2, liberar la IP elástica y borrar el RDS (primero se quita
 `--deletion-protection`). Los audios quedan en S3, como antes.
 
