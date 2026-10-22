@@ -26,6 +26,19 @@ import type {
   Rubric,
   User,
 } from "./types";
+import type {
+  CatalogProduct,
+  CatalogUpload,
+  CatalogUploadSummary,
+  FieldChange,
+  ProductDetail,
+  ProductFilters,
+  ProductStatus,
+  ProductSummary,
+  ProductVersion,
+  UploadAction,
+  UploadItem,
+} from "./catalog-types";
 
 /**
  * Interfaz única entre el front y el backend.
@@ -95,6 +108,31 @@ export interface ApiClient {
     input: { classification: DiscrepancyClassification | null; criterionIds: number[]; note?: string },
   ): Promise<void>;
   setPresentation(caseId: string, presented: boolean): Promise<void>;
+
+  // Catálogo de seguros (Cambio 11 §9, permiso manage_catalog)
+  listProducts(filters?: ProductFilters): Promise<ProductSummary[]>;
+  getProduct(productId: string): Promise<ProductDetail>;
+  listProductVersions(productId: string): Promise<ProductVersion[]>;
+  getProductVersion(
+    productId: string,
+    version: number,
+  ): Promise<{ version: ProductVersion; product: CatalogProduct; changes: FieldChange[] }>;
+  updateProduct(productId: string, input: { product: CatalogProduct; baseVersion: number; note?: string }): Promise<ProductDetail>;
+  setProductStatus(productId: string, status: ProductStatus): Promise<void>;
+  restoreProductVersion(productId: string, version: number, note?: string): Promise<ProductDetail>;
+  uploadCatalog(file: File): Promise<{ uploadId: string }>;
+  listCatalogUploads(): Promise<CatalogUploadSummary[]>;
+  getCatalogUpload(uploadId: string): Promise<CatalogUpload>;
+  retryCatalogUpload(uploadId: string): Promise<void>;
+  updateUploadItem(uploadId: string, itemId: string, proposed: CatalogProduct): Promise<UploadItem>;
+  decideUploadItem(
+    uploadId: string,
+    itemId: string,
+    input: { action: UploadAction; fieldChoices?: Record<string, "keep" | "proposed">; note?: string; reason?: string },
+  ): Promise<UploadItem>;
+  createUploadItemsBatch(uploadId: string, itemIds: string[]): Promise<void>;
+  discardCatalogUpload(uploadId: string): Promise<void>;
+  getCatalogUploadFileUrl(uploadId: string): Promise<string>;
 
   // Registro de accesos (D-13, L-18)
   logAgentSearch(agentId: string): Promise<void>;

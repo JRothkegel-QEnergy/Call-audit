@@ -28,7 +28,7 @@ export type CaseStatus =
 export type Speaker = "agent" | "customer" | "other";
 
 /** Permisos por cuenta que activa Qubico. `view_model_io`: ver el panel "Prompt y respuesta del modelo" (D-22). */
-export type Permission = "view_model_io";
+export type Permission = "view_model_io" | "manage_catalog";
 
 export interface User {
   id: string;
@@ -186,12 +186,16 @@ export interface ProductSheet {
   insurer: string;
   /** Datos de esta llamada (enmascarados). */
   callData: { label: string; value: string }[];
-  category: "RETENIBLE" | "NO RETENIBLE" | "IRRENUNCIABLE";
+  category: string;
   categoryRule: string;
   premiumType: string;
   premiumRefund: string;
   withdrawal: string;
   coverages: { name: string; detail: string }[];
+  /** Catálogo versionado (Cambio 11): ficha y versión con que se validó la llamada, y la vigente hoy. */
+  catalogId?: string | null;
+  version?: number | null;
+  latestVersion?: number | null;
 }
 
 export interface CaseSummary {

@@ -8,6 +8,7 @@ import {
   History,
   Inbox,
   Keyboard,
+  FileSpreadsheet,
   LayoutDashboard,
   List,
   PanelLeft,
@@ -71,6 +72,10 @@ export function SidebarNav({
           { label: "Auditores", href: "/auditors", icon: ShieldCheck },
           { label: "Cola", href: "/queue", icon: List },
           { label: "Discrepancias", href: "/discrepancies", icon: GitCompareArrows },
+          // Cambio 11: solo con el permiso manage_catalog (D-28).
+          ...(user.permissions.includes("manage_catalog")
+            ? [{ label: "Seguros", href: "/catalog", icon: FileSpreadsheet }]
+            : []),
         ];
 
   const isActive = (it: Item) => {

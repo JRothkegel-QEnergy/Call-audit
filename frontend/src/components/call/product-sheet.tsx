@@ -4,6 +4,8 @@ import { PanelRight } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { ProductSheet as Sheet, ProductSheetSectionKey } from "@/lib/api/types";
+import type { ProductCategory } from "@/lib/api/catalog-types";
+import { CATEGORY_LABEL } from "@/lib/api/catalog-types";
 import { cn } from "@/lib/cn";
 
 function Section({
@@ -66,12 +68,20 @@ export function ProductSheetContent({
           </button>
         ))}
       </div>
+      {s.version ? (
+        <p className="help m-0 px-3 pt-2">
+          Ficha v{s.version}
+          {s.latestVersion && s.latestVersion > s.version
+            ? ` · Hay una versión más nueva de esta ficha (v${s.latestVersion}). Esta llamada se validó con la v${s.version}.`
+            : ""}
+        </p>
+      ) : null}
       <Section title="Datos de la llamada" rows={s.callData} highlighted={hl("call")} criterionId={criterionId} />
       <Section
         title="Categoría"
         rows={[
           { label: "Compañía", value: s.insurer },
-          { label: "Categoría", value: s.category === "RETENIBLE" ? "Retenible" : s.category === "NO RETENIBLE" ? "No retenible" : "Irrenunciable" },
+          { label: "Categoría", value: CATEGORY_LABEL[s.category as ProductCategory] ?? s.category },
           { label: "Regla", value: s.categoryRule },
         ]}
         highlighted={hl("category")}

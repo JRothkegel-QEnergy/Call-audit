@@ -619,6 +619,24 @@ export const mockApi: ApiClient = {
       if (d && d.classification === "ai_correct") d.presentation = presented ? "presented" : "pending";
     }, 120),
 
+  // Catálogo de seguros (Cambio 11): la demo con datos sintéticos no lo trae; solo existe contra la API real.
+  listProducts: async () => [],
+  getProduct: () => Promise.reject(new Error("not_available")),
+  listProductVersions: async () => [],
+  getProductVersion: () => Promise.reject(new Error("not_available")),
+  updateProduct: () => Promise.reject(new Error("not_available")),
+  setProductStatus: () => Promise.reject(new Error("not_available")),
+  restoreProductVersion: () => Promise.reject(new Error("not_available")),
+  uploadCatalog: () => Promise.reject(new Error("not_available")),
+  listCatalogUploads: async () => [],
+  getCatalogUpload: () => Promise.reject(new Error("not_available")),
+  retryCatalogUpload: () => Promise.reject(new Error("not_available")),
+  updateUploadItem: () => Promise.reject(new Error("not_available")),
+  decideUploadItem: () => Promise.reject(new Error("not_available")),
+  createUploadItemsBatch: () => Promise.reject(new Error("not_available")),
+  discardCatalogUpload: () => Promise.reject(new Error("not_available")),
+  getCatalogUploadFileUrl: () => Promise.reject(new Error("not_available")),
+
   logAgentSearch: (agentId) =>
     delay(() => {
       const st = load();

@@ -8,7 +8,8 @@ import type { QueueFilters, User } from "./types";
  * navegador ve un solo origen y la cookie de sesión no necesita CORS.
  *
  * Los errores se lanzan como `Error` con un código corto, igual que el mock: `unauthorized`, `forbidden`,
- * `not_found`, `conflict`, `not_available` (501) o `http_<status>`.
+ * `not_found`, `conflict`, `not_available` (501) o `http_<status>`. Si el backend manda un código propio en
+ * `detail` (ej. `duplicate_key`, `version_conflict` del catálogo), se usa ese.
  */
 
 const CODES: Record<number, string> = {
@@ -19,6 +20,16 @@ const CODES: Record<number, string> = {
   501: "not_available",
 };
 
+async function errorCode(response: Response): Promise<string> {
+  try {
+    const detail = ((await response.json()) as { detail?: unknown }).detail;
+    if (typeof detail === "string" && /^[a-z_]+$/.test(detail)) return detail;
+  } catch {
+    // sin cuerpo JSON: se usa el código por estado
+  }
+  return CODES[response.status] ?? `http_${response.status}`;
+}
+
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const response = await fetch(path, {
     method,
@@ -26,7 +37,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     headers: body === undefined ? undefined : { "Content-Type": "application/json" },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  if (!response.ok) throw new Error(CODES[response.status] ?? `http_${response.status}`);
+  if (!response.ok) throw new Error(await errorCode(response));
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
@@ -91,6 +102,46 @@ export const httpApi: ApiClient = {
   classifyDiscrepancy: (caseId, input) => post(`/api/discrepancies/${encodeURIComponent(caseId)}`, input),
   setPresentation: (caseId, presented) =>
     post(`/api/discrepancies/${encodeURIComponent(caseId)}/presentation`, { presented }),
+
+  listProducts: (f) =>
+    get(
+      `/api/catalog/products${query({
+        query: f?.query,
+        insurer: f?.insurer,
+        category: f?.category,
+        status: f?.status,
+        incomplete: f?.incomplete === undefined ? undefined : String(f.incomplete),
+      })}`,
+    ),
+  getProduct: (id) => get(`/api/catalog/products/${encodeURIComponent(id)}`),
+  listProductVersions: (id) => get(`/api/catalog/products/${encodeURIComponent(id)}/versions`),
+  getProductVersion: (id, version) => get(`/api/catalog/products/${encodeURIComponent(id)}/versions/${version}`),
+  updateProduct: (id, input) => request("PUT", `/api/catalog/products/${encodeURIComponent(id)}`, input),
+  setProductStatus: (id, status) => post(`/api/catalog/products/${encodeURIComponent(id)}/status`, { status }),
+  restoreProductVersion: (id, version, note) =>
+    post(`/api/catalog/products/${encodeURIComponent(id)}/versions/${version}/restore`, { note }),
+  uploadCatalog: async (file) => {
+    // Binario directo con el nombre en un encabezado: el backend no necesita multipart.
+    const response = await fetch("/api/catalog/uploads", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/octet-stream", "X-File-Name": encodeURIComponent(file.name) },
+      body: file,
+    });
+    if (!response.ok) throw new Error(await errorCode(response));
+    return (await response.json()) as { uploadId: string };
+  },
+  listCatalogUploads: () => get("/api/catalog/uploads"),
+  getCatalogUpload: (id) => get(`/api/catalog/uploads/${encodeURIComponent(id)}`),
+  retryCatalogUpload: (id) => post(`/api/catalog/uploads/${encodeURIComponent(id)}/retry`),
+  updateUploadItem: (id, itemId, proposed) =>
+    request("PUT", `/api/catalog/uploads/${encodeURIComponent(id)}/items/${encodeURIComponent(itemId)}`, { proposed }),
+  decideUploadItem: (id, itemId, input) =>
+    post(`/api/catalog/uploads/${encodeURIComponent(id)}/items/${encodeURIComponent(itemId)}/decision`, input),
+  createUploadItemsBatch: (id, itemIds) => post(`/api/catalog/uploads/${encodeURIComponent(id)}/batch`, { itemIds }),
+  discardCatalogUpload: (id) => post(`/api/catalog/uploads/${encodeURIComponent(id)}/discard`),
+  getCatalogUploadFileUrl: async (id) =>
+    (await get<{ url: string }>(`/api/catalog/uploads/${encodeURIComponent(id)}/file-url`)).url,
 
   logAgentSearch: (agentId) => post(`/api/access-log/agent-search/${encodeURIComponent(agentId)}`),
 
