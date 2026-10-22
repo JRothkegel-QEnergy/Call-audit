@@ -290,3 +290,19 @@ def test_v1_1_fields_are_stored_but_not_sent_to_prompt(db: sessionmaker[Session]
         snap = store.snapshot(session)
         assert snap["market_comparison"] == [{"Segmento": "Desempleo"}]
         assert not {"exclusions", "credit_rates", "max_age_by_term"} & set(snap["products"][0])
+
+
+def test_edit_keeps_nested_fields(api: TestClient) -> None:
+    """Regresión: las columnas de las tablas (prima UF, póliza/tabla, nota) viajan en camelCase y editar una no
+    borra las demás."""
+    with_premium = api.get("/api/catalog/products/P01").json()["product"] | {
+        "premiums": [{"plan": "Plan 1", "premiumUf": "0.27", "policyTable": "400", "note": "Básica + ahorro"}]
+    }
+    assert api.put("/api/catalog/products/P01", json={"product": with_premium, "baseVersion": 1}).status_code == 200
+    detail = api.get("/api/catalog/products/P01").json()
+    row = detail["product"]["premiums"][0]
+    assert row["premiumUf"] == "0.27" and "premium_uf" not in row
+    edited = detail["product"] | {"premiums": [row | {"premiumUf": "0,1350"}]}
+    assert api.put("/api/catalog/products/P01", json={"product": edited, "baseVersion": 2}).status_code == 200
+    row = api.get("/api/catalog/products/P01").json()["product"]["premiums"][0]
+    assert row == row | {"premiumUf": "0,1350", "policyTable": "400", "note": "Básica + ahorro"}

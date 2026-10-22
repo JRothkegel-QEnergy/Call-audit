@@ -56,12 +56,25 @@ def coerce(raw: dict) -> tuple[dict, list[str]]:
     return product, dropped
 
 
-def to_api(snake: dict) -> dict:
-    return {camel(k): v for k, v in snake.items()}
+def to_snake(name: str) -> str:
+    return re.sub(r"(?<=[a-z0-9])([A-Z])", lambda m: "_" + m.group(1).lower(), name)
+
+
+def _keys(value: Any, fn) -> Any:
+    """Convierte los nombres de campo en todos los niveles: también dentro de las tablas (primas, siniestros, ...)."""
+    if isinstance(value, dict):
+        return {fn(k): _keys(v, fn) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_keys(v, fn) for v in value]
+    return value
+
+
+def to_api(data: dict) -> dict:
+    return _keys(data, camel)
 
 
 def from_api(proposed: dict) -> dict:
-    return {SNAKE.get(k, k): v for k, v in proposed.items()}
+    return _keys(proposed, to_snake)
 
 
 def effective(item: dict) -> dict:
