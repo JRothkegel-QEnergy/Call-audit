@@ -77,7 +77,7 @@ worker (EC2, cada 15 min) ──SFTP──> baja lo nuevo ──> Gemini ASR ─
   Las grabaciones que ya estaban en la app se movieron sin gastar con `--adopt ../transcripts/asr_bench`: usa la transcripción del bench para su `.json`. Si S4P la cambia, el worker deja de conectarse hasta actualizarla. `--list` muestra qué ve en la carpeta sin procesar nada.
 - **Puesta en marcha** (una vez):
   1. Agregar `GEMINI_API_KEY` y las `SFTP_*` a `.deploy/server.env`. `deploy.sh` no despliega sin ellas.
-  2. Si el SFTP de S4P filtra por IP, pedir que habiliten la IP del EC2 (`HOST` en `.deploy/deploy.env`).
+  2. El security group `sftp-s4p-sg` del servidor SFTP solo abre el puerto 22 a IP puntuales: tiene que incluir la IP del EC2 (`HOST` en `.deploy/deploy.env`, hoy `54.232.204.96/32`, regla "call-audit worker", agregada el 2026-10-22).
   3. `bash scripts/deploy/aws_setup.sh`: le da al EC2 permiso de subir audios a S3.
   4. `bash scripts/deploy/deploy.sh`: construye y levanta también el worker.
 - **Ver qué hace:** `ssh -i .deploy/call-audit-admin.pem ec2-user@<IP> "cd /opt/call-audit && docker compose -f docker-compose.prod.yml logs -f worker"`. Los prompts y respuestas de cada pasada quedan en `/opt/call-audit/work/runs/`, y las fallas de ASR en `/opt/call-audit/work/asr_failures.json`.
