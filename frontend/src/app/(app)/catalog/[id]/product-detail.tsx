@@ -186,7 +186,7 @@ function Editor({
   };
 
   return (
-    <div className="grid gap-4 pb-24" style={{ scrollPaddingBottom: 96 }}>
+    <div className="grid gap-4">
       <p className="help m-0">Los cambios se usan desde la próxima validación.</p>
       <ProductForm value={value} onChange={onChange} />
       <div className="grid gap-1">
@@ -201,7 +201,7 @@ function Editor({
           onChange={(e) => setNote(e.target.value)}
         />
       </div>
-      <div className="fixed bottom-0 left-0 right-0 z-10 flex flex-wrap items-center gap-2 border-t border-border bg-card px-6 py-3">
+      <div className="sticky bottom-0 z-10 mt-4 flex flex-wrap items-center gap-2 rounded-t-lg border border-border bg-card px-4 py-3 shadow-md">
         {error && (
           <p role="alert" className="m-0 mr-auto font-medium text-[var(--fail-700,#b42318)]">
             {error}

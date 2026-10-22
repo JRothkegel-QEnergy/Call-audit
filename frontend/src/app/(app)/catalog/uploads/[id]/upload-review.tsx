@@ -141,7 +141,7 @@ export function UploadReview({ id }: { id: string }) {
                       }}
                     />
                   ) : (
-                    <div className="pb-24">
+                    <div>
                       <table className="tbl">
                         <thead>
                           <tr>
@@ -203,7 +203,7 @@ export function UploadReview({ id }: { id: string }) {
                         </tbody>
                       </table>
                       {open && (
-                        <div className="fixed bottom-0 left-0 right-0 z-10 flex flex-wrap items-center gap-2 border-t border-border bg-card px-6 py-3">
+                        <div className="sticky bottom-0 z-10 mt-4 flex flex-wrap items-center gap-2 rounded-t-lg border border-border bg-card px-4 py-3 shadow-md">
                           <Button variant="primary" disabled={!eligible.length} onClick={() => setBatchOpen(true)}>
                             Guardar {eligible.length} seguros nuevos
                           </Button>
@@ -352,7 +352,7 @@ function ItemReview({
 
   const m = live.match;
   return (
-    <div className="grid gap-3 pb-24">
+    <div className="grid gap-3">
       <div>
         <Button variant="ghost" size="sm" onClick={onBack}>
           <ArrowLeft size={14} aria-hidden />
@@ -413,7 +413,7 @@ function ItemReview({
         <ProductForm value={draft} onChange={setDraft} sources={live.fieldSources} missing={live.missingFields} reviews={reviews} />
       </fieldset>
       {!decided && open && (
-        <div className="fixed bottom-0 left-0 right-0 z-10 flex flex-wrap items-center gap-2 border-t border-border bg-card px-6 py-3">
+        <div className="sticky bottom-0 z-10 mt-4 flex flex-wrap items-center gap-2 rounded-t-lg border border-border bg-card px-4 py-3 shadow-md">
           {m.status === "new" ? (
             <Button variant="primary" loading={busy} onClick={() => void decide("create")}>
               Guardar como nuevo
