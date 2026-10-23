@@ -233,7 +233,7 @@ def discrepancies(session: DbSession, _: Supervisor):
                 "caseId": case.id,
                 "callId": case.call_id,
                 "callDate": case.call_date,
-                "agentName": case.agent.name,
+                "agentName": out.agent_name(case.agent.name),
                 "aiVerdict": run.verdict,
                 "clientVerdict": case.external_verdict,
                 "appAuditorVerdict": review.final_verdict if review else None,

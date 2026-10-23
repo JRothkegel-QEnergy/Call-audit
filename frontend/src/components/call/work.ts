@@ -1,4 +1,4 @@
-import type { CorrectionReason, Finding, ItemReview, Rubric, Verdict } from "@/lib/api/types";
+import type { CorrectionReason, Evidence, Finding, ItemReview, Rubric, Verdict } from "@/lib/api/types";
 
 /** Decisión en curso del auditor sobre un motivo (antes de guardar). */
 export interface ItemWork {
@@ -26,6 +26,11 @@ export const NO_FINDING: Omit<Finding, "criterionId"> = {
 
 export function findingFor(findings: Finding[], criterionId: number): Finding {
   return findings.find((f) => f.criterionId === criterionId) ?? { criterionId, ...NO_FINDING };
+}
+
+/** Todas las citas del hallazgo, en orden: la principal y las adicionales. */
+export function evidenceList(f: Finding): Evidence[] {
+  return f.evidence ? [f.evidence, ...(f.moreEvidence ?? [])] : [];
 }
 
 /** El motivo pide acción del auditor: la IA lo marcó Incumple o Dudoso (O-02, D-18). */

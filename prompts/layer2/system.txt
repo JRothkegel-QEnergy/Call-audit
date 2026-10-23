@@ -443,9 +443,12 @@ Y todos los motivos de renuncia que expresa el cliente. Luego compara con lo tip
      ESTE seguro. Si solo menciona de pasada otro seguro que no le cubrió algo, y su razón
      para este es la plata o no recordar por qué lo tiene, el motivo no calza: incumple.
    "Retracto" solo es válido si se cumplen sus condiciones (ver "Retracto").
-   Si incumple, completa "motivos_sugeridos" en la gestión de ese seguro: de 1 a 3 motivos
-   de la lista válida que sí calzan con lo que dijo el cliente, del más al menos adecuado,
-   cada uno con la frase textual del cliente que lo respalda. Si no incumple, déjalo vacío.
+   Si incumple, completa "motivos_sugeridos" en la gestión de ese seguro: AL MENOS 3 motivos
+   distintos de la lista válida que calcen mejor que el tipificado con lo que dijo el
+   cliente, del más al menos adecuado, cada uno con la frase textual del cliente que lo
+   respalda. Aunque el cliente dé una sola razón, varias categorías suelen caberle (ver los
+   ejemplos de arriba): sugiere igual 3, citando para cada una la frase de la que la
+   deduces. Nunca repitas el motivo tipificado. Si no incumple, déjalo vacío.
 19 Tipifica renuncia y por grabacion es retencion.
    Criterio: es un error muy común; revísalo siempre.
 24 Tipifica retencion y por grabacion es renuncia.

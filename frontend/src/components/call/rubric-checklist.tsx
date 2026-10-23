@@ -18,7 +18,7 @@ import { cn } from "@/lib/cn";
 import { mmss } from "@/lib/format";
 import { ITEM_VERDICT } from "@/lib/verdicts";
 import { NoteEditor, NoteList } from "./notes";
-import { type AddedFinding, type DetailMode, type ItemWork, finalVerdictOf, findingFor, isActionable } from "./work";
+import { type AddedFinding, type DetailMode, type ItemWork, evidenceList, finalVerdictOf, findingFor, isActionable } from "./work";
 
 interface Props {
   rubric: Rubric;
@@ -34,7 +34,7 @@ interface Props {
   supervisorEdit?: Record<number, "compliant" | "non_compliant">;
   editing?: boolean;
   onOnlyActionable: (v: boolean) => void;
-  onFocus: (criterionId: number) => void;
+  onFocus: (criterionId: number, evidenceIndex?: number) => void;
   onChoose: (criterionId: number, choice: ItemWork["choice"]) => void;
   onCorrection: (criterionId: number, reason: CorrectionReason, comment: string) => void;
   onCancelCorrection: (criterionId: number) => void;
@@ -124,6 +124,15 @@ export function RubricChecklist(props: Props) {
   );
 }
 
+function QuoteWarning() {
+  return (
+    <div className="my-1.5 flex items-start gap-1.5 rounded-sm border border-[var(--red-200)] bg-[var(--red-100)] px-2 py-1.5 text-xs text-[var(--red-800)]">
+      <AlertTriangle size={14} aria-hidden className="mt-px flex-none" />
+      Esta cita no aparece tal cual en la transcripción. Verifícala en el audio.
+    </div>
+  );
+}
+
 function SupportLine({ verdict, atMs }: { verdict: Verdict; atMs: number | null }) {
   if (verdict === "non_compliant")
     return (
@@ -206,41 +215,71 @@ function FindingItem(props: Props & { criterionId: number }) {
     );
   }
 
-  // Cumple sin foco: resumen corto, sin acción (D-18).
+  // Cumple sin foco: resumen corto, sin acción (D-18), con el porqué de la IA (Cambio 12). El auditor ve 2 líneas y el
+  // resto al "Revisar"; supervisor y solo lectura no tienen "Revisar", así que lo ven entero.
   if (!needs && !focused) {
+    const why = f.comment ? (
+      <p className={cn("m-0 mt-0.5 text-sm text-muted-foreground", mode === "auditor" && "line-clamp-2")}>
+        <span className="font-medium">Por qué:</span> {f.comment}
+      </p>
+    ) : null;
     return wrap(
       mode === "auditor" ? (
-        <div className="mb-1 mt-1.5 text-xs text-muted-foreground">
-          La IA propone: Cumple ·{" "}
-          <span title="Si no lo cambias, queda como aceptado sin cambios al guardar.">aceptado sin cambios al guardar</span> ·{" "}
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              props.onFocus(id);
-            }}
-          >
-            Revisar
-          </a>
-        </div>
-      ) : null,
+        <>
+          {why}
+          <div className="mb-1 mt-1.5 text-xs text-muted-foreground">
+            La IA propone: Cumple ·{" "}
+            <span title="Si no lo cambias, queda como aceptado sin cambios al guardar.">aceptado sin cambios al guardar</span> ·{" "}
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                props.onFocus(id);
+              }}
+            >
+              Revisar
+            </a>
+          </div>
+        </>
+      ) : (
+        why
+      ),
     );
   }
 
-  const evidence = f.evidence ? (
+  const quotes = evidenceList(f);
+  const evidence = quotes.length ? (
     <>
-      <Button variant="ghost" size="sm" onClick={() => props.onFocus(id)}>
-        <Play size={14} aria-hidden />
-        Ir a la evidencia · {mmss(f.evidence.startMs)}
-      </Button>
-      <div className="quote">“{f.evidence.quote}”</div>
-      {!f.evidence.quoteValidated && (
-        <div className="my-1.5 flex items-start gap-1.5 rounded-sm border border-[var(--red-200)] bg-[var(--red-100)] px-2 py-1.5 text-xs text-[var(--red-800)]">
-          <AlertTriangle size={14} aria-hidden className="mt-px flex-none" />
-          Esta cita no aparece tal cual en la transcripción. Verifícala en el audio.
+      {quotes.map((ev, i) => (
+        <div key={i}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => props.onFocus(id, i)}
+            aria-label={quotes.length > 1 ? `Ir a la evidencia ${i + 1} de ${quotes.length}, minuto ${mmss(ev.startMs)}` : undefined}
+          >
+            <Play size={14} aria-hidden />
+            Ir a la evidencia{quotes.length > 1 ? ` ${i + 1}` : ""} · {mmss(ev.startMs)}
+          </Button>
+          <div className="quote">“{ev.quote}”</div>
+          {!ev.quoteValidated && <QuoteWarning />}
         </div>
-      )}
+      ))}
     </>
+  ) : null;
+  const suggested = f.suggestedReasons?.length ? (
+    <div className="mt-1.5">
+      <div className="text-xs font-semibold text-muted-foreground">Motivos de renuncia que sugiere la IA</div>
+      <ol className="m-0 mt-1 grid list-decimal gap-1 pl-5 text-[13px]">
+        {f.suggestedReasons.map((s) => (
+          <li key={s.reason}>
+            <b className="font-medium">{s.reason}</b>
+            {s.quote && <div className="quote">“{s.quote}”</div>}
+            {s.quote && !s.quoteValidated && <QuoteWarning />}
+          </li>
+        ))}
+      </ol>
+    </div>
   ) : null;
   const comment =
     f.verdict === "uncertain" ? (
@@ -261,10 +300,12 @@ function FindingItem(props: Props & { criterionId: number }) {
         <>
           {evidence}
           {comment}
+          {suggested}
         </>
       ) : (
         <>
           {comment}
+          {suggested}
           {evidence}
         </>
       )}

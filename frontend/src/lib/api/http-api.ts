@@ -51,7 +51,7 @@ function query(params: Record<string, string | undefined>): string {
 }
 
 const filterQuery = (f?: QueueFilters) =>
-  query({ agentId: f?.agentId, engineVerdict: f?.engineVerdict, blockId: f?.blockId });
+  query({ agentId: f?.agentId, engineVerdict: f?.engineVerdict, blockId: f?.blockId, callId: f?.callId });
 
 export const httpApi: ApiClient = {
   login: (input) => {

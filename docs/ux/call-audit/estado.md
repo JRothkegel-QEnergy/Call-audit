@@ -70,6 +70,7 @@
 | 2026-10-22 | D-29 · Una ficha nueva o editada aplica solo a validaciones futuras; cada validación guarda `productId` + versión de la ficha | Recomendación del diseñador aplicada (Johannes no respondió explícitamente) |
 | 2026-10-22 | D-30 · Toda la ficha es editable, con Identificación primero; cada guardado crea versión | Johannes |
 | 2026-10-22 | D-31 · Defaults D1–D8 del Cambio 11 aprobados; los 66 productos actuales se cargan como versión 1 y el worker lee el catálogo desde la base | Johannes |
+| 2026-10-22 | Cambio 12 (revisión rápida): el ítem Cumple sin foco muestra el motivo de la IA. Bajo "No se detectó en la llamada" va "Por qué: {comment}" (texto secundario, 2 líneas con recorte visual; el texto completo queda en el DOM y se ve al enfocar con "Revisar"). Sin evidencia ni confianza sin foco. Igual en auditor, supervisor y solo lectura. Sin comentario, no se muestra la línea. Mantiene D-18 y HE-01 (H-49) | Diseñador; pedido de Johannes |
 | 2026-10-14 | En los artefactos solo se usan métricas agregadas de las transcripciones reales; los prototipos usan contenido sintético (L-19) | Diseñador |
 
 ## Preguntas abiertas

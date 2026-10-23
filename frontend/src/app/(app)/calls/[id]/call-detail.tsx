@@ -18,6 +18,7 @@ import {
   type ItemWork,
   actionableOrder,
   buildReviewItems,
+  evidenceList,
   finalVerdictOf,
   findingFor,
   pendingUncertain,
@@ -169,11 +170,14 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
     toast("Nota actualizada.");
   };
 
+  // Cita en foco dentro del hallazgo (un motivo puede traer varias, ej. cada objeción del motivo 3).
+  const [evidenceIdx, setEvidenceIdx] = useState(0);
   const focusItem = useCallback(
-    (criterionId: number | null | undefined) => {
+    (criterionId: number | null | undefined, evidenceIndex = 0) => {
       if (criterionId == null) return;
       setFocusId(criterionId);
-      const ev = findingFor(data.findings, criterionId).evidence;
+      setEvidenceIdx(evidenceIndex);
+      const ev = evidenceList(findingFor(data.findings, criterionId))[evidenceIndex];
       if (ev) setCurrentMs(Math.max(0, ev.startMs - 4000));
       scrollToItem(criterionId);
     },
@@ -195,7 +199,7 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
   }, [rubric, data.findings, work, added, pending]);
 
   const relevantSection = focusId != null ? rubric.criteria[focusId]?.productSheetSection : undefined;
-  const focusEvidence = focusId != null ? findingFor(data.findings, focusId).evidence : null;
+  const focusEvidence = focusId != null ? (evidenceList(findingFor(data.findings, focusId))[evidenceIdx] ?? null) : null;
   const markers = data.findings.filter((f) => f.verdict !== "compliant" && f.verdict !== "not_applicable");
   const back = BACK[from ?? ""] ?? (role === "supervisor" ? BACK.reviews : BACK.queue);
 
@@ -387,7 +391,7 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
         onTogglePlay={() => setPlaying((p) => !p)}
         onSeek={setCurrentMs}
         onRate={setRate}
-        onMarker={focusItem}
+        onMarker={(cid) => focusItem(cid)}
       />
 
       {/* Bajo 1280 px la ficha pasa a un panel lateral (05 §1.1). */}

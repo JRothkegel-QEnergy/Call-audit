@@ -3,8 +3,8 @@
 # Fuente única del system prompt. Cómo versionar y qué significa cada origen: prompts/layer2/README.md.
 # Después de editar: python scripts/prompt_bench/layer2_prompt.py build
 
-version: "2.9"
-date: "2026-10-20"
+version: "2.10"
+date: "2026-10-22"
 
 # Tipos de origen de cada regla. Cada entrada de "history" usa uno de estos.
 origins:
@@ -860,14 +860,18 @@ sections:
           ESTE seguro. Si solo menciona de pasada otro seguro que no le cubrió algo, y su razón
           para este es la plata o no recordar por qué lo tiene, el motivo no calza: incumple.
         "Retracto" solo es válido si se cumplen sus condiciones (ver "Retracto").
-        Si incumple, completa "motivos_sugeridos" en la gestión de ese seguro: de 1 a 3 motivos
-        de la lista válida que sí calzan con lo que dijo el cliente, del más al menos adecuado,
-        cada uno con la frase textual del cliente que lo respalda. Si no incumple, déjalo vacío.
+        Si incumple, completa "motivos_sugeridos" en la gestión de ese seguro: AL MENOS 3 motivos
+        distintos de la lista válida que calcen mejor que el tipificado con lo que dijo el
+        cliente, del más al menos adecuado, cada uno con la frase textual del cliente que lo
+        respalda. Aunque el cliente dé una sola razón, varias categorías suelen caberle (ver los
+        ejemplos de arriba): sugiere igual 3, citando para cada una la frase de la que la
+        deduces. Nunca repitas el motivo tipificado. Si no incumple, déjalo vacío.
       history:
         - {version: "1.1", origin: official_text, note: "Texto oficial de la Pauta de Calidad Actualizada."}
         - {version: "2.0", origin: client_feedback, note: "Basta con uno de los motivos."}
         - {version: "2.6", origin: client_feedback, note: "Más flexible: basta con que tenga sentido (reunión con Verónica). En v2.4 se marcaba en 29 a 34 de 100."}
         - {version: "2.8", origin: design, note: "Si incumple, sugiere de 1 a 3 motivos correctos, del más al menos adecuado, con la cita que los respalda (motivos_sugeridos), para que el auditor corrija la tipificación."}
+        - {version: "2.10", origin: design, note: "Pedido de Johannes (2026-10-22): si incumple, al menos 3 motivos sugeridos que calcen mejor que el tipificado, en vez de 1 a 3, para que el auditor tenga opciones al corregir la tipificación."}
         - {version: "2.8", origin: validation_feedback, note: "Auditoría manual: 'Disconformidad con coberturas' tipificado a una clienta que habló de su pensión baja y mencionó otro seguro de salud (230632); otras dos rechazadas por motivo mal tipificado (230196, 229864)."}
     - id: m19
       number: 19

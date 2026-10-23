@@ -27,6 +27,7 @@ import json
 import re
 import sys
 from collections import Counter
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -202,6 +203,29 @@ def hold_evidence(segments: list[dict] | None, turns: list[dict]) -> dict | None
     }
 
 
+# Motivo 18 (motivo de renuncia tipificado incorrecto): desde v2.8 la IA sugiere los motivos que sí calzan.
+SUGGESTED_REASONS_CRITERION = 18
+
+
+def suggested_reasons(audit: dict, transcript_text: str, show: Callable[[str], str]) -> list[dict]:
+    """gestiones[].motivos_sugeridos de todas las gestiones, sin repetir motivo y en el orden de la IA."""
+    out: list[dict] = []
+    for g in audit.get("gestiones") or []:
+        for s in g.get("motivos_sugeridos") or []:
+            reason = str(s.get("motivo") or "").strip()
+            if not reason or any(o["reason"] == reason for o in out):
+                continue
+            quote = str(s.get("cita") or "")
+            out.append(
+                {
+                    "reason": reason,
+                    "quote": show(quote),
+                    "quoteValidated": real_calls.quote_found(quote, transcript_text),
+                }
+            )
+    return out
+
+
 def findings_from(
     audit: dict,
     transcript_text: str,
@@ -210,37 +234,44 @@ def findings_from(
     unmask: Unmasker | None = None,
     hold: dict | None = None,
 ) -> list[dict]:
-    """La cita se valida contra lo que vio el modelo (enmascarado) y después se muestra con el texto original."""
+    """La cita se valida contra lo que vio el modelo (enmascarado) y después se muestra con el texto original.
+    `evidence` es la primera cita; `moreEvidence`, las demás (desde v2.8 el motivo 3 lista cada objeción)."""
     show = unmask or (lambda text: text)
+
+    def evidence_of(q: dict) -> dict:
+        start = mmss_to_ms(q.get("t"))
+        return {
+            "quote": show(q.get("cita", "")),
+            "startMs": start,
+            "endMs": start + 5000,
+            "quoteValidated": real_calls.quote_found(q.get("cita", ""), transcript_text),
+        }
+
     findings = []
     for c in audit.get("criterios", []):
         cid = c.get("id")
         if cid not in rubric.criteria or cid == 1:
             continue
-        evidence = None
-        quotes = c.get("evidencia") or []
-        if quotes:
-            q = quotes[0]
-            start = mmss_to_ms(q.get("t"))
-            evidence = {
-                "quote": show(q.get("cita", "")),
-                "startMs": start,
-                "endMs": start + 5000,
-                "quoteValidated": real_calls.quote_found(q.get("cita", ""), transcript_text),
-            }
+        quotes = [evidence_of(q) for q in c.get("evidencia") or []]
+        evidence = quotes[0] if quotes else None
         verdict = STATES.get(c.get("estado", ""), "uncertain")
         # Regla 4 del proyecto: una cita que no aparece en la transcripción deja el ítem dudoso.
         if evidence and not evidence["quoteValidated"] and verdict == "non_compliant":
             verdict = "uncertain"
-        findings.append(
-            {
-                "criterionId": cid,
-                "verdict": verdict,
-                "confidence": float(c.get("confianza") or 0),
-                "evidence": evidence,
-                "comment": show(c.get("comentario", "")),
-            }
-        )
+        finding = {
+            "criterionId": cid,
+            "verdict": verdict,
+            "confidence": float(c.get("confianza") or 0),
+            "evidence": evidence,
+            "comment": show(c.get("comentario", "")),
+        }
+        if len(quotes) > 1:
+            finding["moreEvidence"] = quotes[1:]
+        if cid == SUGGESTED_REASONS_CRITERION and verdict != "compliant":
+            suggested = suggested_reasons(audit, transcript_text, show)
+            if suggested:
+                finding["suggestedReasons"] = suggested
+        findings.append(finding)
     # Motivo 1 en código (holds_sec contra el umbral de la rúbrica), igual que el veredicto del bench.
     longest = max(holds or [0])
     over = longest > rubric.hold_limit_sec

@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { CallSearch } from "@/components/call-search";
 import { EmployeeCombobox } from "@/components/employee-combobox";
 import { WelcomeCard } from "@/components/welcome-card";
 import { useNavCounts } from "@/components/shell/nav-counts";
@@ -31,6 +32,7 @@ export function QueueView() {
     agentId: params.get("agent") ?? undefined,
     engineVerdict: (params.get("verdict") as CallVerdict | "sample" | null) ?? undefined,
     blockId: params.get("block") ?? undefined,
+    callId: params.get("call") ?? undefined,
   };
   const rubric = useRubric();
   const agents = useAsync(() => api.listAgents(), []);
@@ -45,6 +47,8 @@ export function QueueView() {
   };
 
   const clearAgent = () => setParam("agent", null);
+
+  const clearCall = () => setParam("call", null);
 
   const takeNext = async () => {
     setTaking(true);
@@ -64,7 +68,7 @@ export function QueueView() {
   const currentAgent = filters.agentId
     ? (agents.data?.find((a) => a.id === filters.agentId)?.name ?? "ejecutivo seleccionado")
     : null;
-  const hasFilters = !!(filters.agentId || filters.engineVerdict || filters.blockId);
+  const hasFilters = !!(filters.agentId || filters.engineVerdict || filters.blockId || filters.callId);
 
   // Fin de jornada: la cola completa está vacía (no solo por los filtros).
   if (!readOnly && data && data.total === 0) return <EndOfDay />;
@@ -102,6 +106,7 @@ export function QueueView() {
             void api.logAgentSearch(a.id);
           }}
         />
+        <CallSearch value={filters.callId} onChange={(v) => setParam("call", v)} />
         <select
           className="control"
           aria-label="Decisión del motor"
@@ -111,7 +116,7 @@ export function QueueView() {
           <option value="">Decisión: todas</option>
           <option value="non_compliant">No cumple</option>
           <option value="uncertain">Dudosa</option>
-          <option value="sample">Muestra cumple</option>
+          <option value="compliant">Cumple</option>
         </select>
         <select
           className="control"
@@ -138,6 +143,14 @@ export function QueueView() {
             </button>
           </span>
         )}
+        {filters.callId && (
+          <span className="chip">
+            Llamada: {filters.callId}
+            <button type="button" aria-label="Quitar filtro de llamada" onClick={clearCall}>
+              <X size={14} aria-hidden />
+            </button>
+          </span>
+        )}
       </div>
       <p className="help -mt-1 mb-3">Las búsquedas por ejecutivo quedan registradas.</p>
 
@@ -152,6 +165,13 @@ export function QueueView() {
               Ver toda la cola
             </Button>
             <Button onClick={() => void queue.reload()}>Mantener filtro</Button>
+          </EmptyState>
+        ) : filters.callId && !filters.engineVerdict && !filters.blockId ? (
+          <EmptyState
+            title={`No hay casos pendientes con la llamada ${filters.callId}.`}
+            body="Puede que ya esté revisada o que el ID no exista."
+          >
+            <Button onClick={() => router.replace("/queue")}>Limpiar filtros</Button>
           </EmptyState>
         ) : (
           <EmptyState title="No hay casos con estos filtros." body="Prueba con otros filtros.">

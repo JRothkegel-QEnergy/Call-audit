@@ -1,7 +1,9 @@
 "use client";
 
-import { History } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { History, X } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { CallSearch } from "@/components/call-search";
 import { CallVerdictBadge, StatusBadge } from "@/components/ui/badges";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -28,7 +30,18 @@ function StatusCell({ status }: { status: CaseStatus }) {
 }
 
 export default function MyReviewsPage() {
+  return (
+    <Suspense>
+      <MyReviewsView />
+    </Suspense>
+  );
+}
+
+function MyReviewsView() {
   const router = useRouter();
+  const params = useSearchParams();
+  const callId = params.get("call") ?? undefined;
+  const setCall = (v: string | null) => router.replace(`/my-reviews${v ? `?call=${v}` : ""}`);
   const rows = useAsync(() => api.listMyReviews(), []);
   return (
     <>
@@ -36,13 +49,32 @@ export default function MyReviewsPage() {
         title="Mis revisiones"
         description="Los casos reabiertos aparecen primero. Puedes editar una revisión mientras el supervisor no la apruebe."
       />
+      <div className="mb-3 flex flex-wrap items-center gap-2" role="search">
+        <CallSearch value={callId} onChange={setCall} />
+        {callId && (
+          <span className="chip">
+            Llamada: {callId}
+            <button type="button" aria-label="Quitar filtro de llamada" onClick={() => setCall(null)}>
+              <X size={14} aria-hidden />
+            </button>
+          </span>
+        )}
+      </div>
       <AsyncView state={rows} what="tus revisiones">
-        {(data) =>
-          data.length === 0 ? (
+        {(all) => {
+          const data = callId ? all.filter((r) => r.callId.startsWith(callId)) : all;
+          return all.length === 0 ? (
             <EmptyState title="Aún no tienes revisiones." body="Empieza desde la Cola.">
               <Button variant="primary" onClick={() => router.push("/queue")}>
                 Ir a la Cola
               </Button>
+            </EmptyState>
+          ) : data.length === 0 ? (
+            <EmptyState
+              title={`No tienes revisiones de la llamada ${callId}.`}
+              body="Si está pendiente, búscala en la Cola."
+            >
+              <Button onClick={() => setCall(null)}>Limpiar filtro</Button>
             </EmptyState>
           ) : (
             <table className="tbl">
@@ -60,7 +92,13 @@ export default function MyReviewsPage() {
                   const editable = r.status === "awaiting_approval" || r.status === "reopened";
                   const open = () => router.push(`/calls/${r.caseId}?from=my-reviews`);
                   return (
-                    <tr key={r.caseId} className="clickable" onClick={open} tabIndex={0} onKeyDown={(e) => e.key === "Enter" && open()}>
+                    <tr
+                      key={r.caseId}
+                      className="clickable"
+                      onClick={open}
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === "Enter" && open()}
+                    >
                       <td className="tabular font-semibold">{r.callId}</td>
                       <td className="tabular">{shortDateTime(r.submittedAt)}</td>
                       <td>
@@ -81,8 +119,8 @@ export default function MyReviewsPage() {
                 })}
               </tbody>
             </table>
-          )
-        }
+          );
+        }}
       </AsyncView>
     </>
   );

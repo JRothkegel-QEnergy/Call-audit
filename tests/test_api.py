@@ -27,6 +27,15 @@ def test_queue_puts_rejections_first(client: TestClient, users: dict[str, User])
     filtered = client.get("/api/queue", params={"engineVerdict": "compliant"}).json()
     assert len(filtered["rows"]) == 1
     assert filtered["total"] == 3
+    by_call = client.get("/api/queue", params={"callId": rows[0]["callId"]}).json()
+    assert [r["callId"] for r in by_call["rows"]] == [rows[0]["callId"]]
+
+
+def test_agent_name_is_shown_as_first_and_last_name() -> None:
+    from call_audit.api.serializers import agent_name
+
+    assert agent_name("KARINA.RECABARREN") == "Karina Recabarren"
+    assert agent_name("ROBERTO.ZUÑIGA") == "Roberto Zuñiga"
 
 
 def test_auditor_never_sees_client_verdict_or_model_io(client: TestClient, users: dict[str, User]) -> None:

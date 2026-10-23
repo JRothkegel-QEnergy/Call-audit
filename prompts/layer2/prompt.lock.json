@@ -1,6 +1,6 @@
 {
-  "version": "2.9",
-  "system_sha256": "83012c7beb4eb9a3",
+  "version": "2.10",
+  "system_sha256": "390bd798a5d8d620",
   "fingerprints": {
     "intro": "f04b2405f4f4b55d",
     "d_policies": "d4143b42742d664f",
@@ -62,7 +62,7 @@
     "m11": "a5824e524fca480c",
     "m10": "21ad171be10114a7",
     "outcomes": "14f884fa1473a339",
-    "m18": "1a6c7fd11caf5865",
+    "m18": "500e4a6a72eb9233",
     "m19": "1d570f7afd7b773f",
     "m24": "899e3ce9f09f49f7",
     "m20": "a7fa96c53d927b82",
@@ -71,7 +71,7 @@
     "m23": "b194f18dd3e11163",
     "m25": "91b6beb74ccc5f34",
     "renunciation_reasons": "51efae8f6603c519",
-    "schema": "5dfaf986c56f435d",
+    "schema": "34c441956fc3b385",
     "json_output_instruction": "e10fceee0f08b1d4"
   }
 }

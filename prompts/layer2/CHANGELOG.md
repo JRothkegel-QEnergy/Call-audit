@@ -4,6 +4,12 @@ Una entrada por versión de `prompt.yaml`, con el porqué del cambio (métricas,
 
 El esquema de salida (`schema.json`) y la instrucción JSON se versionan junto con el prompt.
 
+**2.10 (2026-10-22)**, pedido de Johannes para el motivo 18:
+
+- **Motivo 18:** si incumple, `motivos_sugeridos` trae **al menos 3** motivos distintos de la lista válida que calcen mejor que el tipificado, del más al menos adecuado, cada uno con la frase del cliente que lo respalda (antes, de 1 a 3). Nunca repite el motivo tipificado.
+- **Esquema:** `motivos_sugeridos.maxItems` sube de 3 a 5. No lleva `minItems` porque el campo va vacío cuando el 18 cumple.
+- Sin medir todavía.
+
 **2.9 (2026-10-20)**, criterio de Johannes para el motivo 32 tras medir v2.8:
 
 - **Motivo 32:** una coletilla ("¿verdad?", "¿correcto?") o una frase que da la decisión por tomada se juzga según el momento de la llamada.

@@ -83,11 +83,44 @@
   .levenote { font-size: 13px; margin: 6px 0; }
   .mk { font-weight: 700; font-size: 12px; }
   .mk.hit { color: var(--good-ink); } .mk.miss { color: var(--crit-ink); }
-  /* Butterfly */
-  .bf { width: 100%; }
-  .bf text { fill: var(--text-2); font-size: 11px; }
-  .bf .lbl { fill: var(--text); }
-  .bf rect.hit { fill: transparent; cursor: default; }
+  /* Calce IA vs cliente */
+  .hero { margin: 8px 0 4px; }
+  .hero h2 { font-size: 20px; margin: 4px 0 6px; }
+  .hero .lead { font-size: 15px; margin: 0 0 6px; max-width: 1000px; }
+  .ctrl { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 14px 0; }
+  .ctrl .lbl { font-size: 12px; color: var(--text-2); margin: 0 4px 0 10px; }
+  .ctrl .lbl:first-child { margin-left: 0; }
+  .btn.pill { border-radius: 999px; }
+  .two { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); margin-bottom: 12px; }
+  .card > h3 { font-size: 15px; margin: 2px 0 4px; }
+  .card > .note { margin-bottom: 14px; }
+  .bars .row { display: grid; grid-template-columns: 160px 1fr 200px; gap: 10px; align-items: center; height: 32px; }
+  .bars .name { text-align: right; font-size: 13px; }
+  .bars .track { position: relative; height: 20px; background: repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px 25%); border-left: 1px solid var(--axis); }
+  .bars .fill { height: 100%; border-radius: 0 4px 4px 0; }
+  .bars .goal { position: absolute; top: -5px; bottom: -5px; border-left: 2px dashed var(--text-2); }
+  .bars .val { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text-2); }
+  .bars .val b { color: var(--text); font-size: 13px; }
+  .bars .ticks { display: grid; grid-template-columns: 160px 1fr 200px; gap: 10px; font-size: 11px; color: var(--muted); }
+  .bars .ticks div:nth-child(2) { display: flex; justify-content: space-between; }
+  .mats { display: grid; gap: 14px 18px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .mats .cm td.cell { font-size: 13px; padding: 6px 2px; }
+  .mats .sub { font-size: 12px; color: var(--text-2); margin-top: 4px; line-height: 1.5; }
+  .ok-ink { color: var(--good-ink); } .bad-ink { color: var(--crit-ink); }
+  .hm { border-collapse: separate; border-spacing: 3px 2px; width: 100%; font-size: 12px; }
+  .hm th, .hm td { border: 0; padding: 0 4px; }
+  .hm th { text-align: center; font-size: 11px; white-space: normal; line-height: 1.25; vertical-align: bottom; padding-bottom: 4px; }
+  .hm th.grp { font-size: 12px; color: var(--text); border-bottom: 1px solid var(--axis); padding: 4px 0; }
+  .hm td.cid { white-space: nowrap; color: var(--text-2); text-align: left; padding-right: 8px; max-width: 320px; overflow: hidden; text-overflow: ellipsis; }
+  .hm td.cell { text-align: center; font-variant-numeric: tabular-nums; border-radius: 3px; height: 22px; min-width: 44px; }
+  .hm td.best { box-shadow: inset 0 0 0 2px var(--text); }
+  .hm td.gap { width: 14px; padding: 0; }
+  .tag { font-size: 10px; font-weight: 600; color: var(--muted); border: 1px solid var(--border); border-radius: 3px; padding: 0 4px; margin-left: 4px; }
+  .map { width: 100%; display: block; }
+  .map text { fill: var(--text-2); font-size: 9px; }
+  .map rect[data-s] { cursor: pointer; }
+  .gloss { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; font-size: 13px; margin: 0; }
+  .gloss dt { font-weight: 600; } .gloss dd { margin: 0; color: var(--text-2); }
   .legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-2); margin: 4px 0 8px; flex-wrap: wrap; }
   .legend span { display: inline-flex; align-items: center; gap: 5px; }
   .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
@@ -122,6 +155,38 @@
   .turn .who { font-weight: 600; font-size: 11px; color: var(--text-2); }
   .turn.agent .who { color: var(--accent); }
   kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--border); border-radius: 3px; padding: 0 4px; }
+  /* Segunda opinión Jev (docs/ux/calce-ia-vs-humano/jev-segunda-opinion/07-especificacion.md) */
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .jev { margin: 8px 0 4px 14px; padding: 8px 10px; border-left: 3px solid var(--text-2); background: var(--raised); border-radius: 0 6px 6px 0; }
+  .jev h4 { font-size: 12px; margin: 0 0 6px; color: var(--text-2); }
+  .jev fieldset { border: 0; padding: 0; margin: 0 0 8px; }
+  .jev legend { font-size: 13px; font-weight: 600; padding: 0; margin-bottom: 4px; }
+  .jev .opts { display: flex; gap: 6px; flex-wrap: wrap; }
+  .jev .opts label { display: inline-flex; align-items: center; gap: 5px; min-height: 28px; padding: 2px 10px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 13px; }
+  .jev .opts label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+  .jev .opts input { margin: 0; width: 16px; height: 16px; }
+  .jgrid { width: auto; font-size: 12px; margin: 4px 0; }
+  .jgrid caption { text-align: left; font-size: 12px; color: var(--text-2); padding-bottom: 4px; }
+  .jgrid th, .jgrid td { border-bottom: 0; padding: 3px 6px; }
+  .jgrid .chip { font-size: 12px; font-variant-numeric: tabular-nums; }
+  .jgrid .chip.near { outline: 1px dashed currentColor; outline-offset: -1px; }
+  .jgrid td.main .chip { font-weight: 800; }
+  .jev .leg, .jev .hit { font-size: 11px; color: var(--text-2); margin: 4px 0; }
+  .jvt tr.dim th, .jvt tr.dim td { color: var(--text-2); font-weight: 400; }
+  .jvt th[scope="rowgroup"] { color: var(--text); font-size: 12px; padding-top: 12px; border-bottom: 1px solid var(--axis); white-space: normal; }
+  .jvt th[scope="row"] { color: var(--text); font-weight: 400; }
+  .jvt .err { color: var(--crit-ink); font-weight: 700; }
+  .jev details summary { font-size: 12px; margin: 6px 0; }
+  .jprobs th[scope="rowgroup"] { text-align: left; color: var(--text-2); font-weight: 600; padding-top: 6px; }
+  .jprobs td.n { text-align: right; }
+  .jpsels { display: flex; gap: 14px; flex-wrap: wrap; margin: 4px 0; }
+  .jpsel { border: 0; padding: 0; margin: 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12px; }
+  .jpsel legend { float: left; font-weight: 600; color: var(--text-2); margin-right: 4px; padding: 0; }
+  .jpsel label { display: inline-flex; align-items: center; gap: 4px; min-height: 24px; cursor: pointer; }
+  .jphead { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 12px; }
+  .jpre { white-space: pre-wrap; max-height: 320px; overflow: auto; font: 12px/1.45 ui-monospace, Consolas, monospace; background: var(--page); border: 1px solid var(--grid); border-radius: 6px; padding: 8px; margin: 4px 0; }
+  .jopts { margin: 2px 0 6px 18px; padding: 0; font-size: 12px; color: var(--text-2); }
+  .jopts code { font: 12px ui-monospace, Consolas, monospace; color: var(--text); }
   @media (max-width: 900px) { .review { grid-template-columns: 1fr; } .detail { position: static; max-height: none; } .list { max-height: 50vh; } .tiles { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
@@ -157,134 +222,281 @@ let version = D.versions[0];
 $("#ver").innerHTML = D.versions.map((v) => `<option>${esc(v)}</option>`).join("");
 $("#hdrnote").textContent = `${D.calls.length} llamadas · modelos: ${D.models.map(lab).join(", ")}`;
 
-// ---------- Estadísticas ----------
-function stats(model, ver) {
-  const s = { n: 0, hit: 0, fa: 0, faLeve: 0, om: 0, rev: 0, err: 0, cost: 0, costN: 0, lat: 0, latN: 0, rHit: 0, aHit: 0, cm: { APROBADA: {}, RECHAZADA: {} } };
-  for (const c of D.calls) {
-    const r = c.results[ver]?.[model];
-    if (!r || !r.verdict) continue;
-    s.n++;
-    if (r.cost != null) { s.cost += r.cost; s.costN++; }
-    if (r.latency != null) { s.lat += r.latency; s.latN++; }
-    s.cm[c.real][r.verdict] = (s.cm[c.real][r.verdict] || 0) + 1;
-    if (r.verdict === "ERROR") s.err++;
-    else if (r.verdict === "DUDOSA") s.rev++;
-    else if (r.verdict === c.real) { s.hit++; c.real === "RECHAZADA" ? s.rHit++ : s.aHit++; }
-    else if (r.verdict === "RECHAZADA") { s.fa++; s.faLeve += isLeve(r); }
-    else s.om++;
-  }
-  return s;
-}
 const realCount = { APROBADA: D.calls.filter((c) => c.real === "APROBADA").length, RECHAZADA: D.calls.filter((c) => c.real === "RECHAZADA").length };
 
-function renderDash() {
-  const models = D.models.filter((m) => D.calls.some((c) => c.results[version]?.[m]?.verdict));
-  let h = `<p class="note">Comparación de cada IA con el <b>ESTADO_CALIDAD</b> del Excel (${realCount.APROBADA} APROBADA, ${realCount.RECHAZADA} RECHAZADA). `
-    + `La IA rechaza si marca al menos un motivo <i>incumple</i> (REC* si todos son leves: conviene revisarlo); queda <b>por revisar</b> si solo hay motivos <i>indeterminado</i> o no encontró información del seguro.</p>`;
+// ---------- Calce IA vs cliente ----------
+// Referencia: ESTADO_CALIDAD del Excel y, si las trae, las 33 columnas CUMPLE / NO CUMPLE por criterio (client_bad).
+// En las APROBADA todos los criterios se cumplen, así que un criterio marcado es falsa alarma. En las RECHAZADA sin
+// columnas por criterio solo se mide el veredicto de la llamada y los criterios marcados se muestran como descripción.
+const META = { fa: 0.05, om: 0.2 }; // docs/context.md: hasta 5 % de falsos positivos y 20 % de falsos negativos
+const HOLD_BY_CODE = D.hold_by_code ?? true;
+const TIPIF = [19, 20, 21, 22, 23, 24, 25];
+const unevaluable = (c) => new Set(c.unevaluable || (c.typification ? [] : TIPIF));
+// Criterios que el cliente marcó NO CUMPLE; null si no se sabe (rechazada sin columnas por criterio).
+const clientBad = (c) => c.client_bad ? new Set(c.client_bad) : c.real === "APROBADA" ? new Set() : null;
+const HAS_REF = D.calls.some((c) => c.real === "RECHAZADA" && c.client_bad);
+const NO_REF = D.calls.some((c) => !clientBad(c));
+const UI = { metric: "bal", revAsRej: true, k: 2, mapSeries: null };
+try { Object.assign(UI, JSON.parse(localStorage.getItem("l2-calce") || "{}")); } catch {}
+const saveUi = () => { try { localStorage.setItem("l2-calce", JSON.stringify(UI)); } catch {} };
+const p0 = (v) => v == null || isNaN(v) ? "—" : Math.round(100 * v) + "%";
+const p1 = (v) => v == null || isNaN(v) ? "—" : (100 * v).toLocaleString("es-CL", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
+const METRICS = {
+  bal: { name: "Calce equilibrado", val: (s) => (s.det + 1 - s.fa) / 2, hi: true },
+  det: { name: "Detección de rechazadas", val: (s) => s.det, hi: true, goal: 1 - META.om },
+  fa: { name: "Falsas alarmas", val: (s) => s.fa, hi: false, goal: META.fa },
+  agree: { name: "Concordancia simple", val: (s) => s.agree, hi: true },
+};
 
-  // Tiles
-  h += `<div class="grid">` + models.map((m) => {
-    const s = stats(m, version), per = s.costN ? s.cost / s.costN : null;
-    return `<div class="card"><div class="model-head"><span class="dot" style="background:${COLOR[m]}"></span>${esc(lab(m))}</div>
-      <div class="tiles">
-        <div class="tile"><div class="v">${pct(s.hit, s.n)}</div><div class="l">coincide con el Excel</div><div class="s">${s.hit} de ${s.n}</div></div>
-        <div class="tile"><div class="v">${s.fa}</div><div class="l">falsas alarmas</div><div class="s">IA rechaza, Excel aprueba${s.faLeve ? `<br>${s.faLeve} solo por motivos leves` : ""}</div></div>
-        <div class="tile"><div class="v">${s.om}</div><div class="l">omisiones</div><div class="s">IA aprueba, Excel rechaza</div></div>
-        <div class="tile"><div class="v">${s.rev}</div><div class="l">por revisar</div><div class="s">${s.err ? s.err + " con error" : "irían a un auditor"}</div></div>
-        <div class="tile"><div class="v">${fmtUsd(per, 3)}</div><div class="l">costo por llamada</div><div class="s">${per != null ? "~" + fmtUsd(per * D.monthly_calls, 0) + "/mes a " + D.monthly_calls.toLocaleString("es-CL") : ""}</div></div>
-        <div class="tile"><div class="v">${s.latN ? Math.round(s.lat / s.latN / 1000) + " s" : "—"}</div><div class="l">latencia promedio</div><div class="s">por llamada</div></div>
-      </div></div>`;
-  }).join("") + `</div>`;
-
-  // Matrices de confusión
-  h += `<h2>Excel vs. IA</h2><p class="note">Filas: lo que dice el Excel. Columnas: lo que dijo la IA. Las celdas Excel APROBADA × IA APROBADA y Excel RECHAZADA × IA RECHAZADA son aciertos; el color es solo la cantidad.</p><div class="grid">`
-    + models.map((m) => {
-      const s = stats(m, version), cols = ["APROBADA", "RECHAZADA", "DUDOSA"];
-      const max = Math.max(1, ...["APROBADA", "RECHAZADA"].flatMap((r) => cols.map((c) => s.cm[r][c] || 0)));
-      const cell = (r, c) => { const v = s.cm[r][c] || 0, k = Math.ceil((v / max) * 4); return `<td class="cell" style="background:var(--seq-${v ? k : 0});color:var(--seq-ink-${v ? k : 0})" data-tip="Excel ${r} · IA ${SHOW[c]}: ${v} llamadas">${v}</td>`; };
-      return `<div class="card"><div class="model-head"><span class="dot" style="background:${COLOR[m]}"></span>${esc(lab(m))}</div>
-        <table class="cm"><tr><th class="row"></th>${cols.map((c) => `<th>IA<br>${SHOW[c].toLowerCase()}</th>`).join("")}</tr>
-        ${["APROBADA", "RECHAZADA"].map((r) => `<tr><th class="row">Excel<br>${r.toLowerCase()}</th>${cols.map((c) => cell(r, c)).join("")}</tr>`).join("")}</table></div>`;
-    }).join("") + `</div>`;
-
-  // Versiones
-  if (D.versions.length > 1) {
-    h += `<h2>Comparación entre versiones del prompt</h2><div class="card wrap"><table><thead><tr><th>IA</th><th>Versión</th><th class="n">Coinciden</th><th class="n">RECHAZADA detectadas</th><th class="n">APROBADA detectadas</th><th class="n">Falsas alarmas</th><th class="n">Omisiones</th><th class="n">Por revisar</th><th class="n">Costo total</th></tr></thead><tbody>`;
-    for (const m of D.models) {
-      const base = stats(m, D.versions[D.versions.length - 1]);
-      D.versions.forEach((v, i) => {
-        const s = stats(m, v);
-        if (!s.n) return;
-        const d = (a, b, good) => i === 0 && base.n > 0 && b != null ? (a === b ? "" : ` <small class="${(a > b) === good ? "delta-up" : "delta-down"}">${a > b ? "▲" : "▼"}${Math.abs(a - b)}</small>`) : "";
-        h += `<tr><td>${i === 0 ? `<span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m))}` : ""}</td><td>${esc(v)}</td>
-          <td class="n"><b>${s.hit}</b>${d(s.hit, base.hit, true)}</td><td class="n">${s.rHit}/${realCount.RECHAZADA}${d(s.rHit, base.rHit, true)}</td><td class="n">${s.aHit}/${realCount.APROBADA}${d(s.aHit, base.aHit, true)}</td>
-          <td class="n">${s.fa}${d(s.fa, base.fa, false)}</td><td class="n">${s.om}${d(s.om, base.om, false)}</td><td class="n">${s.rev}${d(s.rev, base.rev, false)}</td><td class="n">${fmtUsd(s.cost, 2)}</td></tr>`;
-      });
-    }
-    h += `</tbody></table></div><p class="note">▲▼ = cambio de la versión más nueva respecto de la más antigua (verde mejora, rojo empeora).</p>`;
-  }
-
-  // Butterfly
-  h += `<h2>¿Qué motivos distinguen una llamada rechazada?</h2>
-    <p class="note">Cuántas llamadas tienen cada motivo marcado como <i>incumple</i>, separando las que el Excel aprobó (izquierda: probablemente falsas alarmas) de las que rechazó (derecha). Un motivo útil carga hacia la derecha.</p>
-    <div class="filters">${models.map((m, i) => `<button class="btn bfm${i === 0 ? " on" : ""}" data-m="${m}"><span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m))}</button>`).join("")}</div>
-    <div class="legend"><span><i style="background:var(--div-neg)"></i>en llamadas APROBADA del Excel</span><span><i style="background:var(--div-pos)"></i>en llamadas RECHAZADA del Excel</span></div>
-    <div class="card" id="bfwrap"></div>`;
-
-  // Acuerdo entre modelos
-  if (models.length > 1) {
-    h += `<h2>Acuerdo entre IA</h2><div class="card wrap"><table><thead><tr><th></th>${models.map((m) => `<th class="n">${esc(lab(m))}</th>`).join("")}</tr></thead><tbody>`
-      + models.map((a) => `<tr><th>${esc(lab(a))}</th>${models.map((b) => {
-        if (a === b) return `<td class="n">—</td>`;
-        let n = 0, same = 0;
-        for (const c of D.calls) { const x = c.results[version]?.[a]?.verdict, y = c.results[version]?.[b]?.verdict; if (x && y) { n++; same += x === y; } }
-        return `<td class="n">${pct(same, n)} <small style="color:var(--muted)">(${same}/${n})</small></td>`;
-      }).join("")}</tr>`).join("") + `</tbody></table></div>`;
-  }
-
-  // Por seguro y por ejecutivo
-  const breakdown = (key, title, minN) => {
-    const groups = {};
-    for (const c of D.calls) (groups[c[key] || "—"] ||= []).push(c);
-    const rows = Object.entries(groups).filter(([, cs]) => cs.length >= minN).sort((a, b) => b[1].length - a[1].length);
-    return `<h2>${title}</h2><div class="card wrap"><table><thead><tr><th>${key === "ficha" ? "Ficha" : "Ejecutivo"}</th><th class="n">Llamadas</th><th class="n">RECHAZADA (Excel)</th>${models.map((m) => `<th class="n">${esc(lab(m))}<br><small>coincide</small></th>`).join("")}</tr></thead><tbody>`
-      + rows.map(([k, cs]) => `<tr><td>${esc(k)}${key === "ficha" ? ` <small style="color:var(--muted)">${esc(cs[0].insurance)}</small>` : ""}</td><td class="n">${cs.length}</td><td class="n">${cs.filter((c) => c.real === "RECHAZADA").length}</td>`
-        + models.map((m) => { const ok = cs.filter((c) => c.results[version]?.[m]?.verdict === c.real).length, p = ok / cs.length; return `<td class="n"><div class="barcell">${Math.round(100 * p)}%<i style="width:${Math.round(48 * p)}px"></i></div></td>`; }).join("") + `</tr>`).join("")
-      + `</tbody></table></div>`;
-  };
-  h += breakdown("ficha", "Aciertos por seguro (ficha del catálogo)", 1);
-  h += breakdown("agent", "Aciertos por ejecutivo (con 2 llamadas o más)", 2);
-
-  $("#dash").innerHTML = h;
-  document.querySelectorAll(".bfm").forEach((b) => b.onclick = () => { document.querySelectorAll(".bfm").forEach((x) => x.classList.toggle("on", x === b)); butterfly(b.dataset.m); });
-  if (models.length) butterfly(models[0]);
+// "R" rechaza, "A" aprueba, null = sin resultado (error o no corrió). Una llamada "por revisar" llega igual a un
+// auditor: por defecto cuenta como rechazo.
+function decided(r) {
+  if (!r || !r.verdict || r.verdict === "ERROR") return null;
+  if (r.verdict === "RECHAZADA") return "R";
+  if (r.verdict === "DUDOSA") return UI.revAsRej ? "R" : "A";
+  return "A";
 }
 
-function butterfly(model) {
-  const counts = {};
-  for (const c of D.calls) {
-    const r = c.results[version]?.[model];
-    for (const id of r?.bad || []) { counts[id] ||= { A: 0, R: 0 }; counts[id][c.real === "APROBADA" ? "A" : "R"]++; }
+// Serie = un modelo o el consenso "k de N". get(c) devuelve { d, bad, rev, cost, latency } o null.
+function seriesList() {
+  const models = D.models.filter((m) => D.calls.some((c) => c.results[version]?.[m]?.verdict));
+  const list = models.map((m) => ({
+    id: m, name: lab(m), color: COLOR[m],
+    get: (c) => { const r = c.results[version]?.[m], d = decided(r); return d && { d, bad: r.bad || [], rev: r.verdict === "DUDOSA", cost: r.cost, latency: r.latency }; },
+  }));
+  if (models.length > 1) {
+    const k = Math.min(Math.max(1, UI.k), models.length);
+    list.push({
+      id: "cons", name: `Consenso ${k} de ${models.length}`, color: "var(--muted)", cons: true,
+      get: (c) => {
+        const rs = models.map((m) => c.results[version]?.[m]).filter((r) => decided(r));
+        if (rs.length < models.length) return null; // sin el voto de todos, el consenso no es comparable
+        const votes = {};
+        rs.forEach((r) => (r.bad || []).forEach((id) => (votes[id] = (votes[id] || 0) + 1)));
+        const sum = (f) => rs.every((r) => r[f] != null) ? rs.reduce((a, r) => a + r[f], 0) : null;
+        return { d: rs.filter((r) => decided(r) === "R").length >= k ? "R" : "A", bad: Object.keys(votes).filter((id) => votes[id] >= k).map(Number),
+          rev: false, cost: sum("cost"), latency: rs.every((r) => r.latency != null) ? Math.max(...rs.map((r) => r.latency)) : null };
+      },
+    });
   }
-  const ids = Object.keys(counts).map(Number).sort((a, b) => (counts[b].A + counts[b].R) - (counts[a].A + counts[a].R));
-  if (!ids.length) { $("#bfwrap").innerHTML = `<p class="note">Este modelo no marcó ningún incumplimiento.</p>`; return; }
-  const W = Math.max(560, $("#bfwrap").clientWidth - 28), row = 24, top = 22, labelW = Math.min(300, W * 0.38), side = (W - labelW - 60) / 2;
-  const max = Math.max(...ids.map((i) => Math.max(counts[i].A, counts[i].R)), 1);
-  const cx = labelW + 30 + side, sx = (v) => (v / max) * side;
-  let svg = `<svg class="bf" viewBox="0 0 ${W} ${top + ids.length * row + 8}" role="img" aria-label="Motivos incumplidos por estado del Excel">`;
-  svg += `<text x="${cx - 6}" y="12" text-anchor="end">← en APROBADA</text><text x="${cx + 6}" y="12">en RECHAZADA →</text>`;
-  svg += `<line x1="${cx}" x2="${cx}" y1="${top - 4}" y2="${top + ids.length * row}" stroke="var(--axis)" stroke-width="1"/>`;
-  ids.forEach((id, i) => {
-    const y = top + i * row, a = counts[id].A, r = counts[id].R, name = D.criteria[id] || "";
-    const short = name.length > 42 ? name.slice(0, 41) + "…" : name;
-    svg += `<text class="lbl" x="0" y="${y + 15}">${id}. ${esc(short)}</text>`;
-    if (a) svg += `<path d="M${cx - 1},${y + 5} h${-(sx(a) - 4)} a4,4 0 0 0 -4,4 v6 a4,4 0 0 0 4,4 h${sx(a) - 4} z" fill="var(--div-neg)"/>`;
-    if (r) svg += `<path d="M${cx + 1},${y + 5} h${sx(r) - 4} a4,4 0 0 1 4,4 v6 a4,4 0 0 1 -4,4 h${-(sx(r) - 4)} z" fill="var(--div-pos)"/>`;
-    if (a) svg += `<text x="${cx - sx(a) - 6}" y="${y + 16}" text-anchor="end">${a}</text>`;
-    if (r) svg += `<text x="${cx + sx(r) + 6}" y="${y + 16}">${r}</text>`;
-    svg += `<rect class="hit" x="0" y="${y}" width="${W}" height="${row}" data-tip="${esc(`${id}. ${name}`)}<br>APROBADA: <b>${a}</b> · RECHAZADA: <b>${r}</b>"/>`;
+  return list;
+}
+
+function callStats(se) {
+  const s = { A: { n: 0, R: 0, rev: 0 }, R: { n: 0, R: 0, rev: 0 }, excl: 0, cost: 0, costN: 0, lat: 0, latN: 0 };
+  for (const c of D.calls) {
+    const r = se.get(c);
+    if (!r) { s.excl++; continue; }
+    const g = s[c.real === "RECHAZADA" ? "R" : "A"];
+    g.n++; g.R += r.d === "R"; g.rev += r.rev;
+    if (r.cost != null) { s.cost += r.cost; s.costN++; }
+    if (r.latency != null) { s.lat += r.latency; s.latN++; }
+  }
+  s.det = s.R.n ? s.R.R / s.R.n : NaN;
+  s.fa = s.A.n ? s.A.R / s.A.n : NaN;
+  s.agree = s.A.n + s.R.n ? (s.R.R + s.A.n - s.A.R) / (s.A.n + s.R.n) : NaN;
+  s.perCall = s.costN ? s.cost / s.costN : null;
+  return s;
+}
+
+function renderDash() {
+  const series = seriesList(), models = series.filter((x) => !x.cons);
+  if (!models.length) { $("#dash").innerHTML = `<p class="note">No hay resultados para la versión ${esc(version)}.</p>`; return; }
+  const st = new Map(series.map((x) => [x, callStats(x)]));
+  const M = METRICS[UI.metric] || METRICS.bal;
+  const sorted = [...series].sort((a, b) => (M.hi ? -1 : 1) * (M.val(st.get(a)) - M.val(st.get(b))));
+  const bal = METRICS.bal.val, best = [...models].sort((a, b) => bal(st.get(b)) - bal(st.get(a)))[0], bs = st.get(best);
+  const meets = series.filter((x) => { const s = st.get(x); return s.fa <= META.fa && 1 - s.det <= META.om; });
+
+  let h = `<div class="hero"><h2>Calce IA vs auditor del cliente</h2>
+    <p class="lead"><b>${esc(best.name)}</b> tiene el mejor calce entre los modelos (<b>${p1(bal(bs))}</b> de calce equilibrado): detecta
+      <b>${bs.R.R} de ${bs.R.n}</b> llamadas rechazadas y da <b>${bs.A.R} falsas alarmas</b> en ${bs.A.n} aprobadas.
+      ${meets.length ? `Cumple${meets.length > 1 ? "n" : ""} las dos metas: ${meets.map((x) => `<b>${esc(x.name)}</b>`).join(", ")}.` : `Ninguna opción cumple a la vez las metas de ≤${p0(META.fa)} de falsas alarmas y ≤${p0(META.om)} de omisiones.`}</p>
+    <p class="note">Referencia: el <b>ESTADO_CALIDAD</b> del Excel (${realCount.APROBADA} aprobadas, ${realCount.RECHAZADA} rechazadas), versión del prompt ${esc(version)}.
+      ${HAS_REF ? `Por criterio, las columnas CUMPLE / NO CUMPLE del Excel: se mide qué incumplimientos detecta la IA y cuáles marca de más.` : `El Excel no dice qué criterio falló en las rechazadas: la detección se mide <b>por llamada</b>; por criterio solo se pueden medir las falsas alarmas.`}</p></div>
+    <div class="ctrl"><span class="lbl">Métrica</span>${Object.entries(METRICS).map(([k, m]) => `<button class="btn pill met${k === UI.metric ? " on" : ""}" data-k="${k}">${m.name}</button>`).join("")}
+      <label class="lbl"><input type="checkbox" id="revrej"${UI.revAsRej ? " checked" : ""}> «Por revisar» cuenta como rechazo</label>
+      ${models.length > 1 ? `<label class="lbl">Consenso <select id="consk">${models.map((_, i) => `<option value="${i + 1}"${i + 1 === Math.min(UI.k, models.length) ? " selected" : ""}>${i + 1} de ${models.length}${i === 0 ? " (basta una)" : i + 1 === models.length ? " (todas)" : ""}</option>`).join("")}</select></label>` : ""}</div>`;
+
+  // Ranking
+  const vmax = M.hi ? 1 : Math.max(0.1, ...series.map((x) => M.val(st.get(x)) || 0), M.goal || 0) * 1.1;
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => p0(t * vmax));
+  const detail = (s) => UI.metric === "fa" ? `${s.A.R} de ${s.A.n}` : UI.metric === "det" ? `${s.R.R} de ${s.R.n}` : UI.metric === "agree" ? `${s.R.R + s.A.n - s.A.R} de ${s.A.n + s.R.n}` : "";
+  h += `<div class="two"><div class="card"><h3>¿Qué opción calza mejor con el cliente?</h3>
+    <p class="note">Veredicto de la llamada contra el Excel. ${M.goal != null ? `La línea punteada es la meta (${M.hi ? "≥" : "≤"}${p0(M.goal)}).` : ""} A la derecha, costo por llamada.</p><div class="bars">`
+    + sorted.map((x) => {
+      const s = st.get(x), v = M.val(s);
+      return `<div class="row" data-tip="${esc(x.name)}<br>Detecta ${s.R.R} de ${s.R.n} rechazadas · ${s.A.R} falsas alarmas en ${s.A.n} aprobadas${s.excl ? `<br>${s.excl} llamadas sin resultado, fuera del cálculo` : ""}${s.latN ? `<br>Latencia promedio ${Math.round(s.lat / s.latN / 1000)} s` : ""}">
+        <div class="name">${x.cons ? "" : `<span class="dot" style="display:inline-block;background:${x.color}"></span> `}${esc(x.name)}</div>
+        <div class="track"><div class="fill" style="width:${isNaN(v) ? 0 : (100 * v) / vmax}%;background:${x.color}"></div>${M.goal != null ? `<div class="goal" style="left:${(100 * M.goal) / vmax}%"></div>` : ""}</div>
+        <div class="val"><b>${p1(v)}</b>${detail(s) ? ` · ${detail(s)}` : ""} · ${fmtUsd(s.perCall, 3)}</div></div>`;
+    }).join("")
+    + `<div class="ticks"><div></div><div>${ticks.map((t) => `<span>${t}</span>`).join("")}</div><div></div></div></div></div>`;
+
+  // Matrices
+  const cell = (v, tone, tip) => `<td class="cell" style="background:var(--${tone}-soft);color:var(--${tone}-ink)" data-tip="${tip}: ${v} llamadas">${v}</td>`;
+  const mark = (ok) => ok ? `<span class="ok-ink">✓</span>` : `<span class="bad-ink">✗</span>`;
+  h += `<div class="card"><h3>¿Acierta el veredicto de la llamada?</h3>
+    <p class="note">La IA rechaza la llamada si marca al menos un criterio${UI.revAsRej ? " o la deja por revisar" : ""}. Verde: acierto; rojo: incumplimiento que se escapa; amarillo: falsa alarma.</p><div class="mats">`
+    + series.map((x) => {
+      const s = st.get(x), om = 1 - s.det;
+      return `<div><div class="model-head" style="margin-bottom:4px"><span class="dot" style="background:${x.color}"></span>${esc(x.name)}</div>
+        <table class="cm"><tr><th class="row"></th><th>IA<br>rechaza</th><th>IA<br>aprueba</th></tr>
+        <tr><th class="row">Cliente rechazó</th>${cell(s.R.R, "good", "Cliente rechazó · IA rechaza")}${cell(s.R.n - s.R.R, "crit", "Cliente rechazó · IA aprueba")}</tr>
+        <tr><th class="row">Cliente aprobó</th>${cell(s.A.R, "warn", "Cliente aprobó · IA rechaza")}${cell(s.A.n - s.A.R, "good", "Cliente aprobó · IA aprueba")}</tr></table>
+        <div class="sub">Acierta <b>${p0(s.agree)}</b> de las llamadas<br>
+          ${mark(om <= META.om)} omisiones ${p0(om)} <span style="color:var(--muted)">(meta ≤${p0(META.om)})</span><br>
+          ${mark(s.fa <= META.fa)} falsas alarmas ${p0(s.fa)} <span style="color:var(--muted)">(meta ≤${p0(META.fa)})</span>
+          ${s.R.rev + s.A.rev ? `<br><span style="color:var(--muted)">${s.R.rev + s.A.rev} por revisar ${UI.revAsRej ? "contadas como rechazo" : "contadas como aprobación"}</span>` : ""}
+          ${s.excl ? `<br><span style="color:var(--muted)">${s.excl} sin resultado, fuera del cálculo</span>` : ""}</div></div>`;
+    }).join("") + `</div></div></div>`;
+
+  h += jevCard(series, st);
+  h += criteriaTable(series);
+  h += `<div class="card" style="margin-top:12px"><h3>Mapa llamada por llamada</h3>
+    <p class="note">Cada columna es una llamada y cada fila un criterio; la primera fila es el veredicto de la llamada. A la izquierda las aprobadas por el cliente: todo criterio marcado es falsa alarma. ${HAS_REF ? "A la derecha las rechazadas, contra los criterios que el cliente marcó NO CUMPLE: verde si la IA también lo marca, rojo si no lo detecta, amarillo si lo marca y el cliente no." : "A la derecha las rechazadas: se ve qué marcó la IA, sin juzgarlo."} Clic en una columna para abrir la llamada en Revisión.</p>
+    <div class="ctrl" style="margin-top:0">${series.map((x) => `<button class="btn pill mapm${x.id === UI.mapSeries ? " on" : ""}" data-m="${x.id}">${x.cons ? "" : `<span class="dot" style="display:inline-block;background:${x.color}"></span> `}${esc(x.name)}</button>`).join("")}</div>
+    <div class="legend">${HAS_REF ? `<span><i style="background:var(--good)"></i>Acierto (veredicto o criterio)</span><span><i style="background:var(--crit)"></i>La IA no lo detecta (veredicto o criterio)</span>` : `<span><i style="background:var(--good)"></i>Veredicto correcto</span><span><i style="background:var(--crit)"></i>IA aprueba una llamada rechazada</span>`}<span><i style="background:var(--warn)"></i>Falsa alarma (veredicto o criterio)</span>${NO_REF ? `<span><i style="background:var(--accent)"></i>IA marca el criterio en una rechazada${HAS_REF ? " sin referencia" : ""}</span>` : ""}<span><i style="background:var(--grid)"></i>No marcado</span><span><i style="background:transparent;border:1px solid var(--grid)"></i>No se evalúa / sin resultado</span></div>
+    <div id="mapwrap"></div></div>`;
+
+  h += `<div class="card" style="margin-top:12px"><h3>Cómo leer las métricas</h3><dl class="gloss">
+    <dt>Detección de rechazadas</dt><dd>De las llamadas que el cliente rechazó, qué parte también rechazó la IA. Es la que más importa: una llamada rechazada que la IA aprueba no la ve nadie. Omisiones = 1 − detección (meta ≤${p0(META.om)}).</dd>
+    <dt>Falsas alarmas</dt><dd>De las llamadas que el cliente aprobó, qué parte rechazó la IA. Más bajo es mejor; cada una es trabajo extra de revisión (meta ≤${p0(META.fa)}).</dd>
+    <dt>Calce equilibrado</dt><dd>Promedio entre detección y (1 − falsas alarmas). No se deja engañar por cuántas rechazadas hay en la muestra: una IA que rechaza todo tiene 50 %.</dd>
+    <dt>Concordancia simple</dt><dd>Porcentaje de llamadas donde la IA dijo lo mismo que el cliente.</dd>
+    <dt>Consenso k de N</dt><dd>Rechaza la llamada si al menos k modelos la rechazan, y marca un criterio si al menos k lo marcan. Solo cuenta llamadas donde respondieron todos. Su costo es la suma de los modelos.</dd>
+    <dt>«Por revisar»</dt><dd>La IA no se decidió (criterio indeterminado o sin ficha del seguro). En operación igual llega a un auditor, por eso cuenta como rechazo salvo que desmarques la opción.</dd>
+    ${J ? `<dt>Jev</dt><dd>Modelo de TypeSafe AI que no escribe: responde preguntas cerradas con probabilidades. Se usó como segunda opinión sobre los motivos que ${esc(lab(J.source))} marcó como incumplidos en llamadas que el Excel aprobó.</dd>
+    <dt>Revierte / confirma</dt><dd>Revierte: Jev cree que el ejecutivo cumple o que el motivo no aplica (opciones «cumple» o «no aplica»; sí/no con p &lt; 0,5). Confirma: opción «incumple», o p ≥ 0,5.</dd>
+    <dt>Pregunta de opciones (Choice)</dt><dd>Jev elige entre incumple, cumple y no aplica, y entrega su confianza en la opción elegida (0 a 100 %). «Cumple» y «no aplica» revierten el rechazo de Gemini.</dd>
+    <dt>Pregunta sí/no</dt><dd>Jev entrega solo la probabilidad de incumplimiento (p); no entrega confianza. Las p se agrupan entre 0,4 y 0,8.</dd>
+    <dt>Decisión poco segura</dt><dd>Confianza bajo ${pctJ(J.low_conf)} (pregunta de opciones) o p entre ${fmtP(J.near[0])} y ${fmtP(J.near[1])} (sí/no). Se marca con borde punteado.</dd>
+    <dt>Ciego / con hallazgo</dt><dd>Ciego: Jev ve solo el criterio y la llamada. Con hallazgo: además ve el comentario y la evidencia de Gemini, y casi siempre le da la razón.</dd>
+    <dt>Acierta según tus etiquetas</dt><dd>Jev confirma un motivo que etiquetaste «Sí, incumple» o revierte uno que etiquetaste «No, cumple».</dd>
+    <dt>Llamada rescatada</dt><dd>Jev revierte todos sus motivos (opción «cumple» o «no aplica», o p &lt; 0,5), no tiene motivo 1 (ese lo calcula el código) y no le quedan motivos por revisar: ${esc(lab(J.source))} dejaría de marcarla.</dd>` : ""}
+    ${HAS_REF ? `<dt>Detección por criterio</dt><dd>De los criterios que el cliente marcó NO CUMPLE en las rechazadas, cuántos marcó también la IA. Un criterio que la IA marca en una rechazada y el cliente no, cuenta como falsa alarma de criterio aunque el veredicto de la llamada sea correcto.</dd>
+    <dt>Lo que aún no se mide</dt><dd>Se asume que la marca del cliente es la verdad: si el auditor pasó por alto un incumplimiento, la IA aparece con una falsa alarma que en realidad es un acierto. Revisar esos casos en Revisión.</dd>` : `<dt>Lo que aún no se mide</dt><dd>La detección por criterio: para eso hace falta saber qué criterio incumplió cada llamada rechazada (mapear el COMENTARIO del Excel o revisar criterio por criterio una muestra). Además, se asume que en las aprobadas no hay ningún incumplimiento; si el cliente aprueba con faltas leves, parte de las falsas alarmas serían aciertos.</dd>`}
+  </dl></div>`;
+
+  $("#dash").innerHTML = h;
+  document.querySelectorAll(".met").forEach((b) => b.onclick = () => { UI.metric = b.dataset.k; saveUi(); renderDash(); });
+  $("#revrej").onchange = (e) => { UI.revAsRej = e.target.checked; saveUi(); renderDash(); };
+  if ($("#consk")) $("#consk").onchange = (e) => { UI.k = +e.target.value; saveUi(); renderDash(); };
+  if (!series.some((x) => x.id === UI.mapSeries)) UI.mapSeries = series[0].id;
+  document.querySelectorAll(".mapm").forEach((b) => b.onclick = () => { UI.mapSeries = b.dataset.m; saveUi(); document.querySelectorAll(".mapm").forEach((x) => x.classList.toggle("on", x === b)); errorMap(series.find((x) => x.id === UI.mapSeries)); });
+  errorMap(series.find((x) => x.id === UI.mapSeries));
+  if ($("#jevver")) $("#jevver").onclick = () => { setVersion(J.version); };
+  if ($("#jevpend")) $("#jevpend").onclick = () => { show("rev"); F.jev = "pending"; renderList(); $("#f-jev").focus(); };
+}
+
+function criteriaTable(series) {
+  const ids = Object.keys(D.criteria).map(Number).sort((a, b) => a - b);
+  // count[id][serie]: A = marcado en aprobadas (falsa alarma); R = marcado en rechazadas; hit = marcado y el cliente
+  // también; ref = el cliente lo marcó (denominador de la detección); extra = marcado en una rechazada y el cliente no.
+  // den[id][serie] = aprobadas donde se evalúa.
+  const count = {}, den = {};
+  for (const id of ids) { count[id] = {}; den[id] = {}; }
+  for (const x of series) for (const c of D.calls) {
+    const r = x.get(c);
+    if (!r) continue;
+    const skip = unevaluable(c), side = c.real === "RECHAZADA" ? "R" : "A", ref = clientBad(c);
+    for (const id of ids) {
+      const k = count[id][x.id] ||= { A: 0, R: 0, hit: 0, ref: 0, extra: 0 };
+      const on = r.bad.includes(id);
+      if (side === "R" && ref?.has(id)) { k.ref++; k.hit += on; }
+      if (skip.has(id)) continue;
+      if (side === "A") den[id][x.id] = (den[id][x.id] || 0) + 1;
+      if (on) { k[side]++; if (side === "R" && ref && !ref.has(id)) k.extra++; }
+    }
+  }
+  const g = (id, x, f) => count[id][x.id]?.[f] || 0;
+  const used = ids.filter((id) => series.some((x) => g(id, x, "A") || g(id, x, "R") || g(id, x, "ref")));
+  const unused = ids.filter((id) => !used.includes(id));
+  const maxA = Math.max(1, ...used.flatMap((id) => series.map((x) => g(id, x, "A"))));
+  const maxR = Math.max(1, ...used.flatMap((id) => series.map((x) => g(id, x, "R"))));
+  const shade = (v, max) => { const k = v ? Math.ceil((v / max) * 4) : 0; return `background:var(--seq-${k});color:var(--seq-ink-${k})`; };
+  const head = (x) => `<th>${x.cons ? "" : `<span class="dot" style="display:inline-block;background:${x.color}"></span><br>`}${esc(x.name)}</th>`;
+  // Veces que el cliente marcó el criterio en rechazadas (igual para todas las series salvo llamadas sin resultado).
+  const refN = (id) => D.calls.filter((c) => c.real === "RECHAZADA" && clientBad(c)?.has(id)).length;
+  let h = `<div class="card"><h3>¿En qué criterios se equivoca cada opción?</h3>
+    <p class="note">Una fila por criterio marcado alguna vez${HAS_REF ? " por la IA o por el cliente" : ""}. <b>Izquierda:</b> en cuántas llamadas aprobadas por el cliente la IA marca el criterio; cada una es una falsa alarma y el recuadro marca a la opción con menos. <b>Derecha:</b> ${HAS_REF
+      ? "en las rechazadas, cuántas veces el cliente marcó el criterio NO CUMPLE y cuántas de esas detectó cada opción; el recuadro marca a la que detecta más. El detalle de cada celda dice además en cuántas rechazadas la IA lo marca y el cliente no."
+      : "en cuántas rechazadas lo marca; es solo descriptivo, porque el Excel no dice qué criterio falló."}</p>
+    <div class="wrap"><table class="hm"><thead><tr><th></th><th class="grp" colspan="${series.length}">En aprobadas · falsas alarmas</th><th class="gap"></th>${HAS_REF
+      ? `<th class="grp" colspan="${series.length + 1}">En rechazadas · incumplimientos detectados</th>`
+      : `<th class="grp" colspan="${series.length}">En rechazadas · marcado, sin referencia</th>`}</tr>
+    <tr><th></th>${series.map(head).join("")}<th class="gap"></th>${HAS_REF ? `<th>Cliente</th>` : ""}${series.map(head).join("")}</tr></thead><tbody>`;
+  for (const id of used) {
+    const fa = series.map((x) => g(id, x, "A")), lo = Math.min(...fa), clear = fa.some((v) => v !== lo);
+    const tags = (HOLD_BY_CODE && id === 1 ? `<span class="tag" title="Lo calcula el código desde las esperas detectadas: es igual en todos los modelos">código</span>` : "")
+      + (MINOR.has(id) ? `<span class="tag" title="Motivo leve">leve</span>` : "")
+      + (TIPIF.includes(id) && D.calls.some((c) => unevaluable(c).has(id)) ? `<span class="tag" title="No se evalúa en llamadas sin tipificación">parcial</span>` : "");
+    const crit = `${id}. ${esc(D.criteria[id])}`;
+    h += `<tr><td class="cid" title="${esc(`${id}. ${D.criteria[id]}`)}">${crit}${tags}</td>`
+      + series.map((x, i) => { const v = fa[i], n = den[id][x.id] || 0; return `<td class="cell${clear && v === lo ? " best" : ""}" style="${shade(v, maxA)}" data-tip="${esc(x.name)} · ${crit}<br>Marcado en <b>${v} de ${n}</b> aprobadas (${p0(n ? v / n : NaN)})">${v}</td>`; }).join("")
+      + `<td class="gap"></td>`;
+    if (HAS_REF) {
+      const n = refN(id), hits = series.map((x) => g(id, x, "hit")), hi = Math.max(...hits), clearR = hits.some((v) => v !== hi);
+      h += `<td class="cell" style="color:var(--text-2)" data-tip="${crit}<br>El cliente lo marcó NO CUMPLE en <b>${n}</b> llamadas rechazadas">${n}</td>`
+        + series.map((x, i) => {
+          const k = count[id][x.id] || {}, v = hits[i], d = k.ref || 0, extra = k.extra || 0;
+          const tip = `${esc(x.name)} · ${crit}<br>${d ? `Detecta <b>${v} de ${d}</b> incumplimientos del cliente (${p0(v / d)})` : "El cliente no lo marcó en ninguna rechazada"}`
+            + (extra ? `<br>Además lo marca en <b>${extra}</b> rechazada${extra > 1 ? "s" : ""} donde el cliente no lo marcó` : "");
+          const label = d ? `${v}` : "—", sup = extra ? `<sup>+${extra}</sup>` : "";
+          return `<td class="cell${d && clearR && v === hi ? " best" : ""}" style="${shade(d ? Math.round((4 * v) / d) : 0, 4)}" data-tip="${tip}">${label}${sup}</td>`;
+        }).join("");
+    } else {
+      h += series.map((x) => { const v = g(id, x, "R"); return `<td class="cell" style="${shade(v, maxR)}" data-tip="${esc(x.name)} · ${crit}<br>Marcado en <b>${v}</b> llamadas rechazadas">${v}</td>`; }).join("");
+    }
+    h += `</tr>`;
+  }
+  if (HAS_REF) {
+    // Totales: falsas alarmas de criterio en aprobadas; detección sobre todas las marcas del cliente.
+    const sum = (x, f) => used.reduce((a, id) => a + g(id, x, f), 0), nTot = used.reduce((a, id) => a + refN(id), 0);
+    h += `<tr><td class="cid"><b>Total</b></td>${series.map((x) => `<td class="cell" data-tip="${esc(x.name)}<br>${sum(x, "A")} criterios marcados en aprobadas">${sum(x, "A")}</td>`).join("")}<td class="gap"></td>`
+      + `<td class="cell" style="color:var(--text-2)" data-tip="Marcas NO CUMPLE del cliente en rechazadas">${nTot}</td>`
+      + series.map((x) => { const v = sum(x, "hit"), d = sum(x, "ref"), e = sum(x, "extra"); return `<td class="cell" data-tip="${esc(x.name)}<br>Detecta <b>${v} de ${d}</b> incumplimientos del cliente (${p0(d ? v / d : NaN)})<br>Marca <b>${e}</b> criterios de más en rechazadas">${p0(d ? v / d : NaN)}${e ? `<sup>+${e}</sup>` : ""}</td>`; }).join("")
+      + `</tr>`;
+  }
+  h += `</tbody></table></div>`;
+  if (HAS_REF) h += `<p class="note" style="margin-top:8px">En la fila Total, a la derecha va el porcentaje de detección. <sup>+n</sup>: veces que la opción marca el criterio en una rechazada donde el cliente no lo marcó.</p>`;
+  if (unused.length) h += `<p class="note" style="margin-top:8px">Ninguna opción${HAS_REF ? " ni el cliente" : ""} marcó los criterios ${unused.join(", ")}.</p>`;
+  return h + `</div>`;
+}
+
+function errorMap(se) {
+  const wrap = $("#mapwrap");
+  if (!se) { wrap.innerHTML = ""; return; }
+  const byId = (a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true });
+  const appr = D.calls.filter((c) => c.real === "APROBADA").sort(byId), rej = D.calls.filter((c) => c.real === "RECHAZADA").sort(byId);
+  const ids = Object.keys(D.criteria).map(Number).sort((a, b) => a - b);
+  const cs = 10, gap = 1, labelW = 48, sepW = 12, top = 30, vRow = 16;
+  const x0 = (i) => labelW + i * (cs + gap) + (i >= appr.length ? sepW : 0);
+  const W = x0(appr.length + rej.length), H = top + vRow + ids.length * (cs + gap);
+  const fill = (state) => ({ ok: "var(--good)", miss: "var(--crit)", fa: "var(--warn)", mark: "var(--accent)", none: "var(--grid)" })[state];
+  let svg = `<svg class="map" viewBox="0 0 ${W} ${H}" role="img" aria-label="Mapa de criterios marcados por ${esc(se.name)} en cada llamada">`;
+  svg += `<text x="${labelW}" y="10">Aprobadas por el cliente (${appr.length})</text><text x="${x0(appr.length)}" y="10">Rechazadas por el cliente (${rej.length})</text>`;
+  svg += `<rect x="${labelW}" y="15" width="${x0(appr.length - 1) + cs - labelW}" height="3" rx="1.5" fill="var(--axis)"/><rect x="${x0(appr.length)}" y="15" width="${W - x0(appr.length)}" height="3" rx="1.5" fill="var(--axis)"/>`;
+  svg += `<text x="0" y="${top + 9}">Veredicto</text>`;
+  ids.forEach((id, j) => { if (id === 1 || id % 4 === 1) svg += `<text x="0" y="${top + vRow + j * (cs + gap) + 8}">C${String(id).padStart(2, "0")}</text>`; });
+  [...appr, ...rej].forEach((c, i) => {
+    const x = x0(i), r = se.get(c), rejected = c.real === "RECHAZADA", skip = unevaluable(c), ref = clientBad(c);
+    const vs = !r ? null : rejected ? (r.d === "R" ? "ok" : "miss") : (r.d === "R" ? "fa" : "ok");
+    const vLabel = !r ? "sin resultado" : { ok: "veredicto correcto", miss: "la IA aprueba una llamada rechazada", fa: "falsa alarma" }[vs] + (r.rev ? " (por revisar)" : "");
+    svg += `<rect data-s="${c.stem}" x="${x}" y="${top}" width="${cs}" height="${cs + 2}" rx="2" fill="${vs ? fill(vs) : "transparent"}" stroke="${vs ? "none" : "var(--grid)"}" data-tip="Llamada ${esc(c.id)} · cliente: ${c.real}<br>${esc(se.name)}: ${vLabel}"/>`;
+    ids.forEach((id, j) => {
+      const y = top + vRow + j * (cs + gap);
+      const cl = ref?.has(id);
+      if (!r || (skip.has(id) && !cl)) { svg += `<rect data-s="${c.stem}" x="${x + 0.5}" y="${y + 0.5}" width="${cs - 1}" height="${cs - 1}" fill="none" stroke="var(--grid)" stroke-width="0.6"/>`; return; }
+      const on = r.bad.includes(id);
+      const state = !ref ? (on ? "mark" : "none") : on ? (cl ? "ok" : "fa") : cl ? "miss" : "none";
+      const why = { ok: "Acierto: el cliente y la IA lo marcan", miss: skip.has(id) ? "El cliente lo marca; la IA no lo evalúa (llamada sin tipificación)" : "El cliente lo marca y la IA no lo detecta",
+        fa: rejected ? "Falsa alarma: la IA lo marca y el cliente no" : "Falsa alarma", mark: "La IA lo marca (sin referencia)" }[state];
+      svg += `<rect data-s="${c.stem}" x="${x}" y="${y}" width="${cs}" height="${cs}" rx="1.5" fill="${fill(state)}"${why ? ` data-tip="Llamada ${esc(c.id)} · cliente: ${c.real}<br>${id}. ${esc(D.criteria[id])}<br>${why}"` : ""}/>`;
+    });
   });
-  $("#bfwrap").innerHTML = svg + "</svg>";
+  wrap.innerHTML = svg + "</svg>";
+  wrap.onclick = (e) => { const t = e.target.closest("[data-s]"); if (!t) return; show("rev"); openCall(t.dataset.s); document.querySelector(`#list tr[data-s="${t.dataset.s}"]`)?.scrollIntoView({ block: "nearest" }); };
 }
 
 // Tooltip
@@ -304,12 +516,17 @@ try { reviews = JSON.parse(localStorage.getItem(STORE) || "{}"); } catch {}
 // estático (python -m http.server) queda solo en este navegador y se exporta a mano.
 const REVIEW_DIR = decodeURIComponent(location.pathname.replace(/\/[^/]*$/, "")).replace(/^\//, "");
 let serverSave = false, saveTimer = null;
-const csvColumns = () => ["stem", "llamada", "grabacion", "excel", "mi_veredicto", ...D.models.map((m) => `acerto_${m}`), "nota", "revisado_en",
+const motivesToCsv = (m) => Object.entries(m || {}).sort((a, b) => a[0] - b[0]).map(([id, x]) => `${id}=${x.v}/${x.blind ? "ciego" : "visto"}`).join(";");
+const motivesFromCsv = (s) => Object.fromEntries(String(s || "").split(";").filter(Boolean).map((part) => {
+  const [id, rest = ""] = part.split("="), [v, how] = rest.split("/");
+  return [id, { v, blind: how === "ciego", at: "" }];
+}));
+const csvColumns = () => ["stem", "llamada", "grabacion", "excel", "mi_veredicto", ...D.models.map((m) => `acerto_${m}`), "nota", "revisado_en", ...(J ? ["motivos_etiquetados"] : []),
   ...D.versions.flatMap((v) => D.models.flatMap((m) => [`ia_${m}_${v}`, `ia_${m}_${v}_solo_leves`]))];
 const csvRows = () => D.calls.filter((c) => reviews[c.stem]).map((c) => {
   const r = reviews[c.stem];
   return [c.stem, c.id, c.recording, c.real, r.verdict === "DUDOSA" ? "POR REVISAR" : r.verdict || "",
-    ...D.models.map((m) => ({ ok: "si", bad: "no" })[r.models?.[m]] || ""), r.note || "", r.at || "",
+    ...D.models.map((m) => ({ ok: "si", bad: "no" })[r.models?.[m]] || ""), r.note || "", r.at || "", ...(J ? [motivesToCsv(r.motives)] : []),
     ...D.versions.flatMap((v) => D.models.flatMap((m) => [c.results[v]?.[m]?.verdict || "", isLeve(c.results[v]?.[m]) ? "si" : ""]))];
 });
 function setSaveState(text, warn = false) { const el = $("#savestate"); if (el) { el.textContent = text; el.style.color = warn ? "var(--bad, #c0392b)" : "var(--muted)"; } }
@@ -339,6 +556,7 @@ async function loadServerReviews() {
         verdict: row.mi_veredicto === "POR REVISAR" ? "DUDOSA" : row.mi_veredicto || null,
         models: Object.fromEntries(D.models.map((m) => [m, ({ si: "ok", no: "bad" })[row[`acerto_${m}`]] || ""])),
         note: row.nota || "", at: row.revisado_en || "",
+        ...(row.motivos_etiquetados ? { motives: motivesFromCsv(row.motivos_etiquetados) } : {}),
       };
     }
     // Gana la revisión más reciente de cada llamada (CSV o navegador); las que solo estaban en el navegador se suben.
@@ -353,7 +571,7 @@ async function loadServerReviews() {
   } catch { setSaveState("Sin review_server.py: la revisión queda solo en este navegador (usa Exportar)", true); }
 }
 let current = null, filtered = D.calls, audioUrl = null, activeModel = null;
-const F = { q: "", real: "", agree: "", ficha: "", reviewed: "" };
+const F = { q: "", real: "", agree: "", ficha: "", reviewed: "", jev: "" };
 
 function renderRevShell() {
   const fichas = [...new Set(D.calls.map((c) => c.ficha || "—"))].sort();
@@ -364,6 +582,7 @@ function renderRevShell() {
       <select id="f-agree"><option value="">IA vs Excel: todas</option><option value="any">Alguna IA discrepa</option><option value="all">Todas las IA coinciden</option><option value="leve">Alguna IA rechaza solo por leves</option>${D.models.map((m) => `<option value="m:${m}">${esc(lab(m))} discrepa</option>`).join("")}</select>
       <select id="f-ficha"><option value="">Ficha: todas</option>${fichas.map((f) => `<option>${esc(f)}</option>`).join("")}</select>
       <select id="f-rev"><option value="">Mi revisión: todas</option><option value="no">Pendientes</option><option value="yes">Revisadas</option></select>
+      ${J ? `<select id="f-jev" aria-label="Filtrar por opinión de Jev"></select>` : ""}
       <span id="count" style="font-size:12px;color:var(--text-2)"></span>
       <span style="font-size:11px;color:var(--muted)"><span class="chip RECHAZADA leve">REC*</span> = rechazada solo por motivos leves</span>
       <button class="btn" id="export">Exportar mi revisión (CSV)</button>
@@ -373,6 +592,7 @@ function renderRevShell() {
     <div class="review"><div class="card list" id="list"></div><div class="card detail" id="detail"><p class="note">Elige una llamada del listado.</p></div></div>`;
   const bind = (id, key) => $(id).addEventListener("input", (e) => { F[key] = e.target.value; renderList(); });
   bind("#f-q", "q"); bind("#f-real", "real"); bind("#f-agree", "agree"); bind("#f-ficha", "ficha"); bind("#f-rev", "reviewed");
+  if (J) bind("#f-jev", "jev");
   $("#export").onclick = exportCsv;
   renderList();
 }
@@ -391,12 +611,15 @@ function renderList() {
     if (F.agree === "leve" && !D.models.some((m) => isLeve(c.results[version]?.[m]))) return false;
     if (F.agree.startsWith("m:") && verdictOf(c, F.agree.slice(2)) === c.real) return false;
     if (q && ![c.id, c.agent, c.insurance, c.reason, c.comment, c.ficha].join(" ").toLowerCase().includes(q)) return false;
+    if (J && F.jev && !jevMatch(c, F.jev)) return false;
     return true;
   });
   const done = D.calls.filter((c) => reviews[c.stem]?.verdict).length;
-  $("#count").textContent = `${filtered.length} llamadas · revisadas ${done}/${D.calls.length}`;
+  const jt = J ? jevTotals() : null;
+  $("#count").textContent = `${filtered.length} llamadas · revisadas ${done}/${D.calls.length}${jt ? ` · motivos Jev etiquetados ${jt.k}/${jt.n}` : ""}`;
+  if (J) $("#f-jev").innerHTML = jevFilterOptions();
   $("#list").innerHTML = `<table><thead><tr><th>ID</th><th>Seguro</th><th class="n">Min</th><th>Excel</th>${D.models.map((m) => `<th><span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m).split(" ")[0])}</th>`).join("")}<th>Yo</th></tr></thead><tbody>`
-    + filtered.map((c) => `<tr data-s="${c.stem}" class="${current?.stem === c.stem ? "sel" : ""}"><td>${esc(c.id)}<div class="rv">${esc(c.agent)}</div></td><td>${esc(c.ficha || "—")}<div class="rv">${esc(c.insurance)}</div></td><td class="n">${c.minutes}</td>
+    + filtered.map((c) => `<tr data-s="${c.stem}" class="${current?.stem === c.stem ? "sel" : ""}"><td>${esc(c.id)}<div class="rv">${esc(c.agent)}</div>${jevMark(c)}</td><td>${esc(c.ficha || "—")}<div class="rv">${esc(c.insurance)}</div></td><td class="n">${c.minutes}</td>
       <td><span class="chip ${c.real}">${c.real === "APROBADA" ? "APR" : "REC"}</span></td>`
       + D.models.map((m) => {
         const v = verdictOf(c, m); if (!v) return "<td>—</td>";
@@ -429,6 +652,7 @@ async function openCall(stem) {
       <dt>Seguro</dt><dd>${esc(c.insurance)} · plan: ${esc(c.plan)} · ficha ${esc(c.ficha || "sin ficha")}</dd>
       <dt>Tipificación</dt><dd>${esc(c.typification || "—")} · motivo: ${esc(c.reason)}</dd>
       ${c.comment ? `<dt>Comentario Excel</dt><dd>${esc(c.comment)}</dd>` : ""}
+      ${c.client_bad ? `<dt>NO CUMPLE (Excel)</dt><dd>${c.client_bad.length ? c.client_bad.map((id) => `${id}. ${esc(D.criteria[id])}`).join(" · ") : "ninguno"}</dd>` : ""}
     </dl>
     <div class="player"><audio id="player" controls preload="none"></audio>
       ${[0.75, 1, 1.25, 1.5, 2].map((r) => `<button class="btn spd${r === 1 ? " on" : ""}" data-r="${r}">${r}×</button>`).join("")}
@@ -440,9 +664,12 @@ async function openCall(stem) {
         <span style="font-size:12px;color:var(--text-2)">¿Acertó cada IA?</span>
         ${D.models.map((m) => `<label style="font-size:12px"><span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m))} <select class="myok" data-m="${m}"><option value="">—</option><option value="ok"${mine.models?.[m] === "ok" ? " selected" : ""}>sí</option><option value="bad"${mine.models?.[m] === "bad" ? " selected" : ""}>no</option></select></label>`).join("")}
       </div>
-      <textarea id="mynote" placeholder="Notas: qué motivo aplica, qué se equivocó la IA, problema de transcripción…">${esc(mine.note || "")}</textarea>
+      <textarea id="mynote" placeholder="Notas: qué motivo aplica, qué se equivocó la IA, problema de transcripción…${J && jIds(c.stem).length ? " o por qué un motivo quedó en «No sé»" : ""}">${esc(mine.note || "")}</textarea>
+      ${J && jIds(c.stem).length ? `<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--text-2)"><span id="jevprog"></span>
+        <label><input type="checkbox" id="jevhide"${jevHide ? " checked" : ""}> Ocultar la opinión de Jev hasta que etiquete el motivo</label></div>` : ""}
     </div>
-    <div class="mtabs">${D.models.map((m) => { const v = verdictOf(c, m) || "NONE", r = c.results[version]?.[m], leve = isLeve(r); return `<button class="btn mt${m === activeModel ? " on" : ""}" data-m="${m}"><span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m))} <span class="chip ${v}${leve ? " leve" : ""}"${leve ? ` title="Rechazada solo por motivos leves (${leveIds(r)}). Conviene revisar si de verdad amerita rechazo."` : ""}>${leve ? "RECHAZADA · SOLO LEVES" : SHOW[v] || "—"}</span></button>`; }).join("")}</div>
+    <div id="jevnote"></div><p id="jevlive" class="sr" aria-live="polite"></p>
+    <div class="mtabs">${D.models.map((m) => { const v = verdictOf(c, m) || "NONE", r = c.results[version]?.[m], leve = isLeve(r); const nj = J && m === J.source ? jIds(c.stem).length : 0; return `<button class="btn mt${m === activeModel ? " on" : ""}" data-m="${m}"${nj ? ` aria-label="${esc(lab(m))}, ${esc(SHOW[v] || "sin resultado").toLowerCase()}, ${nj} motivo${nj > 1 ? "s" : ""} con opinión de Jev"` : ""}><span class="dot" style="display:inline-block;background:${COLOR[m]}"></span> ${esc(lab(m))}${nj ? ` · Jev ${nj}` : ""} <span class="chip ${v}${leve ? " leve" : ""}"${leve ? ` title="Rechazada solo por motivos leves (${leveIds(r)}). Conviene revisar si de verdad amerita rechazo."` : ""}>${leve ? "RECHAZADA · SOLO LEVES" : SHOW[v] || "—"}</span></button>`; }).join("")}</div>
     <div id="mres"></div>
     <details open><summary>Transcripción (clic en una línea para escuchar desde ahí)</summary><div class="tr" id="tr">${c.transcript.map(([t, ch, tx], i) => `<div class="turn ${ch}" data-t="${t}" id="turn-${i}"><span class="ts">${fmtT(t)}</span><span class="who">${ch === "agent" ? "EJECUTIVO" : ch === "customer" ? "CLIENTE" : "OTRO"}</span><span>${esc(tx)}</span></div>`).join("")}</div></details>`;
   $("#prev").onclick = () => step(-1); $("#next").onclick = () => step(1);
@@ -450,7 +677,8 @@ async function openCall(stem) {
   document.querySelectorAll(".myv").forEach((b) => b.onclick = () => { setMine({ verdict: mine.verdict === b.dataset.v ? null : b.dataset.v }); openCallKeepAudio(); });
   document.querySelectorAll(".myok").forEach((s) => s.onchange = () => setMine({ models: { ...(reviews[stem]?.models || {}), [s.dataset.m]: s.value } }));
   $("#mynote").oninput = (e) => setMine({ note: e.target.value }, false);
-  document.querySelectorAll(".mt").forEach((b) => b.onclick = () => { activeModel = b.dataset.m; document.querySelectorAll(".mt").forEach((x) => x.classList.toggle("on", x === b)); renderModel(); });
+  document.querySelectorAll(".mt").forEach((b) => b.onclick = () => selectModel(b.dataset.m));
+  if ($("#jevhide")) $("#jevhide").onchange = (e) => { jevHide = e.target.checked; try { localStorage.setItem("l2-jev-hide", jevHide ? "1" : "0"); } catch {} renderModel(); };
   $("#tr").onclick = (e) => { const t = e.target.closest(".turn"); if (t) seek(+t.dataset.t); };
   renderModel();
   loadAudio(c);
@@ -470,9 +698,11 @@ function setMine(patch, rerenderList = true) {
 
 function renderModel() {
   const c = current, r = c.results[version]?.[activeModel];
+  const jevHere = J && activeModel === J.source && jIds(c.stem).length > 0, jevDone = new Set();
   let h = "";
-  if (!r || !r.verdict) h = `<p class="note">Sin resultado de este modelo en la versión ${esc(version)}.</p>`;
-  else if (!r.audit) h = `<p class="note">${r.verdict === "ERROR" ? "La IA no respondió: " + esc(r.error || "error") : "Solo hay detalle para la versión actual."}</p>`;
+  if (jevHere && version !== J.version) h += `<p class="note">La opinión de Jev corresponde a la versión ${esc(J.version)} del prompt. <button class="btn" id="jevver2">Cambiar a versión ${esc(J.version)}</button></p>`;
+  if (!r || !r.verdict) h += `<p class="note">Sin resultado de este modelo en la versión ${esc(version)}.</p>`;
+  else if (!r.audit) h += `<p class="note">${r.verdict === "ERROR" ? "La IA no respondió: " + esc(r.error || "error") : "Solo hay detalle para la versión actual."}</p>`;
   else {
     const a = r.audit, info = a.informacion_seguro || {};
     h += `<p style="font-size:13px"><b>Resumen:</b> ${esc(a.resumen)}</p>`;
@@ -485,8 +715,11 @@ function renderModel() {
     const block = (cr) => {
       const cls = cr.estado === "incumple" ? "RECHAZADA" : cr.estado === "indeterminado" ? "DUDOSA" : "APROBADA";
       const ev = (cr.evidencia || []).map((e) => { const s = parseT(e.t); return `<div class="ev">${s != null ? `<span class="ts" data-seek="${s}">${esc(e.t)}</span>` : esc(e.t || "")} ${esc(e.hablante)}: “${esc(e.cita)}”</div>`; }).join("");
-      const leve = MINOR.has(cr.id) ? ` <span class="chip NONE" title="Motivo leve: por sí solo marca la llamada para revisión">leve</span>` : "";
-      return `<div class="crit"><span class="chip ${cls}">${esc(cr.estado)}</span>${leve} <b>${cr.id}. ${esc(D.criteria[cr.id] || "")}</b> <small style="color:var(--muted)">confianza ${esc(cr.confianza)}</small><div class="c">${esc(cr.comentario)}</div>${ev}</div>`;
+      const leve = (MINOR.has(cr.id) ? ` <span class="chip NONE" title="Motivo leve: por sí solo marca la llamada para revisión">leve</span>` : "")
+        + (c.client_bad?.includes(cr.id) ? ` <span class="chip RECHAZADA" title="El auditor del cliente marcó este criterio NO CUMPLE">cliente: no cumple</span>` : "");
+      // Segunda opinión Jev: una vez por motivo (un motivo puede repetirse por seguro), solo en la versión de Jev.
+      const jev = jevHere && version === J.version && cr.estado === "incumple" && jPairs(c.stem)[cr.id] && !jevDone.has(cr.id) ? (jevDone.add(cr.id), jevSection(c, cr.id)) : "";
+      return `<div class="crit"><span class="chip ${cls}">${esc(cr.estado)}</span>${leve} <b>${cr.id}. ${esc(D.criteria[cr.id] || "")}</b> <small style="color:var(--muted)">confianza ${esc(cr.confianza)}</small><div class="c">${esc(cr.comentario)}</div>${ev}${jev}</div>`;
     };
     const main = crit.filter((x) => x.estado === "incumple" || x.estado === "indeterminado");
     h += main.length ? main.map(block).join("") : `<p class="note">Sin motivos incumplidos ni indeterminados.</p>`;
@@ -495,6 +728,7 @@ function renderModel() {
   }
   $("#mres").innerHTML = h;
   $("#mres").onclick = (e) => { const t = e.target.closest("[data-seek]"); if (t) seek(+t.dataset.seek, true); };
+  if (J) bindJev(c);
 }
 
 async function loadAudio(c) {
@@ -573,18 +807,375 @@ function exportCsv() {
   a.click();
 }
 
+// ---------- Segunda opinión Jev (D.jev, de jev_review.py) ----------
+// Jev respondió, para cada motivo que el modelo fuente marcó en llamadas que el Excel aprobó, una pregunta de opciones
+// (incumple / cumple / no aplica, con su confianza) y una sí/no (p de incumplimiento). "Cumple" y "no aplica", o p bajo
+// el umbral, revierten el rechazo. La etiqueta del par ("¿El ejecutivo incumple el motivo?") vive en
+// reviews[stem].motives y se guarda en la columna motivos_etiquetados del CSV.
+// Spec: docs/ux/calce-ia-vs-humano/jev-segunda-opinion/07-especificacion.md (§4, §8 y §9).
+const J = D.jev || null;
+const JV = J ? Object.fromEntries(J.variants.map((v) => [v.key, v])) : {};
+const LANG = { es: "español", en: "inglés" };
+const TYPE = { choice: "opciones", yesno: "sí/no" };
+const MODE = { blind: "ciego", finding: "con hallazgo" };
+const OPT = { incumple: "incumple", cumple: "cumple", no_aplica: "no aplica" };
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const pctJ = (x) => `${Math.round(100 * x)} %`;
+const fmtP = (p) => p.toLocaleString("es-CL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const jevName = (k, withMode = true) => { const v = JV[k]; return `${v.model} · ${LANG[v.lang] || v.lang} · ${TYPE[v.type]}${withMode ? ` · ${MODE[v.mode]}` : ""}`; };
+const jGroup = (mode, type) => J.variants.filter((v) => v.mode === mode && v.type === type);
+const jPairs = (stem) => J?.pairs[stem] || null;
+const jIds = (stem) => Object.keys(jPairs(stem) || {}).map(Number).sort((a, b) => a - b);
+const jCell = (stem, id, key) => jPairs(stem)?.[id]?.[key] ?? null;
+// ¿Jev confirma el rechazo? null si no respondió.
+const jConfirms = (stem, id, key) => {
+  const cell = jCell(stem, id, key);
+  return cell == null ? null : JV[key].type === "choice" ? cell.choice === "incumple" : cell.p >= J.threshold;
+};
+const jReverts = (stem, id, key) => jConfirms(stem, id, key) === false;
+// Decisión poco segura: confianza bajo low_conf (opciones) o p cerca del umbral (sí/no).
+const jUnsure = (stem, id, key) => {
+  const cell = jCell(stem, id, key);
+  if (cell == null) return false;
+  return JV[key].type === "choice" ? cell.conf < J.low_conf : cell.p >= J.near[0] && cell.p < J.near[1];
+};
+const tagOf = (stem, id) => reviews[stem]?.motives?.[id]?.v || "";
+const jevShown = new Set(); // "stem|id" revelados con "Mostrar igual"
+const jevOpen = new Set(); // <details> abiertos del bloque Jev, para conservarlos al re-renderizar
+const jevPromptSel = {}; // "stem|id" → { lang, mode, type } elegidos en "Ver la pregunta enviada a Jev"
+let jevHide = true;
+try { jevHide = localStorage.getItem("l2-jev-hide") !== "0"; } catch {}
+
+// Con la variante `key`, ¿todos los motivos de la llamada se revierten y no hay otros incumplidos (el 1 lo calcula el
+// código)? Con strict, además la llamada tiene que pasar a "aprueba" con la misma regla de la matriz 2×2 (si le quedan
+// indeterminados o la ficha no sirve, queda por revisar).
+function jevRescued(c, key, strict = false) {
+  const ids = jIds(c.stem);
+  if (!ids.length || !ids.every((id) => jReverts(c.stem, id, key))) return false;
+  if ((J.calls[c.stem]?.bad || []).some((id) => !ids.includes(id))) return false;
+  if (!strict) return true;
+  const r = c.results[J.version]?.[J.source];
+  const would = r?.unsure?.length || (r?.info && r.info !== "OK") ? "DUDOSA" : "APROBADA";
+  return decided({ verdict: would }) === "A";
+}
+
+function jevMatch(c, f) {
+  const ids = jIds(c.stem), k = J.main;
+  if (!ids.length) return false;
+  if (f === "with") return true;
+  if (f === "rev") return ids.some((id) => jReverts(c.stem, id, k));
+  if (f === "conf") return ids.every((id) => jConfirms(c.stem, id, k) === true);
+  if (f === "unsure") return ids.some((id) => jUnsure(c.stem, id, k));
+  if (f === "pending") return ids.some((id) => !tagOf(c.stem, id));
+  if (f === "contra") return ids.some((id) => { const t = tagOf(c.stem, id), cf = jConfirms(c.stem, id, k); return (t === "si" || t === "no") && cf != null && cf !== (t === "si"); });
+  return true;
+}
+function jevFilterOptions() {
+  const n = (f) => D.calls.filter((c) => jevMatch(c, f)).length;
+  return [["", "Jev: todas"], ["with", `Con opinión de Jev (${n("with")})`], ["rev", `Jev revierte algún motivo (${n("rev")})`],
+    ["conf", `Jev confirma todos los motivos (${n("conf")})`], ["unsure", `Jev con decisión poco segura (${n("unsure")})`],
+    ["pending", `Motivos sin etiquetar (${n("pending")})`], ["contra", `Jev contradice mi etiqueta (${n("contra")})`]]
+    .map(([v, t]) => `<option value="${v}"${F.jev === v ? " selected" : ""}>${t}</option>`).join("");
+}
+const jevTotals = () => { const all = D.calls.flatMap((c) => jIds(c.stem).map((id) => tagOf(c.stem, id))); return { n: all.length, k: all.filter(Boolean).length }; };
+function jevMark(c) {
+  const ids = J ? jIds(c.stem) : [];
+  if (!ids.length) return "";
+  const k = J.main, r = ids.filter((id) => jReverts(c.stem, id, k)).length, cf = ids.filter((id) => jConfirms(c.stem, id, k) === true).length;
+  const confs = JV[k].type === "choice" ? ids.map((id) => jCell(c.stem, id, k)?.conf).filter((x) => x != null) : [];
+  return `<div class="rv" title="Variante principal (${esc(jevName(k))}), prompt ${esc(J.version)}">Jev: ${r ? `revierte ${r} de ${ids.length}` : `confirma ${cf} de ${ids.length}`}${confs.length ? ` · confianza mín. ${pctJ(Math.min(...confs))}` : ""}</div>`;
+}
+
+// Grilla modelo × idioma de un grupo de variantes (mismo modo y tipo de pregunta).
+function jevGrid(stem, id, vs, caption, legId) {
+  const models = [...new Set(vs.map((v) => v.model))], langs = [...new Set(vs.map((v) => v.lang))];
+  const cell = (v) => {
+    if (!v) return "<td>—</td>";
+    const c = jCell(stem, id, v.key);
+    if (c == null) return `<td title="Jev no respondió en esta variante">— · sin respuesta</td>`;
+    const rv = jReverts(stem, id, v.key), main = v.key === J.main, un = jUnsure(stem, id, v.key);
+    const text = v.type === "choice" ? `${OPT[c.choice] || c.choice} · ${pctJ(c.conf)}` : `p = ${fmtP(c.p)} · ${rv ? "revierte" : "confirma"}`;
+    const srText = un ? (v.type === "choice" ? " (decisión poco segura)" : " (cerca del umbral)") : "";
+    return `<td class="${main ? "main" : ""}"${main ? ` aria-describedby="${legId}"` : ""}><span class="chip ${rv ? "APROBADA" : "RECHAZADA"}${un ? " near" : ""}">${text}${main ? " ★" : ""}</span>${srText ? `<span class="sr">${srText}</span>` : ""}</td>`;
+  };
+  return `<table class="jgrid"><caption>${caption}</caption><tr><td></td>${langs.map((l) => `<th scope="col">${cap(LANG[l] || l)}</th>`).join("")}</tr>`
+    + models.map((m) => `<tr><th scope="row">${esc(m)}</th>${langs.map((l) => cell(vs.find((v) => v.model === m && v.lang === l))).join("")}</tr>`).join("") + `</table>`;
+}
+
+// Probabilidad de cada opción, por variante de la pregunta de opciones.
+function jevProbs(stem, id) {
+  const opts = ["incumple", "cumple", "no_aplica"];
+  const rows = (vs) => vs.map((v) => {
+    const c = jCell(stem, id, v.key);
+    if (c == null) return `<tr><th scope="row">${esc(jevName(v.key, false))}</th><td class="n" colspan="5">— · sin respuesta</td></tr>`;
+    return `<tr><th scope="row">${esc(jevName(v.key, false))}${v.key === J.main ? " ★" : ""}</th>${opts.map((o) => `<td class="n">${o === c.choice ? `<b>${(c.probs?.[o] == null ? "—" : pctJ(c.probs[o]))} (elige)</b>` : (c.probs?.[o] == null ? "—" : pctJ(c.probs[o]))}</td>`).join("")}<td>${OPT[c.choice] || c.choice}</td><td class="n">${pctJ(c.conf)}</td></tr>`;
+  }).join("");
+  const blind = jGroup("blind", "choice"), finding = jGroup("finding", "choice");
+  return `<div class="wrap" tabindex="0" role="region" aria-label="Probabilidad que asigna Jev a cada opción"><table class="jgrid jprobs"><caption>Probabilidad que asigna Jev a cada opción</caption>
+    <tr><td></td>${["Incumple", "Cumple", "No aplica", "Elige", "Confianza"].map((t) => `<th scope="col">${t}</th>`).join("")}</tr>
+    <tr><th colspan="6" scope="rowgroup">Ciego</th></tr>${rows(blind)}
+    ${finding.length ? `<tr><th colspan="6" scope="rowgroup">Con el hallazgo de Gemini (no es independiente)</th></tr>${rows(finding)}` : ""}</table></div>
+    <p class="leg">La confianza la entrega Jev aparte y puede no coincidir con la probabilidad de la opción elegida.</p>`;
+}
+
+function jevHitLine(stem, id, tag) {
+  if (!tag) return "";
+  if (tag === "nose") return "Sin etiqueta concluyente: no se calcula acierto.";
+  const truth = tag === "si";
+  const score = (vs) => { const ans = vs.filter((v) => jConfirms(stem, id, v.key) != null); return [ans.filter((v) => jConfirms(stem, id, v.key) === truth).length, ans.length]; };
+  const parts = [];
+  for (const type of ["choice", "yesno"]) {
+    const vs = jGroup("blind", type);
+    if (vs.length) { const [a, n] = score(vs); parts.push(`${TYPE[type]} ciego ${a} de ${n}`); }
+  }
+  const main = jConfirms(stem, id, J.main);
+  return `Con tu etiqueta: acierta ${parts.join(" · ")} · principal ${main === truth ? "acierta" : "falla"} · ${esc(lab(J.source))} ${truth ? "acierta" : "falla"}.`;
+}
+
+// "Ver la pregunta enviada a Jev": instrucciones exactas de la variante elegida, sin el state (está en pantalla).
+function jevPromptText(stem, id, sel) {
+  const P = J.prompts?.[stem]?.[id] || {}, k = `${sel.type}|${sel.lang}|${sel.mode}`;
+  return J.prompts_by_model ? P[`${sel.model}|${k}`] : P[k];
+}
+function jevPromptBody(stem, id) {
+  const sel = jevPromptSel[`${stem}|${id}`], text = jevPromptText(stem, id, sel);
+  const opts = (sel.type === "choice" ? J.options : J.outcomes)?.[sel.lang] || [];
+  return `<div class="jphead"><b>Instrucciones</b> <button class="btn jcopy" data-jid="${id}"${text ? "" : " disabled"}>Copiar</button></div>
+    ${text ? `<pre class="jpre" tabindex="0" aria-label="Instrucciones enviadas a Jev, ${LANG[sel.lang]}, ${MODE[sel.mode]}, pregunta de ${TYPE[sel.type]}">${esc(text)}</pre>` : `<p class="note">No quedó registrada la pregunta de esta variante.</p>`}
+    <p class="leg" style="margin-top:8px">${sel.type === "choice" ? "Opciones que recibió Jev:" : "Respuestas que recibió Jev (sí/no):"}</p>
+    <ul class="jopts">${opts.map((o) => `<li><code>${esc(o.id)}</code> — ${esc(o.desc)}</li>`).join("")}</ul>
+    <p class="note">Además, Jev recibió el prompt de la llamada (metadatos, ficha, contrato, tipificación y transcripción; unos 6.000 tokens), el mismo que recibió ${esc(lab(J.source))}. La transcripción está más abajo en esta pantalla.</p>`;
+}
+function jevPromptBlock(stem, id) {
+  const key = `${stem}|${id}`, m = JV[J.main];
+  jevPromptSel[key] ||= { lang: m.lang, mode: m.mode, type: m.type, model: m.model };
+  const sel = jevPromptSel[key];
+  const uniq = (f) => [...new Set(J.variants.map(f))];
+  const group = (name, label, values, show) => `<fieldset class="jpsel"><legend>${label}</legend>${values.map((v) => `<label><input type="radio" class="jpr" data-jid="${id}" data-f="${name}" name="jp-${name}-${stem}-${id}" value="${esc(v)}"${sel[name] === v ? " checked" : ""}> ${esc(show(v))}</label>`).join("")}</fieldset>`;
+  return `<details class="jdet" data-k="prompt-${id}"${jevOpen.has(`${key}|prompt`) ? " open" : ""}><summary>Ver la pregunta enviada a Jev</summary>
+    <div class="jpsels">${group("lang", "Idioma", uniq((v) => v.lang), (v) => cap(LANG[v] || v))}${group("mode", "Modo", uniq((v) => v.mode), (v) => cap(MODE[v]))}${group("type", "Pregunta", uniq((v) => v.type), (v) => cap(TYPE[v]))}${J.prompts_by_model ? group("model", "Modelo", J.models, (v) => v) : ""}</div>
+    ${J.prompts_by_model ? "" : `<p class="leg">Se usó igual con ${J.models.map(esc).join(" y ")}.</p>`}
+    <div class="jpbody" id="jpbody-${id}">${jevPromptBody(stem, id)}</div></details>`;
+}
+
+function jevSection(c, id) {
+  const tag = tagOf(c.stem, id), sid = `jev-${c.stem}-${id}`, key = `${c.stem}|${id}`;
+  const hidden = jevHide && !tag && !jevShown.has(key);
+  const bc = jGroup("blind", "choice"), by = jGroup("blind", "yesno"), fc = jGroup("finding", "choice"), fy = jGroup("finding", "yesno");
+  const front = bc.length ? bc : by, folded = bc.length ? by : [];
+  const det = (k, summary, body) => `<details class="jdet" data-k="${k}"${jevOpen.has(`${key}|${k}`) ? " open" : ""}><summary>${summary}</summary>${body}</details>`;
+  const nConf = (vs) => vs.filter((v) => jConfirms(c.stem, id, v.key) === true).length;
+  let h = `<section class="jev" aria-labelledby="${sid}"><h4 id="${sid}">Segunda opinión Jev · motivo ${id}</h4>
+    <fieldset><legend>¿El ejecutivo incumple el motivo ${id}?</legend><div class="opts">${[["si", "Sí, incumple"], ["no", "No, cumple"], ["nose", "No sé"]]
+      .map(([v, t]) => `<label><input type="radio" class="jtag" name="jl-${c.stem}-${id}" data-jid="${id}" value="${v}"${tag === v ? " checked" : ""}> ${t}</label>`).join("")}</div></fieldset>`;
+  if (hidden) {
+    h += `<p class="note" style="margin:0">La opinión de Jev aparece cuando etiquetes el motivo. <button class="btn jshow" data-jid="${id}">Mostrar igual</button></p>`;
+  } else {
+    const frontType = front[0]?.type;
+    h += jevGrid(c.stem, id, front, `Ciego · pregunta de ${TYPE[frontType]}`, `${sid}-leg`)
+      + `<p class="leg" id="${sid}-leg">★ variante principal (${esc(jevName(J.main))}) · borde punteado: decisión poco segura (opciones: confianza bajo ${pctJ(J.low_conf)}; sí/no: p entre ${fmtP(J.near[0])} y ${fmtP(J.near[1])}). Opciones: «cumple» o «no aplica» revierten el rechazo de ${esc(lab(J.source))}; «incumple» lo confirma. Sí/no: desde p = 0,5 confirma.</p>`;
+    if (bc.length) h += det("probs", "Ver probabilidades por opción", jevProbs(c.stem, id));
+    h += `<p class="hit">${jevHitLine(c.stem, id, tag)}</p>`;
+    if (folded.length) h += det("yesno", `Pregunta sí/no, ciego (${folded.length} variantes: ${nConf(folded)} de ${folded.length} confirman)`, jevGrid(c.stem, id, folded, "Ciego · pregunta sí/no", `${sid}-leg`));
+    if (fc.length || fy.length) {
+      const parts = [fc.length ? `opciones ${nConf(fc)} de ${fc.length} confirman` : "", fy.length ? `sí/no ${nConf(fy)} de ${fy.length}` : ""].filter(Boolean).join(" · ");
+      h += det("finding", `Con el hallazgo de Gemini (${parts}) — no es independiente`,
+        `<p class="note">En este modo Jev ve el comentario y la evidencia de Gemini, y casi siempre le da la razón. Úsalo solo como referencia.</p>`
+        + (fc.length ? jevGrid(c.stem, id, fc, "Con hallazgo · pregunta de opciones", `${sid}-leg`) : "")
+        + (fy.length ? jevGrid(c.stem, id, fy, "Con hallazgo · pregunta sí/no", `${sid}-leg`) : ""));
+    }
+  }
+  return h + jevPromptBlock(c.stem, id) + `</section>`;
+}
+
+function setMotive(stem, id, v) {
+  const prev = reviews[stem]?.motives?.[id];
+  // "ciego" = la primera etiqueta se puso sin ver a Jev; si ya estaba etiquetado, Jev estaba a la vista.
+  const blind = !prev && jevHide && !jevShown.has(`${stem}|${id}`);
+  setMine({ motives: { ...(reviews[stem]?.motives || {}), [id]: { v, blind, at: new Date().toISOString() } } });
+}
+
+function renderJevProgress(c) {
+  const el = $("#jevprog");
+  if (!el) return;
+  const ids = jIds(c.stem), k = ids.filter((id) => tagOf(c.stem, id)).length;
+  el.innerHTML = `Motivos con Jev: ${k} de ${ids.length} etiquetados${k < ids.length ? ` · <button class="btn" id="jevgo">Ir al motivo pendiente</button>` : ""}`;
+  if ($("#jevgo")) $("#jevgo").onclick = () => {
+    const id = ids.find((x) => !tagOf(c.stem, x));
+    selectModel(J.source);
+    const radio = document.querySelector(`#mres input.jtag[data-jid="${id}"]`);
+    if (radio) { radio.closest("fieldset").scrollIntoView({ block: "center" }); radio.focus(); }
+  };
+}
+
+function renderJevNote(c) {
+  const el = $("#jevnote");
+  if (!el) return;
+  const ids = jIds(c.stem);
+  if (!ids.length) { el.innerHTML = ""; return; }
+  const n = ids.length, r = ids.filter((id) => jReverts(c.stem, id, J.main)).length, src = esc(lab(J.source));
+  let h = `<p class="note" style="margin:6px 0"><b>Jev revisó ${n} motivo${n > 1 ? "s" : ""} que ${src} marcó como incumplido${n > 1 ? "s" : ""}.</b> Variante principal (${esc(jevName(J.main))}): revierte ${r} de ${n}.`
+    + (activeModel !== J.source ? ` <button class="btn" id="jevtab">Ver en ${src}</button>` : "");
+  if (jevRescued(c, J.main)) h += `<br>Con la variante principal, ${src} quedaría sin motivos incumplidos en esta llamada.`;
+  if ((J.calls[c.stem]?.bad || []).includes(1)) h += `<br>Jev no evalúa el motivo 1: lo calcula el código a partir de las esperas.`;
+  el.innerHTML = h + `</p>`;
+  if ($("#jevtab")) $("#jevtab").onclick = () => selectModel(J.source);
+}
+
+// Enlaza los controles del bloque Jev después de cada renderModel().
+function bindJev(c) {
+  renderJevNote(c); renderJevProgress(c);
+  if ($("#jevver2")) $("#jevver2").onclick = () => setVersion(J.version);
+  const live = (t) => { if ($("#jevlive")) $("#jevlive").textContent = t; };
+  document.querySelectorAll("#mres .jshow").forEach((b) => b.onclick = () => {
+    jevShown.add(`${c.stem}|${b.dataset.jid}`); renderModel();
+    document.querySelector(`#mres input.jtag[data-jid="${b.dataset.jid}"]`)?.focus();
+  });
+  document.querySelectorAll("#mres input.jtag").forEach((inp) => inp.onchange = () => {
+    const id = inp.dataset.jid, dy = $(".detail")?.scrollTop;
+    setMotive(c.stem, id, inp.value); renderModel();
+    const line = jevHitLine(c.stem, id, inp.value);
+    live(line ? `Motivo ${id}: ${line}` : "");
+    if ($(".detail")) $(".detail").scrollTop = dy;
+    document.querySelector(`#mres input.jtag[data-jid="${id}"][value="${inp.value}"]`)?.focus({ preventScroll: true });
+  });
+  document.querySelectorAll("#mres details.jdet").forEach((d) => d.ontoggle = () => {
+    const id = d.closest(".jev").querySelector("input.jtag").dataset.jid, k = `${c.stem}|${id}|${d.dataset.k.startsWith("prompt") ? "prompt" : d.dataset.k}`;
+    if (d.open) jevOpen.add(k); else jevOpen.delete(k);
+  });
+  document.querySelectorAll("#mres input.jpr").forEach((inp) => inp.onchange = () => {
+    const id = inp.dataset.jid;
+    jevPromptSel[`${c.stem}|${id}`][inp.dataset.f] = inp.value;
+    $(`#jpbody-${id}`).innerHTML = jevPromptBody(c.stem, id);
+    bindCopy();
+  });
+  const bindCopy = () => document.querySelectorAll("#mres .jcopy").forEach((b) => b.onclick = async () => {
+    const id = b.dataset.jid, text = jevPromptText(c.stem, id, jevPromptSel[`${c.stem}|${id}`]) || "";
+    try { await navigator.clipboard.writeText(text); b.textContent = "Copiado"; live(`Instrucciones del motivo ${id} copiadas`); }
+    catch { b.textContent = "No se pudo copiar"; live("No se pudieron copiar las instrucciones; selecciona el texto y cópialo a mano"); }
+    setTimeout(() => { b.textContent = "Copiar"; }, 2000);
+  });
+  bindCopy();
+}
+
+function jevCard(series, st) {
+  if (!J) return "";
+  const src = esc(lab(J.source)), title = `<h3>¿Sirve Jev como segunda opinión sobre ${src}?</h3>`;
+  if (version !== J.version) {
+    return `<div class="card" style="margin-bottom:12px">${title}<p class="note">Jev se corrió solo sobre la versión ${esc(J.version)} del prompt, con ${src} como fuente.</p>
+      <button class="btn" id="jevver">Ver la versión ${esc(J.version)}</button></div>`;
+  }
+  const se = series.find((x) => x.id === J.source), s = se ? st.get(se) : null;
+  const jcalls = D.calls.filter((c) => jIds(c.stem).length);
+  const pairs = jcalls.flatMap((c) => jIds(c.stem).map((id) => ({ c, id, tag: tagOf(c.stem, id) })));
+  const N = pairs.length, labeled = pairs.filter((x) => x.tag), yn = labeled.filter((x) => x.tag !== "nose"), nose = labeled.length - yn.length;
+  const blindTagged = labeled.filter((x) => reviews[x.c.stem]?.motives?.[x.id]?.blind).length;
+  // Referencia por llamada (aprox.): la etiqueta del par si existe; si no, la revisión manual de la llamada (lo
+  // esperado es revertir, salvo que la hayas rechazado). Mismo cálculo que jev_review.py report.
+  const truthRef = (x) => x.tag === "si" || (x.tag !== "no" && reviews[x.c.stem]?.verdict === "RECHAZADA");
+  const tagsOf = (c) => jIds(c.stem).map((id) => tagOf(c.stem, id));
+  const median = (xs) => { if (!xs.length) return null; const a = [...xs].sort((p, q) => p - q), m = Math.floor(a.length / 2); return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; };
+  const stat = (v) => {
+    const conf = (x) => jConfirms(x.c.stem, x.id, v.key), ans = pairs.filter((x) => conf(x) != null), k = yn.filter((x) => conf(x) != null);
+    const hit = (x) => conf(x) === (x.tag === "si"), confOf = (x) => jCell(x.c.stem, x.id, v.key)?.conf;
+    const isChoice = v.type === "choice", hi = isChoice ? k.filter((x) => confOf(x) >= J.low_conf) : [], lo = isChoice ? k.filter((x) => confOf(x) < J.low_conf) : [];
+    const rescued = jcalls.filter((c) => jevRescued(c, v.key, true));
+    return { v, n: ans.length, r: ans.filter((x) => !conf(x)).length, k: k.length, x: k.filter(hit).length,
+      e: k.filter((x) => x.tag === "si" && !conf(x)).length, f: k.filter((x) => x.tag === "no" && conf(x)).length,
+      c: rescued.length, ok: rescued.filter((c) => tagsOf(c).every((t) => t === "no")).length, bad: rescued.filter((c) => tagsOf(c).includes("si")).length,
+      y: ans.filter((x) => conf(x) === truthRef(x)).length, miss: N - ans.length, missK: yn.length - k.length,
+      med: isChoice ? median(ans.map(confOf)) : null, x1: hi.filter(hit).length, k1: hi.length, x2: lo.filter(hit).length, k2: lo.length,
+      cost: v.cost_usd, lat: v.latency_ms };
+  };
+  const rows = J.variants.map(stat), main = rows.find((r) => r.v.key === J.main);
+  const blindRows = rows.filter((r) => r.v.mode === "blind"), findRows = rows.filter((r) => r.v.mode !== "blind");
+  const base = { k: yn.length, x: yn.filter((x) => x.tag === "si").length, f: yn.filter((x) => x.tag === "no").length, y: pairs.filter(truthRef).length };
+  const rate = (r) => r.k ? r.x / r.k : -1, bestRate = yn.length ? Math.max(...blindRows.map(rate)) : null;
+  const bests = bestRate == null || bestRate < 0 ? [] : blindRows.filter((r) => rate(r) === bestRate);
+  const fa = s ? s.A.R : null, nA = s ? s.A.n : 0;
+  const realErr = (e) => `${e} incumplimiento${e === 1 ? "" : "s"} real${e === 1 ? "" : "es"}`;
+
+  let lead;
+  if (!labeled.length) {
+    lead = `Todavía no se puede saber si Jev acierta: no hay motivos etiquetados. Por ahora, la variante principal (${esc(jevName(J.main))}) revierte <b>${main.r} de ${N}</b> motivos y rescataría <b>${main.c} de ${jcalls.length}</b> llamadas.`;
+  } else if (labeled.length < N) {
+    lead = `Resultado preliminar con <b>${labeled.length} de ${N}</b> motivos etiquetados: la variante principal acierta <b>${main.x} de ${main.k}</b>; ${src} sola, ${base.x} de ${base.k}.`
+      + (main.e ? ` <span class="err">Ojo: revierte ${realErr(main.e)}.</span>` : "");
+  } else if (!yn.length) {
+    lead = `Los ${N} motivos están marcados «No sé»: no se puede calcular el acierto de Jev.`;
+  } else {
+    const b = bests[0] || main;
+    lead = (bests.length > 1
+      ? `Con los ${N} motivos revisados, las variantes ciegas ${bests.map((r) => `<b>${esc(jevName(r.v.key, false))}</b>`).join(" y ")} empatan con <b>${b.x} de ${b.k}</b>; ${src} sola, ${base.x} de ${base.k}.`
+      : `Con los ${N} motivos revisados, la mejor variante ciega, <b>${esc(jevName(b.v.key, false))}</b>, acierta <b>${b.x} de ${b.k}</b>; ${src} sola, ${base.x} de ${base.k}.`)
+      + ` Esa variante revierte ${realErr(b.e)} y bajaría las falsas alarmas de ${src} de ${fa ?? "—"} a ${fa == null ? "—" : fa - b.c}.`
+      + (b.v.type === "choice" && b.k2 ? ` Con confianza bajo ${pctJ(J.low_conf)}, acierta ${b.x2} de ${b.k2}.` : "");
+  }
+
+  const dash = "—", none = !yn.length;
+  const cols = ["Variante", "Revierte", "Acierta según tus etiquetas", "Revierte un incumplimiento real", "Confirma una falsa alarma", "Llamadas rescatadas",
+    "Referencia por llamada (aprox.)", "Confianza mediana", `Acierta con confianza ≥ ${pctJ(J.low_conf)} · < ${pctJ(J.low_conf)}`, "Costo estimado", "Latencia prom."];
+  const tr = (r, cls = "") => {
+    const isMain = r.v.key === J.main, best = bests.includes(r), choice = r.v.type === "choice";
+    const xCell = none || !r.k ? dash : `${best ? "<b>" : ""}${r.x} de ${r.k}${best ? ` (${bests.length > 1 ? "empate" : "mejor"})</b>` : ""}`;
+    const noConf = ` title="La pregunta sí/no no entrega confianza"`;
+    return `<tr class="${cls}"><th scope="row">${esc(jevName(r.v.key, false))}${isMain ? " ★" : ""}</th>
+      <td class="n"${r.miss ? ` title="Jev no respondió en ${r.miss} motivos"` : ""}>${r.r} de ${r.n}</td>
+      <td class="n"${r.missK ? ` title="Jev no respondió en ${r.missK} motivos etiquetados"` : ""}>${xCell}</td>
+      <td class="n">${none ? dash : r.e ? `<span class="err">${r.e}</span>` : 0}</td>
+      <td class="n">${none ? dash : r.f}</td>
+      <td class="n">${r.c} de ${jcalls.length}<div class="rv">${none ? "sin etiquetas" : `${r.ok} bien · ${r.bad} con incumplimiento real · ${r.c - r.ok - r.bad} sin etiqueta concluyente`}</div></td>
+      <td class="n" style="color:var(--text-2)" title="Aproximada: la revisión por llamada no dice qué motivo falló.">${r.y} de ${r.n}</td>
+      <td class="n"${choice ? "" : noConf}>${choice && r.med != null ? pctJ(r.med) : dash}</td>
+      <td class="n"${choice ? "" : noConf}>${choice && !none ? `${r.x1} de ${r.k1} · ${r.x2} de ${r.k2}` : dash}</td>
+      <td class="n" title="Calculado con el precio de entrada registrado en jev_review.py; confírmalo en la consola de TypeSafe antes de presupuestar.">${fmtUsd(r.cost, 4)}</td>
+      <td class="n">${(r.lat / 1000).toLocaleString("es-CL", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} s</td></tr>`;
+  };
+  const head = `<thead><tr>${cols.map((c, i) => `<th scope="col"${i ? ' class="n"' : ""} style="white-space:normal">${c}</th>`).join("")}</tr></thead>`;
+  const grp = (label, rs, cls = "") => rs.length ? `<tbody><tr><th colspan="${cols.length}" scope="rowgroup">${label}</th></tr>${rs.map((r) => tr(r, cls)).join("")}</tbody>` : "";
+  const table = (caption, body) => `<div class="wrap" tabindex="0" role="region" aria-label="${caption}"><table class="jvt"><caption class="sr">${caption}</caption>${head}${body}</table></div>`;
+  const caption = `Resultado de cada variante de Jev sobre los ${N} motivos`;
+  const pend = N - labeled.length;
+  const baseRow = `<tbody><tr><th colspan="${cols.length}" scope="rowgroup">Línea base</th></tr>
+    <tr><th scope="row">${src} sola (confirma todo)</th><td class="n">0 de ${N}</td><td class="n">${none ? dash : `${base.x} de ${base.k}`}</td><td class="n">${none ? dash : 0}</td><td class="n">${none ? dash : base.f}</td><td class="n">0 de ${jcalls.length}</td><td class="n" style="color:var(--text-2)">${base.y} de ${N}</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr></tbody>`;
+
+  return `<div class="card" style="margin-bottom:12px">${title}
+    <p class="note">Experimento sobre la versión ${esc(J.version)}: ${N} motivos que ${src} marcó como incumplidos en ${jcalls.length} llamadas que el Excel aprobó. Con la pregunta de opciones, Jev elige incumple, cumple o no aplica y entrega su confianza; «cumple» y «no aplica» revierten el rechazo. Con la pregunta sí/no, entrega solo la probabilidad de incumplimiento: desde 0,5 confirma. No depende de los selectores de métrica ni de consenso; las llamadas «por revisar» se cuentan igual que en la matriz de arriba.</p>
+    <p class="lead" style="font-size:14px;margin:0 0 12px;max-width:1000px">${lead}</p>
+    <div class="tiles" style="margin-bottom:12px">
+      <div class="tile"><div class="v">${fa == null ? dash : `${fa} → ${fa - main.c}`}</div><div class="l">Falsas alarmas de ${src}, de ${nA} aprobadas por el Excel</div><div class="s">si se aplicara ${esc(jevName(J.main))}</div></div>
+      <div class="tile"><div class="v">${labeled.length} de ${N}</div><div class="l">Motivos etiquetados</div><div class="s">${labeled.length ? `${blindTagged} sin ver a Jev` : "etiquétalos en Revisión"}</div></div>
+      <div class="tile"><div class="v${main.e ? " err" : ""}">${none ? dash : main.e}</div><div class="l">Incumplimientos reales que Jev revierte</div><div class="s">Es el error caro: cada uno es un incumplimiento que dejaría de verse.</div></div>
+    </div>
+    ${table(caption, grp("Ciego · pregunta de opciones", blindRows.filter((r) => r.v.type === "choice")) + grp("Ciego · pregunta sí/no", blindRows.filter((r) => r.v.type !== "choice")) + baseRow)}
+    ${findRows.length ? `<details style="margin-top:6px"><summary>Ver las ${findRows.length} variantes con hallazgo (ancladas a Gemini)</summary>
+      <p class="note">Ven el comentario y la evidencia de Gemini y casi siempre le dan la razón: úsalas solo como referencia. No compiten por «mejor».</p>
+      ${table("Variantes de Jev con el hallazgo de Gemini", grp("Con hallazgo · pregunta de opciones", findRows.filter((r) => r.v.type === "choice"), "dim") + grp("Con hallazgo · pregunta sí/no", findRows.filter((r) => r.v.type !== "choice"), "dim"))}</details>` : ""}
+    <p class="note" style="margin-top:8px">★ variante principal (${esc(jevName(J.main))}).${nose ? ` ${nose} motivo${nose > 1 ? "s" : ""} marcado${nose > 1 ? "s" : ""} «No sé» no cuenta${nose > 1 ? "n" : ""} para el acierto.` : ""}
+      Con ${N} motivos, cada uno vale ${(100 / N).toLocaleString("es-CL", { maximumFractionDigits: 1 })} puntos: diferencias de 1 o 2 motivos entre variantes no son concluyentes. Por eso se muestran conteos y no porcentajes.</p>
+    ${pend ? `<button class="btn${labeled.length ? "" : " on"}" id="jevpend">Etiquetar motivos pendientes (${pend}) →</button>` : ""}
+  </div>`;
+}
+
+function selectModel(m) {
+  activeModel = m;
+  document.querySelectorAll(".mt").forEach((x) => x.classList.toggle("on", x.dataset.m === m));
+  renderModel();
+}
+
 // ---------- Tabs / versión ----------
 function show(tab) {
   $("#dash").hidden = tab !== "dash"; $("#rev").hidden = tab !== "rev";
   $("#t-dash").classList.toggle("on", tab === "dash"); $("#t-rev").classList.toggle("on", tab === "rev");
   try { localStorage.setItem("l2-tab", tab); } catch {}
 }
-$("#t-dash").onclick = () => show("dash");
+$("#t-dash").onclick = () => { renderDash(); show("dash"); };
 $("#t-rev").onclick = () => show("rev");
-$("#ver").onchange = (e) => { version = e.target.value; renderDash(); renderList(); if (current) openCall(current.stem); };
+function setVersion(v) { version = v; $("#ver").value = v; renderDash(); renderList(); if (current) openCall(current.stem); }
+$("#ver").onchange = (e) => setVersion(e.target.value);
 renderDash();
 renderRevShell();
-loadServerReviews().then(() => { renderList(); if (current) openCall(current.stem); });
+loadServerReviews().then(() => { renderDash(); renderList(); if (current) openCall(current.stem); });
 let startTab = "dash";
 try { startTab = localStorage.getItem("l2-tab") || "dash"; } catch {}
 show(startTab);

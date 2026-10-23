@@ -81,6 +81,7 @@ def queue_rows(
     agent_id: str | None,
     engine_verdict: str | None,
     block_id: str | None,
+    call_id: str | None = None,
 ) -> list[dict]:
     cases = session.scalars(select(Case).where(Case.status.in_(OPEN_STATUSES))).all()
     rows = []
@@ -89,6 +90,8 @@ def queue_rows(
             continue
         row = out.case_summary(case, rubric, user)
         if agent_id and row["agent"]["id"] != agent_id:
+            continue
+        if call_id and not row["callId"].startswith(call_id.strip()):
             continue
         if engine_verdict and engine_verdict != "sample" and row["engineVerdict"] != engine_verdict:
             continue
@@ -112,8 +115,9 @@ def list_queue(
     agentId: str | None = None,  # noqa: N803
     engineVerdict: str | None = None,
     blockId: str | None = None,
+    callId: str | None = None,
 ):  # noqa: N803
-    rows = queue_rows(session, user, rubric, agentId, engineVerdict, blockId)
+    rows = queue_rows(session, user, rubric, agentId, engineVerdict, blockId, callId)
     reviewed = session.scalar(
         select(func.count())
         .select_from(Review)
@@ -122,7 +126,7 @@ def list_queue(
     # total = toda la cola, sin filtros (igual que el mock): el front muestra "n de total".
     total = (
         len(rows)
-        if not (agentId or engineVerdict or blockId)
+        if not (agentId or engineVerdict or blockId or callId)
         else len(queue_rows(session, user, rubric, None, None, None))
     )
     return {"rows": rows, "total": total, "reviewedToday": reviewed or 0}
@@ -132,11 +136,12 @@ class QueueFiltersIn(BaseModel):
     agentId: str | None = None  # noqa: N815
     engineVerdict: str | None = None  # noqa: N815
     blockId: str | None = None  # noqa: N815
+    callId: str | None = None  # noqa: N815
 
 
 @router.post("/queue/next")
 def take_next_case(body: QueueFiltersIn, session: DbSession, user: CurrentUser, rubric: RubricDep):
-    for row in queue_rows(session, user, rubric, body.agentId, body.engineVerdict, body.blockId):
+    for row in queue_rows(session, user, rubric, body.agentId, body.engineVerdict, body.blockId, body.callId):
         if row["lockedBy"] in (None, {"id": user.id, "name": user.name}):
             case = get_case(session, row["id"])
             case.locked_by_id, case.status = user.id, "in_review"
@@ -148,7 +153,8 @@ def take_next_case(body: QueueFiltersIn, session: DbSession, user: CurrentUser, 
 @router.get("/agents")
 def list_agents(session: DbSession, _: CurrentUser, query: str = ""):
     agents = session.scalars(select(Agent).order_by(Agent.name)).all()
-    return [out.agent_out(a) for a in agents if query.lower() in a.name.lower()]
+    rows = [out.agent_out(a) for a in agents]
+    return [r for r in rows if query.lower() in r["name"].lower()]
 
 
 # --- Caso -----------------------------------------------------------------------------

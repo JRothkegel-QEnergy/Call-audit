@@ -200,8 +200,8 @@
             },
             "motivos_sugeridos": {
               "type": "array",
-              "description": "Solo si el motivo 18 incumple para este seguro: de 1 a 3 motivos de la lista válida que sí calzan con lo que dijo el cliente, del más al menos adecuado. Vacío en otro caso.",
-              "maxItems": 3,
+              "description": "Solo si el motivo 18 incumple para este seguro: al menos 3 motivos distintos de la lista válida que calzan mejor que el tipificado con lo que dijo el cliente, del más al menos adecuado. Vacío en otro caso.",
+              "maxItems": 5,
               "items": {
                 "type": "object",
                 "required": ["motivo", "cita"],

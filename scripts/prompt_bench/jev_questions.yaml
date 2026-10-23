@@ -1,0 +1,215 @@
+# Preguntas para Jev (TypeSafe) por motivo de la pauta, en español y en inglés. Las usa jev_review.py.
+#
+# Fuente: criterios del system prompt de la capa 2 v2.8 (prompts/layer2/system.txt en b66cf5a), resumidos a lo
+# que hace falta para decidir ese motivo con la transcripción. Si cambia el criterio en el prompt, cambia aquí.
+# En inglés, las frases del español chileno que definen el criterio ("¿verdad?", "¿cierto?", motivos de la
+# tipificación) se dejan en español entre comillas: la transcripción está en español y Jev debe reconocerlas tal cual.
+# Motivo 1 (espera) no está: se calcula en código desde los silencios, no lo decide el LLM.
+
+version: "1.2"
+
+intro:
+  es: >-
+    Eres auditor de calidad de un call center de seguros de BancoEstado (Chile). El estado trae los metadatos de la
+    llamada, la ficha y el contrato de cada seguro, la tipificación que registró el ejecutivo y la transcripción
+    (español de Chile, hablantes separados por IA, timestamps mm:ss, datos personales enmascarados entre corchetes).
+    Evalúa un solo motivo de la pauta de calidad.
+  en: >-
+    You are a quality auditor for a BancoEstado (Chile) insurance call center. The state contains the call
+    metadata, the product sheet and contract for each policy, the call classification the agent recorded, and the
+    call transcript. All of it is in Chilean Spanish: speakers were separated by AI (AGENTE = agent, CLIENTE =
+    customer), timestamps are mm:ss, and personal data is masked in square brackets. Evaluate a single criterion
+    of the quality rubric.
+
+finding:
+  es: >-
+    Otra IA marcó este motivo como incumplido con este argumento: «{comment}» Evidencia que citó: {evidence}.
+    Revisa ese hallazgo contra la transcripción: puede estar equivocado.
+  en: >-
+    Another AI flagged this criterion as violated, with this reasoning (in Spanish): «{comment}» Evidence it
+    quoted: {evidence}. Check that finding against the transcript: it may be wrong.
+
+question:
+  es: "¿El ejecutivo INCUMPLE este motivo en esta llamada, de modo que la llamada deba rechazarse por él?"
+  en: "Does the agent VIOLATE this criterion in this call, so that the call should be rejected for it?"
+
+# Pregunta mínima (--qtype minimal), pedida por Johannes el 2026-10-20: solo el nombre oficial del motivo (el del Excel,
+# viewer.CRITERIA; en inglés, el título de criteria.en) y si ocurre o no, sin rol, sin criterio explicado, sin hallazgo
+# y sin descripción de las opciones. Los motivos describen la falta, por eso se pregunta si "ocurre".
+minimal:
+  question:
+    es: "Motivo {id} de la pauta: «{name}». ¿Ocurre esto en la llamada?"
+    en: "Criterion {id} of the rubric: «{name}». Does this happen in the call?"
+  options:
+    es: {violation: ocurre, ok: no_ocurre}
+    en: {violation: happens, ok: does_not_happen}
+
+# Pregunta de opción (--qtype choice): Jev devuelve la opción elegida, una probabilidad por opción y su confianza.
+question_choice:
+  es: "¿Cómo queda este motivo en esta llamada?"
+  en: "How does this call stand on this criterion?"
+
+choice_options:
+  es:
+    incumple: "Incumple: la llamada debe rechazarse por este motivo."
+    cumple: "Cumple: el ejecutivo hizo lo que exige el motivo."
+    no_aplica: "No aplica: la situación del motivo no se dio en esta llamada."
+  en:
+    incumple: "Violated: the call should be rejected for this criterion."
+    cumple: "Complied with: the agent did what the criterion requires."
+    no_aplica: "Does not apply: the situation the criterion covers did not occur in this call."
+
+outcomes:
+  es:
+    "true": "Sí: incumple. La llamada debe rechazarse por este motivo."
+    "false": "No: cumple, o el motivo no aplica en esta llamada."
+  en:
+    "true": "Yes: violated. The call should be rejected for this criterion."
+    "false": "No: complied with, or the criterion does not apply to this call."
+
+criteria:
+  2:
+    es: >-
+      Motivo 2 · Descripción del seguro corresponde a otro seguro. Lo que el ejecutivo describe por iniciativa
+      propia (coberturas, montos, condiciones) debe coincidir con la FICHA del seguro. Decir el plan, la prima o el
+      monto del CONTRATO del cliente no incumple aunque no esté en la ficha. Incumple solo con una afirmación
+      incorrecta MATERIAL: que cambie lo que el cliente entiende que tiene o paga (amplía la cobertura, cambia cuándo
+      o cuánto paga, o la disponibilidad de su dinero) y que se use para retener o para responder. No son materiales
+      los redondeos, lapsus que el ejecutivo corrige, herederos vs beneficiarios, ni detalles operativos que la ficha
+      no trae. Si no se puede señalar la línea de la ficha o del contrato que la afirmación contradice, no incumple.
+    en: >-
+      Criterion 2 · The description of the policy matches a different policy. What the agent describes on their
+      own initiative (coverages, amounts, conditions) must match the policy's product sheet ("FICHA"). Stating the
+      plan, premium or insured amount from the customer's CONTRACT ("CONTRATO") is not a violation even if the sheet
+      does not list it. It is violated only by a MATERIAL incorrect statement: one that changes what the customer
+      understands they have or pay (widens the coverage, changes when or how much they pay, or the availability of
+      their money) and that is used to retain the customer or to answer them. Rounding, slips the agent corrects,
+      heirs vs beneficiaries, and operational details the sheet does not cover are not material. If you cannot point
+      to the line of the sheet or contract that the statement contradicts, it is not violated.
+  3:
+    es: >-
+      Motivo 3 · Excede 3 objeciones máximo para retención. Objeción: cada argumento de retención que el ejecutivo da
+      después de que el cliente expresó que quiere renunciar o rechazó un argumento anterior; el primer argumento tras
+      la solicitud es la objeción 1. Responder una pregunta del cliente con información, sin intentar convencerlo, no
+      cuenta. El máximo de 3 aplica solo si el cliente es tajante (reitera su decisión con claridad: "ya le dije que
+      no", "hágame la renuncia"). Si el cliente duda o pide más información, seguir conversando no es exceso.
+    en: >-
+      Criterion 3 · Exceeds the maximum of 3 objections when retaining. An objection is each retention argument the
+      agent makes after the customer said they want to cancel or rejected a previous argument; the first argument
+      after the request is objection 1. Answering a customer's question with information, without trying to
+      persuade, does not count. The limit of 3 applies only if the customer is firm, clearly repeating their decision
+      (e.g. "ya le dije que no", "hágame la renuncia"). If the customer hesitates or asks for more information,
+      continuing the conversation is not an excess.
+  6:
+    es: >-
+      Motivo 6 · No maneja información del producto o coberturas. Incumple si, ante una pregunta del cliente sobre el
+      producto, el ejecutivo responde con datos que contradicen la ficha, con vaguedad ("eso lo ve la compañía",
+      "depende de su póliza"), no la da, la niega o la desvía a otro canal. Un dato incorrecto incumple solo si es
+      MATERIAL (cambia lo que el cliente entiende que tiene o paga). Excepción: las fechas de pago no se manejan en
+      el call center. Si el cliente no hizo preguntas sobre el producto, no aplica.
+    en: >-
+      Criterion 6 · Does not handle information about the product or its coverages. Violated if, when the customer
+      asks about the product, the agent answers with data that contradicts the product sheet, answers vaguely (e.g.
+      "eso lo ve la compañía", "depende de su póliza"), does not give it, denies it, or redirects it to another
+      channel. Incorrect data is a violation only if it is MATERIAL (it changes what the customer understands they
+      have or pay). Exception: payment dates are not handled by the call center. If the customer asked nothing about
+      the product, it does not apply.
+  11:
+    es: >-
+      Motivo 11 · Descalifica a los pares, a BancoEstado o a la competencia. Hablar mal de ejecutivos de venta,
+      ejecutivos del banco, otros ejecutivos, BancoEstado, la compañía o la competencia. Incluye confirmar o dar por
+      hecho que el cliente fue mal informado o engañado por quien le vendió el seguro ("sí, la ejecutiva le informó
+      mal", "a usted le vendieron mal"), aunque sea para empatizar. Explicar la información sin juzgar a otra persona
+      no incumple.
+    en: >-
+      Criterion 11 · Disparages colleagues, BancoEstado or competitors. Speaking badly of sales agents, bank staff,
+      other agents, BancoEstado, the insurer or competitors. It includes confirming or taking for granted that the
+      customer was misinformed or misled by whoever sold them the policy (e.g. "sí, la ejecutiva le informó mal",
+      "a usted le vendieron mal"), even to empathize. Explaining the information without judging another person is
+      not a violation.
+  16:
+    es: >-
+      Motivo 16 · Realiza retención de seguro sin intención de renuncia. Incumple si el ejecutivo intenta retener un
+      seguro que el cliente nunca pidió cancelar. Si el cliente pidió renunciar ese seguro en cualquier momento de la
+      llamada, aunque con una frase indirecta ("no lo quiero seguir pagando", "quiero sacarlo"), retenerlo no
+      incumple.
+    en: >-
+      Criterion 16 · Tries to retain a policy the customer did not ask to cancel. Violated if the agent tries to
+      retain a policy the customer never asked to cancel. If the customer asked to cancel that policy at any point in
+      the call, even indirectly (e.g. "no lo quiero seguir pagando", "quiero sacarlo"), retaining it is not a
+      violation.
+  18:
+    es: >-
+      Motivo 18 · Tipifica motivo de renuncia incorrecto. Compara el motivo de renuncia que registró el ejecutivo
+      (sección "Tipificación registrada por el ejecutivo") con lo que dijo el cliente. Sé flexible: basta con que
+      tenga sentido con alguna de las razones del cliente; una misma razón cabe en varias categorías ("me subió la
+      prima y no quiero seguir pagando" = Aumento Valor de la Prima, Problemas Económicos o No desea contraer más
+      obligaciones). Si el cliente no explicó sus razones, un motivo genérico (No desea contraer más obligaciones, No
+      informado) está bien. Incumple solo si el motivo no tiene relación con nada de lo que dijo el cliente o lo
+      contradice. "Disconformidad con coberturas" exige que el cliente se queje de las coberturas de ESTE seguro.
+    en: >-
+      Criterion 18 · Records the wrong cancellation reason. Compare the cancellation reason the agent recorded
+      (section "Tipificación registrada por el ejecutivo"; the reasons are Spanish category names) with what the
+      customer said. Be lenient: it is enough that it makes sense with any of the customer's reasons, and one reason
+      can fit several categories (e.g. "me subió la prima y no quiero seguir pagando" fits "Aumento Valor de la
+      Prima", "Problemas Económicos" or "No desea contraer más obligaciones"). If the customer gave no reasons, a
+      generic category ("No desea contraer más obligaciones", "No informado") is fine. It is violated only if the
+      recorded reason is unrelated to everything the customer said, or contradicts it. "Disconformidad con
+      coberturas" requires the customer to complain about the coverages of THIS policy.
+  25:
+    es: >-
+      Motivo 25 · No tipifica todas las gestiones. Incumple si un seguro que el cliente pidió renunciar (se haya
+      gestionado o no) o que se retuvo en la llamada no aparece en la tipificación registrada.
+    en: >-
+      Criterion 25 · Does not record every request handled. Violated if a policy the customer asked to cancel
+      (whether or not it was processed) or that was retained in the call is missing from the recorded classification
+      ("Tipificación registrada por el ejecutivo").
+  28:
+    es: >-
+      Motivo 28 · Niega devolución de primas. Prima única asociada a crédito o prima anual (cobro anticipado): al
+      renunciar, la devolución de la prima no devengada es automática en 10 días hábiles. Prima mensual: no hay
+      devolución automática; si el cliente la pide por cobros incorrectos o desconocimiento, se le invita a ingresar
+      un requerimiento (600 660 1212, opción 2). Incumple si el ejecutivo dice que no hay devolución cuando
+      corresponde, o si la niega sin orientar al requerimiento.
+    en: >-
+      Criterion 28 · Denies a premium refund. Single premium tied to a loan, or annual premium (charged in advance):
+      on cancellation, the unearned premium is refunded automatically within 10 business days. Monthly premium: no
+      automatic refund; if the customer asks for one because of incorrect or unrecognized charges, they must be
+      directed to file a request (600 660 1212, option 2). Violated if the agent says there is no refund when there
+      is one, or denies it without directing the customer to file a request.
+  30:
+    es: >-
+      Motivo 30 · No reitera protocolo de cierre ante respuesta no permitida. Si a la pregunta de confirmación del
+      cierre el cliente no responde "Sí", "De acuerdo", "Ok", "Confirmo" o "Acepto", el ejecutivo debe repreguntar
+      ("¿eso es un Sí?"). Incumple si no repregunta.
+    en: >-
+      Criterion 30 · Does not repeat the closing confirmation after a non-allowed answer. If the customer answers the
+      closing confirmation question with anything other than "Sí", "De acuerdo", "Ok", "Confirmo" or "Acepto", the
+      agent must ask again (e.g. "¿eso es un Sí?"). Violated if the agent does not ask again.
+  32:
+    es: >-
+      Motivo 32 · Predispone al cliente para la aceptación del seguro, condiciona la respuesta a un Sí. Preguntas que
+      dan por hecha la respuesta, normalmente con una coletilla: "¿Usted está de acuerdo en mantenerlo, cierto?",
+      "lo dejamos vigente, ¿verdad?". NO son este motivo: las preguntas del script ("¿le parece entonces que
+      mantengamos vigente su seguro?", "¿Confirma que desea renunciar?", "¿eso es un Sí?"), una pregunta neutra
+      ("¿Está de acuerdo con la gestión?") ni las que ofrecen una alternativa como argumento ("¿no prefiere
+      mantenerlo un tiempo más?"). Revisa sobre todo la pregunta con que se confirma la retención o se inicia el
+      cierre.
+    en: >-
+      Criterion 32 · Leads the customer toward keeping the policy, framing the question so the answer is "yes".
+      Questions that take the answer for granted, usually with a Spanish tag question: "¿Usted está de acuerdo en
+      mantenerlo, cierto?", "lo dejamos vigente, ¿verdad?" (tags like "¿verdad?", "¿cierto?", "¿no?" mean "right?").
+      NOT this criterion: the scripted questions ("¿le parece entonces que mantengamos vigente su seguro?",
+      "¿Confirma que desea renunciar?", "¿eso es un Sí?"), a neutral question ("¿Está de acuerdo con la gestión?"),
+      or questions that offer an alternative as a retention argument ("¿no prefiere mantenerlo un tiempo más?").
+      Focus on the question that confirms the retention or starts the closing.
+  33:
+    es: >-
+      Motivo 33 · No valida correctamente al cliente (email, fono). Protocolo de acreditación de titularidad: el
+      ejecutivo debe preguntar o mencionar el correo y el teléfono del cliente. Si el dato que da el cliente es
+      distinto al registrado, es solo una observación. Los datos enmascarados entre corchetes cuentan como
+      preguntados o confirmados.
+    en: >-
+      Criterion 33 · Does not correctly verify the customer (email, phone). Identity verification protocol: the agent
+      must ask for or mention the customer's email and phone number. If the customer's answer differs from the
+      records, that is only an observation. Masked data in square brackets counts as asked or confirmed.

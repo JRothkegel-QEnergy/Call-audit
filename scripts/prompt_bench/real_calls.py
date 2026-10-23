@@ -37,6 +37,7 @@ DEFAULT_MODELS = ["claude-haiku-5-5", "gpt-6-luna", "gemini-3-8-flash", "claude-
 # Si el Excel no trae la columna TIPIFICACION, estos motivos no se pueden evaluar: no cuentan para el veredicto.
 # El 18 (motivo de renuncia incorrecto) sí se evalúa: el Excel trae el motivo tipificado.
 UNEVALUABLE = set(range(19, 26))
+DEFAULT_TYPIFICATION = "RETENCION"  # se asume cuando el Excel no trae TIPIFICACION (ver load_rows)
 
 
 def unevaluable_for(row: dict) -> set[int]:
@@ -122,7 +123,13 @@ def load_rows(xlsx: Path) -> dict[str, dict]:
 
     rows = openpyxl.load_workbook(xlsx, read_only=True).active.iter_rows(values_only=True)
     header = next(rows)
-    return {r[0]: dict(zip(header, r)) for r in rows if r[0]}
+    out = {r[0]: dict(zip(header, r)) for r in rows if r[0]}
+    # El Excel no siempre trae TIPIFICACION: se asume RETENCION en todas (así se armaron los prompts desde la v2.6),
+    # de modo que los motivos 19 a 25 se evalúan.
+    for row in out.values():
+        if not clean(row.get("TIPIFICACION")):
+            row["TIPIFICACION"] = DEFAULT_TYPIFICATION
+    return out
 
 
 def clean(value) -> str:

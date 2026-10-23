@@ -204,8 +204,9 @@ function inQueue(c: CaseDetail) {
 function matches(c: CaseDetail, f?: QueueFilters) {
   if (!f) return true;
   if (f.agentId && c.agent.id !== f.agentId) return false;
+  if (f.callId && !c.callId.startsWith(f.callId.trim())) return false;
   if (f.engineVerdict === "sample" && !c.sampleCompliant) return false;
-  if (f.engineVerdict && f.engineVerdict !== "sample" && (c.sampleCompliant || c.engineVerdict !== f.engineVerdict)) return false;
+  if (f.engineVerdict && f.engineVerdict !== "sample" && (f.engineVerdict === "compliant" ? !c.sampleCompliant && c.engineVerdict !== "compliant" : c.sampleCompliant || c.engineVerdict !== f.engineVerdict)) return false;
   if (f.blockId) {
     const ids = RUBRIC.blocks.find((b) => b.id === f.blockId)?.criterionIds ?? [];
     if (!c.findings.some((x) => ids.includes(x.criterionId) && x.verdict !== "compliant")) return false;

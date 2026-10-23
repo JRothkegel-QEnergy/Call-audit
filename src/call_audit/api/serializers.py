@@ -32,8 +32,13 @@ def user_out(user: User) -> dict:
     }
 
 
+def agent_name(raw: str) -> str:
+    """El origen trae el usuario del discador ("KARINA.RECABARREN"); la UI muestra "Karina Recabarren"."""
+    return " ".join(raw.replace(".", " ").replace("_", " ").split()).title()
+
+
 def agent_out(agent: Agent) -> dict:
-    return {"id": agent.id, "name": agent.name, "team": agent.team}
+    return {"id": agent.id, "name": agent_name(agent.name), "team": agent.team}
 
 
 def rubric_out(rubric: Rubric) -> dict:

@@ -1,3 +1,4 @@
 anthropic
 openai
 boto3
+typesafe-sdk==0.7.5

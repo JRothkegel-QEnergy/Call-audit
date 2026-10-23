@@ -4,7 +4,7 @@ from pathlib import Path
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, sessionmaker
 
-from call_audit.ingestion.import_bench import Unmasker, hold_evidence, import_reviews, import_run
+from call_audit.ingestion.import_bench import Unmasker, findings_from, hold_evidence, import_reviews, import_run
 from call_audit.persistence.models import Case, DiscrepancyClassification, ModelRun, User
 from call_audit.rubric import Rubric
 from tests.conftest import CATALOG
@@ -174,3 +174,41 @@ def test_announced_hold_counts_even_if_the_client_talks_to_someone_else() -> Non
         {"speaker": "EJECUTIVO", "start": "03:04", "end": "03:10", "text": "Ya, perfecto. Me aparece su seguro."},
     ]
     assert real_calls.executive_holds(segments) == [38]
+
+
+def test_findings_keep_every_quote_and_suggested_reasons(rubric: Rubric) -> None:
+    """v2.8: el motivo 3 lista cada objeción y el 18 trae los motivos de renuncia que sugiere la IA."""
+    transcript = "[00:10] CLIENTE: No puedo pagarlo.\n[00:40] CLIENTE: Ya tengo otro seguro.\n"
+    audit = {
+        "criterios": [
+            {
+                "id": 3,
+                "estado": "incumple",
+                "confianza": 0.9,
+                "comentario": "Cuatro objeciones",
+                "evidencia": [
+                    {"t": "00:10", "hablante": "CLIENTE", "cita": "No puedo pagarlo."},
+                    {"t": "00:40", "hablante": "CLIENTE", "cita": "Ya tengo otro seguro."},
+                ],
+            },
+            {"id": 18, "estado": "incumple", "confianza": 0.8, "comentario": "Motivo mal tipificado", "evidencia": []},
+            {"id": 30, "estado": "cumple", "confianza": 0.9, "comentario": "", "evidencia": []},
+        ],
+        "gestiones": [
+            {"motivos_sugeridos": [{"motivo": "Problemas Económicos", "cita": "No puedo pagarlo."}]},
+            {
+                "motivos_sugeridos": [
+                    {"motivo": "Problemas Económicos", "cita": "No puedo pagarlo."},
+                    {"motivo": "Tiene otro seguro", "cita": "Frase inventada"},
+                ]
+            },
+        ],
+    }
+    findings = {f["criterionId"]: f for f in findings_from(audit, transcript, [], rubric)}
+    assert findings[3]["evidence"]["startMs"] == 10_000
+    assert [e["startMs"] for e in findings[3]["moreEvidence"]] == [40_000]
+    assert "moreEvidence" not in findings[30]
+    assert findings[18]["suggestedReasons"] == [
+        {"reason": "Problemas Económicos", "quote": "No puedo pagarlo.", "quoteValidated": True},
+        {"reason": "Tiene otro seguro", "quote": "Frase inventada", "quoteValidated": False},
+    ]

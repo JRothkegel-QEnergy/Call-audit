@@ -90,7 +90,17 @@ export interface Finding {
   verdict: Verdict;
   confidence: number;
   evidence: Evidence | null;
+  /** Citas adicionales a `evidence` (desde v2.8 el motivo 3 lista cada objeción). */
+  moreEvidence?: Evidence[];
+  /** Motivo 18: motivos de renuncia que sí calzan con lo que dijo el cliente, del más al menos adecuado. */
+  suggestedReasons?: SuggestedReason[];
   comment: string;
+}
+
+export interface SuggestedReason {
+  reason: string;
+  quote: string;
+  quoteValidated: boolean;
 }
 
 export type ReviewAction = "confirmed" | "corrected" | "accepted_unchanged" | "added";
@@ -380,4 +390,5 @@ export interface QueueFilters {
   agentId?: string;
   engineVerdict?: CallVerdict | "sample";
   blockId?: string;
+  callId?: string;
 }
