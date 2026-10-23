@@ -36,6 +36,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from call_audit.config import ROOT, get_settings
+from call_audit.ingestion import customer
 from call_audit.persistence.db import get_sessionmaker
 from call_audit.persistence.models import Agent, Case, DiscrepancyClassification, ModelRun, PromptVersion, User
 from call_audit.rubric import Rubric, load_rubric
@@ -380,6 +381,7 @@ def import_run(
         unmask = Unmasker(masked, shown) if shown != masked else None
         hold = hold_evidence(original, case.transcript)
         case.call_metadata = call["metadata"]
+        customer.apply(case, row)
         case.external_verdict = VERDICTS.get(external) if external in ("APROBADA", "RECHAZADA") else None
         case.external_comment = (comment if asr_dir else real_calls.Anonymizer(row)(comment)) or None
 

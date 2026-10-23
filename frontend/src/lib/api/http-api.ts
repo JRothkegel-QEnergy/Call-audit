@@ -1,3 +1,4 @@
+import { ApiError } from "./admin-types";
 import type { ApiClient } from "./client";
 import type { QueueFilters, User } from "./types";
 
@@ -20,14 +21,19 @@ const CODES: Record<number, string> = {
   501: "not_available",
 };
 
-async function errorCode(response: Response): Promise<string> {
+async function apiError(response: Response): Promise<ApiError> {
   try {
     const detail = ((await response.json()) as { detail?: unknown }).detail;
-    if (typeof detail === "string" && /^[a-z_]+$/.test(detail)) return detail;
+    if (typeof detail === "string" && /^[a-z_]+$/.test(detail)) return new ApiError(detail);
+    // Validación del prompt (Cambio 12): {"code": "invalid_prompt", "errors": [...]}.
+    if (detail && typeof detail === "object" && "code" in detail) {
+      const d = detail as { code: string; errors?: string[] };
+      return new ApiError(d.code, d.errors ?? []);
+    }
   } catch {
     // sin cuerpo JSON: se usa el código por estado
   }
-  return CODES[response.status] ?? `http_${response.status}`;
+  return new ApiError(CODES[response.status] ?? `http_${response.status}`);
 }
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
@@ -37,7 +43,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     headers: body === undefined ? undefined : { "Content-Type": "application/json" },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  if (!response.ok) throw new Error(await errorCode(response));
+  if (!response.ok) throw await apiError(response);
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
@@ -55,10 +61,13 @@ const filterQuery = (f?: QueueFilters) =>
 
 export const httpApi: ApiClient = {
   login: (input) => {
-    // El backend v0 no tiene SSO: las cuentas son de correo y contraseña.
-    if ("sso" in input) return Promise.reject(new Error("not_available"));
+    // Los atajos de rol son solo de la demo; el backend tiene cuentas de correo y contraseña (D-28).
+    if ("demoRole" in input) return Promise.reject(new Error("not_available"));
     return post<User>("/api/auth/login", input);
   },
+  getInvite: (token) => get(`/api/auth/invite/${encodeURIComponent(token)}`),
+  acceptInvite: (token, input) => post(`/api/auth/invite/${encodeURIComponent(token)}`, input),
+  forgotPassword: (email) => post("/api/auth/forgot", { email }),
   logout: () => post("/api/auth/logout"),
   currentUser: () => get<User | null>("/api/auth/me"),
 
@@ -94,6 +103,7 @@ export const httpApi: ApiClient = {
   listAuditorAccounts: () => get("/api/auditors/accounts"),
   listActiveAuditors: () => get("/api/auditors/active"),
   inviteAuditor: (input) => post("/api/auditors/invite", input),
+  resendAuditorInvite: (accountId) => post(`/api/auditors/accounts/${encodeURIComponent(accountId)}/resend`),
   setAccountStatus: (accountId, status) =>
     post(`/api/auditors/accounts/${encodeURIComponent(accountId)}/status`, { status }),
   exportFiltered: (input) => post("/api/export", input),
@@ -128,7 +138,7 @@ export const httpApi: ApiClient = {
       headers: { "Content-Type": "application/octet-stream", "X-File-Name": encodeURIComponent(file.name) },
       body: file,
     });
-    if (!response.ok) throw new Error(await errorCode(response));
+    if (!response.ok) throw await apiError(response);
     return (await response.json()) as { uploadId: string };
   },
   listCatalogUploads: () => get("/api/catalog/uploads"),
@@ -146,5 +156,33 @@ export const httpApi: ApiClient = {
   logAgentSearch: (agentId) => post(`/api/access-log/agent-search/${encodeURIComponent(agentId)}`),
 
   // Solo existe en la demo con datos mock.
+  listAccounts: () => get("/api/admin/accounts"),
+  inviteUser: (input) => post("/api/admin/accounts/invite", input),
+  setUserStatus: (accountId, status) => post(`/api/admin/accounts/${encodeURIComponent(accountId)}/status`, { status }),
+  setAccountPermissions: (accountId, permissions) =>
+    post(`/api/admin/accounts/${encodeURIComponent(accountId)}/permissions`, { permissions }),
+  resendInvite: (accountId) => post(`/api/admin/accounts/${encodeURIComponent(accountId)}/resend`),
+  sendPasswordReset: (accountId) => post(`/api/admin/accounts/${encodeURIComponent(accountId)}/reset-password`),
+  listModels: () => get("/api/admin/models"),
+  listPromptVersions: () => get("/api/admin/prompts"),
+  getPromptVersion: (version) => get(`/api/admin/prompts/${encodeURIComponent(version)}`),
+  createPromptVersion: (input) => post("/api/admin/prompts", input),
+  updatePromptDraft: (version, input) => request("PUT", `/api/admin/prompts/${encodeURIComponent(version)}`, input),
+  discardPromptDraft: (version) => post(`/api/admin/prompts/${encodeURIComponent(version)}/discard`),
+  estimatePromptTest: (version, model) =>
+    get(`/api/admin/prompts/${encodeURIComponent(version)}/estimate${query({ model })}`),
+  startPromptTest: (version, model) =>
+    post(`/api/admin/prompts/${encodeURIComponent(version)}/evaluation`, { model, confirm: true }),
+  stopPromptTest: (version) => post(`/api/admin/prompts/${encodeURIComponent(version)}/evaluation/stop`),
+  activatePromptVersion: (version, reason) => post(`/api/admin/prompts/${encodeURIComponent(version)}/activate`, { reason }),
+  exportPromptVersion: async (version) => {
+    const response = await fetch(`/api/admin/prompts/${encodeURIComponent(version)}/export`, { credentials: "same-origin" });
+    if (!response.ok) throw await apiError(response);
+    return response.blob();
+  },
+  getActivePrompt: () => get("/api/prompts/active"),
+  getAdminStats: () => get("/api/admin/stats"),
+  listActivity: () => get("/api/admin/activity"),
+
   resetDemo: async () => undefined,
 };

@@ -9,7 +9,7 @@ import { useAudio } from "@/components/call/use-audio";
 import { EscalateDialog, OverrideDialog, ReopenDialog } from "@/components/call/call-dialogs";
 import { ModelPanel } from "@/components/call/model-panel";
 import { NoteEditor, NoteList } from "@/components/call/notes";
-import { ProductSheetColumn, ProductSheetContent } from "@/components/call/product-sheet";
+import { CUSTOMER_CRITERIA, ProductSheetColumn, ProductSheetContent } from "@/components/call/product-sheet";
 import { RubricChecklist } from "@/components/call/rubric-checklist";
 import { Transcript } from "@/components/call/transcript";
 import {
@@ -89,6 +89,7 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
   const role = user!.role;
 
   const mode: DetailMode = useMemo(() => {
+    if (role === "qubico_admin") return "readonly";
     if (role === "supervisor") return data.status === "awaiting_approval" ? "supervisor" : "readonly";
     const lockedByOther = data.lockedBy && data.lockedBy.id !== user!.id;
     if (lockedByOther) return "readonly";
@@ -138,7 +139,9 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
   const [notes, setNotes] = useState<Note[]>(data.notes);
   const [noteOpenFor, setNoteOpenFor] = useState<number | null>(null);
   const [caseNoteOpen, setCaseNoteOpen] = useState(false);
-  const canSeeModel = role === "supervisor" || user!.permissions.includes("view_model_io");
+  // El supervisor y el admin ven el panel del modelo y los datos del cliente (D-24, Cambio 12).
+  const seesClient = role === "supervisor" || role === "qubico_admin";
+  const canSeeModel = seesClient || user!.permissions.includes("view_model_io");
   const run = data.modelRuns[0];
   const [saving, setSaving] = useState(false);
 
@@ -198,10 +201,11 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
     return "compliant";
   }, [rubric, data.findings, work, added, pending]);
 
-  const relevantSection = focusId != null ? rubric.criteria[focusId]?.productSheetSection : undefined;
+  const relevantSection =
+    focusId == null ? undefined : CUSTOMER_CRITERIA.has(focusId) ? "customer" : rubric.criteria[focusId]?.productSheetSection;
   const focusEvidence = focusId != null ? (evidenceList(findingFor(data.findings, focusId))[evidenceIdx] ?? null) : null;
   const markers = data.findings.filter((f) => f.verdict !== "compliant" && f.verdict !== "not_applicable");
-  const back = BACK[from ?? ""] ?? (role === "supervisor" ? BACK.reviews : BACK.queue);
+  const back = BACK[from ?? ""] ?? (role === "qubico_admin" ? BACK.discrepancies : role === "supervisor" ? BACK.reviews : BACK.queue);
 
   // ---- Acciones del auditor ----
   const goNext = async (message: string) => {
@@ -353,7 +357,7 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
       </div>
 
       {/* Veredicto del cliente: solo llega al supervisor (D-24) y solo si vino en la metadata (D-25). */}
-      {role === "supervisor" && data.externalQualityVerdict && (
+      {seesClient && data.externalQualityVerdict && (
         <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px]">
           <span className="text-muted-foreground">Cliente:</span>
           <CallVerdictBadge verdict={data.externalQualityVerdict} />
@@ -371,6 +375,12 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
         <Info size={14} aria-hidden />
         <span>Hallazgos generados por IA, pendientes de revisión humana. No constituyen una sanción.</span>
       </div>
+
+      {role === "qubico_admin" && (
+        <div className="banner mb-2.5" role="status">
+          <span>Estás viendo esta llamada en solo lectura.</span>
+        </div>
+      )}
 
       {mode === "readonly" && role === "auditor" && data.lockedBy && data.lockedBy.id !== user!.id && (
         <div className="banner mb-2.5" role="status" style={{ borderLeftColor: "var(--amber-600)" }}>
@@ -423,7 +433,7 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
           currentMs={currentMs}
           onlyActionable={onlyActionable}
           auditorItems={mode !== "auditor" ? data.review?.items : undefined}
-          externalItemVerdicts={role === "supervisor" ? data.externalItemVerdicts : null}
+          externalItemVerdicts={seesClient ? data.externalItemVerdicts : null}
           notes={notes}
           currentUserId={user!.id}
           noteOpenFor={noteOpenFor}
@@ -471,7 +481,7 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
         />
         <div className="hidden xl:block">
           {sheetOpen ? (
-            <ProductSheetColumn sheets={data.productSheets} relevant={relevantSection} criterionId={focusId} onCollapse={() => setSheetOpen(false)} />
+            <ProductSheetColumn sheets={data.productSheets} customer={data.customer} relevant={relevantSection} criterionId={focusId} onCollapse={() => setSheetOpen(false)} />
           ) : (
             <button
               type="button"
@@ -566,7 +576,7 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
       )}
 
       <Sheet open={sheetDrawer} onOpenChange={setSheetDrawer} title="Ficha del seguro">
-        <ProductSheetContent sheets={data.productSheets} relevant={relevantSection} criterionId={focusId} />
+        <ProductSheetContent sheets={data.productSheets} customer={data.customer} relevant={relevantSection} criterionId={focusId} />
       </Sheet>
       {canSeeModel && run && (
         <ModelPanel

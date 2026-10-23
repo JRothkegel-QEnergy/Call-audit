@@ -73,5 +73,20 @@ def supervisor(user: Annotated[User, Depends(current_user)]) -> User:
     return user
 
 
+def qubico_admin(user: Annotated[User, Depends(current_user)]) -> User:
+    if user.role != "qubico_admin":
+        raise HTTPException(403, "Solo para el Administrador Qubico")
+    return user
+
+
+def supervisor_or_admin(user: Annotated[User, Depends(current_user)]) -> User:
+    """Discrepancias y catálogo: el admin los comparte con el supervisor (Cambio 12). No ve dashboards de ejecutivos."""
+    if user.role not in ("supervisor", "qubico_admin"):
+        raise HTTPException(403, "Solo para supervisores")
+    return user
+
+
 CurrentUser = Annotated[User, Depends(current_user)]
 Supervisor = Annotated[User, Depends(supervisor)]
+Admin = Annotated[User, Depends(qubico_admin)]
+SupervisorOrAdmin = Annotated[User, Depends(supervisor_or_admin)]

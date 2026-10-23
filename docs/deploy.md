@@ -48,6 +48,14 @@ en `.deploy/`, que está ignorado por git.
    DATABASE_URL=... uv run python -m call_audit.admin create-user --email <correo> --name "<nombre>" --role auditor --model-io
    ```
    Tu cuenta va primero, con `--role supervisor --model-io`; `--reviews` la necesita.
+   El primer **Administrador Qubico** también se crea por consola (`--role qubico_admin`); desde ahí las demás cuentas se invitan por correo desde **Cuentas** en la app.
+   Para que salgan los correos de invitación y de contraseña nueva, en `.deploy/server.env`:
+   ```
+   APP_BASE_URL=https://audit.qubicoenergy.com   # los enlaces /invite/<token> y el logo del correo
+   EMAIL_BACKEND=ses                             # console (solo log, por defecto) | smtp | ses
+   EMAIL_FROM=...                                # remitente verificado en SES
+   ```
+   Con `smtp`, además `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` y `SMTP_PASSWORD`. Con `ses`, el rol IAM del EC2 necesita `ses:SendEmail`. La migración 0003 la aplica la API al arrancar.
 7. **Prueba antes de compartir:** entrar con una cuenta de prueba, abrir una llamada, escuchar el audio, guardar una nota y recargar.
 
 ## Pipeline automático (SFTP → ASR → capa 2)

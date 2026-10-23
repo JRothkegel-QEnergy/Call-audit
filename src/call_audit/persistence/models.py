@@ -30,11 +30,20 @@ class User(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
     email: Mapped[str] = mapped_column(String(254), unique=True)
     name: Mapped[str] = mapped_column(String(200))
-    role: Mapped[str] = mapped_column(String(20))  # auditor | supervisor
+    role: Mapped[str] = mapped_column(String(20))  # auditor | supervisor | qubico_admin (Cambio 12)
     permissions: Mapped[list[Any]] = mapped_column(default=list)
     password_hash: Mapped[str | None] = mapped_column(String(200))
     status: Mapped[str] = mapped_column(String(20), default="active")  # invited | active | deactivated
     created_at: Mapped[datetime] = mapped_column(default=now)
+    created_by_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    last_login_at: Mapped[datetime | None] = mapped_column()
+    # Invitación o restablecimiento de contraseña por correo (Cambio 12, D-36): solo se guarda el hash del enlace.
+    invite_token_hash: Mapped[str | None] = mapped_column(String(64), index=True)
+    invite_expires_at: Mapped[datetime | None] = mapped_column()
+    invite_kind: Mapped[str | None] = mapped_column(String(10))  # invite | reset
+    invite_used_at: Mapped[datetime | None] = mapped_column()
+
+    created_by: Mapped["User | None"] = relationship(remote_side=[id], foreign_keys=[created_by_id])
 
 
 class Agent(Base):
@@ -46,12 +55,61 @@ class Agent(Base):
 
 
 class PromptVersion(Base):
-    """System prompt compartido por todas las llamadas de una versión."""
+    """Registro inmutable de versiones del prompt de la capa 2 (Cambio 12, D-26/D-33).
+
+    `system_text` es el system prompt tal como se envía al modelo. Las versiones que importó el bench quedan con
+    source="bench" y status="retired". Desde "testing" la versión no se edita: cualquier cambio es otra versión.
+    """
 
     __tablename__ = "prompt_versions"
 
     version: Mapped[str] = mapped_column(String(20), primary_key=True)
     system_text: Mapped[str] = mapped_column(Text)
+    # draft | testing | test_failed | tested | active | retired
+    status: Mapped[str] = mapped_column(String(20), default="retired")
+    source: Mapped[str] = mapped_column(String(10), default="bench")  # yaml | text | bench | repo
+    spec_yaml: Mapped[str | None] = mapped_column(Text)
+    schema_json: Mapped[dict[str, Any] | None] = mapped_column(JSON)
+    model: Mapped[str] = mapped_column(String(100), default="")
+    changelog: Mapped[str] = mapped_column(Text, default="")
+    rationale: Mapped[str | None] = mapped_column(Text)
+    history: Mapped[list[Any]] = mapped_column(default=list)  # [{"at", "actor", "action"}]
+    created_by_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime | None] = mapped_column(default=now)
+    tested_at: Mapped[datetime | None] = mapped_column()
+    activated_by_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    activated_at: Mapped[datetime | None] = mapped_column()
+    activation_reason: Mapped[str | None] = mapped_column(Text)
+    retired_at: Mapped[datetime | None] = mapped_column()
+
+    created_by: Mapped[User | None] = relationship(foreign_keys=[created_by_id])
+    activated_by: Mapped[User | None] = relationship(foreign_keys=[activated_by_id])
+
+
+class PromptEvaluation(Base):
+    """Prueba de una versión del prompt contra la referencia (Cambio 12 §4.2). La corre el worker."""
+
+    __tablename__ = "prompt_evaluations"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    version: Mapped[str] = mapped_column(ForeignKey("prompt_versions.version"))
+    model: Mapped[str] = mapped_column(String(100))
+    status: Mapped[str] = mapped_column(String(20), default="queued")  # queued | running | done | failed | stopped
+    requested_by_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    stopped_by_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    case_ids: Mapped[list[Any]] = mapped_column(default=list)
+    done: Mapped[int] = mapped_column(Integer, default=0)
+    estimated_cost_usd: Mapped[float | None] = mapped_column(Float)
+    cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
+    results: Mapped[list[Any]] = mapped_column(default=list)  # una entrada por llamada probada
+    metrics: Mapped[dict[str, Any] | None] = mapped_column(JSON)
+    error: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(default=now)
+    started_at: Mapped[datetime | None] = mapped_column()
+    finished_at: Mapped[datetime | None] = mapped_column()
+
+    requested_by: Mapped[User] = relationship(foreign_keys=[requested_by_id])
+    stopped_by: Mapped[User | None] = relationship(foreign_keys=[stopped_by_id])
 
 
 class Case(Base):
@@ -176,7 +234,8 @@ class Alert(Base):
 
 
 class AccessLog(Base):
-    """Registro de accesos a datos de ejecutivos (D-13, L-18)."""
+    """Registro de actividad inmutable (D-13, L-18; Cambio 12 §4.4): accesos a datos de ejecutivos, cuentas,
+    versiones del prompt y catálogo. No se edita ni se borra."""
 
     __tablename__ = "access_log"
 
@@ -184,7 +243,10 @@ class AccessLog(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     action: Mapped[str] = mapped_column(String(50))
     target: Mapped[str] = mapped_column(String(100))
+    details: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[datetime] = mapped_column(default=now)
+
+    user: Mapped[User] = relationship()
 
 
 class Product(Base):

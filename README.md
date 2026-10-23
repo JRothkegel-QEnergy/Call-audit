@@ -35,7 +35,7 @@ Por ahora la API no corre el pipeline: sirve al front las llamadas que ya evalu�
 ```bash
 uv sync --extra bench                     # entorno Python 3.12
 uv run alembic upgrade head               # crea o migra la base (DATABASE_URL; vacío = SQLite local)
-uv run python -m call_audit.admin create-user --email E --name N --role supervisor --model-io
+uv run python -m call_audit.admin create-user --email E --name N --role supervisor --model-io   # o --role qubico_admin
 uv run python -m call_audit.ingestion.import_bench --out ../transcripts/layer2_real_100_v2.7 \
     --metadata "../audios/Retenciones BECS Para Revision.xlsx" --catalog ../call-audit/data/catalog/products.json \
     --label v2.7 --current-model gemini-3-8-flash \
@@ -46,4 +46,5 @@ uv run pytest && uv run ruff check src tests
 
 - **Quién ve qué:** el auditor nunca recibe el veredicto ni el comentario del cliente (D-24), y el prompt y la respuesta del modelo solo van a cuentas con `view_model_io` (D-22). Las discrepancias son solo para supervisor.
 - **`--reviews`:** carga la auditoría manual del dashboard como clasificación del árbol de discrepancias ("la IA acertó / se equivocó"). Los casos siguen pendientes para los auditores.
-- **Pendiente, responde 501:** estadísticas por ejecutivo y por auditor, feedback, invitaciones, exportación y override.
+- **Administrador Qubico** (`qubico_admin`, Cambio 12): cuentas e invitaciones por correo (`/invite/<token>`), versiones del prompt (subir `prompt.yaml` o solo el system prompt, probar contra el veredicto del cliente con costo estimado, activar y volver atrás), estadísticas y registro de actividad. La prueba la corre el worker.
+- **Pendiente, responde 501:** estadísticas por ejecutivo y por auditor, feedback, exportación y override.

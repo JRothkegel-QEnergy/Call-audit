@@ -1,4 +1,5 @@
 import type { ApiClient } from "../client";
+import { adminMock, bindUser } from "./admin-mock";
 import type {
   Alert,
   AuditorAccount,
@@ -25,7 +26,7 @@ import { ACCOUNTS, AGENTS, AUDITORS, RUBRIC, USERS, buildCalibrationCases, build
  * sessionStorage para que sobreviva a recargas de la pestaña. Solo para la demo.
  */
 
-const STORAGE_KEY = "call-audit-mock-v3";
+const STORAGE_KEY = "call-audit-mock-v5";
 const FAST_REVIEW_SECONDS = 60; // H-37
 
 interface State {
@@ -116,6 +117,7 @@ function initialState(): State {
 }
 
 let state: State | null = null;
+bindUser(() => state?.user ?? null);
 
 function load(): State {
   if (state) return state;
@@ -283,10 +285,13 @@ function upsertMyReview(row: MyReviewRow) {
 }
 
 export const mockApi: ApiClient = {
+  ...adminMock,
+  resendAuditorInvite: () => delay(() => undefined),
   login: (input) =>
     delay(() => {
       const st = load();
-      const role = "sso" in input ? (input.role ?? "auditor") : input.email.toLowerCase().includes("sup") ? "supervisor" : "auditor";
+      const email = "demoRole" in input ? "" : input.email.toLowerCase();
+      const role = "demoRole" in input ? input.demoRole : email.includes("admin") ? "qubico_admin" : email.includes("sup") ? "supervisor" : "auditor";
       st.user = USERS[role];
       return st.user;
     }, 400),
@@ -564,7 +569,7 @@ export const mockApi: ApiClient = {
     delay(() => {
       const st = load();
       if (st.accounts.some((a) => a.email.toLowerCase() === input.email.toLowerCase())) throw new Error("duplicate_email");
-      st.accounts.push({ id: `u-aud-${Date.now()}`, name: input.name, email: input.email, status: "invited", loginMethod: input.loginMethod });
+      st.accounts.push({ id: `u-aud-${Date.now()}`, name: input.name, email: input.email, status: "invited", loginMethod: "password" });
     }),
   setAccountStatus: (accountId, status) =>
     delay(() => {

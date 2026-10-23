@@ -16,11 +16,11 @@ import type {
   Feedback,
   ItemReview,
   Kpis,
-  LoginMethod,
   MyReviewRow,
   Note,
   OverrideReason,
   PendingApproval,
+  Permission,
   QueueFilters,
   Role,
   Rubric,
@@ -39,6 +39,16 @@ import type {
   UploadAction,
   UploadItem,
 } from "./catalog-types";
+import type {
+  ActivityLogEntry,
+  AdminStats,
+  InviteInfo,
+  ModelOption,
+  PromptEstimate,
+  PromptVersion,
+  PromptVersionDetail,
+  UserAccount,
+} from "./admin-types";
 
 /**
  * Interfaz única entre el front y el backend.
@@ -49,7 +59,12 @@ import type {
  */
 export interface ApiClient {
   // Sesión
-  login(input: { email: string; password: string } | { sso: true; role?: Role }): Promise<User>;
+  /** `demoRole` existe solo en el mock (enlaces de la demo en el login). */
+  login(input: { email: string; password: string } | { demoRole: Role }): Promise<User>;
+  // Invitación y restablecimiento de contraseña con enlace de un solo uso (Cambio 12, D-36)
+  getInvite(token: string): Promise<InviteInfo>;
+  acceptInvite(token: string, input: { password: string; acceptTerms: boolean }): Promise<User>;
+  forgotPassword(email: string): Promise<void>;
   logout(): Promise<void>;
   currentUser(): Promise<User | null>;
 
@@ -97,7 +112,8 @@ export interface ApiClient {
   listAuditorAccounts(): Promise<AuditorAccount[]>;
   /** Auditores activos (para reabrir un caso). */
   listActiveAuditors(): Promise<{ id: string; name: string }[]>;
-  inviteAuditor(input: { name: string; email: string; loginMethod: LoginMethod }): Promise<void>;
+  inviteAuditor(input: { name: string; email: string }): Promise<void>;
+  resendAuditorInvite(accountId: string): Promise<void>;
   setAccountStatus(accountId: string, status: "active" | "deactivated"): Promise<void>;
   exportFiltered(input: { format: "csv" | "xlsx"; includePii: boolean; piiReason?: string }): Promise<void>;
 
@@ -136,6 +152,39 @@ export interface ApiClient {
 
   // Registro de accesos (D-13, L-18)
   logAgentSearch(agentId: string): Promise<void>;
+
+  // Administrador Qubico (Cambio 12)
+  listAccounts(): Promise<UserAccount[]>;
+  inviteUser(input: { name: string; email: string; role: Role; permissions: Permission[] }): Promise<void>;
+  setUserStatus(accountId: string, status: "active" | "deactivated"): Promise<void>;
+  setAccountPermissions(accountId: string, permissions: Permission[]): Promise<void>;
+  resendInvite(accountId: string): Promise<void>;
+  sendPasswordReset(accountId: string): Promise<void>;
+  listModels(): Promise<ModelOption[]>;
+  listPromptVersions(): Promise<PromptVersion[]>;
+  getPromptVersion(version: string): Promise<PromptVersionDetail>;
+  createPromptVersion(input: {
+    source: "yaml" | "text";
+    content: string;
+    version?: string;
+    model: string;
+    changelog: string;
+    rationale: string | null;
+  }): Promise<PromptVersion>;
+  updatePromptDraft(
+    version: string,
+    input: { content: string; model: string; changelog: string; rationale: string | null },
+  ): Promise<void>;
+  discardPromptDraft(version: string): Promise<void>;
+  estimatePromptTest(version: string, model?: string): Promise<PromptEstimate>;
+  startPromptTest(version: string, model?: string): Promise<void>;
+  stopPromptTest(version: string): Promise<void>;
+  activatePromptVersion(version: string, reason: string): Promise<void>;
+  /** «Descargar para el repo»: el zip con prompt.yaml, system.txt, lock y la entrada del CHANGELOG. */
+  exportPromptVersion(version: string): Promise<Blob>;
+  getActivePrompt(): Promise<{ version: string; since: string | null; changedInApp: boolean }>;
+  getAdminStats(): Promise<AdminStats>;
+  listActivity(): Promise<ActivityLogEntry[]>;
 
   // Solo para la demo
   resetDemo(): Promise<void>;

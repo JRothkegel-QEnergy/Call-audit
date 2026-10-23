@@ -67,8 +67,8 @@ Ver `docs/ux/call-audit/09-cambio-auditoria-ia.md`.
 ## Qué está simulado
 
 - **Audio:** no hay archivo; el reproductor avanza con un reloj. Con el backend se usa wavesurfer.js con `audioUrl`.
-- **SSO y contraseña:** cualquier ingreso entra; si el correo contiene «sup», entra como supervisor.
-- **Exportar e invitaciones:** muestran la confirmación, pero no generan archivos ni correos.
+- **Ingreso:** solo correo y contraseña (sin SSO, D-28). En la demo cualquier ingreso entra; si el correo contiene «sup», entra como supervisor, y si contiene «admin», como Administrador Qubico.
+- **Exportar e invitaciones:** en la demo muestran la confirmación, pero no generan archivos ni correos. Con el backend, las invitaciones salen por correo (`EMAIL_BACKEND`).
 - **Gravedad de los motivos:** los críticos (28, 9, 17, 12) son solo de la demo; la gravedad real es `TBD` con el cliente.
-- **Logo:** aproximación vectorial provisional (H-28).
+- **Logo:** el oficial de Qubico (`src/assets/brand/`, recortado de `qubico-cloud`).
 - **Prompt y JSON del modelo:** textos sintéticos; con el backend vienen de la corrida real (anonimizada).

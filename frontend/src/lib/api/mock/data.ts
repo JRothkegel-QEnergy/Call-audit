@@ -3,6 +3,7 @@
  * Nada de esto sale de llamadas reales: nombres, RUT, montos y fichas son inventados.
  */
 import type {
+  Customer,
   Agent,
   AuditorAccount,
   CaseDetail,
@@ -100,10 +101,13 @@ export const RUBRIC: Rubric = {
 
 // ---------- Personas (ficticias) ----------
 
-export const USERS: Record<"auditor" | "supervisor", User> = {
+const CLIENT_NAME = "BancoEstado Corredores de Seguros";
+
+export const USERS: Record<User["role"], User> = {
   // La auditora de la demo tiene `view_model_io`, como Vero y el equipo externo (D-22).
-  auditor: { id: "u-aud-1", name: "Ana Pérez", email: "ana.perez@empresa-ejemplo.cl", role: "auditor", permissions: ["view_model_io"] },
-  supervisor: { id: "u-sup-1", name: "Jorge Lagos", email: "jorge.lagos@empresa-ejemplo.cl", role: "supervisor", permissions: [] },
+  auditor: { id: "u-aud-1", name: "Ana Pérez", email: "ana.perez@empresa-ejemplo.cl", role: "auditor", permissions: ["view_model_io"], clientName: CLIENT_NAME },
+  supervisor: { id: "u-sup-1", name: "Jorge Lagos", email: "jorge.lagos@empresa-ejemplo.cl", role: "supervisor", permissions: [], clientName: CLIENT_NAME },
+  qubico_admin: { id: "u-adm-1", name: "Admin Qubico (demo)", email: "admin@qubico-ejemplo.cl", role: "qubico_admin", permissions: [], clientName: CLIENT_NAME },
 };
 
 export const AUDITORS = [
@@ -122,10 +126,10 @@ export const AGENTS: Agent[] = [
 ];
 
 export const ACCOUNTS: AuditorAccount[] = [
-  { id: "u-aud-1", name: "Ana Pérez", email: "ana.perez@empresa-ejemplo.cl", status: "active", loginMethod: "sso" },
+  { id: "u-aud-1", name: "Ana Pérez", email: "ana.perez@empresa-ejemplo.cl", status: "active", loginMethod: "password" },
   { id: "u-aud-2", name: "Luis Muñoz", email: "luis.munoz@empresa-ejemplo.cl", status: "active", loginMethod: "password" },
-  { id: "u-aud-3", name: "Sofía Reyes", email: "sofia.reyes@empresa-ejemplo.cl", status: "invited", loginMethod: "sso" },
-  { id: "u-aud-4", name: "Pablo Torres", email: "pablo.torres@empresa-ejemplo.cl", status: "deactivated", loginMethod: "sso" },
+  { id: "u-aud-3", name: "Sofía Reyes", email: "sofia.reyes@empresa-ejemplo.cl", status: "invited", loginMethod: "password" },
+  { id: "u-aud-4", name: "Pablo Torres", email: "pablo.torres@empresa-ejemplo.cl", status: "deactivated", loginMethod: "password" },
 ];
 
 // ---------- Fichas de seguro (sintéticas) ----------
@@ -185,14 +189,38 @@ const PRODUCTS: Record<string, Omit<ProductSheet, "callData">> = {
 
 function sheet(key: keyof typeof PRODUCTS, seed: number): ProductSheet {
   const p = PRODUCTS[key];
+  // La demo trae una llamada donde la metadata contradice a la ficha (Cambio 13, §1.2).
+  const renounceable = p.category === "IRRENUNCIABLE" || (seed === 4 && p.category === "RETENIBLE") ? "No" : "Sí";
   return {
     ...p,
     callData: [
-      { label: "N° de seguro", value: `•••• ${String(5600 + seed * 7).slice(-4)}` },
-      { label: "N° de póliza", value: `•••• ${String(1200 + seed * 3).slice(-4)}` },
+      { label: "N° de seguro", value: String(5600 + seed * 7) },
+      { label: "N° de póliza", value: String(1200 + seed * 3) },
       { label: "Inicio de vigencia", value: "03 mar 2026" },
       { label: "Medio de pago", value: key === "hogar" ? "Cargo en CuentaRUT" : "Cargo en el crédito (CRE)" },
+      { label: "Compañía", value: p.insurer },
+      { label: "Tipo de seguro", value: "MUS" },
+      { label: "Fecha de venta", value: "03-03-2026" },
     ],
+    customerCategory: { renounceable, retainable: p.category === "RETENIBLE" ? "Sí" : "No" },
+    categoryMismatch: renounceable === "No" && p.category === "RETENIBLE" ? [{ field: "renounceable", metadata: "No" }] : [],
+  };
+}
+
+/** Ficha del cliente de la demo: datos sintéticos (L-19). Una llamada sin email y otra sin datos del cliente. */
+const DEMO_CUSTOMERS = ["Camila Andrea Rojas Fuentes", "Diego Ignacio Muñoz Vera", "Valentina Paz Soto Lagos", "Matías Alonso Díaz Pino"];
+
+function customer(seed: number): Customer | null {
+  if (seed === 2) return null;
+  const name = DEMO_CUSTOMERS[seed % DEMO_CUSTOMERS.length];
+  const first = name.split(" ")[0].toLowerCase();
+  return {
+    fullName: name,
+    rut: `${11 + seed}.${String(100 + seed * 37).padStart(3, "0")}.${String(200 + seed * 53).slice(-3)}-${seed % 10}`,
+    birthDate: `${String(1 + (seed % 27)).padStart(2, "0")}-0${1 + (seed % 9)}-19${80 + (seed % 15)}`,
+    email: seed === 1 ? null : `${first}.demo${seed}@ejemplo.cl`,
+    phone: `+56 9 ${String(5000 + seed * 111).slice(-4)} ${String(1000 + seed * 77).slice(-4)}`,
+    flow: "INTENCION DE RENUNCIA",
   };
 }
 
@@ -474,6 +502,7 @@ export function makeCase(o: CaseOpts): CaseDetail {
     transcript: tpl.transcript(agent.name.split(" ")[0]),
     findings: o.findings,
     productSheets: sheets,
+    customer: customer(o.index),
     modelRuns: [modelRun(o.id, o.callId, agent, sheets, o.findings, "Gemini (demo)")],
     rubricId: RUBRIC.id,
     rubricVersion: RUBRIC.version,

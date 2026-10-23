@@ -1,7 +1,11 @@
 "use client";
 
 import {
+  Activity,
   BarChart3,
+  FileCode2,
+  LineChart,
+  UserCog,
   Bell,
   FlaskConical,
   GitCompareArrows,
@@ -20,11 +24,12 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { LogoMark, Wordmark } from "@/components/brand/logo";
+import { BrandLogo } from "@/components/brand/logo";
 import { DemoDialog } from "@/components/dialogs/demo-dialog";
 import type { User } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { useSession } from "@/lib/session";
+import { ROLE_LABEL } from "./app-shell";
 import { useNavCounts } from "./nav-counts";
 import { isRealMode } from "@/lib/api";
 
@@ -58,7 +63,16 @@ export function SidebarNav({
   const [demoOpen, setDemoOpen] = useState(false);
 
   const items: Item[] =
-    user.role === "auditor"
+    user.role === "qubico_admin"
+      ? [
+          { label: "Estadísticas", href: "/admin/stats", icon: LineChart },
+          { label: "Prompt", href: "/admin/prompts", icon: FileCode2 },
+          { label: "Cuentas", href: "/admin/accounts", icon: UserCog },
+          { label: "Discrepancias", href: "/discrepancies", icon: GitCompareArrows, match: ["/calls/"] },
+          { label: "Seguros", href: "/catalog", icon: FileSpreadsheet },
+          { label: "Registro de actividad", href: "/admin/activity", icon: Activity },
+        ]
+      : user.role === "auditor"
       ? [
           { label: "Cola", href: "/queue", icon: Inbox, count: counts.queue, match: ["/calls/"] },
           { label: "Mis revisiones", href: "/my-reviews", icon: History, count: counts.reopened, alert: true },
@@ -100,11 +114,12 @@ export function SidebarNav({
       className="sticky top-0 flex h-screen flex-col gap-0.5 border-r border-border bg-card px-2.5 py-4"
     >
       <div className={cn("flex items-center gap-2.5 px-2 pb-[18px]", collapsed && "justify-center px-0")}>
-        <LogoMark size={30} />
-        {!collapsed && (
-          <span>
-            <Wordmark className="block text-[15px] leading-none" />
-            <small className="mt-[3px] block text-xs text-muted-foreground">Auditoría de llamadas</small>
+        {collapsed ? (
+          <BrandLogo variant="symbol" height={28} />
+        ) : (
+          <span className="grid gap-1.5">
+            <BrandLogo height={28} />
+            <small className="block text-xs text-muted-foreground">Auditoría de llamadas</small>
           </span>
         )}
       </div>
@@ -172,7 +187,7 @@ export function SidebarNav({
             <span className="leading-4">
               {user.name}
               <br />
-              <small className="help">{user.role === "auditor" ? "Auditora" : "Supervisor"} · Cerrar sesión</small>
+              <small className="help">{user.role === "auditor" ? "Auditora" : ROLE_LABEL[user.role]} · Cerrar sesión</small>
             </span>
           )}
         </button>

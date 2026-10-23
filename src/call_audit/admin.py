@@ -1,7 +1,7 @@
 """Administración de cuentas. No hay registro abierto: las cuentas las crea Qubico.
 
 Uso:
-    uv run python -m call_audit.admin create-user --email E --name N --role auditor|supervisor [--model-io]
+    uv run python -m call_audit.admin create-user --email E --name N --role auditor|supervisor|qubico_admin [--model-io]
     uv run python -m call_audit.admin set-password --email E
     uv run python -m call_audit.admin grant --email E --permission view_model_io|manage_catalog [--revoke]
 
@@ -44,7 +44,7 @@ def main() -> None:
     create = sub.add_parser("create-user")
     create.add_argument("--email", required=True)
     create.add_argument("--name", required=True)
-    create.add_argument("--role", choices=["auditor", "supervisor"], required=True)
+    create.add_argument("--role", choices=["auditor", "supervisor", "qubico_admin"], required=True)
     create.add_argument("--model-io", action="store_true", help="permiso view_model_io")
     create.add_argument("--manage-catalog", action="store_true", help="permiso manage_catalog (solo supervisor)")
     reset = sub.add_parser("set-password")

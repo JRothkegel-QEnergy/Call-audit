@@ -36,6 +36,10 @@ CMD ["python", "-m", "call_audit.ingestion.pipeline", "--loop", "900"]
 
 
 FROM base AS api
+# Registro de prompts (Cambio 12): la API valida el prompt.yaml con layer2_prompt.py, arranca el registro desde
+# prompts/layer2 y lista los modelos de models.toml. La prueba contra la referencia la corre el worker.
+COPY scripts/prompt_bench/layer2_prompt.py scripts/prompt_bench/models.toml ./scripts/prompt_bench/
+COPY prompts ./prompts
 USER app
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"

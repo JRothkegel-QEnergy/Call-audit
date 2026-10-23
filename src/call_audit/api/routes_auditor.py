@@ -52,6 +52,8 @@ def login(body: LoginIn, response: Response, session: DbSession, settings: Annot
     user = session.scalar(select(User).where(User.email == body.email.strip().lower()))
     if user is None or user.status != "active" or not verify_password(user, body.password):
         raise HTTPException(401, "Correo o contraseña incorrectos")
+    user.last_login_at = datetime.now(UTC)
+    session.commit()
     set_session(response, user, settings)
     return out.user_out(user)
 

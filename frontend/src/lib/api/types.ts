@@ -7,7 +7,8 @@
  * (.claude/rules/layer-contract.md).
  */
 
-export type Role = "auditor" | "supervisor";
+/** `qubico_admin`: Administrador Qubico (Cambio 12). */
+export type Role = "auditor" | "supervisor" | "qubico_admin";
 
 /** Veredicto del contrato de capas. `not_applicable` se muestra como "Cumple" (D-20, H-48). */
 export type Verdict = "compliant" | "non_compliant" | "uncertain" | "not_applicable";
@@ -36,6 +37,9 @@ export interface User {
   email: string;
   role: Role;
   permissions: Permission[];
+  /** Cliente de la instalación (un solo cliente en el MVP, H-62). */
+  clientName?: string;
+  lastLoginAt?: string | null;
 }
 
 export interface Agent {
@@ -188,13 +192,23 @@ export interface Note {
 /** Veredicto del cliente (ESTADO_CALIDAD): APROBADA → compliant, RECHAZADA → non_compliant. No tiene "Dudosa". */
 export type ExternalVerdict = "compliant" | "non_compliant";
 
-export type ProductSheetSectionKey = "call" | "category" | "premium" | "refund" | "withdrawal" | "coverages";
+export type ProductSheetSectionKey = "customer" | "call" | "category" | "premium" | "refund" | "withdrawal" | "coverages";
+
+/** Ficha del cliente: datos del titular desde la metadata del lote (Cambio 13). Sin enmascarar (D-41). */
+export interface Customer {
+  fullName: string | null;
+  rut: string | null;
+  birthDate: string | null;
+  email: string | null;
+  phone: string | null;
+  flow: string | null;
+}
 
 export interface ProductSheet {
   productId: string;
   name: string;
   insurer: string;
-  /** Datos de esta llamada (enmascarados). */
+  /** Datos de esta llamada, de la metadata del lote. */
   callData: { label: string; value: string }[];
   category: string;
   categoryRule: string;
@@ -202,6 +216,9 @@ export interface ProductSheet {
   premiumRefund: string;
   withdrawal: string;
   coverages: { name: string; detail: string }[];
+  /** Renunciable / retenible según la metadata ("Sí", "No" o el valor tal como vino) y lo que contradice a la ficha. */
+  customerCategory?: { renounceable: string | null; retainable: string | null } | null;
+  categoryMismatch?: { field: "renounceable" | "retainable"; metadata: string }[];
   /** Catálogo versionado (Cambio 11): ficha y versión con que se validó la llamada, y la vigente hoy. */
   catalogId?: string | null;
   version?: number | null;
@@ -234,6 +251,8 @@ export interface CaseDetail extends CaseSummary {
   transcript: TranscriptTurn[];
   findings: Finding[];
   productSheets: ProductSheet[];
+  /** null: la llamada no trae datos del cliente en la metadata (o se importó antes del Cambio 13). */
+  customer?: Customer | null;
   /** Corridas del modelo; la primera es la vigente. Comparar modelos (más de una) queda para después. */
   modelRuns: ModelRun[];
   rubricId: string;
@@ -355,7 +374,8 @@ export interface AuditorStats {
 }
 
 export type AccountStatus = "invited" | "active" | "deactivated";
-export type LoginMethod = "sso" | "password";
+/** Solo correo y contraseña; el SSO quedó fuera del MVP (D-28). */
+export type LoginMethod = "password";
 
 export interface AuditorAccount {
   id: string;

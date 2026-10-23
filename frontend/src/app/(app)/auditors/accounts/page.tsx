@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/ui/page-header";
 import { AsyncView } from "@/components/ui/states";
-import { api, isRealMode } from "@/lib/api";
-import type { AccountStatus, AuditorAccount, LoginMethod } from "@/lib/api/types";
+import { api } from "@/lib/api";
+import type { AccountStatus, AuditorAccount } from "@/lib/api/types";
 import { useAsync } from "@/lib/use-async";
 import { AuditorsTabs } from "../auditors-tabs";
 
@@ -18,7 +18,6 @@ const STATUS: Record<AccountStatus, [string, "teal" | "neutral" | "ink"]> = {
   invited: ["Invitado", "neutral"],
   deactivated: ["Desactivado", "ink"],
 };
-const METHOD: Record<LoginMethod, string> = { sso: "Cuenta de la empresa (SSO)", password: "Correo y contraseña" };
 
 export default function AccountsPage() {
   const accounts = useAsync(() => api.listAuditorAccounts(), []);
@@ -32,14 +31,11 @@ export default function AccountsPage() {
         title="Auditores"
         description="Solo puedes crear cuentas de auditor. Las de supervisor las crea Qubico."
         actions={
-          isRealMode ? (
-            <span className="help">Por ahora las cuentas las crea Qubico.</span>
-          ) : (
-            <Button variant="primary" onClick={() => setInviteOpen(true)}>
-              <Plus size={14} aria-hidden />
-              Invitar auditor
-            </Button>
-          )
+          // Invitación por correo con enlace de un solo uso (Cambio 12, D-36).
+          <Button variant="primary" onClick={() => setInviteOpen(true)}>
+            <Plus size={14} aria-hidden />
+            Invitar auditor
+          </Button>
         }
       />
       <AuditorsTabs active="accounts" />
@@ -51,7 +47,6 @@ export default function AccountsPage() {
                 <th>Nombre</th>
                 <th>Correo</th>
                 <th>Estado</th>
-                <th>Forma de ingreso</th>
                 <th>
                   <span className="sr-only">Acción</span>
                 </th>
@@ -65,7 +60,6 @@ export default function AccountsPage() {
                   <td>
                     <StatusBadge tone={STATUS[a.status][1]}>{STATUS[a.status][0]}</StatusBadge>
                   </td>
-                  <td>{METHOD[a.loginMethod]}</td>
                   <td className="text-right">
                     {a.status === "deactivated" ? (
                       <Button
@@ -79,7 +73,17 @@ export default function AccountsPage() {
                         Reactivar cuenta
                       </Button>
                     ) : a.status === "invited" ? (
-                      <Button variant="ghost" onClick={() => toast(`Reenviamos la invitación a ${a.email}.`)}>
+                      <Button
+                        variant="ghost"
+                        onClick={async () => {
+                          try {
+                            await api.resendAuditorInvite(a.id);
+                            toast(`Reenviamos la invitación a ${a.email}. El enlace anterior dejó de funcionar.`);
+                          } catch {
+                            toast("No pudimos reenviar la invitación. Intenta de nuevo.");
+                          }
+                        }}
+                      >
                         Reenviar invitación
                       </Button>
                     ) : (
@@ -135,7 +139,6 @@ export default function AccountsPage() {
 function InviteDialog({ open, onOpenChange, onDone }: { open: boolean; onOpenChange: (o: boolean) => void; onDone: (email: string) => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [method, setMethod] = useState<LoginMethod>("sso");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   return (
@@ -153,7 +156,7 @@ function InviteDialog({ open, onOpenChange, onDone }: { open: boolean; onOpenCha
               if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) return setError("Escribe un correo válido, por ejemplo nombre@empresa.cl.");
               setBusy(true);
               try {
-                await api.inviteAuditor({ name: name.trim(), email: email.trim(), loginMethod: method });
+                await api.inviteAuditor({ name: name.trim(), email: email.trim(), });
                 const sent = email.trim();
                 setName("");
                 setEmail("");
@@ -180,16 +183,7 @@ function InviteDialog({ open, onOpenChange, onDone }: { open: boolean; onOpenCha
         Correo corporativo
         <input className="control" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>
-      <fieldset className="m-0 rounded-md border border-border px-3 py-2">
-        <legend className="px-1 text-[13px] font-medium">Forma de ingreso</legend>
-        <label className="flex items-center gap-2">
-          <input type="radio" name="method" checked={method === "sso"} onChange={() => setMethod("sso")} /> Cuenta de la empresa (SSO)
-        </label>
-        <label className="flex items-center gap-2">
-          <input type="radio" name="method" checked={method === "password"} onChange={() => setMethod("password")} /> Correo y contraseña
-        </label>
-      </fieldset>
-      <span className="help">Rol: auditor. Solo Qubico crea supervisores.</span>
+      <span className="help">Rol: auditor. Le llegará un correo para crear su contraseña. Solo Qubico crea supervisores.</span>
       {error && (
         <span className="field-error" role="alert">
           {error}

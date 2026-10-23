@@ -31,7 +31,7 @@
 | H-25 | Los auditores están acostumbrados a anotar con referencia de minuto; la marca de tiempo de cada hallazgo (y agregar un hallazgo "en el minuto actual") les resultará natural. | D-11 | Test de usabilidad | Abierto |
 | H-26 | El supervisor da de alta auditores con poca frecuencia (al incorporar personas o al rotar equipos); basta un formulario simple (nombre, correo, método de acceso) y desactivar en vez de borrar. | D-12 | Entrevista a supervisores | Abierto |
 | H-27 | Qubico crea a los supervisores con un script o consola, sin pantalla interna en el MVP. | Default sin respuesta | Confirmar antes de la Fase 4 | Supuesto por defecto |
-| H-28 | El logo se puede adaptar desde el PNG (vectorizado y versión para fondo oscuro) sin perder la marca. | D-14, default sin respuesta | Revisión en la Fase 8 | Supuesto por defecto |
+| H-28 | El logo se puede adaptar desde el PNG (vectorizado y versión para fondo oscuro) sin perder la marca. | D-14, default sin respuesta | Revisión en la Fase 8 | **Cerrada (D-38, 2026-10-23)**: se usa el logo oficial PNG (negro y blanco) |
 | H-29 | Si tampoco hay acceso a usuarios reales para el test de la Fase 7, un test con usuarios proxy (personas con experiencia en QA de contact center o en auditoría) más una evaluación heurística detecta la mayoría de los problemas graves del CUJ-1 y del CUJ-5. | D-16 | Se decide en la Fase 7 | Abierto |
 | H-30 | Un tope de 50 revisiones por aprobación en lote, con un resumen previo, mantiene la aprobación como un acto consciente sin frenar al supervisor. | Fase 2 (O-08) | Test de usabilidad; revisar la tasa de reaperturas posteriores | **Aprobada como diseño (D-19, 2026-10-15)**; validar en el test |
 | H-31 | Abrir el caso en el primer hallazgo `non_compliant`/`uncertain`, con el audio 3–5 s antes de la cita, reduce el tiempo por caso frente a abrir al inicio de la llamada. | Fase 2 (O-01) | Test de usabilidad (Fase 7) | Abierto |
@@ -69,3 +69,16 @@
 | H-63 | Un borrador de carga sin actividad por 30 días puede cerrarse como "Vencida" sin tocar el catálogo. | Cambio 11 | Revisar el uso real de las cargas | **Aceptado como default (D-31, 2026-10-22)**; validar en uso |
 | H-64 | Guardar en lote los seguros "Nuevo sin advertencias", con resumen y marca, mantiene la confirmación humana sin obligar a abrir decenas de seguros (patrón D-19). | Cambio 11 | Medir el % de seguros guardados en lote que luego se editan | **Aceptado como default (D-31, 2026-10-22)**; validar en uso |
 | H-65 | Antes de enviar el Excel al LLM se anonimizan RUT, correos y tarjetas, pero no los teléfonos de asistencia (datos legítimos de la ficha). | Cambio 11 (L-35) | Validar con `privacy-reviewer` | Abierto |
+| H-66 | El enlace de invitación vence en 72 h; reenviar genera uno nuevo e invalida el anterior. | Cambio 12 (D-37) | Uso real | Abierto |
+| H-67 | El admin tiene la sección Seguros y gestiona `manage_catalog` y `view_model_io` por cuenta. | Cambio 12 (D-40) | Uso real | Abierto |
+| H-68 | Sesión de 15 min de inactividad para el admin, aunque no haya MFA. | Cambio 12 | Uso real | Abierto |
+| H-69 | Restablecer contraseña por correo con enlace de un solo uso, cuando el backend lo soporte. | Cambio 12 | Backend | Abierto |
+| H-70 | Una versión "Solo system prompt" no tiene historial ni origen por regla; se avisa y se recomienda el prompt.yaml. | Cambio 12 (D-34) | Uso real | Abierto |
+| H-71 | Contraseña de mínimo 12 caracteres, sin reglas de composición. | Cambio 12 | — | Abierto |
+| H-72 | Un solo campo de contraseña con "Mostrar", sin "repetir contraseña". | Cambio 12 | — | Abierto |
+| H-73 | Remitente "Call Audit · Qubico" desde una dirección no-responder del dominio de Qubico. | Cambio 12 | Configuración del correo | Abierto |
+| H-74 | RENUNCIABLE/RETENIBLE de la metadata traen SI/NO o equivalentes. | Cambio 13 | Valores del Excel | Abierto |
+| H-75 | Los campos por seguro de la metadata vienen en la fila de cada póliza. | Cambio 13 | Excel de metadata | Abierto |
+| H-76 | La columna MATENRO puede venir como MATERNO en otros lotes; se aceptan ambas. | Cambio 13 | Lotes nuevos | Abierto |
+| H-77 | Correspondencia categoría del catálogo ↔ renunciable/retenible (13 §1.2). | Cambio 13 | Cliente / rubric-engineer | Abierto |
+| H-78 | El mapeo M31/M33 → sección `customer` llega por rúbrica v1.0.2 o por mapeo de presentación. | Cambio 13 | rubric-engineer / pipeline-architect | Abierto |

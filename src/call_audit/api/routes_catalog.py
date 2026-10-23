@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 from pydantic import BaseModel, ValidationError
 from sqlalchemy import select
 
-from call_audit.api.deps import DbSession, supervisor
+from call_audit.api.deps import DbSession, supervisor_or_admin
 from call_audit.catalog import store, uploads
 from call_audit.catalog.extract import UploadError, check_file
 from call_audit.catalog.matching import from_api, to_api
@@ -22,8 +22,8 @@ router = APIRouter(prefix="/api/catalog")
 PERMISSION = "manage_catalog"
 
 
-def catalog_manager(user: Annotated[User, Depends(supervisor)]) -> User:
-    if PERMISSION not in (user.permissions or []):
+def catalog_manager(user: Annotated[User, Depends(supervisor_or_admin)]) -> User:
+    if user.role != "qubico_admin" and PERMISSION not in (user.permissions or []):
         raise HTTPException(403, "Sin permiso para gestionar el catálogo")
     return user
 

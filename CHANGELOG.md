@@ -7,6 +7,21 @@ Cada componente tiene además su propio historial detallado:
 - Prompt de verificación de afirmaciones: historial al final de `docs/layer2-claims-prompt.md`.
 - Diseño del front: `docs/ux/call-audit/estado.md` (fases y cambios aprobados).
 
+## 2026-10-23
+
+- **Rol Administrador Qubico (Cambio 12)** (`qubico_admin`, menú Estadísticas · Prompt · Cuentas · Discrepancias · Seguros · Registro de actividad). No ve los dashboards del supervisor; las llamadas las abre en solo lectura.
+  - **Cuentas:** invita auditores, supervisores y admins por correo con un enlace de un solo uso que vence en 72 h (`/invite/<token>`: crear contraseña de 12+ caracteres y aceptar los términos). Reenviar, revocar, restablecer contraseña, desactivar y reactivar; no se puede desactivar a sí mismo ni al último admin. Permiso extra por rol: `view_model_io` (auditor) y `manage_catalog` (supervisor). Sin verificación en dos pasos por ahora.
+  - El supervisor también invita auditores por correo. En el login, «¿Olvidaste tu contraseña?» manda el enlace con respuesta neutra.
+  - **Prompt:** registro de versiones en la base (borrador → en prueba → probada / falló → vigente → retirada), inmutables desde la prueba. Se sube el `prompt.yaml` completo (misma validación de `layer2_prompt.py check`, diferencias por regla) o solo el system prompt (diferencias de texto). La prueba corre el modelo elegido sobre las llamadas con veredicto del cliente, con costo estimado según las corridas anteriores de ese modelo y confirmación explícita; se puede detener. Activar o volver atrás pide un motivo; el worker usa la vigente para los lotes nuevos. Se descarga como zip para llevarla al repo.
+  - **Registro de actividad** de las acciones sensibles (cuentas, prompt, catálogo, búsquedas por ejecutivo), solo lectura.
+  - Migración `0003` (invitaciones, registro de prompts, pruebas y detalle del registro). Correo por `EMAIL_BACKEND` = console · smtp · ses.
+- **Sin SSO:** el login queda solo con correo y contraseña (D-28).
+- **Ficha del cliente (Cambio 13)** en la columna Ficha del seguro del detalle de llamada: nombre, RUT, fecha de nacimiento, email, teléfono y flujo desde la metadata del lote, sin enmascarar (D-41) y para los tres roles (D-44). Se resalta con los motivos 31 y 33.
+  - Cada seguro suma compañía, tipo de seguro y fecha de venta, y en Categoría «Renunciable / Retenible según la metadata», con un aviso si contradicen la categoría de la ficha (informativo, no cambia el veredicto).
+  - Estos datos no entran al modelo ni al panel del modelo (`input_data`), y no se registra quién abre la llamada (D-45).
+  - Llamadas ya importadas: `python -m call_audit.ingestion.customer --metadata <Excel del lote>` relee solo la metadata, sin ASR ni LLM (D-46). Las 100 locales ya quedaron completas.
+- **Logo oficial de Qubico** en el menú, el login, la página de privacidad, el ícono de la pestaña y los correos.
+
 ## 2026-10-22
 
 - **Catálogo de seguros versionado (Cambio 11)**, sección **Seguros** del supervisor con el permiso `manage_catalog`:

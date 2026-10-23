@@ -27,6 +27,19 @@ class Settings(BaseSettings):
 
     rubric_path: Path = ROOT / "rubrics" / "bancoestado_retention" / "v1.0.1.yaml"
 
+    # Cliente de esta instalación (un solo cliente en el MVP, H-62).
+    client_name: str = "BancoEstado Corredores de Seguros"
+
+    # Correos de invitación y restablecimiento (Cambio 12, D-36). console = no envía (desarrollo).
+    email_backend: Literal["console", "smtp", "ses"] = "console"
+    email_from: str = "Call Audit · Qubico <no-responder@qubicoenergy.com>"
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    # URL pública del front, para armar los enlaces de los correos.
+    app_base_url: str = "http://localhost:3000"
+
     # Audio desde S3 con URL prefirmada. Sin bucket, el caso viaja sin audio.
     s3_bucket: str = ""
     s3_prefix: str = "audios/"

@@ -22,6 +22,10 @@ def iso(value: datetime | None) -> str | None:
     return value.isoformat() if value else None
 
 
+# Roles que ven el veredicto y el comentario del cliente y el panel del modelo (D-24, Cambio 12).
+SEES_CLIENT = ("supervisor", "qubico_admin")
+
+
 def user_out(user: User) -> dict:
     return {
         "id": user.id,
@@ -29,6 +33,8 @@ def user_out(user: User) -> dict:
         "email": user.email,
         "role": user.role,
         "permissions": user.permissions,
+        "clientName": get_settings().client_name,
+        "lastLoginAt": user.last_login_at.isoformat() if user.last_login_at else None,
     }
 
 
@@ -83,7 +89,7 @@ def case_summary(case: Case, rubric: Rubric, viewer: User) -> dict:
         "lockedBy": {"id": case.locked_by.id, "name": case.locked_by.name} if case.locked_by else None,
         "assignedAuditorId": case.assigned_auditor_id,
         "hasCritical": any(f["criterionId"] in rubric.criteria and rubric.is_critical(f["criterionId"]) for f in bad),
-        "externalQualityVerdict": case.external_verdict if viewer.role == "supervisor" else None,
+        "externalQualityVerdict": case.external_verdict if viewer.role in SEES_CLIENT else None,
     }
 
 
@@ -177,6 +183,15 @@ def product_sheets_out(case: Case) -> list[dict]:
     return out
 
 
+def customer_out(case: Case) -> dict | None:
+    """Ficha del cliente desde la metadata (Cambio 13). La ven todos los roles, sin enmascarar (D-41, D-44)."""
+    data = (case.call_metadata or {}).get("customer")
+    if not data:
+        return None
+    keys = {"full_name": "fullName", "rut": "rut", "birth_date": "birthDate", "email": "email", "phone": "phone"}
+    return {api: data.get(key) for key, api in keys.items()} | {"flow": data.get("flow")}
+
+
 def case_detail(
     case: Case,
     rubric: Rubric,
@@ -186,7 +201,7 @@ def case_detail(
     prompts: dict[str, PromptVersion],
 ) -> dict[str, Any]:
     run = current_run(case)
-    is_supervisor = viewer.role == "supervisor"
+    is_supervisor = viewer.role in SEES_CLIENT
     runs: list[dict] = []
     if "view_model_io" in viewer.permissions:
         # La vigente primero (types.ts: "la primera es la vigente").
@@ -202,6 +217,7 @@ def case_detail(
         "transcript": case.transcript,
         "findings": run.findings if run else [],
         "productSheets": product_sheets_out(case),
+        "customer": customer_out(case),
         "modelRuns": runs,
         "rubricId": rubric.id,
         "rubricVersion": rubric.version,

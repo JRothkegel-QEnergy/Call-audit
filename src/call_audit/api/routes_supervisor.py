@@ -1,20 +1,22 @@
 """Vistas del supervisor: KPIs, alertas, aprobaciones, cuentas y el árbol de discrepancias con el cliente.
 
 Lo que el front pide y todavía no tiene datos detrás (estadísticas por ejecutivo y por auditor, feedback,
-invitaciones por correo, exportación) responde 501: llega con el pipeline completo.
+exportación) responde 501: llega con el pipeline completo. Las invitaciones por correo llegaron con el Cambio 12.
 """
 
 from collections import Counter
 from datetime import UTC, datetime
-from typing import Literal
+from typing import Annotated, Literal
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 
+from call_audit import accounts
 from call_audit.api import serializers as out
-from call_audit.api.deps import CurrentUser, DbSession, Supervisor
+from call_audit.api.deps import CurrentUser, DbSession, Supervisor, SupervisorOrAdmin
 from call_audit.api.routes_auditor import REOPEN_PREFIX, RubricDep, get_case
+from call_audit.config import Settings, get_settings
 from call_audit.persistence.models import AccessLog, Alert, Case, DiscrepancyClassification, Note, Review, User
 
 router = APIRouter(prefix="/api")
@@ -207,6 +209,39 @@ def set_account_status(account_id: str, body: StatusIn, session: DbSession, _: S
     session.commit()
 
 
+class InviteAuditorIn(BaseModel):
+    name: str
+    email: str
+
+
+@router.post("/auditors/invite", status_code=204)
+def invite_auditor(
+    body: InviteAuditorIn, session: DbSession, user: Supervisor, settings: Annotated[Settings, Depends(get_settings)]
+) -> None:
+    """El supervisor invita auditores por correo; solo Qubico crea supervisores (D-12)."""
+    if not body.name.strip() or "@" not in body.email:
+        raise HTTPException(422, "invalid")
+    try:
+        accounts.invite(
+            session, inviter=user, name=body.name, email=body.email, role="auditor", permissions=[], settings=settings
+        )
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    session.commit()
+
+
+@router.post("/auditors/accounts/{account_id}/resend", status_code=204)
+def resend_auditor_invite(
+    account_id: str, session: DbSession, user: Supervisor, settings: Annotated[Settings, Depends(get_settings)]
+) -> None:
+    target = session.get(User, account_id)
+    if target is None or target.role != "auditor" or target.status != "invited":
+        raise HTTPException(404, "Cuenta no encontrada")
+    accounts.send_invitation(session, target, user, settings)
+    accounts.log(session, user, "invite_resent", target.email)
+    session.commit()
+
+
 # --- Discrepancias con el cliente (Cambio 09 §4) ----------------------------------------
 
 
@@ -219,7 +254,7 @@ def branch(ai: str, client: str) -> str:
 
 
 @router.get("/discrepancies")
-def discrepancies(session: DbSession, _: Supervisor):
+def discrepancies(session: DbSession, _: SupervisorOrAdmin):
     rows = []
     for case in session.scalars(select(Case).where(Case.external_verdict.is_not(None))):
         run = out.current_run(case)
@@ -264,7 +299,7 @@ def classification_for(session: DbSession, case_id: str, user: User) -> Discrepa
 
 
 @router.post("/discrepancies/{case_id}", status_code=204)
-def classify(case_id: str, body: ClassifyIn, session: DbSession, user: Supervisor) -> None:
+def classify(case_id: str, body: ClassifyIn, session: DbSession, user: SupervisorOrAdmin) -> None:
     get_case(session, case_id)
     item = classification_for(session, case_id, user)
     item.classification, item.criterion_ids = body.classification, body.criterionIds
@@ -283,7 +318,7 @@ class PresentationIn(BaseModel):
 
 
 @router.post("/discrepancies/{case_id}/presentation", status_code=204)
-def set_presentation(case_id: str, body: PresentationIn, session: DbSession, user: Supervisor) -> None:
+def set_presentation(case_id: str, body: PresentationIn, session: DbSession, user: SupervisorOrAdmin) -> None:
     get_case(session, case_id)
     item = session.get(DiscrepancyClassification, case_id)
     if item is None or item.classification != "ai_correct":
@@ -322,7 +357,6 @@ def agent_detail(agent_id: str, _: Supervisor):
 
 @router.post("/cases/{case_id}/override")
 @router.post("/feedback")
-@router.post("/auditors/invite")
 @router.post("/export")
 def not_implemented(_: Supervisor):
     raise not_yet()

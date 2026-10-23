@@ -5,7 +5,7 @@ uv run uvicorn call_audit.api.app:app --reload --port 8000
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from call_audit.api import routes_auditor, routes_catalog, routes_supervisor
+from call_audit.api import routes_admin, routes_auditor, routes_catalog, routes_supervisor
 from call_audit.config import DEV_SECRET, get_settings
 
 
@@ -25,6 +25,7 @@ def create_app() -> FastAPI:
     app.include_router(routes_auditor.router)
     app.include_router(routes_supervisor.router)
     app.include_router(routes_catalog.router)
+    app.include_router(routes_admin.router)
 
     @app.get("/health")
     def health() -> dict:

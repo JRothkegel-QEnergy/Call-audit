@@ -42,6 +42,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from call_audit import prompt_evaluation, prompt_registry
 from call_audit.catalog import store as catalog_store
 from call_audit.catalog import uploads
 from call_audit.config import ROOT, Settings, get_settings
@@ -267,6 +268,7 @@ def validate(
             logger.exception("No se pudo armar el prompt de %s", stem)
     if not index:
         return 0, []
+    use_active_prompt(out)
     (out / "calls.json").write_text(json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8")
     real_calls.run_models(SimpleNamespace(out=out, models=[model], force=False, workers=4), index)
 
@@ -296,6 +298,17 @@ def validate(
         )
         record_catalog_refs(session, index, rows, catalog, model, f"v{version} {LABEL_SUFFIX}")
     return count, uploaded
+
+
+def use_active_prompt(out: Path) -> None:
+    """El system prompt de la versión vigente del registro (Cambio 12, D-33) reemplaza al del repo que escribió
+    real_calls.build. Sin registro (desarrollo), queda el del repo."""
+    with get_sessionmaker()() as session, session.begin():
+        row = prompt_registry.ensure_bootstrap(session)
+        version, system = row.version, row.system_text
+    prompts = out / "prompts"
+    (prompts / "system.txt").write_text(system.rstrip("\n") + "\n", encoding="utf-8")
+    (prompts / "prompt_version.txt").write_text(f"{version}\n", encoding="utf-8")
 
 
 def use_catalog(out: Path) -> dict:
@@ -509,6 +522,11 @@ def main() -> None:
             uploads.process_pending(get_sessionmaker())
         except Exception:  # noqa: BLE001 - el worker no se cae por una carga fallida
             logger.exception("Falló el procesamiento de cargas del catálogo")
+        # Pruebas de versiones del prompt contra la referencia (Cambio 12): las pide el admin desde la app.
+        try:
+            prompt_evaluation.process_pending(get_sessionmaker())
+        except Exception:  # noqa: BLE001 - el worker no se cae por una prueba fallida
+            logger.exception("Falló una prueba de prompt")
         if not args.loop or time.time() - last_pass >= args.loop:
             last_pass = time.time()
             try:

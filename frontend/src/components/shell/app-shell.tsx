@@ -9,13 +9,32 @@ import { useSession } from "@/lib/session";
 import { NavCountsProvider } from "./nav-counts";
 import { SidebarNav } from "./sidebar-nav";
 
-/** Rutas que solo ve el supervisor. El backend también debe validar el rol en cada endpoint. */
-const SUPERVISOR_ONLY = ["/dashboard", "/alerts", "/reviews", "/agents", "/auditors", "/discrepancies"];
-const AUDITOR_ONLY = ["/my-reviews"];
+/**
+ * Rutas permitidas por rol (prefijos). El backend también valida el rol en cada endpoint.
+ * El admin no ve dashboards de ejecutivos ni aprueba revisiones (H-60); comparte Discrepancias y Seguros.
+ */
+const COMMON = ["/calls/", "/settings"];
+const ALLOWED: Record<Role, string[]> = {
+  auditor: ["/queue", "/my-reviews", ...COMMON],
+  supervisor: ["/dashboard", "/alerts", "/reviews", "/agents", "/auditors", "/discrepancies", "/queue", "/catalog", ...COMMON],
+  qubico_admin: ["/admin", "/discrepancies", "/catalog", ...COMMON],
+};
+
+function matchesPrefix(pathname: string, prefix: string) {
+  const base = prefix.replace(/\/$/, "");
+  return pathname === base || pathname.startsWith(`${base}/`);
+}
 
 export function homeFor(role: Role) {
+  if (role === "qubico_admin") return "/admin/stats";
   return role === "supervisor" ? "/dashboard" : "/queue";
 }
+
+export const ROLE_LABEL: Record<Role, string> = {
+  auditor: "Auditor",
+  supervisor: "Supervisor",
+  qubico_admin: "Administrador Qubico",
+};
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, ready } = useSession();
@@ -24,10 +43,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
-  const forbidden =
-    !!user &&
-    ((user.role === "auditor" && SUPERVISOR_ONLY.some((p) => pathname.startsWith(p))) ||
-      (user.role === "supervisor" && AUDITOR_ONLY.some((p) => pathname.startsWith(p))));
+  const forbidden = !!user && !ALLOWED[user.role].some((p) => matchesPrefix(pathname, p));
 
   useEffect(() => {
     if (!ready) return;

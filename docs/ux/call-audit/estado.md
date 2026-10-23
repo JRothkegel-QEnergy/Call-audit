@@ -1,6 +1,6 @@
 # Estado del proceso UX · Front de Call Audit
 
-- **Estado:** **proceso UX cerrado** (2026-10-16) · **Cambio 09 aprobado** (2026-10-19, `09-cambio-auditoria-ia.md` §0) · **Cambio 10 aprobado e implementado** (2026-10-19) · **Cambio 11 aprobado** (2026-10-22, `11-catalogo-seguros.md` §0: sección Seguros con permiso `manage_catalog`, carga de Excel con IA y confirmación humana, clave única nombre + aseguradora, versionado de fichas). Listo para implementar. Fases 0 a 8 aprobadas por Johannes. El diseño está listo para implementar en `frontend/`; los cambios posteriores pasan por la revisión rápida contra lo aprobado.
+- **Estado:** **proceso UX cerrado** (2026-10-16) · **Cambio 09 aprobado** (2026-10-19, `09-cambio-auditoria-ia.md` §0) · **Cambio 10 aprobado e implementado** (2026-10-19) · **Cambio 11 aprobado** (2026-10-22, `11-catalogo-seguros.md` §0: sección Seguros con permiso `manage_catalog`, carga de Excel con IA y confirmación humana, clave única nombre + aseguradora, versionado de fichas). · **Cambio 12 aprobado** (2026-10-23, `12-cambio-admin-qubico.md` §0: rol Administrador Qubico, prompt versionado en BD con prompt.yaml o system prompt, prueba con costo confirmado, invitaciones por correo, sin MFA, logo oficial). Listo para implementar. Fases 0 a 8 aprobadas por Johannes. El diseño está listo para implementar en `frontend/`; los cambios posteriores pasan por la revisión rápida contra lo aprobado.
 - **Ubicación de los artefactos:** `call-audit/docs/ux/call-audit/` (dentro del repo, junto al resto de `docs/`).
 - **Aprueba los gates:** Johannes (D-04).
 
@@ -72,6 +72,22 @@
 | 2026-10-22 | D-31 · Defaults D1–D8 del Cambio 11 aprobados; los 66 productos actuales se cargan como versión 1 y el worker lee el catálogo desde la base | Johannes |
 | 2026-10-22 | Cambio 12 (revisión rápida): el ítem Cumple sin foco muestra el motivo de la IA. Bajo "No se detectó en la llamada" va "Por qué: {comment}" (texto secundario, 2 líneas con recorte visual; el texto completo queda en el DOM y se ve al enfocar con "Revisar"). Sin evidencia ni confianza sin foco. Igual en auditor, supervisor y solo lectura. Sin comentario, no se muestra la línea. Mantiene D-18 y HE-01 (H-49) | Diseñador; pedido de Johannes |
 | 2026-10-14 | En los artefactos solo se usan métricas agregadas de las transcripciones reales; los prototipos usan contenido sintético (L-19) | Diseñador |
+| 2026-10-23 | D-32 · Rol Administrador Qubico (`qubico_admin`), adaptado de call-audit 10 | Johannes |
+| 2026-10-23 | D-33 · Versiones del prompt en un registro inmutable en la BD, exportables al repo | Johannes |
+| 2026-10-23 | D-34 · Publicar con prompt.yaml (validado como `layer2_prompt.py check`, genera `system.txt`) o solo con el system prompt | Johannes |
+| 2026-10-23 | D-35 · La prueba contra la referencia corre el modelo real; muestra *n* y costo estimado y solo corre si el admin confirma | Johannes |
+| 2026-10-23 | D-36 · Sin verificación en dos pasos: confirmaciones con motivo obligatorio en activar y volver atrás | Johannes |
+| 2026-10-23 | D-37 · Invitación por correo con enlace de un solo uso (72 h; reenviar invalida el anterior) y pantalla `/invite/[token]` | Johannes / coordinador |
+| 2026-10-23 | D-38 · Logo oficial PNG (negro y blanco; cubo solo en la sidebar colapsada); H-28 cerrada | Johannes |
+| 2026-10-23 | D-39 · Sin SSO: sin "Forma de ingreso"; `LoginMethod = password` | Johannes |
+| 2026-10-23 | D-40 · El admin tiene la sección Seguros y gestiona `manage_catalog` y `view_model_io` | Diseñador (supuesto H-67) |
+| 2026-10-23 | D-41 · Cambio 13: los datos del cliente desde la metadata se muestran completos, sin enmascarar y sin botón "Mostrar" (incluida la cuenta de cargo) | Johannes |
+| 2026-10-23 | Cambio 13 (revisión rápida, `13-datos-cliente-ficha.md`): **aprobado** e implementable. Bloque "Ficha del cliente" con datos de la metadata en la sección Ficha del seguro | Johannes |
+| 2026-10-23 | D-42 · "Ficha del cliente" arriba de las pestañas de seguros, plegable, resaltado con los motivos 31 y 33 | Johannes; ubicación: diseñador |
+| 2026-10-23 | D-43 · Campos: nombre, RUT, fecha de nacimiento, email, teléfono y flujo; por seguro, compañía, tipo, fecha de venta, cuenta de cargo y renunciable/retenible con aviso de discrepancia. Sin ID de gestión | Johannes |
+| 2026-10-23 | D-44 · Lo ven auditor, supervisor y admin Qubico (solo lectura) | Johannes |
+| 2026-10-23 | D-45 · No se registra el acceso | Johannes |
+| 2026-10-23 | D-46 · Se guardan solo esos campos; reimportar solo la metadata de las llamadas actuales, sin IA | Johannes |
 
 ## Preguntas abiertas
 
@@ -83,10 +99,13 @@ Ninguna bloqueante.
 - H-48: `not_applicable` en el contrato y en el prompt de la capa 2 vs D-20 (`pipeline-architect`, `rubric-engineer`).
 - H-32: mapeo motivo → sección de la ficha como configuración (`rubric-engineer`).
 - Actualizar HU-AUD-03 en `docs/user-stories-auditor-supervisor.md` (sin "No aplica").
-- SVG oficial del logo (H-28).
 - Verificar la licencia del design system "Modernist" del zip (L-13).
 - ADR del prompt único vs las capas de `CLAUDE.md` (`pipeline-architect`, H-52).
 - L-28: no desplegar datos reales a externos sin enmascarado ni DPA.
 - L-36: confirmar contrato/NDA para enviar las condiciones comerciales del cliente al proveedor del LLM (Cambio 11).
 - H-65: anonimización del Excel antes del LLM sin enmascarar teléfonos de empresas (`privacy-reviewer`).
 - Cambio 11: antes de la carga inicial, verificar que los 66 productos no tengan claves nombre + aseguradora repetidas (§9.3).
+- Cambio 12: ADR del registro de versiones del prompt (validación del yaml en el servidor, versión vigente por lote, conjunto de calibración, evaluación que se puede detener, costo por corrida y exportación al repo) con `pipeline-architect` y `llm-engineer`.
+- Cambio 12: ajustar la regla no negociable 2 de `CLAUDE.md` (fuente de verdad del prompt = registro versionado en la BD). Lo hace Johannes o el ADR.
+- Cambio 12: invitaciones y restablecimiento por correo en el backend; mientras no existan, sigue `10-modo-real.md` 1d y 3b.
+- Cambio 13: H-78 (cómo llega `product_sheet_section: customer` a M31/M33: rúbrica v1.0.2 o mapeo de presentación) con `rubric-engineer` / `pipeline-architect`; H-77 (categoría ↔ renunciable/retenible) a confirmar.
