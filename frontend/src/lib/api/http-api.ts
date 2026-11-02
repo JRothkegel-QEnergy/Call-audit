@@ -183,6 +183,9 @@ export const httpApi: ApiClient = {
   getActivePrompt: () => get("/api/prompts/active"),
   getAdminStats: () => get("/api/admin/stats"),
   listActivity: () => get("/api/admin/activity"),
+  getProcessingStatus: () => get("/api/admin/processing"),
+  listPipelineRuns: (limit = 20) => get(`/api/admin/processing/runs${query({ limit: String(limit) })}`),
+  listAsrFailures: () => get("/api/admin/processing/asr-failures"),
 
   resetDemo: async () => undefined,
 };

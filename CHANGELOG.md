@@ -7,6 +7,15 @@ Cada componente tiene además su propio historial detallado:
 - Prompt de verificación de afirmaciones: historial al final de `docs/layer2-claims-prompt.md`.
 - Diseño del front: `docs/ux/call-audit/estado.md` (fases y cambios aprobados).
 
+## 2026-11-02
+
+- **Procesamiento (Cambio 14)** en el menú del admin (`/admin/processing`), solo lectura. Muestra:
+  - el estado del worker: procesando, en espera, no responde (sin latido hace más de 3 min) o última pasada fallida;
+  - el avance de la pasada en curso por etapa ("k de n" al transcribir y validar);
+  - las últimas 20 pasadas y las fallas de transcripción.
+  - Se actualiza cada 5 s con una pasada en curso y cada 30 s en espera.
+- **El worker guarda su estado en la base:** cada pasada en `pipeline_runs` (contadores por audio), un latido cada 30 s en `worker_heartbeat` y las fallas de ASR en `asr_failures`, que reemplaza `work/asr_failures.json` (se importa una vez). Al arrancar, una pasada que quedó abierta se marca como interrumpida. Migración `0004`.
+
 ## 2026-10-23
 
 - **Rol Administrador Qubico (Cambio 12)** (`qubico_admin`, menú Estadísticas · Prompt · Cuentas · Discrepancias · Seguros · Registro de actividad). No ve los dashboards del supervisor; las llamadas las abre en solo lectura.

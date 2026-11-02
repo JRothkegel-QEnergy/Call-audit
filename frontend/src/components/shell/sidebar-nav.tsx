@@ -3,6 +3,7 @@
 import {
   Activity,
   BarChart3,
+  Cpu,
   FileCode2,
   LineChart,
   UserCog,
@@ -66,6 +67,7 @@ export function SidebarNav({
     user.role === "qubico_admin"
       ? [
           { label: "Estadísticas", href: "/admin/stats", icon: LineChart },
+          { label: "Procesamiento", href: "/admin/processing", icon: Cpu },
           { label: "Prompt", href: "/admin/prompts", icon: FileCode2 },
           { label: "Cuentas", href: "/admin/accounts", icon: UserCog },
           { label: "Discrepancias", href: "/discrepancies", icon: GitCompareArrows, match: ["/calls/"] },

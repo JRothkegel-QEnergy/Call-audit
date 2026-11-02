@@ -82,3 +82,11 @@
 | H-76 | La columna MATENRO puede venir como MATERNO en otros lotes; se aceptan ambas. | Cambio 13 | Lotes nuevos | Abierto |
 | H-77 | Correspondencia categoría del catálogo ↔ renunciable/retenible (13 §1.2). | Cambio 13 | Cliente / rubric-engineer | Abierto |
 | H-78 | El mapeo M31/M33 → sección `customer` llega por rúbrica v1.0.2 o por mapeo de presentación. | Cambio 13 | rubric-engineer / pipeline-architect | Abierto |
+| H-79 | "Cron" = el bucle del worker (`pipeline --loop 900`); no hay otro proceso programado que mostrar. | Cambio 14 | Confirmar con Johannes | Abierto |
+| H-80 | Se considera "Sin señal" si el último latido tiene más de 3 min. | Cambio 14 | Uso real | Abierto |
+| H-81 | El latido lo escribe un hilo cada ~30 s, también durante una transcripción larga. | Cambio 14 | pipeline-architect | Abierto |
+| H-82 | El historial muestra las últimas 20 pasadas. | Cambio 14 | Uso real | Abierto |
+| H-83 | La vista consulta cada 5 s con pasada en curso y cada 30 s en espera, y se pausa con la pestaña oculta. | Cambio 14 | Uso real | Abierto |
+| H-84 | Solo `qubico_admin` ve el estado del worker (403 para otros roles). | Cambio 14 | Johannes | Abierto |
+| H-85 | Una pasada que quedó `running` al reiniciarse el worker se cierra como fallida. | Cambio 14 | pipeline-architect | Abierto |
+| H-86 | Las fallas de ASR muestran el nombre del archivo tal como viene del SFTP. | Cambio 14 | Johannes | Abierto |

@@ -169,3 +169,48 @@ export class ApiError extends Error {
     this.errors = errors;
   }
 }
+
+/** Procesamiento (Cambio 14): estado del worker y avance de la pasada. Misma forma que /api/admin/processing. */
+export type WorkerState = "running" | "idle" | "stale" | "last_failed" | "no_data";
+export type PipelineStage = "listing" | "transcribing" | "validating" | "archiving";
+
+export interface PipelineRun {
+  id: number;
+  startedAt: string | null;
+  finishedAt: string | null;
+  status: "running" | "done" | "failed" | "interrupted";
+  stage: PipelineStage | null;
+  audios: number;
+  waitingMetadata: number;
+  batchSize: number;
+  remaining: number;
+  transcribeTotal: number;
+  transcribed: number;
+  asrErrors: number;
+  asrRateLimited: number;
+  validateTotal: number;
+  validated: number;
+  archived: number;
+  error: string | null;
+}
+
+export interface AsrFailure {
+  stem: string;
+  error: string;
+  attempts: number;
+  lastAttemptAt: string | null;
+}
+
+export interface ProcessingStatus {
+  state: WorkerState;
+  stage: PipelineStage | null;
+  lastHeartbeatAt: string | null;
+  nextRunAt: string | null;
+  loopSeconds: number | null;
+  currentRun: PipelineRun | null;
+  lastRun: PipelineRun | null;
+  otherTasks: {
+    catalogUploadsQueued: number;
+    promptEvaluation: { version: string; processed: number; n: number } | null;
+  };
+}

@@ -1,6 +1,6 @@
 # Estado del proceso UX · Front de Call Audit
 
-- **Estado:** **proceso UX cerrado** (2026-10-16) · **Cambio 09 aprobado** (2026-10-19, `09-cambio-auditoria-ia.md` §0) · **Cambio 10 aprobado e implementado** (2026-10-19) · **Cambio 11 aprobado** (2026-10-22, `11-catalogo-seguros.md` §0: sección Seguros con permiso `manage_catalog`, carga de Excel con IA y confirmación humana, clave única nombre + aseguradora, versionado de fichas). · **Cambio 12 aprobado** (2026-10-23, `12-cambio-admin-qubico.md` §0: rol Administrador Qubico, prompt versionado en BD con prompt.yaml o system prompt, prueba con costo confirmado, invitaciones por correo, sin MFA, logo oficial). Listo para implementar. Fases 0 a 8 aprobadas por Johannes. El diseño está listo para implementar en `frontend/`; los cambios posteriores pasan por la revisión rápida contra lo aprobado.
+- **Estado:** **proceso UX cerrado** (2026-10-16) · **Cambio 09 aprobado** (2026-10-19, `09-cambio-auditoria-ia.md` §0) · **Cambio 10 aprobado e implementado** (2026-10-19) · **Cambio 11 aprobado** (2026-10-22, `11-catalogo-seguros.md` §0: sección Seguros con permiso `manage_catalog`, carga de Excel con IA y confirmación humana, clave única nombre + aseguradora, versionado de fichas). · **Cambio 12 aprobado** (2026-10-23, `12-cambio-admin-qubico.md` §0: rol Administrador Qubico, prompt versionado en BD con prompt.yaml o system prompt, prueba con costo confirmado, invitaciones por correo, sin MFA, logo oficial). Listo para implementar. · **Cambio 14 aprobado** (2026-11-02, `14-estado-worker.md` §0: sección Procesamiento del admin con estado del worker, avance por etapa, historial y fallas de ASR; requiere backend nuevo). Fases 0 a 8 aprobadas por Johannes. El diseño está listo para implementar en `frontend/`; los cambios posteriores pasan por la revisión rápida contra lo aprobado.
 - **Ubicación de los artefactos:** `call-audit/docs/ux/call-audit/` (dentro del repo, junto al resto de `docs/`).
 - **Aprueba los gates:** Johannes (D-04).
 
@@ -89,6 +89,14 @@
 | 2026-10-23 | D-45 · No se registra el acceso | Johannes |
 | 2026-10-23 | D-46 · Se guardan solo esos campos; reimportar solo la metadata de las llamadas actuales, sin IA | Johannes |
 
+| 2026-11-02 | Cambio 14 (revisión rápida, `14-estado-worker.md`): propuesta de estado del worker y avance de la pasada para `qubico_admin`. Requiere backend nuevo (pasadas + latido en BD). Pendientes 5 decisiones | Diseñador; pedido de Johannes |
+| 2026-11-02 | Cambio 14 **aprobado** e implementable (Johannes: "Todas las recomendadas"); H-79 a H-86 sin objeción | Johannes |
+| 2026-11-02 | D-47 · Sección "Procesamiento" en el admin, `/admin/processing` | Johannes |
+| 2026-11-02 | D-48 · Avance completo solo de la pasada del pipeline; cargas de Excel y pruebas del prompt como una línea con enlace | Johannes |
+| 2026-11-02 | D-49 · Historial de las últimas 20 pasadas + fallas de transcripción (pasan a BD) | Johannes |
+| 2026-11-02 | D-50 · Solo lectura, sin "Correr pasada ahora" | Johannes |
+| 2026-11-02 | D-51 · Avance por etapa con "k de n", contadores actualizados por audio | Johannes |
+
 ## Preguntas abiertas
 
 Ninguna bloqueante.
@@ -109,3 +117,4 @@ Ninguna bloqueante.
 - Cambio 12: ajustar la regla no negociable 2 de `CLAUDE.md` (fuente de verdad del prompt = registro versionado en la BD). Lo hace Johannes o el ADR.
 - Cambio 12: invitaciones y restablecimiento por correo en el backend; mientras no existan, sigue `10-modo-real.md` 1d y 3b.
 - Cambio 13: H-78 (cómo llega `product_sheet_section: customer` a M31/M33: rúbrica v1.0.2 o mapeo de presentación) con `rubric-engineer` / `pipeline-architect`; H-77 (categoría ↔ renunciable/retenible) a confirmar.
+- Cambio 14: diseño del backend (tablas `pipeline_runs`, `worker_heartbeat`, `asr_failures`, hilo de latido, endpoint) con `pipeline-architect` (§5). Agregar "pasada" y "latido" al glosario de `06-ux-writing.md`.

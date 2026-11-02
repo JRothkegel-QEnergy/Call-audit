@@ -1,4 +1,5 @@
 """Administrador Qubico (Cambio 12): cuentas, versiones del prompt, estadísticas del sistema y registro de actividad.
+Procesamiento (Cambio 14): estado del worker, avance de la pasada en curso y fallas de transcripción.
 También las rutas públicas de invitación y restablecimiento de contraseña (/api/auth/invite, /api/auth/forgot).
 
 Sin métricas por persona (L-06, L-22, L-31). Los errores que el front distingue van como código en `detail`.
@@ -18,7 +19,19 @@ from call_audit import accounts, prompt_evaluation, prompt_registry
 from call_audit.api import serializers as out
 from call_audit.api.deps import Admin, CurrentUser, DbSession, set_session
 from call_audit.config import Settings, get_settings
-from call_audit.persistence.models import AccessLog, Case, ModelRun, PromptEvaluation, PromptVersion, Review, User
+from call_audit.persistence.models import (
+    AccessLog,
+    AsrFailure,
+    Case,
+    CatalogUpload,
+    ModelRun,
+    PipelineRun,
+    PromptEvaluation,
+    PromptVersion,
+    Review,
+    User,
+    WorkerHeartbeat,
+)
 from call_audit.prompt_registry import PromptError
 
 router = APIRouter(prefix="/api")
@@ -533,6 +546,104 @@ def admin_stats(session: DbSession, _: Admin):
         "aiQuality": quality,
         "cost": cost,
     }
+
+
+# --- Procesamiento (Cambio 14) -----------------------------------------------------------------------------------
+
+# Sin latido en este tiempo, el worker "no responde" aunque haya una pasada abierta (H-80): el latido es cada ~30 s.
+STALE_AFTER = timedelta(minutes=3)
+
+
+def run_out(run: PipelineRun | None) -> dict | None:
+    if run is None:
+        return None
+    return {
+        "id": run.id,
+        "startedAt": iso(accounts.aware(run.started_at)),
+        "finishedAt": iso(accounts.aware(run.finished_at)),
+        "status": run.status,
+        "stage": run.stage if run.status == "running" else None,
+        "audios": run.audios,
+        "waitingMetadata": run.waiting_metadata,
+        "batchSize": run.batch_size,
+        "remaining": run.remaining,
+        "transcribeTotal": run.transcribe_total,
+        "transcribed": run.transcribed,
+        "asrErrors": run.asr_errors,
+        "asrRateLimited": run.asr_rate_limited,
+        "validateTotal": run.validate_total,
+        "validated": run.validated,
+        "archived": run.archived,
+        "error": run.error,
+    }
+
+
+def worker_state(beat: WorkerHeartbeat | None, current: PipelineRun | None, last: PipelineRun | None) -> str:
+    """El estado se calcula acá, no en el front, para no comparar relojes (Cambio 14 §3.2). `stale` le gana a todo."""
+    if beat is None:
+        return "no_data"
+    if datetime.now(UTC) - accounts.aware(beat.last_seen_at) > STALE_AFTER:
+        return "stale"
+    if current is not None:
+        return "running"
+    if last is not None and last.status == "failed":
+        return "last_failed"
+    return "idle"
+
+
+@router.get("/admin/processing")
+def processing_status(session: DbSession, _: Admin):
+    beat = session.get(WorkerHeartbeat, 1)
+    latest = select(PipelineRun).order_by(PipelineRun.id.desc()).limit(1)
+    current = session.scalar(latest.where(PipelineRun.status == "running"))
+    last = session.scalar(latest.where(PipelineRun.status != "running"))
+    state = worker_state(beat, current, last)
+    evaluation = session.scalar(
+        select(PromptEvaluation)
+        .where(PromptEvaluation.status.in_(("queued", "running")))
+        .order_by(PromptEvaluation.created_at.desc())
+        .limit(1)
+    )
+    queued = session.scalar(select(func.count()).select_from(CatalogUpload).where(CatalogUpload.status == "processing"))
+    return {
+        "state": state,
+        "stage": current.stage if current is not None and state == "running" else None,
+        "lastHeartbeatAt": iso(accounts.aware(beat.last_seen_at)) if beat else None,
+        "nextRunAt": iso(accounts.aware(beat.next_run_at)) if beat else None,
+        "loopSeconds": beat.loop_seconds if beat else None,
+        "currentRun": run_out(current) if state == "running" else None,
+        "lastRun": run_out(last),
+        "otherTasks": {
+            "catalogUploadsQueued": queued or 0,
+            "promptEvaluation": {
+                "version": evaluation.version,
+                "processed": evaluation.done,
+                "n": len(evaluation.case_ids or []),
+            }
+            if evaluation
+            else None,
+        },
+    }
+
+
+@router.get("/admin/processing/runs")
+def pipeline_runs(session: DbSession, _: Admin, limit: int = 20):
+    rows = session.scalars(select(PipelineRun).order_by(PipelineRun.id.desc()).limit(max(1, min(limit, 200))))
+    return [run_out(run) for run in rows]
+
+
+@router.get("/admin/processing/asr-failures")
+def asr_failures(session: DbSession, _: Admin):
+    rows = session.scalars(select(AsrFailure).order_by(AsrFailure.last_attempt_at.desc()))
+    return [
+        {
+            "stem": r.stem,
+            "error": r.error,
+            "attempts": r.attempts,
+            "lastAttemptAt": iso(accounts.aware(r.last_attempt_at)),
+        }
+        for r in rows
+    ]
 
 
 # --- Registro de actividad ---------------------------------------------------------------------------------------

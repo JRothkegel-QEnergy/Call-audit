@@ -321,3 +321,50 @@ class CatalogUpload(Base):
     updated_at: Mapped[datetime] = mapped_column(default=now)
 
     uploaded_by: Mapped[User] = relationship()
+
+
+class PipelineRun(Base):
+    """Una pasada del worker (Cambio 14, D-49/D-51): etapa en curso y contadores que se actualizan por audio."""
+
+    __tablename__ = "pipeline_runs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    started_at: Mapped[datetime] = mapped_column(default=now)
+    finished_at: Mapped[datetime | None] = mapped_column()
+    status: Mapped[str] = mapped_column(String(20), default="running")  # running | done | failed | interrupted
+    stage: Mapped[str | None] = mapped_column(String(20), default="listing")  # listing | transcribing | ...
+    audios: Mapped[int] = mapped_column(Integer, default=0)
+    waiting_metadata: Mapped[int] = mapped_column(Integer, default=0)
+    batch_size: Mapped[int] = mapped_column(Integer, default=0)
+    remaining: Mapped[int] = mapped_column(Integer, default=0)
+    transcribe_total: Mapped[int] = mapped_column(Integer, default=0)
+    transcribed: Mapped[int] = mapped_column(Integer, default=0)
+    asr_errors: Mapped[int] = mapped_column(Integer, default=0)
+    asr_rate_limited: Mapped[int] = mapped_column(Integer, default=0)
+    validate_total: Mapped[int] = mapped_column(Integer, default=0)
+    validated: Mapped[int] = mapped_column(Integer, default=0)
+    archived: Mapped[int] = mapped_column(Integer, default=0)
+    error: Mapped[str | None] = mapped_column(Text)  # tipo de la excepción y mensaje corto, sin PII
+
+
+class WorkerHeartbeat(Base):
+    """Latido del worker (una sola fila, id = 1): si es viejo, la vista dice que el worker no responde (H-80)."""
+
+    __tablename__ = "worker_heartbeat"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    last_seen_at: Mapped[datetime] = mapped_column(default=now)
+    state: Mapped[str] = mapped_column(String(20), default="idle")  # idle | running
+    next_run_at: Mapped[datetime | None] = mapped_column()
+    loop_seconds: Mapped[int | None] = mapped_column(Integer)
+
+
+class AsrFailure(Base):
+    """Intentos fallidos de transcripción por grabación (antes work/asr_failures.json). Las de cuota no cuentan."""
+
+    __tablename__ = "asr_failures"
+
+    stem: Mapped[str] = mapped_column(String(255), primary_key=True)
+    error: Mapped[str] = mapped_column(Text, default="")
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    last_attempt_at: Mapped[datetime] = mapped_column(default=now)

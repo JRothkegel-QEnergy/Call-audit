@@ -3,17 +3,19 @@ Todo sintético: el modelo de la prueba es un doble y los correos quedan en el O
 
 import json
 import re
+from datetime import UTC, datetime, timedelta
 
 import pytest
 import yaml
 from argon2 import PasswordHasher
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from call_audit import prompt_evaluation
 from call_audit.config import ROOT
 from call_audit.notify import email as mail
-from call_audit.persistence.models import PromptVersion, User
+from call_audit.persistence.models import AsrFailure, PipelineRun, PromptVersion, User, WorkerHeartbeat
 from tests.conftest import PASSWORD, login
 
 MODEL = prompt_evaluation.models()[0]["name"]
@@ -213,3 +215,60 @@ def test_stats_have_no_people(client: TestClient, admin: User, imported: session
     with imported() as session:
         assert session.get(PromptVersion, "9.9").status == "retired"
     assert "auditor" not in json.dumps(stats).lower()
+
+
+# --- Procesamiento (Cambio 14) -----------------------------------------------------------------------------------
+
+
+def beat(db: sessionmaker[Session], ago: timedelta) -> None:
+    with db() as session, session.begin():
+        row = session.get(WorkerHeartbeat, 1) or WorkerHeartbeat(id=1)
+        row.last_seen_at = datetime.now(UTC) - ago
+        row.next_run_at = datetime.now(UTC) + timedelta(minutes=10)
+        row.loop_seconds = 900
+        session.add(row)
+
+
+def test_processing_is_admin_only(client: TestClient, users: dict[str, User]) -> None:
+    login(client, users["supervisor"])
+    assert client.get("/api/admin/processing").status_code == 403
+    assert client.get("/api/admin/processing/runs").status_code == 403
+    assert client.get("/api/admin/processing/asr-failures").status_code == 403
+
+
+def test_processing_states(client: TestClient, admin: User, imported: sessionmaker[Session]) -> None:
+    login(client, admin)
+    assert client.get("/api/admin/processing").json()["state"] == "no_data"
+
+    beat(imported, timedelta(seconds=10))
+    assert client.get("/api/admin/processing").json()["state"] == "idle"
+
+    with imported() as session, session.begin():
+        session.add(PipelineRun(status="running", stage="transcribing", transcribe_total=100, transcribed=68))
+    body = client.get("/api/admin/processing").json()
+    assert body["state"] == "running" and body["stage"] == "transcribing"
+    assert body["currentRun"]["transcribed"] == 68 and body["currentRun"]["transcribeTotal"] == 100
+
+    # Sin latido reciente, "no responde" le gana a la pasada abierta.
+    beat(imported, timedelta(minutes=4))
+    body = client.get("/api/admin/processing").json()
+    assert body["state"] == "stale" and body["currentRun"] is None
+
+    with imported() as session, session.begin():
+        run = session.scalar(select(PipelineRun))
+        run.status, run.error, run.finished_at = "failed", "ConnectionError: sftp", datetime.now(UTC)
+    beat(imported, timedelta(seconds=5))
+    body = client.get("/api/admin/processing").json()
+    assert body["state"] == "last_failed" and body["lastRun"]["error"] == "ConnectionError: sftp"
+
+
+def test_processing_runs_and_failures(client: TestClient, admin: User, imported: sessionmaker[Session]) -> None:
+    with imported() as session, session.begin():
+        session.add_all(PipelineRun(status="done", audios=i) for i in range(25))
+        session.add(AsrFailure(stem="grabacion_1", error="RuntimeError: x", attempts=2))
+    login(client, admin)
+
+    runs = client.get("/api/admin/processing/runs").json()
+    assert len(runs) == 20 and runs[0]["audios"] == 24
+    [failure] = client.get("/api/admin/processing/asr-failures").json()
+    assert failure["stem"] == "grabacion_1" and failure["attempts"] == 2

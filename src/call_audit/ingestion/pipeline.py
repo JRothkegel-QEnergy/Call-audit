@@ -37,7 +37,7 @@ import threading
 import time
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from typing import Any
@@ -50,6 +50,7 @@ from call_audit.catalog import store as catalog_store
 from call_audit.catalog import uploads
 from call_audit.config import ROOT, Settings, get_settings
 from call_audit.ingestion.import_bench import bench, import_run, real_calls
+from call_audit.ingestion.progress import Failures, Heartbeat, Progress, interrupt_orphans
 from call_audit.ingestion.sftp_store import Entry, LocalStore, SftpStore, server_key
 from call_audit.persistence.db import get_sessionmaker
 from call_audit.persistence.models import Case, ModelRun
@@ -253,26 +254,6 @@ def restore_asr(store: Store, stem: str, asr_dir: Path, asr_model: str) -> None:
     (target / "_summary.json").write_text(json.dumps(summary), encoding="utf-8")
 
 
-class Failures:
-    """Intentos fallidos de ASR por grabación: tras MAX_ASR_ATTEMPTS se deja de reintentar (cada intento se paga)."""
-
-    def __init__(self, path: Path):
-        self.path = path
-        self.data: dict[str, dict] = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-
-    def blocked(self, stem: str) -> bool:
-        return self.data.get(stem, {}).get("attempts", 0) >= MAX_ASR_ATTEMPTS
-
-    def add(self, stem: str, error: str) -> None:
-        entry = self.data.setdefault(stem, {"attempts": 0})
-        entry.update(attempts=entry["attempts"] + 1, error=error[:500], at=datetime.now().isoformat(timespec="seconds"))
-        self.path.write_text(json.dumps(self.data, ensure_ascii=False, indent=1), encoding="utf-8")
-
-    def clear(self, stem: str) -> None:
-        if self.data.pop(stem, None) is not None:
-            self.path.write_text(json.dumps(self.data, ensure_ascii=False, indent=1), encoding="utf-8")
-
-
 # --- Validación ----------------------------------------------------------------------------
 
 
@@ -300,10 +281,15 @@ def upload_audio(audio: Path, settings: Settings) -> None:
 
 
 def validate(
-    stems: list[str], rows: dict[str, dict], audio: Callable[[str], Path], settings: Settings
+    stems: list[str],
+    rows: dict[str, dict],
+    audio: Callable[[str], Path],
+    settings: Settings,
+    on_done: Callable[[], None] | None = None,
 ) -> tuple[int, list[Path]]:
     """Una corrida del bench con las grabaciones pendientes, en work/runs/<fecha>, importada a la base. Devuelve
-    cuántas se importaron y los audios locales que ya quedaron en S3."""
+    cuántas se importaron y los audios locales que ya quedaron en S3. `on_done` se llama al terminar cada llamada al
+    modelo (avance de la pasada, D-51)."""
     work = settings.pipeline_work_dir
     out = work / "runs" / datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     asr_dir = work / "asr"
@@ -323,7 +309,8 @@ def validate(
     use_active_prompt(out)
     (out / "calls.json").write_text(json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8")
     workers = max(1, settings.pipeline_llm_workers)
-    real_calls.run_models(SimpleNamespace(out=out, models=[model], force=False, workers=workers), index)
+    args = SimpleNamespace(out=out, models=[model], force=False, workers=workers, on_done=on_done)
+    real_calls.run_models(args, index)
 
     uploaded = []
     for item in index:
@@ -417,12 +404,23 @@ def open_store(settings: Settings) -> Store:
 
 
 def run_once(settings: Settings | None = None) -> dict[str, int]:
+    """Una pasada. Su avance por etapa queda en pipeline_runs (Cambio 14): lo lee la vista Procesamiento."""
     settings = settings or get_settings()
+    progress = Progress(get_sessionmaker())
+    progress.start()
+    try:
+        return run_pass(settings, progress)
+    except BaseException as exc:
+        progress.fail(exc)
+        raise
+
+
+def run_pass(settings: Settings, progress: Progress) -> dict[str, int]:
     bench.load_dotenv(ROOT / ".env")
     work = settings.pipeline_work_dir
     (work / "asr").mkdir(parents=True, exist_ok=True)
     asr_model = settings.pipeline_asr_model
-    failures = Failures(work / "asr_failures.json")
+    failures = Failures(get_sessionmaker(), MAX_ASR_ATTEMPTS, legacy=work / "asr_failures.json")
     store = open_store(settings)
     try:
         entries = store.entries()
@@ -448,8 +446,17 @@ def run_once(settings: Settings | None = None) -> dict[str, int]:
             elif not failures.blocked(stem):
                 todo.append(stem)
         # Tope por pasada: las primeras llamadas llegan a la app sin esperar a que se transcriba todo el lote.
+        pending_asr = len(todo)
         if settings.pipeline_batch_size:
             todo = todo[: settings.pipeline_batch_size]
+        progress.set(
+            stage="transcribing",
+            audios=stats["audios"],
+            waiting_metadata=stats["waiting_metadata"],
+            batch_size=len(todo),
+            remaining=pending_asr - len(todo),
+            transcribe_total=len(todo),
+        )
 
         lock = threading.Lock()  # la conexión SFTP es una sola: bajar y escribir, de a uno
 
@@ -470,28 +477,36 @@ def run_once(settings: Settings | None = None) -> dict[str, int]:
                     failures.clear(stem)
                     outputs.add(stem)
                     stats["transcribed"] += 1
+                    progress.add(transcribed=1)
                 elif any(marker in str(exc) for marker in RATE_LIMIT_MARKERS):
                     logger.warning("Cuota de Gemini en %s: se reintenta en la próxima pasada", stem)
                     stats["asr_rate_limited"] += 1
+                    progress.add(asr_rate_limited=1)
                 else:  # se registra y se reintenta en la próxima pasada
                     logger.warning("Falló la transcripción de %s: %s", stem, exc)
                     failures.add(stem, f"{type(exc).__name__}: {exc}")
                     stats["asr_errors"] += 1
+                    progress.add(asr_errors=1)
 
         with get_sessionmaker()() as session:
             done = validated(session, settings.pipeline_model)
         pending = [s for s in audios if s in outputs and s in rows and s not in done]
+        progress.set(stage="validating", validate_total=len(pending))
         if pending:
-            stats["validated"], uploaded = validate(pending, rows, lambda s: store.fetch(audios[s]), settings)
+            stats["validated"], uploaded = validate(
+                pending, rows, lambda s: store.fetch(audios[s]), settings, on_done=lambda: progress.add(validated=1)
+            )
             for path in uploaded:
                 store.release(path)
             with get_sessionmaker()() as session:
                 done = validated(session, settings.pipeline_model)
+        progress.set(stage="archiving")
         stats["archived"] = archive_finished(store, audios, outputs & done)
         archive_metadata(store, entries, sources, outputs, waiting={e.name for e in store.entries()})
     finally:
         store.close()
     logger.info("Pasada: %s", stats)
+    progress.finish(archived=stats["archived"], validated=stats["validated"])
     return stats
 
 
@@ -592,6 +607,9 @@ def main() -> None:
     if args.adopt:
         print(f"{adopt(settings, args.adopt)} grabaciones movidas a output/ sin procesar")
         return
+    interrupt_orphans(get_sessionmaker())
+    heartbeat = Heartbeat(get_sessionmaker(), args.loop)
+    heartbeat.start()
     last_pass = 0.0
     while True:
         # Las cargas de Excel al catálogo se atienden cada UPLOAD_POLL_SEC: el supervisor espera la propuesta.
@@ -606,12 +624,16 @@ def main() -> None:
             logger.exception("Falló una prueba de prompt")
         if not args.loop or time.time() - last_pass >= args.loop:
             last_pass = time.time()
+            heartbeat.update("running")
             try:
                 run_once(settings)
             except Exception:  # noqa: BLE001 - el worker no se cae por una pasada fallida
                 logger.exception("Falló la pasada")
                 if not args.loop:
                     raise
+            finally:
+                next_run = datetime.now(UTC) + timedelta(seconds=args.loop) if args.loop else None
+                heartbeat.update("idle", next_run)
         if not args.loop:
             return
         time.sleep(UPLOAD_POLL_SEC)

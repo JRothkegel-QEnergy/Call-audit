@@ -42,8 +42,11 @@ import type {
 import type {
   ActivityLogEntry,
   AdminStats,
+  AsrFailure,
   InviteInfo,
   ModelOption,
+  PipelineRun,
+  ProcessingStatus,
   PromptEstimate,
   PromptVersion,
   PromptVersionDetail,
@@ -185,6 +188,11 @@ export interface ApiClient {
   getActivePrompt(): Promise<{ version: string; since: string | null; changedInApp: boolean }>;
   getAdminStats(): Promise<AdminStats>;
   listActivity(): Promise<ActivityLogEntry[]>;
+
+  // Procesamiento (Cambio 14)
+  getProcessingStatus(): Promise<ProcessingStatus>;
+  listPipelineRuns(limit?: number): Promise<PipelineRun[]>;
+  listAsrFailures(): Promise<AsrFailure[]>;
 
   // Solo para la demo
   resetDemo(): Promise<void>;

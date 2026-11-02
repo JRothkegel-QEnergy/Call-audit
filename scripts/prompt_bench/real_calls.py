@@ -354,9 +354,13 @@ def run_models(args, index: list[dict]) -> None:
     system = (bench.PROMPTS_DIR / "system.txt").read_text(encoding="utf-8")
     configs = {c["name"]: c for c in tomllib.loads(bench.CONFIG.read_text(encoding="utf-8"))["models"]}
 
+    on_done = getattr(args, "on_done", None)  # avance por llamada del pipeline de la app (Cambio 14)
+
     def job(task):
         cfg, stem = task
         print(f"   {cfg['name']} {stem}: {bench.run_one(cfg, stem, system, args.force)}", flush=True)
+        if on_done:
+            on_done()
 
     tasks = [(configs[m], c["stem"]) for m in args.models for c in index]
     with ThreadPoolExecutor(max_workers=args.workers) as pool:

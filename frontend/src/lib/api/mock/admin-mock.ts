@@ -5,8 +5,11 @@
 import type {
   ActivityLogEntry,
   AdminStats,
+  AsrFailure,
   EvaluationMetrics,
   InviteInfo,
+  PipelineRun,
+  ProcessingStatus,
   PromptVersion,
   PromptVersionDetail,
   UserAccount,
@@ -40,6 +43,9 @@ type AdminApi = Pick<
   | "getActivePrompt"
   | "getAdminStats"
   | "listActivity"
+  | "getProcessingStatus"
+  | "listPipelineRuns"
+  | "listAsrFailures"
 >;
 
 const MODELS = [
@@ -173,6 +179,87 @@ function evaluationOf(p: Record_): PromptVersionDetail["evaluation"] {
     metrics: p.run.metrics,
   };
 }
+
+
+// --- Procesamiento (Cambio 14): una pasada simulada que avanza con el reloj y vuelve a empezar cada 15 min -------
+const LOOP_MS = 15 * 60_000;
+const MOCK_START = Date.now();
+const runAt = (fields: Partial<PipelineRun>, startedMsAgo: number, minutes: number): PipelineRun => ({
+  id: 0,
+  startedAt: iso(new Date(Date.now() - startedMsAgo)),
+  finishedAt: iso(new Date(Date.now() - startedMsAgo + minutes * 60_000)),
+  status: "done",
+  stage: null,
+  audios: 412,
+  waitingMetadata: 37,
+  batchSize: 100,
+  remaining: 275,
+  transcribeTotal: 100,
+  transcribed: 100,
+  asrErrors: 0,
+  asrRateLimited: 0,
+  validateTotal: 100,
+  validated: 100,
+  archived: 100,
+  error: null,
+  ...fields,
+});
+
+function simulatedPass(): { run: PipelineRun | null; elapsed: number; cycle: number } {
+  const since = Date.now() - MOCK_START;
+  const cycle = Math.floor(since / LOOP_MS);
+  const elapsed = since % LOOP_MS;
+  // 0–5 s revisa el SFTP, 5–65 s transcribe, 65–105 s valida, 105–110 s archiva; después espera.
+  if (elapsed > 110_000) return { run: null, elapsed, cycle };
+  const k = (from: number, to: number, n: number) => Math.max(0, Math.min(n, Math.floor(((elapsed - from) / (to - from)) * n)));
+  const stage = elapsed < 5_000 ? "listing" : elapsed < 65_000 ? "transcribing" : elapsed < 105_000 ? "validating" : "archiving";
+  const transcribed = k(5_000, 65_000, 100);
+  const errors = transcribed > 40 ? 2 : 0;
+  const listed = stage !== "listing";
+  return {
+    elapsed,
+    cycle,
+    run: {
+      ...runAt({}, elapsed, 0),
+      id: 30 + cycle,
+      finishedAt: null,
+      status: "running",
+      stage,
+      audios: listed ? 412 : 0,
+      waitingMetadata: listed ? 37 : 0,
+      batchSize: listed ? 100 : 0,
+      remaining: listed ? 275 : 0,
+      transcribeTotal: listed ? 100 : 0,
+      transcribed: transcribed - errors - (transcribed > 70 ? 1 : 0),
+      asrErrors: errors,
+      asrRateLimited: transcribed > 70 ? 1 : 0,
+      validateTotal: elapsed >= 65_000 ? 97 : 0,
+      validated: k(65_000, 105_000, 97),
+      archived: 0,
+    },
+  };
+}
+
+function mockRuns(): PipelineRun[] {
+  const { run, elapsed, cycle } = simulatedPass();
+  const past = Array.from({ length: 19 }, (_, i) =>
+    runAt(
+      i === 2
+        ? { status: "failed", error: "ConnectionError: no se pudo conectar al SFTP", transcribed: 0, transcribeTotal: 0, validated: 0, validateTotal: 0, archived: 0, batchSize: 0 }
+        : i === 5
+          ? { status: "interrupted", transcribed: 41, validated: 0, validateTotal: 0, archived: 0 }
+          : { asrErrors: i % 4 === 0 ? 2 : 0, transcribed: i % 4 === 0 ? 98 : 100 },
+      elapsed + (i + 1) * LOOP_MS,
+      i === 2 ? 0.2 : 4 + (i % 3),
+    ),
+  ).map((r, i) => ({ ...r, id: 29 + cycle - i }));
+  return run ? [run, ...past] : [runAt({ id: 30 + cycle }, elapsed, 2), ...past.slice(0, 19)];
+}
+
+const MOCK_FAILURES: AsrFailure[] = [
+  { stem: "10000231_20261030_301122", error: "RuntimeError: el audio no tiene canal de voz", attempts: 3, lastAttemptAt: "2026-11-02T09:15:00" },
+  { stem: "10000245_20261030_301190", error: "TimeoutError: el proveedor de ASR no respondió en 600 s", attempts: 1, lastAttemptAt: "2026-11-02T09:16:00" },
+];
 
 export const adminMock: AdminApi = {
   getInvite: (token) =>
@@ -318,4 +405,21 @@ export const adminMock: AdminApi = {
       ],
     })),
   listActivity: () => wait(() => state.activity),
+  getProcessingStatus: () =>
+    wait((): ProcessingStatus => {
+      const { run, elapsed } = simulatedPass();
+      const [latest] = mockRuns();
+      return {
+        state: run ? "running" : "idle",
+        stage: run?.stage ?? null,
+        lastHeartbeatAt: iso(new Date(Date.now() - (elapsed % 30_000))),
+        nextRunAt: iso(new Date(Date.now() - elapsed + LOOP_MS)),
+        loopSeconds: LOOP_MS / 1000,
+        currentRun: run,
+        lastRun: run ? mockRuns()[1] : latest,
+        otherTasks: { catalogUploadsQueued: 0, promptEvaluation: run ? { version: "2.11", processed: 40, n: 120 } : null },
+      };
+    }, 120),
+  listPipelineRuns: (limit = 20) => wait(() => mockRuns().slice(0, limit), 120),
+  listAsrFailures: () => wait(() => MOCK_FAILURES, 120),
 };

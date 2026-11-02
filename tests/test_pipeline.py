@@ -11,9 +11,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from call_audit.config import Settings
-from call_audit.ingestion import pipeline
+from call_audit.ingestion import pipeline, progress
 from call_audit.ingestion.import_bench import bench, real_calls
-from call_audit.persistence.models import Case
+from call_audit.persistence.models import AsrFailure, Case, PipelineRun
 from tests.conftest import CATALOG
 
 RECORDING = "10000001_20261015_300001"
@@ -249,7 +249,7 @@ def test_rate_limit_does_not_spend_attempts(env: dict, monkeypatch: pytest.Monke
     for _ in range(pipeline.MAX_ASR_ATTEMPTS + 1):
         assert pipeline.run_once(env["settings"])["asr_rate_limited"] == 1
 
-    assert not pipeline.Failures(env["settings"].pipeline_work_dir / "asr_failures.json").blocked(RECORDING)
+    assert not pipeline.Failures(env["db"], pipeline.MAX_ASR_ATTEMPTS).blocked(RECORDING)
 
 
 class FakeSftp:
@@ -349,3 +349,76 @@ def test_validation_uses_db_catalog_and_records_version(env: dict) -> None:
         # La ficha y su versión quedan en la validación (D-29): el mismo seguro que matcheó la metadata.
         assert case.runs[0].catalog_refs == [{"productId": "P99", "version": 1}]
         assert case.product_sheets[0]["version"] == 1
+
+
+# --- Estado del worker (Cambio 14) -------------------------------------------------------------------------------
+
+
+def test_pass_records_progress_by_stage(env: dict) -> None:
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(env["inbox"], "lote.csv", CSV)
+
+    pipeline.run_once(env["settings"])
+
+    with env["db"]() as session:
+        [run] = session.scalars(select(PipelineRun))
+        assert run.status == "done" and run.stage is None and run.finished_at is not None
+        assert (run.audios, run.batch_size, run.remaining) == (1, 1, 0)
+        assert (run.transcribe_total, run.transcribed, run.asr_errors) == (1, 1, 0)
+        assert (run.validate_total, run.validated, run.archived) == (1, 1, 1)
+
+
+def test_failed_pass_is_recorded(env: dict, monkeypatch: pytest.MonkeyPatch) -> None:
+    def broken(settings: Settings):
+        raise ConnectionError("sftp caído\ndetalle con /ruta/al/archivo.mp3")
+
+    monkeypatch.setattr(pipeline, "open_store", broken)
+    with pytest.raises(ConnectionError):
+        pipeline.run_once(env["settings"])
+
+    with env["db"]() as session:
+        [run] = session.scalars(select(PipelineRun))
+        assert run.status == "failed" and run.error == "ConnectionError: sftp caído"
+
+
+def test_asr_failures_live_in_db_and_clear_on_success(env: dict, monkeypatch: pytest.MonkeyPatch) -> None:
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(env["inbox"], "lote.csv", CSV)
+    working = pipeline.transcribe
+
+    def failing(audio: Path, asr_dir: Path, asr_model: str) -> None:
+        raise RuntimeError("proveedor caído")
+
+    monkeypatch.setattr(pipeline, "transcribe", failing)
+    assert pipeline.run_once(env["settings"])["asr_errors"] == 1
+    with env["db"]() as session:
+        [failure] = session.scalars(select(AsrFailure))
+        assert failure.stem == RECORDING and failure.attempts == 1 and "proveedor caído" in failure.error
+
+    monkeypatch.setattr(pipeline, "transcribe", working)
+    pipeline.run_once(env["settings"])
+    with env["db"]() as session:
+        assert session.scalars(select(AsrFailure)).all() == []
+
+
+def test_legacy_failures_json_is_imported_once(env: dict) -> None:
+    legacy = env["settings"].pipeline_work_dir / "asr_failures.json"
+    legacy.parent.mkdir(parents=True, exist_ok=True)
+    entry = {"attempts": pipeline.MAX_ASR_ATTEMPTS, "error": "RuntimeError: x", "at": "2026-10-30T10:00:00"}
+    legacy.write_text(json.dumps({RECORDING: entry}), encoding="utf-8")
+
+    failures = progress.Failures(env["db"], pipeline.MAX_ASR_ATTEMPTS, legacy=legacy)
+
+    assert failures.blocked(RECORDING)
+    assert not legacy.exists() and legacy.with_suffix(".json.imported").exists()
+
+
+def test_orphan_runs_are_marked_interrupted(env: dict) -> None:
+    with env["db"]() as session, session.begin():
+        session.add(PipelineRun(status="running", stage="transcribing"))
+
+    progress.interrupt_orphans(env["db"])
+
+    with env["db"]() as session:
+        [run] = session.scalars(select(PipelineRun))
+        assert run.status == "interrupted" and run.finished_at is not None
