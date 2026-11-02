@@ -15,6 +15,11 @@ services:
     env_file: .env
     volumes:
       - /opt/call-audit/work:/data/work
+    # La API aplica las migraciones al arrancar y recién ahí pasa el healthcheck: el worker escribe en tablas nuevas
+    # (pipeline_runs, worker_heartbeat) desde su primera pasada.
+    depends_on:
+      api:
+        condition: service_healthy
     restart: unless-stopped
 
   front:
