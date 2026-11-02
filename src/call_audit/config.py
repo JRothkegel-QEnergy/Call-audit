@@ -58,6 +58,11 @@ class Settings(BaseSettings):
     pipeline_work_dir: Path = ROOT.parent / "transcripts" / "pipeline"
     pipeline_model: str = "gemini-3-8-flash"  # nombre en scripts/prompt_bench/models.toml
     pipeline_asr_model: str = "gemini_3.8-flash"  # proveedor de scripts/asr_bench/run.py, el mismo del bench
+    # Paralelismo contra Gemini (Tier 1: 2M TPM; un audio son ~13.500 tokens de entrada y ~1 min) y tope de audios
+    # que se transcriben por pasada (0 = sin tope).
+    pipeline_asr_workers: int = 16
+    pipeline_llm_workers: int = 8
+    pipeline_batch_size: int = 100
 
 
 @lru_cache

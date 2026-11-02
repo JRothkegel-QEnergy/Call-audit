@@ -3,6 +3,7 @@
 import json
 import os
 import time
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -182,6 +183,73 @@ def test_csv_dates_and_defaults() -> None:
     row = {"TIPIFICACION": "OTRA GESTION"}
     pipeline.complete_row("1_20261001_42", row)
     assert row["TIPIFICACION"] == "OTRA GESTION" and row["FECHA_GESTION"].month == 10
+
+
+def test_date_from_name_skips_eight_digit_counter() -> None:
+    row: dict = {}
+    pipeline.complete_row("30101042_20261030_123456", row)
+    assert row["FECHA_GESTION"].date().isoformat() == "2026-10-30"
+
+
+def test_new_s4p_headers_map_to_original_columns(tmp_path: Path) -> None:
+    """Desde el lote del 30-10 S4P manda «NombreGrabacion», «Rut», «Fecha»... La anonimización lee RUT, NOMBRE,
+    PATERNO, MATENRO, FONO_CONTACTO y FECHA_NACIMIENTO: sin mapearlas, llegarían al modelo sin enmascarar."""
+    import openpyxl
+
+    wb = openpyxl.Workbook()
+    wb.active.append(
+        ["NombreGrabacion", "ID", "Fecha", "Rut", "Nombre", "Paterno", "Materno", "FechaNacimiento", "FonoContacto"]
+        + ["Motivo_Renuncia", "EstadoCalidad", "PrimaUF", "NombreSeguro", "Num_Mus_Aneto", "Numero_Poliza"]
+        + ["Compañia", "Comentarios", "Deja en espera por tiempo excesivo"]
+    )
+    wb.active.append(
+        [RECORDING, 300001, datetime(2026, 10, 30, 9, 15), "11111111", "Ana", "Pérez", "Soto", datetime(1980, 1, 2)]
+        + ["987654321", "Problemas Económicos", "APROBADA", "0.5", "Seguro Ficticio", 999, 123]
+        + ["Aseguradora Ficticia", "", "x"]
+    )
+    path = tmp_path / "lote.xlsx"
+    wb.save(path)
+
+    [row] = pipeline.read_rows(path)
+
+    assert row["FECHA_GESTION"] == datetime(2026, 10, 30, 9, 15) and row["RUT"] == "11111111"
+    assert row["MATENRO"] == "Soto" and row["FONO_CONTACTO"] == "987654321"
+    assert row["FECHA_NACIMIENTO"] == datetime(1980, 1, 2) and row["NOMBRE"] == "Ana" and row["PATERNO"] == "Pérez"
+    assert row["MOTIVO RENUNCIA"] == "Problemas Económicos" and row["ESTADO_CALIDAD"] == "APROBADA"
+    assert row["NOMBRE_DEL_SEGURO"] == "Seguro Ficticio" and row["PRIMA_SEGURO"] == "0.5"
+    assert row["NUM_MUS_ANETO"] == 999 and row["NUM_POLIZA"] == 123 and row["COMENTARIO"] is None
+    assert row["COMPAÑIA"] == "Aseguradora Ficticia" and row["Deja en espera por tiempo excesivo"] == "x"
+
+
+def test_batch_size_caps_transcriptions_per_pass(env: dict) -> None:
+    names = [f"1000000{i}_20261015_30000{i}" for i in range(3)]
+    for name in names:
+        drop(env["inbox"], f"{name}.mp3", b"ID3 audio sintetico")
+    rows = "".join(
+        f"{name};Ejecutivo Ficticio;Seguro Ficticio;Problemas Económicos;999;15-10-2026;0,5\n" for name in names
+    )
+    drop(env["inbox"], "lote.csv", CSV.splitlines(keepends=True)[0] + rows)
+    settings = env["settings"].model_copy(update={"pipeline_batch_size": 2, "pipeline_asr_workers": 2})
+
+    first = pipeline.run_once(settings)
+    second = pipeline.run_once(settings)
+
+    assert first["transcribed"] == 2 and first["validated"] == 2
+    assert second["transcribed"] == 1 and second["validated"] == 1 and env["calls"]["asr"] == 3
+
+
+def test_rate_limit_does_not_spend_attempts(env: dict, monkeypatch: pytest.MonkeyPatch) -> None:
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(env["inbox"], "lote.csv", CSV)
+
+    def limited(audio: Path, asr_dir: Path, asr_model: str) -> None:
+        raise RuntimeError("HTTP Error 429: Too Many Requests")
+
+    monkeypatch.setattr(pipeline, "transcribe", limited)
+    for _ in range(pipeline.MAX_ASR_ATTEMPTS + 1):
+        assert pipeline.run_once(env["settings"])["asr_rate_limited"] == 1
+
+    assert not pipeline.Failures(env["settings"].pipeline_work_dir / "asr_failures.json").blocked(RECORDING)
 
 
 class FakeSftp:

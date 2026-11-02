@@ -32,8 +32,11 @@ import csv
 import importlib.util
 import json
 import logging
+import re
+import threading
 import time
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
@@ -65,6 +68,34 @@ UPLOAD_POLL_SEC = 15
 LABEL_SUFFIX = "automático"
 DATE_FORMATS = ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y")
 TIME_FORMATS = ("", " %H:%M", " %H:%M:%S")
+# Columnas del Excel nuevo de S4P (en mayúsculas y sin separadores) → nombre del Excel "Retenciones BECS" original.
+# «MATENRO» viene así en el original y así lo leen real_calls y customer.
+COLUMN_ALIASES = {
+    "NOMBREGRABACION": "NOMBRE_GRABACION",
+    "FECHA": "FECHA_GESTION",
+    "FECHAGESTION": "FECHA_GESTION",
+    "MATERNO": "MATENRO",
+    "FECHANACIMIENTO": "FECHA_NACIMIENTO",
+    "FONOCONTACTO": "FONO_CONTACTO",
+    "MOTIVORENUNCIA": "MOTIVO RENUNCIA",
+    "ESTADOCALIDAD": "ESTADO_CALIDAD",
+    "PRIMAUF": "PRIMA_SEGURO",
+    "PRIMASEGURO": "PRIMA_SEGURO",
+    "NOMBRESEGURO": "NOMBRE_DEL_SEGURO",
+    "NOMBREDELSEGURO": "NOMBRE_DEL_SEGURO",
+    "NUMMUSANETO": "NUM_MUS_ANETO",
+    "CUENTACARGO": "CUENTA_DE_CARGO",
+    "CUENTADECARGO": "CUENTA_DE_CARGO",
+    "FECHAVENTASEGURO": "FECHA_VENTA_SEGURO",
+    "COMENTARIOS": "COMENTARIO",
+    "TIPOSEGURO": "TIPO_SEGURO",
+    "MONTOASEGURADO": "MONTO_ASEGURADO",
+    "NUMEROPOLIZA": "NUM_POLIZA",
+    "NUMPOLIZA": "NUM_POLIZA",
+    "EVALUADORCALIDAD": "EVALUADOR_CALIDAD",
+}
+# Error de cuota de Gemini: no es culpa del audio, así que no gasta uno de sus MAX_ASR_ATTEMPTS.
+RATE_LIMIT_MARKERS = ("429", "RESOURCE_EXHAUSTED")
 
 
 def load_asr() -> ModuleType:
@@ -96,12 +127,22 @@ def parse_date(value: Any) -> Any:
     return value
 
 
+def column_name(header: Any) -> Any:
+    """Nombre de columna como lo leen real_calls (anonimización incluida), customer e import_bench. Desde el lote del
+    30-10 S4P manda «NombreSeguro», «Rut», «Fecha»... en vez de «NOMBRE_DEL_SEGURO», «RUT», «FECHA_GESTION». Las
+    columnas con espacios (los motivos de no calidad, «MOTIVO RENUNCIA») quedan como vienen."""
+    if not isinstance(header, str) or " " in header.strip():
+        return header
+    name = header.strip().upper()
+    return COLUMN_ALIASES.get(re.sub(r"[^A-Z0-9Ñ]", "", name), name)
+
+
 def read_rows(path: Path) -> list[dict]:
     if path.suffix.lower() == ".xlsx":
         import openpyxl
 
         rows = openpyxl.load_workbook(path, read_only=True).active.iter_rows(values_only=True)
-        header = next(rows)
+        header = [column_name(h) for h in next(rows)]
         return [dict(zip(header, r, strict=False)) for r in rows if r and r[0]]
     raw = path.read_bytes()
     try:
@@ -111,7 +152,8 @@ def read_rows(path: Path) -> list[dict]:
     dialect = csv.Sniffer().sniff(text.splitlines()[0], delimiters=";,\t")
     rows = []
     for r in csv.DictReader(text.splitlines(), dialect=dialect):
-        row = {k.strip(): parse_date(v) if k.strip().startswith("FECHA") else v for k, v in r.items() if k}
+        row = {column_name(k): v for k, v in r.items() if k}
+        row = {k: parse_date(v) if str(k).startswith("FECHA") else v for k, v in row.items()}
         if next(iter(row.values()), None):
             rows.append(row)
     return rows
@@ -151,10 +193,20 @@ def complete_row(stem: str, row: dict) -> None:
     if not real_calls.clean(row.get("ID")):
         row["ID"] = parts[-1]
     if not isinstance(row.get("FECHA_GESTION"), datetime):
-        day = next((p for p in parts if len(p) == 8 and p.isdigit()), None)
-        row["FECHA_GESTION"] = datetime.strptime(day, "%Y%m%d") if day else datetime.now()
+        # El <n> también puede tener 8 dígitos (10000001_20261015_300001): vale el primero que sea una fecha.
+        row["FECHA_GESTION"] = next((d for d in map(date_part, parts) if d), None) or datetime.now()
     for key in ("ESTADO_CALIDAD", "MOTIVO RENUNCIA", "NUM_MUS_ANETO", "NOMBRE_DEL_SEGURO"):
         row.setdefault(key, "")
+
+
+def date_part(part: str) -> datetime | None:
+    if len(part) != 8 or not part.isdigit():
+        return None
+    try:
+        day = datetime.strptime(part, "%Y%m%d")
+    except ValueError:
+        return None
+    return day if 2000 <= day.year <= 2100 else None
 
 
 def settled(entry: Entry) -> bool:
@@ -253,7 +305,7 @@ def validate(
     """Una corrida del bench con las grabaciones pendientes, en work/runs/<fecha>, importada a la base. Devuelve
     cuántas se importaron y los audios locales que ya quedaron en S3."""
     work = settings.pipeline_work_dir
-    out = work / "runs" / datetime.now().strftime("%Y%m%d-%H%M%S")
+    out = work / "runs" / datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     asr_dir = work / "asr"
     model = settings.pipeline_model
     catalog = use_catalog(out)
@@ -270,7 +322,8 @@ def validate(
         return 0, []
     use_active_prompt(out)
     (out / "calls.json").write_text(json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8")
-    real_calls.run_models(SimpleNamespace(out=out, models=[model], force=False, workers=4), index)
+    workers = max(1, settings.pipeline_llm_workers)
+    real_calls.run_models(SimpleNamespace(out=out, models=[model], force=False, workers=workers), index)
 
     uploaded = []
     for item in index:
@@ -377,29 +430,53 @@ def run_once(settings: Settings | None = None) -> dict[str, int]:
         rows = load_metadata(store, entries, sources)
         audios = {e.stem: e for e in entries if e.name.lower().endswith(AUDIO_EXT) and settled(e)}
         outputs = store.outputs()
-        stats = {"audios": len(audios), "waiting_metadata": 0, "transcribed": 0, "asr_errors": 0, "validated": 0}
+        stats = {
+            "audios": len(audios),
+            "waiting_metadata": 0,
+            "transcribed": 0,
+            "asr_errors": 0,
+            "asr_rate_limited": 0,
+            "validated": 0,
+        }
 
-        for stem, entry in audios.items():
+        todo = []
+        for stem in audios:
             if stem in outputs:
                 restore_asr(store, stem, work / "asr", asr_model)
-                continue
-            row = rows.get(stem)
-            if row is None:
+            elif stem not in rows:
                 stats["waiting_metadata"] += 1
-                continue
-            if failures.blocked(stem):
-                continue
-            try:
-                transcribe(store.fetch(entry), work / "asr", asr_model)
-                store.write_output(stem, output_json(stem, row, work / "asr", asr_model))
-            except Exception as exc:  # noqa: BLE001 - se registra y se reintenta en la próxima pasada
-                logger.warning("Falló la transcripción de %s: %s", stem, exc)
-                failures.add(stem, f"{type(exc).__name__}: {exc}")
-                stats["asr_errors"] += 1
-                continue
-            failures.clear(stem)
-            outputs.add(stem)
-            stats["transcribed"] += 1
+            elif not failures.blocked(stem):
+                todo.append(stem)
+        # Tope por pasada: las primeras llamadas llegan a la app sin esperar a que se transcriba todo el lote.
+        if settings.pipeline_batch_size:
+            todo = todo[: settings.pipeline_batch_size]
+
+        lock = threading.Lock()  # la conexión SFTP es una sola: bajar y escribir, de a uno
+
+        def transcribe_one(stem: str) -> None:
+            with lock:
+                audio = store.fetch(audios[stem])
+            transcribe(audio, work / "asr", asr_model)
+            data = output_json(stem, rows[stem], work / "asr", asr_model)
+            with lock:
+                store.write_output(stem, data)
+
+        with ThreadPoolExecutor(max_workers=max(1, settings.pipeline_asr_workers)) as pool:
+            futures = {pool.submit(transcribe_one, stem): stem for stem in todo}
+            for future in as_completed(futures):
+                stem = futures[future]
+                exc = future.exception()
+                if exc is None:
+                    failures.clear(stem)
+                    outputs.add(stem)
+                    stats["transcribed"] += 1
+                elif any(marker in str(exc) for marker in RATE_LIMIT_MARKERS):
+                    logger.warning("Cuota de Gemini en %s: se reintenta en la próxima pasada", stem)
+                    stats["asr_rate_limited"] += 1
+                else:  # se registra y se reintenta en la próxima pasada
+                    logger.warning("Falló la transcripción de %s: %s", stem, exc)
+                    failures.add(stem, f"{type(exc).__name__}: {exc}")
+                    stats["asr_errors"] += 1
 
         with get_sessionmaker()() as session:
             done = validated(session, settings.pipeline_model)
