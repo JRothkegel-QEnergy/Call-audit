@@ -16,6 +16,7 @@ import {
   FileSpreadsheet,
   LayoutDashboard,
   List,
+  LogOut,
   PanelLeft,
   Settings,
   ShieldCheck,
@@ -104,6 +105,7 @@ export function SidebarNav({
     .map((p) => p[0])
     .join("")
     .slice(0, 2);
+  const roleLabel = user.role === "auditor" ? "Auditora" : ROLE_LABEL[user.role];
 
   const rowClass = cn(
     "relative flex h-9 w-full items-center gap-2.5 rounded-md border-0 bg-transparent px-2.5 text-left font-medium text-neutral-800 no-underline hover:bg-muted",
@@ -152,7 +154,7 @@ export function SidebarNav({
         );
       })}
 
-      <div className="mt-auto grid gap-0.5 border-t border-border pt-2.5">
+      <div className="mt-auto grid gap-1 border-t border-border pt-3">
         {canToggle && (
           <button type="button" className={rowClass} onClick={onToggle} title={collapsed ? "Expandir menú" : "Colapsar menú"}>
             <PanelLeft size={18} aria-hidden />
@@ -173,26 +175,42 @@ export function SidebarNav({
             {!collapsed && <span>Opciones de la demo</span>}
           </button>
         )}
-        <button
-          type="button"
-          className={rowClass}
-          title="Cerrar sesión"
-          onClick={async () => {
-            await logout();
-            router.replace("/login");
-          }}
-        >
-          <span className="grid h-7 w-7 flex-none place-items-center rounded-full bg-ink-900 text-[11px] font-semibold text-white">
-            {initials}
-          </span>
-          {!collapsed && (
-            <span className="leading-4">
-              {user.name}
-              <br />
-              <small className="help">{user.role === "auditor" ? "Auditora" : ROLE_LABEL[user.role]} · Cerrar sesión</small>
+        {/* Identidad (no interactiva) separada de la acción de cerrar sesión. */}
+        <div className="mt-1 grid gap-1 border-t border-border pt-3">
+          <div
+            className={cn("flex min-h-11 items-center gap-2.5 px-2.5", collapsed && "justify-center px-0")}
+            title={`${user.name} · ${roleLabel}`}
+          >
+            <span
+              aria-hidden
+              className="grid h-7 w-7 flex-none place-items-center rounded-full bg-ink-900 text-[11px] font-semibold text-white"
+            >
+              {initials}
             </span>
-          )}
-        </button>
+            {collapsed ? (
+              <span className="sr-only">
+                {user.name}, {roleLabel}
+              </span>
+            ) : (
+              <span className="grid min-w-0 flex-1">
+                <span className="truncate text-sm font-semibold leading-5 text-neutral-800">{user.name}</span>
+                <small className="help truncate">{roleLabel}</small>
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            className={rowClass}
+            title="Cerrar sesión"
+            onClick={async () => {
+              await logout();
+              router.replace("/login");
+            }}
+          >
+            <LogOut size={18} aria-hidden />
+            {!collapsed && <span>Cerrar sesión</span>}
+          </button>
+        </div>
       </div>
       {!isRealMode && <DemoDialog open={demoOpen} onOpenChange={setDemoOpen} />}
     </nav>
