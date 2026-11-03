@@ -107,6 +107,7 @@
 | 2026-11-02 | Cambio 15 **aprobado** e implementable (Johannes: "Sí, las recomendadas"); H-96 a H-101 sin objeción | Johannes |
 | 2026-11-02 | D-57 · §7 aprobado; tokens `--series-1..6` en `08-tokens.css/.json` | Johannes |
 | 2026-11-02 | D-58 · Banner en `/calls/[id]?serie=…` con lo que marcó la corrida; el panel muestra la vigente | Johannes |
+| 2026-11-03 | D-59 · Paginador del mapa llamada por llamada: 100 columnas por página sobre la lista Cumple→No cumple, encabezados con el total del grupo, "Llamadas a–b de n", atajo "Ir a {grupo}", parámetro `mapPage` que se mantiene al cambiar de corrida; conteos y `aria-label` sobre el total (`15-calce-ia-por-corrida.md` §7.10). Revisión rápida, implementable | Johannes (pedido); diseñador (especificación) |
 
 ## Preguntas abiertas
 

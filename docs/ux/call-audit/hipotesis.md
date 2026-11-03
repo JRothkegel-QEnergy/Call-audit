@@ -105,3 +105,4 @@
 | H-99 | El front calcula las métricas de calce desde los datos por llamada (volumen chico). | Cambio 15 §7 | Johannes | Sin objeción (2026-11-02) |
 | H-100 | Etiquetas y orden de color de los modelos salen de `models.toml` vía backend. | Cambio 15 §7 | Johannes | Sin objeción (2026-11-02) |
 | H-101 | Meta de detección = 80 % (equivale a FN ≤ 20 %). | Cambio 15 §7 | Johannes | Sin objeción (2026-11-02) |
+| H-102 | En el mapa, mantener la página al cambiar de corrida (mismas 100 llamadas) sirve más que volver a la página 1. | Cambio 15 §7.10 | Johannes | Pendiente (2026-11-03) |

@@ -44,6 +44,7 @@ const METRICS: {
   { key: "agreement", label: "Coincidencia", value: (m) => m.agreementPct },
 ];
 const PAGE = 25;
+const MAP_PAGE = 100; // columnas del mapa llamada por llamada por página (§7.10)
 
 const usd = (v: number | null) => (v == null ? "costo sin registrar" : `${v.toFixed(4).replace(".", ",")} USD/llamada`);
 const p0 = (v: number) => pct(Math.round(v), 0);
@@ -81,6 +82,7 @@ export function AiQualityView({ data }: { data: AiQuality }) {
   const reason = Number(params.get("reason")) || null;
   const kind = (["ai_only", "missed"].includes(params.get("kind") ?? "") ? params.get("kind") : "all") as Kind;
   const page = Math.max(0, Number(params.get("page")) || 0);
+  const mapPage = Math.max(0, Number(params.get("mapPage")) || 0);
 
   const update = (changes: Record<string, string | null>) => {
     const next = new URLSearchParams(params.toString());
@@ -210,7 +212,9 @@ export function AiQualityView({ data }: { data: AiQuality }) {
         selected={selected}
         striped={striped}
         mapId={mapId ?? best[0].id}
+        page={mapPage}
         onPick={(id) => update({ map: id })}
+        onPage={(p) => update({ mapPage: p ? String(p) : null })}
         onList={(id) => openList(id, null, "all")}
       />
 
@@ -684,21 +688,45 @@ function CallMap({
   selected,
   striped,
   mapId,
+  page,
   onPick,
+  onPage,
   onList,
 }: {
   data: AiQuality;
   selected: QualitySeries[];
   striped: Set<string>;
   mapId: string;
+  page: number;
   onPick: (id: string) => void;
+  onPage: (page: number) => void;
   onList: (id: string) => void;
 }) {
   const router = useRouter();
+  const prevRef = useRef<HTMLButtonElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
   const s = selected.find((x) => x.id === mapId) ?? selected[0];
   const groups = (["compliant", "non_compliant"] as const).map((v) =>
     data.calls.filter((c) => c.clientVerdict === v).sort((a, b) => a.callId.localeCompare(b.callId, undefined, { numeric: true })),
   );
+  // §7.10: se pagina la lista ya ordenada (Cumple y luego No cumple); los encabezados muestran el total del grupo.
+  const total = data.calls.length;
+  const pages = Math.max(1, Math.ceil(total / MAP_PAGE));
+  const current = Math.min(page, pages - 1);
+  const start = current * MAP_PAGE;
+  const end = Math.min(start + MAP_PAGE, total);
+  const okTotal = groups[0].length;
+  const visible = [
+    { i: 0, calls: groups[0].slice(start, end) },
+    { i: 1, calls: groups[1].slice(Math.max(0, start - okTotal), Math.max(0, end - okTotal)) },
+  ].filter((g) => g.calls.length > 0);
+  const hidden = groups[0].length && groups[1].length && visible.length === 1 ? 1 - visible[0].i : null;
+  const go = (p: number) => {
+    onPage(p);
+    // Si el botón con foco queda deshabilitado, el foco pasa al otro.
+    if (p === 0 && document.activeElement === prevRef.current) nextRef.current?.focus();
+    if (p === pages - 1 && document.activeElement === nextRef.current) prevRef.current?.focus();
+  };
   const crits = data.criteria.map((c) => c.id);
   let aiOnly = 0,
     missed = 0;
@@ -754,14 +782,16 @@ function CallMap({
       <div className="relative overflow-x-auto overflow-y-hidden pb-1">
         <div
           role="img"
-          aria-label={`${seriesName(s)}: ${aiOnly} llamadas con solo la IA y ${missed} omitidas, en ${data.calls.length} llamadas`}
+          aria-label={`${seriesName(s)}: ${aiOnly} llamadas con solo la IA y ${missed} omitidas, en ${total} llamadas${
+            pages > 1 ? `. Se muestran las llamadas ${start + 1} a ${end}.` : ""
+          }`}
           className="inline-grid gap-x-3"
-          style={{ gridTemplateColumns: `auto repeat(2, auto)` }}
+          style={{ gridTemplateColumns: `auto repeat(${visible.length}, auto)` }}
         >
           <span />
-          {groups.map((g, i) => (
+          {visible.map(({ i }) => (
             <span key={i} className="help pb-1 font-semibold">
-              {i === 0 ? "Cumple" : "No cumple"} según el cliente ({g.length})
+              {i === 0 ? "Cumple" : "No cumple"} según el cliente ({groups[i].length})
             </span>
           ))}
           <div className="grid gap-[2px] pr-1 text-right text-[10px] leading-[8px] text-muted-foreground">
@@ -771,9 +801,9 @@ function CallMap({
               </span>
             ))}
           </div>
-          {groups.map((g, gi) => (
+          {visible.map(({ i: gi, calls }) => (
             <div key={gi} className="flex gap-[2px]">
-              {g.map((call, ci) => (
+              {calls.map((call, ci) => (
                 <div
                   key={`${call.callId}-${ci}`}
                   className="grid cursor-pointer gap-[2px] hover:opacity-70"
@@ -789,6 +819,27 @@ function CallMap({
           ))}
         </div>
       </div>
+      {pages > 1 && (
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+          <span className="help tabular mr-auto" aria-live="polite">
+            Llamadas {int(start + 1)}–{int(end)} de {int(total)}
+          </span>
+          {hidden != null && (
+            <Button size="sm" variant="ghost" onClick={() => go(hidden === 1 ? Math.floor(okTotal / MAP_PAGE) : 0)}>
+              Ir a {hidden === 1 ? "No cumple" : "Cumple"} según el cliente
+            </Button>
+          )}
+          <Button ref={prevRef} size="sm" disabled={current === 0} onClick={() => go(current - 1)}>
+            Anterior
+          </Button>
+          <span className="tabular">
+            {current + 1} de {pages}
+          </span>
+          <Button ref={nextRef} size="sm" disabled={current >= pages - 1} onClick={() => go(current + 1)}>
+            Siguiente
+          </Button>
+        </div>
+      )}
       <ul className="help m-0 mt-3 flex list-none flex-wrap gap-4 p-0">
         {(
           [

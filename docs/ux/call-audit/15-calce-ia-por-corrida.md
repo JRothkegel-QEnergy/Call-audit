@@ -1,6 +1,6 @@
 # Cambio 15 · Calce de la IA por corrida y por motivo (admin Qubico)
 
-> Revisión rápida sobre lo aprobado (fases 0–8 y cambios 09–14). Fecha: 2026-11-02. **Estado: aprobado (2026-11-02), implementable.** Alcance D-52 a D-56; diseño §7 y Q1–Q2 aprobados (D-57, D-58).
+> Revisión rápida sobre lo aprobado (fases 0–8 y cambios 09–14). Fecha: 2026-11-02. **Estado: aprobado (2026-11-02), implementable.** Alcance D-52 a D-56; diseño §7 y Q1–Q2 aprobados (D-57, D-58). Paginador del mapa §7.10 (D-59, 2026-11-03).
 > **Pedido de Johannes (textual):** "me gustaría que en la vista del admin pueda ver algo parecido al dashboard que tenemos para ver que IA funcionaba mejor y comparando con cada run del prompt. De esta forma puedo ver tambien los resultados que ha tenido la IA y comparado con el resultado que venia en la metadata por item del checkbox."
 > **Respuesta de Johannes (textual):** "1. A / 2. A / 3. A / 4. A / 5. B". Sin objeción a H-87–H-95.
 > **Aprobación de §7 (textual):** "Sí, las recomendadas". H-96 a H-101 sin objeción.
@@ -141,7 +141,7 @@ flowchart TD
 ```
 
 - **Pasos:** dos clics del agregado a la llamada (celda de la tabla → «Abrir»). Hoy ese camino no existe: hay que regenerar el dashboard local.
-- **Sin callejones:** al volver desde `/calls/[id]` se conservan la selección, los filtros y el scroll. El estado vive en la URL: `?tab=quality&series=…&map=…&list=…&reason=…&kind=…`. Así un enlace compartido muestra lo mismo **[SUPUESTO, H-96]**.
+- **Sin callejones:** al volver desde `/calls/[id]` se conservan la selección, los filtros y el scroll. El estado vive en la URL: `?tab=quality&series=…&map=…&mapPage=…&list=…&reason=…&kind=…&page=…` (`mapPage` desde §7.10). Así un enlace compartido muestra lo mismo **[SUPUESTO, H-96]**.
 
 ### 7.2 Estructura de la pestaña (de arriba hacia abajo)
 
@@ -372,3 +372,38 @@ Corridas  [● Gemini 3.8 Flash · v2.10 · Vigente ×] [● GPT-6 Luna · v2.8 
 - B: el panel del modelo y el checklist muestran **esa** corrida (`?run={modelRunId}`), en solo lectura y con el mismo banner. Es más útil porque se ve la evidencia, pero solo sirve para corridas guardadas: las pruebas desde la app guardan solo los motivos, sin hallazgos ni evidencia. No es la comparación lado a lado de P5-C; solo cambia qué corrida se muestra.
 
 **Q2 · ¿Se aprueba la paleta `--series-1..6` (§7.6) como tokens nuevos en `08-tokens.css`?** Recomiendo sí. Es la única adición al design system.
+
+### 7.10 Paginador del mapa llamada por llamada (revisión rápida, 2026-11-03)
+
+Pedido de Johannes: "en el mapa de llamada por llamada, pon un paginador, para cargar solo de 100 en 100, ver todas es demasiado". Es un cambio menor sobre el bloque 6 de §7.2 (D-56). No cambia el flujo, la AI ni los CUJ. Decisión **D-59**; supuesto **H-102**.
+
+**1. Reparto por página.** Se muestran **100 columnas en total** por página, sobre la lista ya ordenada: primero Cumple y luego No cumple, cada grupo por `callId` numérico, como hoy. No se pagina cada grupo por separado: eso daría hasta 200 columnas y dos paginadores.
+- Una página puede tener los dos grupos (la página del cambio de grupo) o uno solo.
+- Un grupo sin llamadas en la página **no se dibuja**: no queda una columna vacía. La grilla usa `repeat(<grupos visibles>, auto)`.
+- El encabezado de cada grupo visible muestra **siempre el total del grupo**: "Cumple según el cliente (534)", no las llamadas de la página.
+- **Atajo al otro grupo.** Si la página no muestra uno de los dos grupos, aparece un botón fantasma pequeño en la barra del paginador: "Ir a No cumple según el cliente" o "Ir a Cumple según el cliente". Lleva a la primera página donde aparece ese grupo. Para No cumple es `floor(nCumple / 100)`; para Cumple es la página 0. Así se llega a las No cumple, que suelen ser las interesantes, sin pasar página por página.
+
+**2. Ubicación y forma.** Debajo del mapa, antes de la leyenda. Es el mismo paginador de "Llamadas en desacuerdo": `Button size="sm"` Anterior · "k de n" · Siguiente, alineado a la derecha. A la izquierda, en la misma fila, va el rango con clase `help tabular`: **"Llamadas 101–200 de 534"**, con guion corto y sin separador de miles hasta 9999.
+- Con 100 llamadas o menos no se muestran ni el paginador ni el rango, igual que en la lista.
+- El texto del rango va en `aria-live="polite"` para anunciar el cambio de página.
+- Si la página nueva deshabilita el botón que tenía el foco (primera o última página), el foco pasa al otro botón.
+- Constante propia: `MAP_PAGE = 100`, distinta de `PAGE = 25` de la lista.
+
+**3. URL.** Parámetro propio **`mapPage`**, base 0 como `page`, y se omite cuando vale 0. Sigue H-96: al volver desde `/calls/[id]` se conserva la página.
+- **No se resetea al cambiar la corrida del mapa** (se desvía de lo sugerido; ver H-102). El conjunto y el orden de las llamadas no dependen de la corrida: `data.calls` es el mismo y las llamadas sin resultado se dibujan como "Sin referencia". Mantener la página deja **las mismas 100 columnas** al cambiar de corrida, y esa es justamente la comparación que el mapa permite.
+- Tampoco se resetea al cambiar las corridas elegidas.
+- Si `mapPage` queda fuera de rango (enlace viejo o datos nuevos), se ajusta a la última página, como hace la lista (`Math.min(page, pages - 1)`).
+- `mapPage` y `page` son independientes: ninguna acción de la lista toca `mapPage` y ninguna del mapa toca `page`.
+- Los parámetros quedan así: `?tab=quality&series=…&map=…&mapPage=…&list=…&reason=…&kind=…&page=…`.
+
+**4. Conteos y accesibilidad.** `aiOnly`, `missed` y los totales de grupo se siguen calculando sobre **todas** las llamadas. El `aria-label` del `role="img"` conserva el total y suma el rango visible: "Gemini 3.8 Flash · v2.10: 12 llamadas con solo la IA y 31 omitidas, en 534 llamadas. Se muestran las llamadas 101 a 200." Con una sola página no se agrega la segunda oración. "Ver como lista" no cambia: sigue siendo el equivalente con teclado del mapa entero.
+
+**Estados nuevos (se suman a §7.4):**
+
+| Estado | Qué se ve |
+|---|---|
+| ≤ 100 llamadas | Igual que hoy: sin paginador ni rango |
+| Página solo con Cumple o solo con No cumple | Se ve un solo grupo con su total, más "Ir a {otro grupo}" en la barra del paginador |
+| `mapPage` fuera de rango | Se muestra la última página |
+
+**Revisión rápida:** trazabilidad D-56/D-59 · navegación sin callejones (el atajo evita recorrer páginas) · WCAG 2.2 AA: objetivos de 24 px (2.5.8), anuncio del cambio (4.1.3), el foco no se pierde (2.4.3) · microcopy coherente con la lista · sin dark patterns · sin ítems legales nuevos.
