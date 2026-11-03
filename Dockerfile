@@ -3,6 +3,7 @@
 #                      DATABASE_URL, SESSION_SECRET, COOKIE_SECURE, S3_BUCKET, S3_PREFIX, AWS_REGION.
 #   worker             pipeline automático (python -m call_audit.ingestion.pipeline): SFTP → ASR → capa 2 → base.
 #                      Además GEMINI_API_KEY, SFTP_* (cuenta de S4P) y PIPELINE_WORK_DIR (volumen del compose).
+#                      Opcional OPENROUTER_API_KEY: respaldo del ASR y la capa 2 si Gemini falla.
 FROM python:3.12-slim AS base
 
 COPY --from=ghcr.io/astral-sh/uv:0.8.17 /uv /usr/local/bin/uv

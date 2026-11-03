@@ -1,6 +1,7 @@
 """Pipeline automático: audios del SFTP → transcripción → metadata → validación con el prompt de la capa 2 → app.
 
-Uso (desde call-audit-rcv, con DATABASE_URL, GEMINI_API_KEY, S3_BUCKET y SFTP_* en el entorno o en .env):
+Uso (desde call-audit-rcv, con DATABASE_URL, GEMINI_API_KEY, S3_BUCKET y SFTP_* en el entorno o en .env;
+OPENROUTER_API_KEY opcional, respaldo si Gemini falla):
     uv run --extra bench python -m call_audit.ingestion.pipeline              # una pasada
     uv run --extra bench python -m call_audit.ingestion.pipeline --loop 900   # cada 15 min (worker del EC2)
     uv run --extra bench python -m call_audit.ingestion.pipeline --host-key   # llave del servidor para .env
@@ -220,7 +221,7 @@ def settled(entry: Entry) -> bool:
 
 def transcribe(audio: Path, asr_dir: Path, asr_model: str) -> None:
     """Deja asr_dir/<grabación>/<asr_model>.json y _summary.json, el formato que leen real_calls e import_bench."""
-    summary = load_asr().run_providers(audio, [asr_model], asr_dir / audio.stem, log=logger.info)
+    summary = load_asr().run_providers(audio, [asr_model], asr_dir / audio.stem, log=logger.info, fallback=True)
     error = next((s["error"] for s in summary if s["provider"] == asr_model and s.get("error")), None)
     if error:
         raise RuntimeError(error)
@@ -310,7 +311,7 @@ def validate(
     use_active_prompt(out)
     (out / "calls.json").write_text(json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8")
     workers = max(1, settings.pipeline_llm_workers)
-    args = SimpleNamespace(out=out, models=[model], force=False, workers=workers, on_done=on_done)
+    args = SimpleNamespace(out=out, models=[model], force=False, workers=workers, on_done=on_done, fallback=True)
     real_calls.run_models(args, index)
 
     uploaded = []

@@ -351,7 +351,8 @@ def run_models(args, index: list[dict]) -> None:
     bench.load_dotenv(ROOT / ".env")
     bench.PROMPTS_DIR = args.out / "prompts"
     bench.RESULTS_DIR = args.out / "results"
-    system = (bench.PROMPTS_DIR / "system.txt").read_text(encoding="utf-8")
+    bench.USE_FALLBACK = getattr(args, "fallback", False)
+    system =(bench.PROMPTS_DIR / "system.txt").read_text(encoding="utf-8")
     configs = {c["name"]: c for c in tomllib.loads(bench.CONFIG.read_text(encoding="utf-8"))["models"]}
 
     on_done = getattr(args, "on_done", None)  # avance por llamada del pipeline de la app (Cambio 14)

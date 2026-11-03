@@ -5,6 +5,7 @@
 # model     ID exacto del modelo. Para verlos: python scripts/prompt_bench/run.py --list-models <provider>
 # enabled   false = no corre salvo que lo pidas con --models
 # label     nombre que muestra la app (Calidad de la IA); si falta, se muestra name
+# fallback  name de otro modelo de este archivo: lo usa el pipeline de la app si este falla (no el bench)
 # Opcionales: temperature, effort (solo Anthropic), json_mode (default true en no-Anthropic),
 #             max_tokens (solo Anthropic), price_input_per_mtok / price_output_per_mtok (USD por millón de tokens).
 #
@@ -65,6 +66,7 @@ model = "gemini-3.8-flash"
 enabled = true
 temperature = 0
 max_tokens = 32000   # igual que por OpenRouter: con 16.000 se cortaba
+fallback = "or-gemini-3-8-flash"   # pipeline y catálogo: si Gemini falla (ej. prepago sin saldo), mismo modelo por OpenRouter
 price_input_per_mtok = 0.75
 price_output_per_mtok = 3.75
 

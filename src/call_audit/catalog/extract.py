@@ -89,7 +89,15 @@ def call_llm(system: str, user: str) -> tuple[dict, str, float, str]:
 
     bench.load_dotenv(ROOT / ".env")
     cfg = model_config()
-    text, returned_model, usage = bench.call_openai_compatible(cfg, system, user)
+    try:
+        text, returned_model, usage = bench.call_openai_compatible(cfg, system, user)
+    except Exception:
+        # Si Gemini falla (ej. prepago sin saldo), el respaldo de models.toml (mismo modelo por OpenRouter).
+        backup = bench.fallback_config(cfg)
+        if backup is None:
+            raise
+        cfg = {**backup, "max_tokens": MAX_OUTPUT_TOKENS, "json_mode": True}
+        text, returned_model, usage = bench.call_openai_compatible(cfg, system, user)
     cleaned = text.strip().removeprefix("```json").removesuffix("```").strip()
     try:
         data = json.loads(cleaned)

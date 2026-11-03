@@ -326,35 +326,55 @@ def render_text(result: dict) -> str:
     return result.get("text", "")
 
 
-def run_providers(audio: Path, providers: list[str], out_dir: Path, log=print) -> list[dict]:
-    """Corre cada proveedor sobre el audio, guarda .json/.txt y actualiza _summary.json."""
+# Respaldo si el proveedor principal falla (ej. la cuenta prepago de Gemini sin saldo): el mismo modelo por
+# OpenRouter. Solo con fallback=True (pipeline de la app); en el bench cada proveedor se mide por separado.
+FALLBACKS = {
+    "gemini_3.8-flash": "openrouter_gemini-3.8-flash",
+    "gemini_3.1-pro-preview": "openrouter_gemini-3.1-pro",
+}
+
+
+def run_providers(audio: Path, providers: list[str], out_dir: Path, log=print, fallback: bool = False) -> list[dict]:
+    """Corre cada proveedor sobre el audio, guarda .json/.txt y actualiza _summary.json. Con fallback, si un
+    proveedor falla y tiene respaldo en FALLBACKS (con su API key), el resultado del respaldo queda con el nombre
+    del principal y _summary.json anota cuál respondió en fallback_provider."""
     out_dir.mkdir(parents=True, exist_ok=True)
     seconds = audio_seconds(audio)
     summary = []
     for name in providers:
         t0 = time.perf_counter()
+        used = name
         try:
             result = PROVIDERS[name](audio)
             error = None
         except Exception as exc:  # noqa: BLE001 - queremos seguir con los demás
             result, error = {}, f"{type(exc).__name__}: {exc}"
+            backup = FALLBACKS.get(name) if fallback and os.environ.get("OPENROUTER_API_KEY") else None
+            if backup:
+                log(f"[{audio.stem}] {name}: ERROR ({error}), se usa el respaldo {backup}")
+                t0 = time.perf_counter()
+                try:
+                    result, error, used = PROVIDERS[backup](audio), None, backup
+                except Exception as backup_exc:  # noqa: BLE001
+                    error = f"{error} · respaldo {backup}: {type(backup_exc).__name__}: {backup_exc}"
         elapsed = round(time.perf_counter() - t0, 1)
         if error:
             log(f"[{audio.stem}] {name}: ERROR ({elapsed}s): {error}")
         else:
             (out_dir / f"{name}.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
             (out_dir / f"{name}.txt").write_text(render_text(result), encoding="utf-8")
-            log(f"[{audio.stem}] {name}: ok ({elapsed}s)")
-        summary.append(
-            {
-                "provider": name,
-                "seconds": elapsed,
-                "audio_seconds": seconds,
-                "cost_usd": estimate_cost(name, result, seconds),
-                "error": error,
-                "usage": result.get("usage"),
-            }
-        )
+            log(f"[{audio.stem}] {name}: ok ({elapsed}s)" + (f" vía {used}" if used != name else ""))
+        entry = {
+            "provider": name,
+            "seconds": elapsed,
+            "audio_seconds": seconds,
+            "cost_usd": estimate_cost(used, result, seconds),
+            "error": error,
+            "usage": result.get("usage"),
+        }
+        if used != name:
+            entry["fallback_provider"] = used
+        summary.append(entry)
 
     # Combina con corridas anteriores para no perder los tiempos de otros proveedores.
     summary_path = out_dir / "_summary.json"

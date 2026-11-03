@@ -221,6 +221,40 @@ def prompt_version() -> str | None:
     return path.read_text(encoding="utf-8").strip() if path.exists() else None
 
 
+# El pipeline de la app lo activa (real_calls.run_models con args.fallback): si el modelo principal falla, se usa
+# el de su campo `fallback` en models.toml. En el bench queda apagado para no mezclar proveedores en una columna.
+USE_FALLBACK = False
+
+
+def fallback_config(cfg: dict) -> dict | None:
+    """Modelo de respaldo de `cfg` (campo fallback de models.toml), si tiene su API key en el entorno."""
+    name = cfg.get("fallback")
+    if not name:
+        return None
+    configs = tomllib.loads(CONFIG.read_text(encoding="utf-8"))["models"]
+    backup = next((c for c in configs if c["name"] == name), None)
+    return backup if backup and api_key_for(backup["provider"]) else None
+
+
+def call_with_retries(cfg: dict, stem: str, system: str, user: str) -> tuple[str, str, dict, int]:
+    """(texto, modelo devuelto, uso, latencia del intento exitoso en ms). Reintenta los errores transitorios."""
+    call = call_anthropic if cfg["provider"] == "anthropic" else call_openai_compatible
+    attempt = 0
+    while True:
+        started = time.perf_counter()
+        try:
+            text, returned_model, usage = call(cfg, system, user)
+            return text, returned_model, usage, int((time.perf_counter() - started) * 1000)
+        except Exception as exc:
+            attempt += 1
+            if attempt <= MAX_RETRIES and is_transient(exc):
+                wait = RETRY_WAIT_SEC * attempt
+                print(f"   {stem}: {type(exc).__name__} transitorio, reintento {attempt}/{MAX_RETRIES} en {wait} s")
+                time.sleep(wait)
+                continue
+            raise
+
+
 def run_one(cfg: dict, stem: str, system: str, force: bool) -> str:
     out_dir = RESULTS_DIR / cfg["name"]
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -228,40 +262,45 @@ def run_one(cfg: dict, stem: str, system: str, force: bool) -> str:
     if result.exists() and not force:
         return "ya existe"
     user = (PROMPTS_DIR / f"{stem}.txt").read_text(encoding="utf-8")
-    call = call_anthropic if cfg["provider"] == "anthropic" else call_openai_compatible
-    attempt = 0
-    while True:
-        started = time.perf_counter()
+    used = cfg
+    try:
+        text, returned_model, usage, latency_ms = call_with_retries(cfg, stem, system, user)
+    except Exception as exc:  # noqa: BLE001 - se registra cualquier error del proveedor y se sigue
+        error = f"{type(exc).__name__}: {exc}"
+        backup = fallback_config(cfg) if USE_FALLBACK else None
+        if backup is None:
+            error_path.write_text(error + "\n", encoding="utf-8")
+            return f"ERROR {error[:150]}"
+        print(f"   {stem}: {cfg['name']} falló ({type(exc).__name__}), se usa el respaldo {backup['name']}")
         try:
-            text, returned_model, usage = call(cfg, system, user)
-            break
-        except Exception as exc:  # noqa: BLE001 - se registra cualquier error del proveedor y se sigue
-            attempt += 1
-            if attempt <= MAX_RETRIES and is_transient(exc):
-                wait = RETRY_WAIT_SEC * attempt
-                print(f"   {stem}: {type(exc).__name__} transitorio, reintento {attempt}/{MAX_RETRIES} en {wait} s")
-                time.sleep(wait)
-                continue
-            error_path.write_text(f"{type(exc).__name__}: {exc}\n", encoding="utf-8")
-            return f"ERROR {type(exc).__name__}: {str(exc)[:150]}"
-    latency_ms = int((time.perf_counter() - started) * 1000)
+            text, returned_model, usage, latency_ms = call_with_retries(backup, stem, system, user)
+        except Exception as backup_exc:  # noqa: BLE001
+            backup_error = f"{type(backup_exc).__name__}: {backup_exc}"
+            error_path.write_text(f"{cfg['name']}: {error}\n{backup['name']}: {backup_error}\n", encoding="utf-8")
+            return f"ERROR {error[:100]} · respaldo: {backup_error[:100]}"
+        used = backup
     error_path.unlink(missing_ok=True)
     result.write_text(text, encoding="utf-8")
+    # El resultado queda en la carpeta del modelo principal (así lo encuentran el pipeline e import_bench);
+    # provider, modelo y costo son los del que respondió.
     meta = {
         "name": cfg["name"],
-        "provider": cfg["provider"],
+        "provider": used["provider"],
         "prompt_version": prompt_version(),
-        "requested_model": cfg["model"],
+        "requested_model": used["model"],
         "returned_model": returned_model,
-        "settings": {k: cfg[k] for k in ("temperature", "effort", "json_mode", "tool_mode", "max_tokens") if k in cfg},
+        "settings": {k: used[k] for k in ("temperature", "effort", "json_mode", "tool_mode", "max_tokens") if k in used},
         "usage": usage,
-        "cost_usd": cost_usd(cfg, usage),
+        "cost_usd": cost_usd(used, usage),
         "latency_ms": latency_ms,
         "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
+    if used is not cfg:
+        meta["fallback_from"] = cfg["model"]
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     cost = f"{meta['cost_usd']:.4f} USD" if meta["cost_usd"] is not None else "costo s/precio"
-    return f"ok · {returned_model} · {latency_ms / 1000:.1f} s · {cost}"
+    via = f" · respaldo {used['name']}" if used is not cfg else ""
+    return f"ok · {returned_model}{via} · {latency_ms / 1000:.1f} s · {cost}"
 
 
 def list_models(provider: str) -> None:

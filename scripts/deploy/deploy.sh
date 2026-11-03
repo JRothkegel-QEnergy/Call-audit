@@ -18,6 +18,8 @@ SSH=(ssh -i "$KEY" -o StrictHostKeyChecking=accept-new "ec2-user@$HOST")
 for var in GEMINI_API_KEY SFTP_HOST SFTP_USER SFTP_PASSWORD SFTP_HOST_KEY; do
   grep -q "^$var=." .deploy/server.env || { echo "Falta $var=... en .deploy/server.env (docs/deploy.md)"; exit 1; }
 done
+# OPENROUTER_API_KEY es opcional: sin ella no hay respaldo si Gemini falla (ej. la cuenta prepago sin saldo).
+grep -q "^OPENROUTER_API_KEY=." .deploy/server.env || echo "Aviso: sin OPENROUTER_API_KEY en .deploy/server.env, el worker no tendrá respaldo de Gemini"
 [ -f data/catalog/products.json ] || { echo "Falta data/catalog/products.json (extract_catalog.py)"; exit 1; }
 
 docker build --platform linux/amd64 --target api -t "$API_IMAGE" .
