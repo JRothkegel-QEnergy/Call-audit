@@ -33,6 +33,7 @@ from call_audit.persistence.models import (
     WorkerHeartbeat,
 )
 from call_audit.prompt_registry import PromptError
+from call_audit.rubric import load_rubric
 
 router = APIRouter(prefix="/api")
 SettingsDep = Annotated[Settings, Depends(get_settings)]
@@ -479,35 +480,12 @@ def admin_stats(session: DbSession, _: Admin):
     for r in runs:
         if r.error:
             failed[r.run_label].append(r)
-    external = {c.id: c.external_verdict for c in cases if c.external_verdict}
 
     groups: dict[tuple[str, str], list[ModelRun]] = defaultdict(list)
     for r in runs:
         groups[(r.prompt_version, r.model)].append(r)
-    quality, cost = [], []
+    cost = []
     for (version, model), items in sorted(groups.items(), key=lambda kv: prompt_registry.version_key(kv[0][0])):
-        counted = [r for r in items if r.case_id in external]
-        evidence = [f["evidence"] for r in items for f in r.findings or [] if f.get("evidence")]
-        if counted:
-            dist = Counter(r.verdict for r in items)
-            quality.append(
-                {
-                    "promptVersion": version,
-                    "model": model,
-                    "reference": "client",
-                    "n": len(counted),
-                    "matchRate": round(100 * sum(r.verdict == external[r.case_id] for r in counted) / len(counted), 1),
-                    "uncertainRate": round(100 * sum(r.verdict == "uncertain" for r in counted) / len(counted), 1),
-                    "unvalidatedQuoteRate": round(
-                        100 * sum(e.get("quoteValidated") is False for e in evidence) / len(evidence), 1
-                    )
-                    if evidence
-                    else 0.0,
-                    "distribution": {
-                        k: round(100 * dist[k] / len(items)) for k in ("compliant", "non_compliant", "uncertain")
-                    },
-                }
-            )
         priced = [r for r in items if r.cost_usd]
         latencies = [r.latency_ms for r in items if r.latency_ms]
         cost.append(
@@ -543,8 +521,125 @@ def admin_stats(session: DbSession, _: Admin):
                 for label, items in failed.items()
             ],
         },
-        "aiQuality": quality,
         "cost": cost,
+    }
+
+
+# --- Calidad de la IA por corrida (Cambio 15) --------------------------------------------------------------------
+
+# Metas del proyecto (docs/context.md): hasta 5 % de falsos positivos y 20 % de falsos negativos.
+QUALITY_GOALS = {"falsePositivePct": 5, "falseNegativePct": 20}
+# Motivos de tipificación que no se evalúan si la llamada no trae TIPIFICACION (real_calls.UNEVALUABLE).
+UNEVALUABLE_WITHOUT_TYPIFICATION = frozenset(range(19, 26))
+
+
+def fail_criteria(run: ModelRun) -> list[int]:
+    return sorted(f["criterionId"] for f in run.findings or [] if f.get("verdict") == "non_compliant")
+
+
+def quote_rate(runs: list[ModelRun]) -> float:
+    evidence = [f["evidence"] for r in runs for f in r.findings or [] if f.get("evidence")]
+    return round(100 * sum(e.get("quoteValidated") is False for e in evidence) / len(evidence), 1) if evidence else 0.0
+
+
+@router.get("/admin/quality")
+def admin_quality(session: DbSession, _: Admin):
+    """Corridas (modelo + `run_label`, más las pruebas del prompt terminadas) contra el veredicto y la marca por
+    motivo del cliente. Datos por llamada: las métricas las calcula el front (H-99). Sin nombres de ejecutivos."""
+    cases = list(session.scalars(select(Case).where(Case.external_verdict.is_not(None)).order_by(Case.call_id)))
+    ids = {c.id for c in cases}
+    toml = prompt_evaluation.all_models()
+    order = {m["name"]: i for i, m in enumerate(toml)}
+    labels = {m["name"]: m.get("label", m["name"]) for m in toml}
+
+    groups: dict[tuple[str, str], list[ModelRun]] = defaultdict(list)
+    for r in session.scalars(select(ModelRun).where(ModelRun.case_id.in_(ids))):
+        groups[(r.model, r.run_label)].append(r)
+    series: list[dict] = []
+    results: dict[str, dict[str, dict | None]] = defaultdict(dict)
+    for (model, label), items in groups.items():
+        sid = f"run:{model}:{label}"
+        priced = [r.cost_usd for r in items if r.cost_usd]
+        series.append(
+            {
+                "id": sid,
+                "model": model,
+                "promptVersion": items[0].prompt_version,
+                "runLabel": label,
+                "source": "run",
+                "isCurrent": any(r.is_current for r in items),
+                "ranAt": iso(max(accounts.aware(r.run_at) for r in items)),
+                "calls": len(items),
+                "costPerCallUsd": round(mean(priced), 6) if priced else None,
+                "unvalidatedQuoteRate": quote_rate(items),
+            }
+        )
+        for r in items:
+            results[r.case_id][sid] = None if r.error else {"verdict": r.verdict, "failCriteria": fail_criteria(r)}
+
+    running = None
+    for ev in session.scalars(select(PromptEvaluation).order_by(PromptEvaluation.created_at)):
+        if ev.status in ("queued", "running"):
+            running = {"version": ev.version, "done": ev.done, "total": len(ev.case_ids)}
+        if ev.status != "done":
+            continue
+        sid = f"test:{ev.id}"
+        rows = [r for r in ev.results if r["caseId"] in ids]
+        quotes = sum(r.get("quotes", 0) for r in rows)
+        series.append(
+            {
+                "id": sid,
+                "model": ev.model,
+                "promptVersion": ev.version,
+                "runLabel": f"Prueba v{ev.version}",
+                "source": "prompt_test",
+                "isCurrent": False,
+                "ranAt": iso(accounts.aware(ev.finished_at or ev.created_at)),
+                "calls": len(rows),
+                "costPerCallUsd": (ev.metrics or {}).get("costPerCallUsd"),
+                "unvalidatedQuoteRate": round(100 * sum(r.get("unvalidatedQuotes", 0) for r in rows) / quotes, 1)
+                if quotes
+                else 0.0,
+            }
+        )
+        for r in rows:
+            results[r["caseId"]][sid] = (
+                None if r.get("error") else {"verdict": r["verdict"], "failCriteria": sorted(r.get("failCriteria", []))}
+            )
+
+    # Color fijo por modelo, en el orden de models.toml (H-100); los modelos que no están ahí van al final.
+    models = sorted({s["model"] for s in series}, key=lambda m: (order.get(m, len(order)), m))
+    for s in series:
+        s["modelLabel"] = labels.get(s["model"], s["model"])
+        s["colorIndex"] = models.index(s["model"]) % 6
+    series.sort(key=lambda s: (models.index(s["model"]), prompt_registry.version_key(s["promptVersion"]), s["ranAt"]))
+
+    rubric = load_rubric(get_settings().rubric_path)
+    return {
+        "series": series,
+        "calls": [
+            {
+                "caseId": c.id,
+                "callId": c.call_id,
+                "callDate": c.call_date,
+                "clientVerdict": c.external_verdict,
+                "clientFails": c.external_item_fails,
+                "results": results.get(c.id, {}),
+            }
+            for c in cases
+        ],
+        "criteria": [
+            {
+                "id": cid,
+                "name": crit.description,
+                "minor": cid in rubric.minor,
+                "byCode": "layer1" in crit.layers,
+                "partial": cid in UNEVALUABLE_WITHOUT_TYPIFICATION,
+            }
+            for cid, crit in sorted(rubric.criteria.items())
+        ],
+        "goals": QUALITY_GOALS,
+        "promptTestRunning": running,
     }
 
 

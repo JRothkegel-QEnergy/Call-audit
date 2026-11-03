@@ -17,6 +17,7 @@ import type {
 import { ApiError } from "../admin-types";
 import type { ApiClient } from "../client";
 import type { Role, User } from "../types";
+import { mockAiQuality } from "./quality-mock";
 
 type AdminApi = Pick<
   ApiClient,
@@ -42,6 +43,7 @@ type AdminApi = Pick<
   | "exportPromptVersion"
   | "getActivePrompt"
   | "getAdminStats"
+  | "getAiQuality"
   | "listActivity"
   | "getProcessingStatus"
   | "listPipelineRuns"
@@ -396,14 +398,11 @@ export const adminMock: AdminApi = {
         daily: [1180, 1240, 1205, 1190, 1260, 1170, 1175].map((calls, i) => ({ date: `2026-10-${String(15 + i).padStart(2, "0")}`, calls })),
         failedBatches: [{ batchId: "v2.10 automático", at: "2026-10-20T05:55:00", stage: "modelo", calls: 1 }],
       },
-      aiQuality: [
-        { promptVersion: "2.9", model: "gemini-demo", reference: "client", n: 100, matchRate: 68, uncertainRate: 6, unvalidatedQuoteRate: 3.4, distribution: { compliant: 58, non_compliant: 34, uncertain: 8 } },
-        { promptVersion: "2.10", model: "gemini-demo", reference: "client", n: 100, matchRate: 70, uncertainRate: 5, unvalidatedQuoteRate: 3.1, distribution: { compliant: 61, non_compliant: 32, uncertain: 7 } },
-      ],
       cost: [
         { model: "gemini-demo", promptVersion: "2.10", calls: 6200, totalUsd: 25.4, perCallUsd: 0.0041, tokensIn: null, tokensOut: null, latencyMsAvg: 1750, latencyMsP95: 3280 },
       ],
     })),
+  getAiQuality: () => wait(mockAiQuality),
   listActivity: () => wait(() => state.activity),
   getProcessingStatus: () =>
     wait((): ProcessingStatus => {

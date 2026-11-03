@@ -41,12 +41,16 @@ def now() -> datetime:
     return datetime.now(UTC)
 
 
-def models() -> list[dict]:
-    """Modelos configurados en el bench (scripts/prompt_bench/models.toml), habilitados."""
+def all_models() -> list[dict]:
+    """Modelos configurados en el bench (scripts/prompt_bench/models.toml), en su orden, habilitados o no."""
     if not MODELS_TOML.exists():
         return []
-    data = tomllib.loads(MODELS_TOML.read_text(encoding="utf-8"))
-    return [m for m in data["models"] if m.get("enabled", True)]
+    return tomllib.loads(MODELS_TOML.read_text(encoding="utf-8"))["models"]
+
+
+def models() -> list[dict]:
+    """Modelos del bench habilitados."""
+    return [m for m in all_models() if m.get("enabled", True)]
 
 
 def calibration_cases(session: Session) -> list[tuple[Case, ModelRun]]:

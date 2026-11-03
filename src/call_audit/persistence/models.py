@@ -128,6 +128,8 @@ class Case(Base):
     # Veredicto y comentario del auditor del cliente (ESTADO_CALIDAD, COMENTARIO): solo para supervisor (D-24).
     external_verdict: Mapped[str | None] = mapped_column(String(20))
     external_comment: Mapped[str | None] = mapped_column(Text)
+    # Motivos que el auditor del cliente marcó NO CUMPLE (C01..C33); None si el Excel no los trae. Solo admin (D-55).
+    external_item_fails: Mapped[list[Any] | None] = mapped_column(JSON)
     status: Mapped[str] = mapped_column(String(20), default="pending")
     queued_at: Mapped[datetime] = mapped_column(default=now)
     assigned_auditor_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))

@@ -15,7 +15,15 @@ from sqlalchemy.orm import Session, sessionmaker
 from call_audit import prompt_evaluation
 from call_audit.config import ROOT
 from call_audit.notify import email as mail
-from call_audit.persistence.models import AsrFailure, PipelineRun, PromptVersion, User, WorkerHeartbeat
+from call_audit.persistence.models import (
+    AsrFailure,
+    Case,
+    PipelineRun,
+    PromptEvaluation,
+    PromptVersion,
+    User,
+    WorkerHeartbeat,
+)
 from tests.conftest import PASSWORD, login
 
 MODEL = prompt_evaluation.models()[0]["name"]
@@ -211,7 +219,7 @@ def test_stats_have_no_people(client: TestClient, admin: User, imported: session
     login(client, admin)
     stats = client.get("/api/admin/stats").json()
     assert stats["operation"]["callsProcessed"] == 3
-    assert stats["aiQuality"][0]["n"] == 3
+    assert "aiQuality" not in stats
     with imported() as session:
         assert session.get(PromptVersion, "9.9").status == "retired"
     assert "auditor" not in json.dumps(stats).lower()
@@ -272,3 +280,42 @@ def test_processing_runs_and_failures(client: TestClient, admin: User, imported:
     assert len(runs) == 20 and runs[0]["audios"] == 24
     [failure] = client.get("/api/admin/processing/asr-failures").json()
     assert failure["stem"] == "grabacion_1" and failure["attempts"] == 2
+
+
+# --- Calidad de la IA por corrida (Cambio 15) --------------------------------------------------------------------
+
+
+def test_quality_is_admin_only(client: TestClient, users: dict[str, User]) -> None:
+    login(client, users["supervisor"])
+    assert client.get("/api/admin/quality").status_code == 403
+
+
+def test_quality_series_and_calls(client: TestClient, admin: User, imported: sessionmaker[Session]) -> None:
+    with imported() as session, session.begin():
+        cases = list(session.scalars(select(Case).order_by(Case.call_id)))
+        cases[0].external_item_fails = [14]
+        session.add(
+            PromptEvaluation(
+                version="9.9",
+                model=MODEL,
+                status="done",
+                requested_by_id=admin.id,
+                case_ids=[c.id for c in cases],
+                done=1,
+                results=[{"caseId": cases[0].id, "verdict": "non_compliant", "failCriteria": [14, 2]}],
+                metrics={"costPerCallUsd": 0.01},
+            )
+        )
+    login(client, admin)
+    body = client.get("/api/admin/quality").json()
+    run = next(s for s in body["series"] if s["source"] == "run")
+    test = next(s for s in body["series"] if s["source"] == "prompt_test")
+    assert run["id"] == "run:modelo-a:v9.9" and run["isCurrent"] and run["calls"] == 3
+    assert test["runLabel"] == "Prueba v9.9" and test["calls"] == 1 and test["costPerCallUsd"] == 0.01
+    first = next(c for c in body["calls"] if c["caseId"] == cases[0].id)
+    assert first["clientFails"] == [14]
+    assert first["results"][test["id"]] == {"verdict": "non_compliant", "failCriteria": [2, 14]}
+    assert run["id"] in first["results"]
+    assert len(body["criteria"]) == 33 and body["criteria"][0]["byCode"] and body["criteria"][18]["partial"]
+    assert body["goals"] == {"falsePositivePct": 5, "falseNegativePct": 20}
+    assert "Ejecutivo" not in json.dumps(body)

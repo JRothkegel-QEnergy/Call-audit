@@ -139,3 +139,40 @@ def test_backfill_fills_existing_calls_without_touching_runs(imported: sessionma
         assert case.call_metadata["customer"]["full_name"] == "OTRA PERSONA"
         assert case.product_sheets[0]["customerCategory"] == {"renounceable": "Sí", "retainable": "Sí"}
         assert [(r.model, r.run_label, r.findings) for r in case.runs] == runs_before
+
+
+# --- Marca del cliente por motivo (Cambio 15) --------------------------------------------------------------------
+
+
+def client_row(marks: dict[int, str]) -> dict:
+    row = {"ID": "1", "RENUNCIABLE": "SI", "RETENIBLE": "SI"}
+    row |= {f"MOTIVO {i}": marks.get(i, "CUMPLE") for i in range(1, 34)}
+    return row
+
+
+def test_client_fails_reads_the_33_columns_after_retenible() -> None:
+    assert customer.client_fails(client_row({14: "NO CUMPLE", 28: " no  cumple "})) == [14, 28]
+    assert customer.client_fails(client_row({})) == []
+
+
+def test_client_fails_skips_data_columns_between_retenible_and_motives() -> None:
+    """El Excel nuevo de S4P trae EVALUADOR_CALIDAD después de RETENIBLE y TIPIFICACION al final."""
+    row = {"ID": "1", "RETENIBLE": "SI", "EVALUADOR_CALIDAD": "Persona"}
+    row |= {f"MOTIVO {i}": "NO CUMPLE" if i in (1, 33) else "CUMPLE" for i in range(1, 34)}
+    row["TIPIFICACION"] = "RETENCION"
+    assert customer.client_fails(row) == [1, 33]
+
+
+def test_client_fails_is_none_without_columns_or_audit() -> None:
+    assert customer.client_fails({"ID": "1", "RETENIBLE": "SI"}) is None
+    assert customer.client_fails({"ID": "1"}) is None
+    assert customer.client_fails({"RETENIBLE": "SI"} | {f"MOTIVO {i}": None for i in range(1, 34)}) is None
+
+
+def test_backfill_saves_client_fails(imported: sessionmaker[Session]) -> None:
+    with imported() as session:
+        recording = session.scalar(select(Case).where(Case.call_id == "1002")).recording
+    with imported() as session, session.begin():
+        customer.backfill(session, {recording: client_row({3: "NO CUMPLE"})})
+    with imported() as session:
+        assert session.scalar(select(Case).where(Case.call_id == "1002")).external_item_fails == [3]

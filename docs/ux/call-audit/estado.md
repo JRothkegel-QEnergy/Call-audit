@@ -1,6 +1,6 @@
 # Estado del proceso UX · Front de Call Audit
 
-- **Estado:** **proceso UX cerrado** (2026-10-16) · **Cambio 09 aprobado** (2026-10-19, `09-cambio-auditoria-ia.md` §0) · **Cambio 10 aprobado e implementado** (2026-10-19) · **Cambio 11 aprobado** (2026-10-22, `11-catalogo-seguros.md` §0: sección Seguros con permiso `manage_catalog`, carga de Excel con IA y confirmación humana, clave única nombre + aseguradora, versionado de fichas). · **Cambio 12 aprobado** (2026-10-23, `12-cambio-admin-qubico.md` §0: rol Administrador Qubico, prompt versionado en BD con prompt.yaml o system prompt, prueba con costo confirmado, invitaciones por correo, sin MFA, logo oficial). Listo para implementar. · **Cambio 14 aprobado** (2026-11-02, `14-estado-worker.md` §0: sección Procesamiento del admin con estado del worker, avance por etapa, historial y fallas de ASR; requiere backend nuevo). Fases 0 a 8 aprobadas por Johannes. El diseño está listo para implementar en `frontend/`; los cambios posteriores pasan por la revisión rápida contra lo aprobado.
+- **Estado:** **proceso UX cerrado** (2026-10-16) · **Cambio 09 aprobado** (2026-10-19, `09-cambio-auditoria-ia.md` §0) · **Cambio 10 aprobado e implementado** (2026-10-19) · **Cambio 11 aprobado** (2026-10-22, `11-catalogo-seguros.md` §0: sección Seguros con permiso `manage_catalog`, carga de Excel con IA y confirmación humana, clave única nombre + aseguradora, versionado de fichas). · **Cambio 12 aprobado** (2026-10-23, `12-cambio-admin-qubico.md` §0: rol Administrador Qubico, prompt versionado en BD con prompt.yaml o system prompt, prueba con costo confirmado, invitaciones por correo, sin MFA, logo oficial). Listo para implementar. · **Cambio 14 aprobado** (2026-11-02, `14-estado-worker.md` §0: sección Procesamiento del admin con estado del worker, avance por etapa, historial y fallas de ASR; requiere backend nuevo). · **Cambio 15 aprobado** (2026-11-02, `15-calce-ia-por-corrida.md`: calce de la IA por corrida y por motivo para `qubico_admin`, D-52 a D-58; requiere backend nuevo). Implementable. Fases 0 a 8 aprobadas por Johannes. El diseño está listo para implementar en `frontend/`; los cambios posteriores pasan por la revisión rápida contra lo aprobado.
 - **Ubicación de los artefactos:** `call-audit/docs/ux/call-audit/` (dentro del repo, junto al resto de `docs/`).
 - **Aprueba los gates:** Johannes (D-04).
 
@@ -96,6 +96,17 @@
 | 2026-11-02 | D-49 · Historial de las últimas 20 pasadas + fallas de transcripción (pasan a BD) | Johannes |
 | 2026-11-02 | D-50 · Solo lectura, sin "Correr pasada ahora" | Johannes |
 | 2026-11-02 | D-51 · Avance por etapa con "k de n", contadores actualizados por audio | Johannes |
+| 2026-11-02 | Cambio 15 (revisión rápida, `15-calce-ia-por-corrida.md`): brief y propuesta de alcance para comparar corridas (modelo × versión × corrida) contra el cliente por llamada y por motivo (C01..C33). Requiere importar la marca del cliente por motivo (sin IA) y un endpoint nuevo. Pendientes P1–P5; supuestos H-87 a H-95 | Diseñador; pedido de Johannes |
+| 2026-11-02 | Cambio 15: alcance aprobado (Johannes: "1. A / 2. A / 3. A / 4. A / 5. B"); H-87 a H-95 sin objeción | Johannes |
+| 2026-11-02 | D-52 · El Cambio 15 absorbe "Calce IA vs humano" (proceso cerrado); el dashboard local se mantiene para exploración | Johannes |
+| 2026-11-02 | D-53 · La vista reemplaza el contenido de la pestaña "Calidad de la IA" de `/admin/stats` | Johannes |
+| 2026-11-02 | D-54 · Corrida = modelo + versión + `run_label`, más las pruebas del prompt terminadas, en un selector | Johannes |
+| 2026-11-02 | D-55 · Se importan las marcas del cliente por motivo (C01..C33) sin IA ni costo; solo las usa el admin | Johannes |
+| 2026-11-02 | D-56 · Primera entrega: ranking + matriz + tabla por motivo + mapa llamada × motivo + lista de desacuerdos | Johannes |
+| 2026-11-02 | Cambio 15 §7 entregado (flujo, estructura, wireframe, estados, textos, accesibilidad, impacto en tipos). Pendientes Q1 y Q2; supuestos H-96 a H-101 | Diseñador |
+| 2026-11-02 | Cambio 15 **aprobado** e implementable (Johannes: "Sí, las recomendadas"); H-96 a H-101 sin objeción | Johannes |
+| 2026-11-02 | D-57 · §7 aprobado; tokens `--series-1..6` en `08-tokens.css/.json` | Johannes |
+| 2026-11-02 | D-58 · Banner en `/calls/[id]?serie=…` con lo que marcó la corrida; el panel muestra la vigente | Johannes |
 
 ## Preguntas abiertas
 
@@ -118,3 +129,4 @@ Ninguna bloqueante.
 - Cambio 12: invitaciones y restablecimiento por correo en el backend; mientras no existan, sigue `10-modo-real.md` 1d y 3b.
 - Cambio 13: H-78 (cómo llega `product_sheet_section: customer` a M31/M33: rúbrica v1.0.2 o mapeo de presentación) con `rubric-engineer` / `pipeline-architect`; H-77 (categoría ↔ renunciable/retenible) a confirmar.
 - Cambio 14: diseño del backend (tablas `pipeline_runs`, `worker_heartbeat`, `asr_failures`, hilo de latido, endpoint) con `pipeline-architect` (§5). Agregar "pasada" y "latido" al glosario de `06-ux-writing.md`.
+- Cambio 15: backend (`Case.external_item_fails`, reimportación de metadata sin IA, `GET /api/admin/quality`) con `pipeline-architect` (§3, §7.7). Agregar el glosario de §7.5 a `06-ux-writing.md`. Revisión rápida post-implementación contra §7.

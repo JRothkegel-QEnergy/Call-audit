@@ -117,16 +117,6 @@ export interface AdminStats {
     daily: { date: string; calls: number }[];
     failedBatches: { batchId: string; at: string | null; stage: string; calls: number }[];
   };
-  aiQuality: {
-    promptVersion: string;
-    model: string;
-    reference: "client" | "app_auditors";
-    n: number;
-    matchRate: number;
-    uncertainRate: number;
-    unvalidatedQuoteRate: number;
-    distribution: Record<CallVerdict, number>;
-  }[];
   cost: {
     model: string;
     promptVersion: string;
@@ -138,6 +128,42 @@ export interface AdminStats {
     latencyMsAvg: number;
     latencyMsP95: number;
   }[];
+}
+
+/** Una corrida comparable en «Calidad de la IA» (Cambio 15, D-54): modelo + versión + run_label, o una prueba. */
+export interface QualitySeries {
+  id: string;
+  model: string;
+  modelLabel: string;
+  /** Color fijo por modelo (--series-1..6), en el orden de models.toml (H-100). */
+  colorIndex: number;
+  promptVersion: string;
+  runLabel: string;
+  source: "run" | "prompt_test";
+  isCurrent: boolean;
+  ranAt: string | null;
+  calls: number;
+  costPerCallUsd: number | null;
+  unvalidatedQuoteRate: number;
+}
+
+export interface QualityCall {
+  caseId: string;
+  callId: string;
+  callDate: string;
+  clientVerdict: CallVerdict;
+  /** Motivos que el cliente marcó NO CUMPLE; null si el Excel no los trae (D-55). */
+  clientFails: number[] | null;
+  /** Por id de serie; null = la corrida no tiene resultado para esta llamada. Sin la clave = no la corrió. */
+  results: Record<string, { verdict: CallVerdict; failCriteria: number[] } | null>;
+}
+
+export interface AiQuality {
+  series: QualitySeries[];
+  calls: QualityCall[];
+  criteria: { id: number; name: string; minor: boolean; byCode: boolean; partial: boolean }[];
+  goals: { falsePositivePct: number; falseNegativePct: number };
+  promptTestRunning: { version: string; done: number; total: number } | null;
 }
 
 export interface ActivityLogEntry {

@@ -75,6 +75,16 @@
   --call-doubt-bg: var(--amber-100); --call-doubt-fg: var(--amber-800); --call-doubt-border: var(--amber-200);
   --call-pass-bg: var(--neutral-100); --call-pass-fg: var(--neutral-800); --call-pass-border: var(--neutral-300);
 
+  /* ---------- Dominio: serie por MODELO en gráficos de calidad de la IA (Cambio 15, D-57) ----------
+     Color fijo por modelo (orden de models.toml). Contraste vs blanco / neutral-100 (WCAG 1.4.11, >= 3:1).
+     Nunca va solo: siempre acompaña al nombre de la corrida. */
+  --series-1: #2a78d6;  /* azul      4,42 / 4,04 */
+  --series-2: #c4501f;  /* óxido     4,65 / 4,26 */
+  --series-3: #0f8a5f;  /* verde     4,36 / 3,99 */
+  --series-4: #a86f00;  /* ocre      4,25 / 3,89 */
+  --series-5: #c2477a;  /* frambuesa 4,69 / 4,29 */
+  --series-6: #7a4fc4;  /* violeta   5,61 / 5,13 */
+
   /* ---------- Dominio: fuente del dato ---------- */
   --source-ai-fg: var(--neutral-700);      /* "Según IA": contorno punteado */
   --source-ai-border: var(--neutral-500);

@@ -35,6 +35,7 @@ import { durationText, shortDateTime } from "@/lib/format";
 import { usePreferences } from "@/lib/preferences";
 import { loadRubric } from "@/lib/rubric";
 import { useSession } from "@/lib/session";
+import { QualityBanner } from "@/components/admin/quality-banner";
 import { useAsync } from "@/lib/use-async";
 import { caseStatusLabel } from "@/lib/verdicts";
 
@@ -77,11 +78,28 @@ export function CallDetail({ id }: { id: string }) {
       data={loaded.data.data}
       from={params.get("from") ?? undefined}
       startAtMs={params.get("t") ? Number(params.get("t")) : undefined}
+      qualitySeries={params.get("serie")}
+      qualityCall={params.get("llamada")}
     />
   );
 }
 
-function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data: CaseDetail; from?: string; startAtMs?: number }) {
+function CallWorkspace({
+  rubric,
+  data,
+  from,
+  startAtMs,
+  qualitySeries,
+  qualityCall,
+}: {
+  rubric: Rubric;
+  data: CaseDetail;
+  from?: string;
+  startAtMs?: number;
+  /** Abierta desde «Calidad de la IA» (Cambio 15): la corrida que se estaba mirando. */
+  qualitySeries?: string | null;
+  qualityCall?: string | null;
+}) {
   const router = useRouter();
   const { user } = useSession();
   const { prefs } = usePreferences();
@@ -205,7 +223,10 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
     focusId == null ? undefined : CUSTOMER_CRITERIA.has(focusId) ? "customer" : rubric.criteria[focusId]?.productSheetSection;
   const focusEvidence = focusId != null ? (evidenceList(findingFor(data.findings, focusId))[evidenceIdx] ?? null) : null;
   const markers = data.findings.filter((f) => f.verdict !== "compliant" && f.verdict !== "not_applicable");
-  const back = BACK[from ?? ""] ?? (role === "qubico_admin" ? BACK.discrepancies : role === "supervisor" ? BACK.reviews : BACK.queue);
+  const fromQuality = role === "qubico_admin" && !!qualitySeries;
+  const back = fromQuality
+    ? (["/admin/stats?tab=quality", "Calidad de la IA"] as const)
+    : (BACK[from ?? ""] ?? (role === "qubico_admin" ? BACK.discrepancies : role === "supervisor" ? BACK.reviews : BACK.queue));
 
   // ---- Acciones del auditor ----
   const goNext = async (message: string) => {
@@ -331,7 +352,8 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
   return (
     <>
       <div className="flex flex-wrap items-center gap-3">
-        <Button variant="ghost" onClick={() => router.push(back[0])}>
+        {/* Desde Calidad de la IA se vuelve con el historial: así se conservan corridas, filtros y scroll (§7.1). */}
+        <Button variant="ghost" onClick={() => (fromQuality && window.history.length > 1 ? router.back() : router.push(back[0]))}>
           <ChevronLeft size={14} aria-hidden />
           Volver a {back[1]}
         </Button>
@@ -355,6 +377,8 @@ function CallWorkspace({ rubric, data, from, startAtMs }: { rubric: Rubric; data
           </Button>
         )}
       </div>
+
+      {fromQuality && <QualityBanner caseId={data.id} seriesId={qualitySeries!} callId={qualityCall ?? null} />}
 
       {/* Veredicto del cliente: solo llega al supervisor (D-24) y solo si vino en la metadata (D-25). */}
       {seesClient && data.externalQualityVerdict && (

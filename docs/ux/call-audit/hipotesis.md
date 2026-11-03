@@ -90,3 +90,18 @@
 | H-84 | Solo `qubico_admin` ve el estado del worker (403 para otros roles). | Cambio 14 | Johannes | Abierto |
 | H-85 | Una pasada que quedó `running` al reiniciarse el worker se cierra como fallida. | Cambio 14 | pipeline-architect | Abierto |
 | H-86 | Las fallas de ASR muestran el nombre del archivo tal como viene del SFTP. | Cambio 14 | Johannes | Abierto |
+| H-87 | Una llamada Dudosa de la IA cuenta como rechazo en el calce (como el dashboard local), sin interruptor. | Cambio 15 | Johannes | Sin objeción (2026-11-02) |
+| H-88 | Vocabulario del calce: Solo la IA detectó = falso positivo, Omitidos por la IA = falso negativo, "motivo"; se elimina "más de TBD puntos". | Cambio 15 | Johannes | Sin objeción (2026-11-02) |
+| H-89 | Cada porcentaje con su conteo k de n; se avisa si una corrida tiene llamadas sin resultado. | Cambio 15 | Johannes | Sin objeción (2026-11-02) |
+| H-90 | Solo `qubico_admin` ve el calce por corrida; sin nombres de ejecutivos en agregados. | Cambio 15 | Johannes | Sin objeción (2026-11-02) |
+| H-91 | Escritorio ≥ 1280 px; tablas de 6 corridas con scroll horizontal en pantallas angostas. | Cambio 15 | Johannes | Sin objeción (2026-11-02) |
+| H-92 | Sin librería de gráficos nueva: barras y tablas con los tokens existentes. | Cambio 15 | Johannes | Sin objeción (2026-11-02) |
+| H-93 | Selección por defecto: corrida vigente + la más reciente de cada otro modelo, hasta 6. | Cambio 15 | Johannes | Sin objeción (2026-11-02) |
+| H-94 | La marca del cliente por motivo se toma como verdad; la vista declara que puede tener omisiones. | Cambio 15 | Johannes | Sin objeción (2026-11-02) |
+| H-95 | Consenso k de N, Jev y "Mi revisión" quedan en el dashboard local. | Cambio 15 | Johannes | Sin objeción (2026-11-02) |
+| H-96 | El estado de la vista de calidad (corridas, filtros, mapa) va en la URL, no en localStorage. | Cambio 15 §7 | Johannes | Sin objeción (2026-11-02) |
+| H-97 | La referencia "auditores de la app" sale de Calidad de la IA y queda solo en la prueba del prompt. | Cambio 15 §7 | Johannes | Sin objeción (2026-11-02) |
+| H-98 | El color identifica al modelo; dos corridas del mismo modelo se distinguen por nombre y relleno rayado. | Cambio 15 §7 | Johannes | Sin objeción (2026-11-02) |
+| H-99 | El front calcula las métricas de calce desde los datos por llamada (volumen chico). | Cambio 15 §7 | Johannes | Sin objeción (2026-11-02) |
+| H-100 | Etiquetas y orden de color de los modelos salen de `models.toml` vía backend. | Cambio 15 §7 | Johannes | Sin objeción (2026-11-02) |
+| H-101 | Meta de detección = 80 % (equivale a FN ≤ 20 %). | Cambio 15 §7 | Johannes | Sin objeción (2026-11-02) |

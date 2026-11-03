@@ -42,6 +42,7 @@ import type {
 import type {
   ActivityLogEntry,
   AdminStats,
+  AiQuality,
   AsrFailure,
   InviteInfo,
   ModelOption,
@@ -187,6 +188,8 @@ export interface ApiClient {
   exportPromptVersion(version: string): Promise<Blob>;
   getActivePrompt(): Promise<{ version: string; since: string | null; changedInApp: boolean }>;
   getAdminStats(): Promise<AdminStats>;
+  /** Calidad de la IA por corrida contra el cliente (Cambio 15). */
+  getAiQuality(): Promise<AiQuality>;
   listActivity(): Promise<ActivityLogEntry[]>;
 
   // Procesamiento (Cambio 14)

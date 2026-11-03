@@ -490,7 +490,8 @@
   .seg button:hover {
     background: var(--muted);
   }
-  .seg button[aria-pressed="true"] {
+  .seg button[aria-pressed="true"],
+  .seg button[aria-checked="true"] {
     background: var(--ink-900);
     color: #fff;
   }

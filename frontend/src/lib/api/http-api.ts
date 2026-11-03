@@ -182,6 +182,7 @@ export const httpApi: ApiClient = {
   },
   getActivePrompt: () => get("/api/prompts/active"),
   getAdminStats: () => get("/api/admin/stats"),
+  getAiQuality: () => get("/api/admin/quality"),
   listActivity: () => get("/api/admin/activity"),
   getProcessingStatus: () => get("/api/admin/processing"),
   listPipelineRuns: (limit = 20) => get(`/api/admin/processing/runs${query({ limit: String(limit) })}`),

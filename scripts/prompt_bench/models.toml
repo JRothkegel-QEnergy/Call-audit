@@ -4,6 +4,7 @@
 # provider  anthropic | openai | gemini | groq | openrouter | ollama
 # model     ID exacto del modelo. Para verlos: python scripts/prompt_bench/run.py --list-models <provider>
 # enabled   false = no corre salvo que lo pidas con --models
+# label     nombre que muestra la app (Calidad de la IA); si falta, se muestra name
 # Opcionales: temperature, effort (solo Anthropic), json_mode (default true en no-Anthropic),
 #             max_tokens (solo Anthropic), price_input_per_mtok / price_output_per_mtok (USD por millón de tokens).
 #
@@ -12,6 +13,7 @@
 
 [[models]]
 name = "claude-haiku-4-5"
+label = "Haiku 4.5"
 provider = "anthropic"
 model = "claude-haiku-4-5"
 enabled = true
@@ -21,6 +23,7 @@ price_output_per_mtok = 5.00
 
 [[models]]
 name = "claude-haiku-5-5"
+label = "Haiku 5.5"
 provider = "anthropic"
 model = "claude-haiku-5-5"
 enabled = true
@@ -31,6 +34,7 @@ price_output_per_mtok = 0.50
 
 [[models]]
 name = "claude-sonnet-5-5"
+label = "Sonnet 5.5"
 provider = "anthropic"
 model = "claude-sonnet-5-5"
 enabled = true
@@ -44,6 +48,7 @@ price_output_per_mtok = 10.00
 
 [[models]]
 name = "gemini-3-5-flash-lite"
+label = "Gemini 3.5 Flash-Lite"
 provider = "gemini"
 model = "gemini-3.5-flash-lite"
 enabled = true
@@ -54,6 +59,7 @@ price_output_per_mtok = 2.50
 
 [[models]]
 name = "gemini-3-8-flash"
+label = "Gemini 3.8 Flash"
 provider = "gemini"
 model = "gemini-3.8-flash"
 enabled = true
@@ -64,6 +70,7 @@ price_output_per_mtok = 3.75
 
 [[models]]
 name = "gpt-6-luna"
+label = "GPT-6 Luna"
 provider = "openai"
 model = "gpt-6-luna"
 enabled = true
@@ -72,6 +79,7 @@ price_output_per_mtok = 0.50
 
 [[models]]
 name = "gpt-5-4-mini"
+label = "GPT-5.4 mini"
 provider = "openai"
 model = "gpt-5.4-mini"
 enabled = true
@@ -121,6 +129,7 @@ price_output_per_mtok = 4.50
 
 [[models]]
 name = "or-gemini-3-8-flash"
+label = "Gemini 3.8 Flash (OR)"
 provider = "openrouter"
 model = "google/gemini-3.8-flash"
 enabled = true
@@ -131,6 +140,7 @@ price_output_per_mtok = 3.75
 
 [[models]]
 name = "or-deepseek-v4-1-flash"
+label = "DeepSeek V4.1 Flash"
 provider = "openrouter"
 model = "deepseek/deepseek-v4.1-flash"
 enabled = true

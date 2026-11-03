@@ -146,10 +146,31 @@ def enrich_sheet(sheet: dict, row: dict, has_product: bool) -> dict:
     return out
 
 
+CRITERIA_COUNT = 33
+
+
+def client_fails(row: dict) -> list[int] | None:
+    """Motivos que el auditor del cliente marcó NO CUMPLE (Cambio 15, D-55): las 33 columnas de motivos que siguen a
+    RETENIBLE, en el orden de la pauta (C01..C33), como client_bad() del dashboard local. Los motivos vienen con su
+    nombre ("Induce a renuncia"); se saltan las columnas de datos sin espacios, porque el Excel nuevo de S4P trae
+    EVALUADOR_CALIDAD entre RETENIBLE y los motivos. None si el Excel no trae esas columnas o vienen todas vacías (una
+    llamada que el cliente no auditó)."""
+    keys = list(row)
+    if "RETENIBLE" not in keys:
+        return None
+    after = keys[keys.index("RETENIBLE") + 1 :]
+    cols = [k for k in after if " " in str(k).strip()][:CRITERIA_COUNT]
+    if len(cols) < CRITERIA_COUNT or not any(clean(row[k]) for k in cols):
+        return None
+    return [i for i, k in enumerate(cols, 1) if clean(row[k]).upper() == "NO CUMPLE"]
+
+
 def apply(case: Any, row: dict) -> None:
-    """Guarda la ficha del cliente en el caso y completa sus fichas de seguro. No toca corridas ni revisiones."""
+    """Guarda la ficha del cliente y la marca del cliente por motivo en el caso, y completa sus fichas de seguro. No
+    toca corridas ni revisiones."""
     case.call_metadata = {**(case.call_metadata or {}), "customer": customer(row)}
     case.product_sheets = [enrich_sheet(s, row, bool(s.get("productId"))) for s in case.product_sheets or []]
+    case.external_item_fails = client_fails(row)
 
 
 def backfill(session: Any, rows: dict[str, dict]) -> tuple[int, int]:
@@ -172,14 +193,18 @@ def backfill(session: Any, rows: dict[str, dict]) -> tuple[int, int]:
 def main() -> None:
     """uv run python -m call_audit.ingestion.customer --metadata "../audios/Retenciones BECS Para Revision.xlsx"
 
-    Vuelve a leer la metadata de los lotes ya importados y guarda la Ficha del cliente. No transcribe ni llama al
-    modelo, y no toca validaciones, revisiones ni versiones. Se puede correr más de una vez.
+    Vuelve a leer la metadata de los lotes ya importados y guarda la Ficha del cliente y la marca del cliente por
+    motivo (Cambio 15). No transcribe ni llama al modelo, y no toca validaciones, revisiones ni versiones. Se puede
+    correr más de una vez.
     """
     import argparse
     from pathlib import Path
 
+    from sqlalchemy import select
+
     from call_audit.ingestion.import_bench import real_calls
     from call_audit.persistence.db import get_sessionmaker
+    from call_audit.persistence.models import Case
 
     parser = argparse.ArgumentParser(description=main.__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--metadata", type=Path, action="append", required=True, help="Excel del lote (repetible)")
@@ -189,7 +214,8 @@ def main() -> None:
         rows.update(real_calls.load_rows(path))
     with get_sessionmaker()() as session, session.begin():
         updated, missing = backfill(session, rows)
-    print(f"{updated} llamadas con la Ficha del cliente; {missing} sin fila en la metadata")
+        marked = sum(1 for c in session.scalars(select(Case)) if c.external_item_fails is not None)
+    print(f"{updated} llamadas con la Ficha del cliente ({marked} con marca por motivo); {missing} sin fila")
 
 
 if __name__ == "__main__":
