@@ -95,8 +95,9 @@ COLUMN_ALIASES = {
     "NUMPOLIZA": "NUM_POLIZA",
     "EVALUADORCALIDAD": "EVALUADOR_CALIDAD",
 }
-# Error de cuota de Gemini: no es culpa del audio, así que no gasta uno de sus MAX_ASR_ATTEMPTS.
-RATE_LIMIT_MARKERS = ("429", "RESOURCE_EXHAUSTED")
+# Error de cuota o de saldo de Gemini (402: la cuenta prepago quedó sin créditos): no es culpa del audio, así que no
+# gasta uno de sus MAX_ASR_ATTEMPTS.
+RATE_LIMIT_MARKERS = ("429", "RESOURCE_EXHAUSTED", "HTTP Error 402")
 
 
 def load_asr() -> ModuleType:
@@ -445,7 +446,7 @@ def run_pass(settings: Settings, progress: Progress) -> dict[str, int]:
                 stats["waiting_metadata"] += 1
             elif not failures.blocked(stem):
                 todo.append(stem)
-        # Tope por pasada: las primeras llamadas llegan a la app sin esperar a que se transcriba todo el lote.
+        # Tope opcional por pasada (por defecto no hay: una pasada toma todo lo pendiente).
         pending_asr = len(todo)
         if settings.pipeline_batch_size:
             todo = todo[: settings.pipeline_batch_size]
@@ -479,7 +480,7 @@ def run_pass(settings: Settings, progress: Progress) -> dict[str, int]:
                     stats["transcribed"] += 1
                     progress.add(transcribed=1)
                 elif any(marker in str(exc) for marker in RATE_LIMIT_MARKERS):
-                    logger.warning("Cuota de Gemini en %s: se reintenta en la próxima pasada", stem)
+                    logger.warning("Cuota o saldo de Gemini en %s: se reintenta en la próxima pasada", stem)
                     stats["asr_rate_limited"] += 1
                     progress.add(asr_rate_limited=1)
                 else:  # se registra y se reintenta en la próxima pasada

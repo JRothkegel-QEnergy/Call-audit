@@ -9,11 +9,18 @@ Cada componente tiene además su propio historial detallado:
 
 ## 2026-11-02
 
+- **Una pasada toma todos los audios pendientes**, ya no 100 por pasada (`PIPELINE_BATCH_SIZE` queda en 0 = sin tope; se puede volver a poner un tope por variable de entorno). Las validaciones empiezan cuando termina de transcribirse todo el lote.
+- **Un 402 de Gemini (cuenta prepago sin saldo) ya no gasta intentos del audio**, igual que un 429: antes 400 audios quedaron con fallas registradas mientras la cuenta estaba sin créditos.
 - **Procesamiento (Cambio 14)** en el menú del admin (`/admin/processing`), solo lectura. Muestra:
   - el estado del worker: procesando, en espera, no responde (sin latido hace más de 3 min) o última pasada fallida;
   - el avance de la pasada en curso por etapa ("k de n" al transcribir y validar);
   - las últimas 20 pasadas y las fallas de transcripción.
   - Se actualiza cada 5 s con una pasada en curso y cada 30 s en espera.
+- **Calidad de la IA por corrida (Cambio 15)** reemplaza la pestaña «Calidad de la IA» de Estadísticas del admin. Compara hasta 6 corridas (modelo + versión del prompt + corrida, más las pruebas del prompt hechas desde la app) contra el auditor del cliente:
+  - titular con la que mejor calza, ranking (calce equilibrado, detección, falsos positivos, coincidencia; metas FP ≤ 5 % y FN ≤ 20 %) con costo por llamada y matriz 2×2 por corrida;
+  - tabla por motivo contra la marca NO CUMPLE del cliente (C01..C33), mapa llamada × motivo y lista de llamadas en desacuerdo que abre la llamada con un aviso de lo que marcó esa corrida;
+  - el estado (corridas, filtros) va en la URL. Endpoint `GET /api/admin/quality`, solo admin. Color fijo por modelo (`--series-1..6`) y nombre del modelo desde `label` en `models.toml`.
+- **Marca del cliente por motivo:** se guarda en `cases.external_item_fails` (migración `0005`) con la misma regla que el dashboard local (las 33 columnas que siguen a RETENIBLE). Para las llamadas ya importadas: `python -m call_audit.ingestion.customer --metadata <Excel>` (solo metadata, sin IA).
 - **El worker guarda su estado en la base:** cada pasada en `pipeline_runs` (contadores por audio), un latido cada 30 s en `worker_heartbeat` y las fallas de ASR en `asr_failures`, que reemplaza `work/asr_failures.json` (se importa una vez). Al arrancar, una pasada que quedó abierta se marca como interrumpida. Migración `0004`.
 
 ## 2026-10-23

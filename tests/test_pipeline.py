@@ -238,12 +238,27 @@ def test_batch_size_caps_transcriptions_per_pass(env: dict) -> None:
     assert second["transcribed"] == 1 and second["validated"] == 1 and env["calls"]["asr"] == 3
 
 
-def test_rate_limit_does_not_spend_attempts(env: dict, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_default_pass_takes_every_pending_audio(env: dict) -> None:
+    names = [f"1000000{i}_20261015_30000{i}" for i in range(3)]
+    for name in names:
+        drop(env["inbox"], f"{name}.mp3", b"ID3 audio sintetico")
+    rows = "".join(
+        f"{name};Ejecutivo Ficticio;Seguro Ficticio;Problemas Económicos;999;15-10-2026;0,5\n" for name in names
+    )
+    drop(env["inbox"], "lote.csv", CSV.splitlines(keepends=True)[0] + rows)
+
+    stats = pipeline.run_once(env["settings"].model_copy(update={"pipeline_batch_size": 0}))
+
+    assert stats["transcribed"] == 3 and stats["validated"] == 3
+
+
+@pytest.mark.parametrize("error", ["HTTP Error 429: Too Many Requests", "HTTP Error 402: Payment Required"])
+def test_rate_limit_does_not_spend_attempts(env: dict, monkeypatch: pytest.MonkeyPatch, error: str) -> None:
     drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
     drop(env["inbox"], "lote.csv", CSV)
 
     def limited(audio: Path, asr_dir: Path, asr_model: str) -> None:
-        raise RuntimeError("HTTP Error 429: Too Many Requests")
+        raise RuntimeError(error)
 
     monkeypatch.setattr(pipeline, "transcribe", limited)
     for _ in range(pipeline.MAX_ASR_ATTEMPTS + 1):

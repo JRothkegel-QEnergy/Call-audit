@@ -62,7 +62,7 @@ class Settings(BaseSettings):
     # que se transcriben por pasada (0 = sin tope).
     pipeline_asr_workers: int = 16
     pipeline_llm_workers: int = 8
-    pipeline_batch_size: int = 100
+    pipeline_batch_size: int = 0
 
 
 @lru_cache
