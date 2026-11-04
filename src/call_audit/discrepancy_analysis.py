@@ -4,7 +4,7 @@ Lee la salida de call_audit.discrepancies (discrepancies.jsonl + transcripts.jso
 sus casos y le pide a un LLM patrones, causa y propuesta. No toca la base ni el prompt de la capa 2.
 
     uv run python -m call_audit.discrepancy_analysis --table ../transcripts/discrepancies/prod-2026-11-04 \
-        --criteria 25,1,18 [--model claude-sonnet-5-5] [--dry-run]
+        --criteria 25,1,18 [--model gemini-3-8-flash] [--dry-run]
 
 Con --dry-run solo deja los pedidos en disco y estima tokens y costo, sin llamar al modelo. Deja en
 <table>/analysis/v<prompt>/<modelo>/: c<id>.user.txt, c<id>.json (respuesta con las citas validadas), c<id>.meta.json
@@ -27,7 +27,8 @@ from call_audit.ingestion.import_bench import bench, real_calls
 ROOT = Path(__file__).resolve().parents[2]
 PROMPT_VERSION = "1.0.0"
 PROMPT_DIR = ROOT / "prompts" / "discrepancy_analysis"
-DEFAULT_MODEL = "claude-sonnet-5-5"
+# Gemini Flash por costo (Johannes, 2026-11-04); el piloto y la corrida completa se hicieron con Sonnet 5.5.
+DEFAULT_MODEL = "gemini-3-8-flash"
 # Máximo de casos por tipo que van al modelo; del resto solo van los conteos. Los fn llevan la llamada completa.
 SAMPLE = {"fp": 25, "fn": 12, "ai_uncertain": 12, "match_fail": 6}
 # Cómo se arman los datos que recibe la IA evaluadora: sin esto, el modelo no puede reconocer un dato faltante.
@@ -44,7 +45,8 @@ KIND_LABEL = {
     "match_fail": "match_fail · los dos marcaron incumple (contraste)",
 }
 # Estimación para --dry-run, medida en el piloto del 2026-11-04 con Sonnet 5.5: 2,1–2,2 caracteres por token de
-# entrada (transcripciones con timestamps) y 2.100–2.600 tokens de salida por motivo.
+# entrada (transcripciones con timestamps) y 2.100–2.600 tokens de salida por motivo. Con otro modelo el tokenizador
+# cambia: es una estimación, el costo real sale del uso que devuelve el proveedor.
 CHARS_PER_TOKEN = 2.1
 EXPECTED_OUTPUT_TOKENS = 3000
 

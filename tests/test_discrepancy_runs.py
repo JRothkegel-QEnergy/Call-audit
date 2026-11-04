@@ -13,7 +13,7 @@ from call_audit import discrepancy_runs
 from call_audit.persistence.models import Case, Review, User
 from tests.conftest import PASSWORD, login
 
-MODEL = "claude-sonnet-5-5"
+MODEL = "gemini-3-8-flash"
 # Motivos que el cliente marcó NO CUMPLE por llamada. Con la corrida del fixture, en el motivo 30 queda:
 # 1002 fp (la IA marca y el cliente no), 1001 y 1003 fn (el cliente marca y la IA no).
 CLIENT_FAILS = {"1001": [30], "1002": [], "1003": [12, 30]}
@@ -42,7 +42,7 @@ PATTERN = {
 
 @pytest.fixture
 def admin(imported: sessionmaker[Session], monkeypatch: pytest.MonkeyPatch) -> User:
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "clave-ficticia")
+    monkeypatch.setenv("GEMINI_API_KEY", "clave-ficticia")
     user = User(
         email="admin@qubico-ejemplo.cl",
         name="Admin",
@@ -64,12 +64,11 @@ class FakeModel:
         self.users: list[str] = []
         self.first_bad = first_bad
 
-    def __call__(self, cfg: dict, system: str, user: str) -> tuple[str, dict]:
+    def __call__(self, cfg: dict, system: str, user: str) -> tuple[str, float]:
         self.users.append(user)
-        usage = {"input_tokens": 10_000, "output_tokens": 2_000}
         if self.first_bad and len(self.users) == 1:
-            return "No pude armar el JSON", usage
-        return json.dumps(PATTERN, ensure_ascii=False), usage
+            return "No pude armar el JSON", 0.01
+        return json.dumps(PATTERN, ensure_ascii=False), 0.02
 
 
 def run(client: TestClient, imported: sessionmaker[Session], model: FakeModel) -> dict:
@@ -188,3 +187,22 @@ def test_stop_and_stale(client: TestClient, admin: User, imported: sessionmaker[
         session.add(Review(case_id=case.id, auditor_id=admin.id, items=[], final_verdict="compliant"))
     stale = client.get("/api/admin/discrepancies").json()["stale"]
     assert stale == {"currentSeriesChanged": False, "currentSeries": None, "newReviews": 1}
+
+
+def test_gemini_falls_back_to_openrouter(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Sin saldo en Gemini, el mismo modelo por OpenRouter (campo fallback de models.toml), con su costo."""
+    monkeypatch.setenv("GEMINI_API_KEY", "clave-ficticia")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "clave-ficticia")
+    used = []
+
+    def fake_call(cfg: dict, stem: str, system: str, user: str):
+        used.append(cfg["name"])
+        if cfg["provider"] == "gemini":
+            raise RuntimeError("prepago sin saldo")
+        return "{}", cfg["model"], {"input_tokens": 1_000_000, "output_tokens": 0}, 10
+
+    monkeypatch.setattr(discrepancy_runs.bench, "call_with_retries", fake_call)
+    monkeypatch.setattr(discrepancy_runs.bench, "load_dotenv", lambda path: None)
+    cfg = discrepancy_runs.analysis.model_config(MODEL)
+    text, cost = discrepancy_runs.bench_caller()(cfg, "system", "user")
+    assert used == [MODEL, "or-gemini-3-8-flash"] and text == "{}" and cost > 0

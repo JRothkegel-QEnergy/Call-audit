@@ -37,14 +37,14 @@ WORKERS = 4
 MIN_CASES = 3
 # Peso en el impacto (H-108): un motivo menor no rechaza la llamada por sí solo.
 MINOR_WEIGHT = 0.5
-# Segundos por motivo, medidos en la corrida completa del 2026-11-04 con Sonnet 5.5 (30–90 s).
+# Segundos por motivo, medidos en la corrida completa del 2026-11-04 con Sonnet 5.5 (30–90 s). Estimación.
 SECONDS_PER_CRITERION = 60
 DISAGREEMENT = ("fp", "fn", "ai_uncertain")
 RUNNING = ("queued", "running")
 FOLLOW_UP = ("accepted", "asked_client", "calibrated")
 
-# (configuración del modelo, system, user) -> (texto de la respuesta, uso de tokens). Los tests pasan un doble.
-ModelCaller = Callable[[dict, str, str], tuple[str, dict]]
+# (configuración del modelo, system, user) -> (texto de la respuesta, costo USD). Los tests pasan un doble.
+ModelCaller = Callable[[dict, str, str], tuple[str, float]]
 
 
 def now() -> datetime:
@@ -70,7 +70,8 @@ def model_options() -> list[dict]:
         {
             "name": m["name"],
             "label": m.get("label", m["name"]),
-            "available": bool(bench.api_key_for(m["provider"])),
+            # Con su API key o con la del respaldo (ej. Gemini Flash por OpenRouter, campo fallback de models.toml).
+            "available": bool(bench.api_key_for(m["provider"])) or bench.fallback_config(m) is not None,
             "priced": m.get("price_input_per_mtok") is not None,
         }
         for m in prompt_evaluation.models()
@@ -193,9 +194,21 @@ def stop(session: Session, run: DiscrepancyAnalysis, actor: User) -> None:
 def bench_caller() -> ModelCaller:
     bench.load_dotenv(ROOT / ".env")
 
-    def call(cfg: dict, system: str, user: str) -> tuple[str, dict]:
-        text, _, usage, _ = bench.call_with_retries(cfg, "discrepancias", system, user)
-        return text, usage
+    def call(cfg: dict, system: str, user: str) -> tuple[str, float]:
+        """Si el modelo falla (ej. Gemini sin saldo), el mismo modelo por su respaldo, como el pipeline."""
+        used = cfg
+        try:
+            if not bench.api_key_for(cfg["provider"]):
+                raise RuntimeError(f"sin API key para {cfg['provider']}")
+            text, _, usage, _ = bench.call_with_retries(cfg, "discrepancias", system, user)
+        except Exception:
+            backup = bench.fallback_config(cfg)
+            if backup is None:
+                raise
+            logger.warning("%s falló; se usa el respaldo %s", cfg["name"], backup["name"])
+            used = analysis.model_config(backup["name"])
+            text, _, usage, _ = bench.call_with_retries(used, "discrepancias", system, user)
+        return text, bench.cost_usd(used, usage) or 0.0
 
     return call
 
@@ -273,8 +286,8 @@ def analyze_criterion(
     """Respuesta del modelo con las citas validadas y su costo. Si el JSON no se puede leer, reintenta una vez."""
     cost = 0.0
     for attempt in range(2):
-        text, usage = caller(cfg, system, user)
-        cost += bench.cost_usd(cfg, usage) or 0.0
+        text, spent = caller(cfg, system, user)
+        cost += spent
         try:
             result = analysis.parse_response(text)
         except ValueError:
