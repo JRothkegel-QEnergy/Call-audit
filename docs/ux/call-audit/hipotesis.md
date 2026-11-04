@@ -109,3 +109,18 @@
 | H-103 | Agrupar también rachas idénticas de errores (no solo las sin trabajo) reduce el ruido sin esconder un error nuevo, porque cualquier cambio de números o mensaje abre fila aparte. | Cambio 14 §7 | Johannes | Pendiente (2026-11-04) |
 | H-104 | 20 filas (grupos) sobre las últimas 200 pasadas (~50 h) bastan para el historial; reemplaza a H-82. | Cambio 14 §7 | Uso real | Pendiente (2026-11-04) |
 | H-105 | Una pasada con audios pero sin nada procesado se lee mejor como "Sin trabajo" que como "Completa". | Cambio 14 §7 | Johannes | Pendiente (2026-11-04) |
+| H-106 | Solo `qubico_admin` ve la vista de análisis de discrepancias; escritorio ≥ 1280 px. | Cambio 16 §5 | Johannes | Sin objeción (2026-11-04) |
+| H-107 | El resumen por evaluador del cliente muestra el nombre de `EVALUADOR_CALIDAD`; excepción acotada a "sin indicadores por persona" (ejecutivos siguen sin aparecer). | Cambio 16 §5 | Johannes | Sin objeción (2026-11-04) |
+| H-108 | Patrones ordenados por impacto de la síntesis; los de menos de 3 casos van al final como observaciones. | Cambio 16 §5 | Johannes | Sin objeción (2026-11-04) |
+| H-109 | Causas: Criterio del prompt · Evaluador del cliente · Transcripción · Dato faltante. Motivo 1 entra como Criterio con propuesta de pregunta al cliente. | Cambio 16 §5 | Johannes | Sin objeción (2026-11-04) |
+| H-110 | Excel vs revisión manual en contra: "Desacuerdo entre revisores", va a calibración, no al prompt. | Cambio 16 §5 | Johannes | Sin objeción (2026-11-04) |
+| H-111 | El análisis se marca desactualizado si cambió la corrida vigente o entraron revisiones nuevas. | Cambio 16 §5 | Johannes | Sin objeción (2026-11-04) |
+| H-112 | Se ve la última corrida de análisis; anteriores en solo lectura; las decisiones sobre propuestas persisten. | Cambio 16 §5 | Johannes | Sin objeción (2026-11-04) |
+| H-113 | La vista declara cuántos casos tienen revisión manual Qubico (hoy casi ninguno por motivo). | Cambio 16 §5 | Johannes | Sin objeción (2026-11-04) |
+| H-114 | Confianza del patrón como Alta / Media / Baja, no como número. | Cambio 16 §5 | Johannes | Sin objeción (2026-11-04) |
+| H-115 | Tres pestañas (Análisis · Seguimiento · Historial) bastan; Seguimiento muestra el contador de pendientes. | Cambio 16 §7 | Johannes | Sin objeción (2026-11-04) |
+| H-116 | La matriz de veredicto de llamada no se repite: basta la línea "Calce de llamada" con enlace a Calidad de la IA. | Cambio 16 §7 | Johannes | Sin objeción (2026-11-04) |
+| H-117 | Motivos de descarte en lista cerrada + "Otro", para que la IA de análisis los lea de forma consistente. | Cambio 16 §7 | Johannes | Sin objeción (2026-11-04) |
+| H-118 | Las decisiones viven aparte del patrón y se ven en análisis posteriores; un análisis nuevo no reabre lo descartado salvo evidencia distinta. | Cambio 16 §7 | Johannes | Sin objeción (2026-11-04) |
+| H-119 | Aceptar, descartar y cambiar seguimiento quedan en el Registro de actividad; aceptar no pide motivo. | Cambio 16 §7 | Johannes | Sin objeción (2026-11-04) |
+| H-120 | Escritorio ≥ 1280 px; la tabla por motivo hace scroll horizontal dentro de su tarjeta en pantallas angostas. | Cambio 16 §7 | Johannes | Sin objeción (2026-11-04) |

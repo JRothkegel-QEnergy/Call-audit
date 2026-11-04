@@ -110,6 +110,20 @@
 | 2026-11-03 | D-59 · Paginador del mapa llamada por llamada: 100 columnas por página sobre la lista Cumple→No cumple, encabezados con el total del grupo, "Llamadas a–b de n", atajo "Ir a {grupo}", parámetro `mapPage` que se mantiene al cambiar de corrida; conteos y `aria-label` sobre el total (`15-calce-ia-por-corrida.md` §7.10). Revisión rápida, implementable | Johannes (pedido); diseñador (especificación) |
 | 2026-11-03 | D-59 ajustado · Reparto del mapa por página: hasta 50 Cumple + 50 No cumple, y el otro grupo rellena si uno se agota; se quita el atajo "Ir a {grupo}"; rango "Cumple a–b · No cumple c–d" (§7.10). Pedido tras verlo en producción | Johannes (pedido); diseñador (especificación) |
 | 2026-11-04 | D-60 · "Últimas pasadas" (Cambio 14 §7): resultado nuevo "Sin trabajo"; se agrupan pasadas consecutivas sin trabajo y rachas idénticas de "Con errores" (mismos números) o "Falló" (mismo mensaje), 2 o más, en una fila expandible (botón con `aria-expanded`/`aria-controls`); nunca `running` ni `interrupted`; se piden 200 pasadas y se muestran 20 filas. Revisión rápida, implementable | Johannes (pedido); diseñador (especificación) |
+| 2026-11-04 | Cambio 16 (revisión rápida, `16-ia-discrepancias.md`): vista en el admin para la IA de discrepancias (plan `docs/plan-ia-discrepancias.md`). Pendientes P1–P5; supuestos H-106 a H-114 | Diseñador; pedido de Johannes |
+| 2026-11-04 | Cambio 16: alcance aprobado (Johannes: "apruebo", tras ver P1–P5 con sus recomendadas y H-106 a H-114) = P1 A, P2 A, P3 A, P4 A, P5 A; H-106 a H-114 sin objeción | Johannes |
+| 2026-11-04 | D-61 · Sección "Análisis de discrepancias" en la sidebar del admin, `/admin/discrepancies`, entre Estadísticas y Prompt | Johannes |
+| 2026-11-04 | D-62 · Convive con Calidad de la IA sin duplicarla: tabla del paso 1 (vigente, con revisión manual, dudosas y evaluador) + patrones; enlaces cruzados "Ver por qué" / "Ver en Calidad de la IA" | Johannes |
+| 2026-11-04 | D-63 · Se analiza siempre la corrida vigente; el admin elige motivos (preseleccionados ≥ 3 desacuerdos) y confirma con costo | Johannes |
+| 2026-11-04 | D-64 · Aceptar no toca el prompt: seguimiento por tipo (Incluida en vX / Preguntada / Calibrada); descartar exige motivo y se pasa al próximo análisis | Johannes |
+| 2026-11-04 | D-65 · Casos del patrón con las tres miradas; "Abrir" a `/calls/[id]` con banner (patrón D-58) y volver conserva el patrón | Johannes |
+| 2026-11-04 | Cambio 16 §7 entregado (flujo, estructura, wireframe, estados, textos, accesibilidad, tipos/ApiClient, backend). Pendientes Q1–Q5; supuestos H-115 a H-120 | Diseñador |
+| 2026-11-04 | Cambio 16 **aprobado** e implementable (Johannes: "Sí, todas A"); H-115 a H-120 sin objeción. Glosario de §7.5 sumado a `06-ux-writing.md` §5 | Johannes |
+| 2026-11-04 | D-66 · El admin elige el modelo de la IA de análisis en el diálogo (por defecto el de la configuración) | Johannes |
+| 2026-11-04 | D-67 · Texto de la propuesta editable al aceptar; se guardan original y editado | Johannes |
+| 2026-11-04 | D-68 · "Incluida en v{X}" al guardar la versión con la propuesta marcada; vuelve a "Aceptada" si la versión se retira sin activarse | Johannes |
+| 2026-11-04 | D-69 · Detalle del patrón en `/admin/discrepancies/patterns/[id]` | Johannes |
+| 2026-11-04 | D-70 · Preguntas al cliente aceptadas solo en Seguimiento; no pasan a "Por presentar" del supervisor | Johannes |
 
 ## Preguntas abiertas
 
@@ -133,3 +147,4 @@ Ninguna bloqueante.
 - Cambio 13: H-78 (cómo llega `product_sheet_section: customer` a M31/M33: rúbrica v1.0.2 o mapeo de presentación) con `rubric-engineer` / `pipeline-architect`; H-77 (categoría ↔ renunciable/retenible) a confirmar.
 - Cambio 14: diseño del backend (tablas `pipeline_runs`, `worker_heartbeat`, `asr_failures`, hilo de latido, endpoint) con `pipeline-architect` (§5). Agregar "pasada" y "latido" al glosario de `06-ux-writing.md`.
 - Cambio 15: backend (`Case.external_item_fails`, reimportación de metadata sin IA, `GET /api/admin/quality`) con `pipeline-architect` (§3, §7.7). Agregar el glosario de §7.5 a `06-ux-writing.md`. Revisión rápida post-implementación contra §7.
+- Cambio 16: backend (§7.8: `discrepancy_analyses`, `discrepancy_patterns`, `proposal_decisions`, paso 1 como servicio, jobs por motivo, endpoints `/api/admin/discrepancies`) con `pipeline-architect` y `llm-engineer`. Revisión rápida post-implementación contra §7.

@@ -7,6 +7,20 @@ Cada componente tiene además su propio historial detallado:
 - Prompt de verificación de afirmaciones: historial al final de `docs/layer2-claims-prompt.md`.
 - Diseño del front: `docs/ux/call-audit/estado.md` (fases y cambios aprobados).
 
+## 2026-11-04
+
+- **Tabla de discrepancias** (`python -m call_audit.discrepancies`), paso 1 de la cuarta IA (`docs/plan-ia-discrepancias.md`). Sin IA y solo lectura:
+  - cruza por llamada × motivo la corrida vigente con el Excel del cliente (C01..C33, veredicto y comentario) y con la revisión manual Qubico (revisiones, clasificaciones, notas y, opcional, `revision_capa2.csv`);
+  - deja fuera del repo `discrepancies.jsonl` (fp, fn, IA dudosa y ambos No cumple, con regla vigente, citas y tramo de transcripción), `transcripts.jsonl` y un resumen por motivo, por veredicto de llamada y por evaluador del cliente;
+  - Con las 100 llamadas locales (v2.10): 131 casos (54 fp, 52 fn, 12 IA dudosa, 13 ambos No cumple). Los motivos con más desacuerdo son 18, 6, 1 y 3.
+- **Cuarta IA, análisis de discrepancias** (`python -m call_audit.discrepancy_analysis`), paso 2 del plan. Prompt `prompts/discrepancy_analysis/v1.0.0`:
+  - un pedido por motivo con una muestra estable de casos (hasta 25 fp, 12 fn con la llamada completa, 12 dudosos y 6 de contraste) y notas sobre cómo se arman los datos (tipificación de una fila, `RETENCION` asumida);
+  - devuelve patrones con causa (criterio, evaluador, transcripción, dato faltante), casos, citas y una propuesta concreta. Las citas se validan contra lo que recibió el modelo. `--dry-run` estima el costo sin llamar al modelo.
+  - Piloto con producción (motivos 25, 1 y 18, Sonnet 5.5): US$0,49 y 0 citas no encontradas. Encontró las causas conocidas: el 25 es un dato faltante (la metadata trae una sola tipificación por grabación) y el 1, esperas anunciadas de 31 a 55 s que el cliente no marca. Además, en el 18 el auditor marca distinto casos casi iguales, con revisión Qubico a favor de la IA.
+  - Corrida completa (28 motivos con desacuerdos, Sonnet 5.5): ~US$3,25 con el piloto. 64 patrones: 35 de criterio, 16 de evaluador, 8 de dato faltante y 5 de transcripción. Propuestas: 26 preguntas al cliente, 18 calibraciones, 10 pedidos de datos y 10 reglas del prompt. 0 citas no encontradas.
+  - Pendiente para la v1.1: forzar el esquema con tool use. El 32 devolvió dos veces comillas sin escapar (se reparó a mano), un patrón vino con una causa fuera de la lista y otro sin propuesta.
+- **Evaluador del cliente:** `EVALUADOR_CALIDAD` del Excel nuevo de S4P se guarda en `call_metadata.external_evaluator` al importar la metadata (no sale por la API).
+
 ## 2026-11-02
 
 - **Una pasada toma todos los audios pendientes**, ya no 100 por pasada (`PIPELINE_BATCH_SIZE` queda en 0 = sin tope; se puede volver a poner un tope por variable de entorno). Las validaciones empiezan cuando termina de transcribirse todo el lote.

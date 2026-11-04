@@ -395,6 +395,25 @@ El glosario aprobado en `03-arquitectura-informacion.md` §4.2 es la fuente úni
 | **Registro de accesos** | Log de acceso (búsquedas, PII, exportaciones) | `access_log` |
 | **Cuenta de la empresa** | Ingreso por SSO, sin nombrar al proveedor (#25) | `auth_method = sso` |
 
+**Ajuste 2026-11-04 · Análisis de discrepancias (Cambio 16, D-61 a D-70).** Convive con **corrida** y **prueba** (C12/C15) y **pasada** (C14):
+
+| Término en la UI | Uso | Código |
+|---|---|---|
+| **Análisis de discrepancias** | Sección del admin que explica por qué la IA y el cliente no coinciden. No confundir con **Discrepancias** del supervisor (C09) | `/admin/discrepancies` |
+| **Corrida de análisis** | Una ejecución de la IA de análisis sobre la corrida vigente, con costo. No es una corrida de capa 2 ni una prueba del prompt | `discrepancy_analyses` |
+| **Desacuerdo** | La IA y el cliente difieren en un motivo de una llamada (igual que C15) | — |
+| **Patrón** | Grupo de 3 o más desacuerdos de un motivo con una explicación común | `discrepancy_patterns` |
+| **Observación** | Patrón con menos de 3 casos; sin propuesta para aceptar | `is_observation` |
+| **Causa** | Criterio del prompt · Evaluador del cliente · Transcripción · Dato faltante | `criterion \| evaluator \| transcript \| missing_data` |
+| **Dirección** | Solo la IA detectó (la IA marca y el cliente no) · Omitidos por la IA (el cliente marca y la IA no) | `fp \| fn` |
+| **Propuesta** | Regla del prompt · Pregunta al cliente · Calibrar con el auditor | `prompt_rule \| client_question \| calibrate_auditor` |
+| **Estado de la propuesta** | Pendiente · Aceptada · Descartada · Incluida en v{X} · Preguntada · Calibrada | `pending \| accepted \| discarded \| included \| asked_client \| calibrated` |
+| **Desacuerdo entre revisores** | El Excel y la revisión manual Qubico dicen cosas distintas en el mismo motivo; va a calibración | `reviewer_disagreements` |
+| **Desactualizado** | Cambió la corrida vigente o entraron revisiones desde el último análisis; aviso, no bloqueo | `stale` |
+| **Confianza** | Alta (≥ 0,7) · Media (0,4–0,7) · Baja (< 0,4) | `confidence` |
+
+Textos completos de botones y diálogos: `16-ia-discrepancias.md` §7.5.
+
 **Palabras prohibidas en la UI:** sanción, falta, infracción, castigo, amonestación, puntaje, nota, agente (para referirse al ejecutivo), alucinación, error del usuario.
 
 ---

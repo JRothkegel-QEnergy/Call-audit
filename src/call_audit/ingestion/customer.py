@@ -166,9 +166,14 @@ def client_fails(row: dict) -> list[int] | None:
 
 
 def apply(case: Any, row: dict) -> None:
-    """Guarda la ficha del cliente y la marca del cliente por motivo en el caso, y completa sus fichas de seguro. No
-    toca corridas ni revisiones."""
-    case.call_metadata = {**(case.call_metadata or {}), "customer": customer(row)}
+    """Guarda la ficha del cliente, quién auditó la llamada en el cliente y su marca por motivo en el caso, y completa
+    sus fichas de seguro. No toca corridas ni revisiones. El evaluador no sale por la API: lo usa la tabla de
+    discrepancias (call_audit.discrepancies) para separar criterio de evaluador."""
+    case.call_metadata = {
+        **(case.call_metadata or {}),
+        "customer": customer(row),
+        "external_evaluator": text(column(row, "EVALUADOR_CALIDAD")),
+    }
     case.product_sheets = [enrich_sheet(s, row, bool(s.get("productId"))) for s in case.product_sheets or []]
     case.external_item_fails = client_fails(row)
 

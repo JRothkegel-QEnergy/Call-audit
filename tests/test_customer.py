@@ -176,3 +176,13 @@ def test_backfill_saves_client_fails(imported: sessionmaker[Session]) -> None:
         customer.backfill(session, {recording: client_row({3: "NO CUMPLE"})})
     with imported() as session:
         assert session.scalar(select(Case).where(Case.call_id == "1002")).external_item_fails == [3]
+
+
+def test_backfill_saves_client_evaluator_outside_the_api(imported: sessionmaker[Session]) -> None:
+    with imported() as session:
+        recording = session.scalar(select(Case).where(Case.call_id == "1002")).recording
+    with imported() as session, session.begin():
+        customer.backfill(session, {recording: client_row({}) | {"EVALUADOR_CALIDAD": " Persona  Evaluadora "}})
+    with imported() as session:
+        case = session.scalar(select(Case).where(Case.call_id == "1002"))
+        assert case.call_metadata["external_evaluator"] == "Persona Evaluadora"
