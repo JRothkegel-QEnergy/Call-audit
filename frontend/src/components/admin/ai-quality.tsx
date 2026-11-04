@@ -709,18 +709,25 @@ function CallMap({
   const groups = (["compliant", "non_compliant"] as const).map((v) =>
     data.calls.filter((c) => c.clientVerdict === v).sort((a, b) => a.callId.localeCompare(b.callId, undefined, { numeric: true })),
   );
-  // §7.10: se pagina la lista ya ordenada (Cumple y luego No cumple); los encabezados muestran el total del grupo.
+  // §7.10: cada página lleva hasta 50 Cumple y 50 No cumple; si un grupo se agota, el otro rellena hasta 100.
+  // consumed(k) = cuántas de cada grupo ocupan las primeras k páginas. Los encabezados muestran el total del grupo.
   const total = data.calls.length;
   const pages = Math.max(1, Math.ceil(total / MAP_PAGE));
   const current = Math.min(page, pages - 1);
-  const start = current * MAP_PAGE;
-  const end = Math.min(start + MAP_PAGE, total);
-  const okTotal = groups[0].length;
-  const visible = [
-    { i: 0, calls: groups[0].slice(start, end) },
-    { i: 1, calls: groups[1].slice(Math.max(0, start - okTotal), Math.max(0, end - okTotal)) },
-  ].filter((g) => g.calls.length > 0);
-  const hidden = groups[0].length && groups[1].length && visible.length === 1 ? 1 - visible[0].i : null;
+  const [okTotal, badTotal] = [groups[0].length, groups[1].length];
+  const consumed = (k: number) => {
+    const t = Math.min(k * MAP_PAGE, total);
+    const ok = Math.min(okTotal, Math.max((k * MAP_PAGE) / 2, t - badTotal));
+    return [ok, t - ok];
+  };
+  const [from, to] = [consumed(current), consumed(current + 1)];
+  const visible = [0, 1]
+    .map((i) => ({ i, from: from[i], calls: groups[i].slice(from[i], to[i]) }))
+    .filter((g) => g.calls.length > 0);
+  const span = (g: (typeof visible)[number], sep: string) => {
+    const [a, b] = [g.from + 1, g.from + g.calls.length];
+    return `${g.i === 0 ? "Cumple" : "No cumple"} ${a === b ? int(a) : `${int(a)}${sep}${int(b)}`}`;
+  };
   const go = (p: number) => {
     onPage(p);
     // Si el botón con foco queda deshabilitado, el foco pasa al otro.
@@ -783,7 +790,7 @@ function CallMap({
         <div
           role="img"
           aria-label={`${seriesName(s)}: ${aiOnly} llamadas con solo la IA y ${missed} omitidas, en ${total} llamadas${
-            pages > 1 ? `. Se muestran las llamadas ${start + 1} a ${end}.` : ""
+            pages > 1 ? `. Se muestran ${visible.map((g) => span(g, " a ")).join(" y ")}.` : ""
           }`}
           className="inline-grid gap-x-3"
           style={{ gridTemplateColumns: `auto repeat(${visible.length}, auto)` }}
@@ -822,13 +829,8 @@ function CallMap({
       {pages > 1 && (
         <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
           <span className="help tabular mr-auto" aria-live="polite">
-            Llamadas {int(start + 1)}–{int(end)} de {int(total)}
+            {visible.map((g) => span(g, "–")).join(" · ")}
           </span>
-          {hidden != null && (
-            <Button size="sm" variant="ghost" onClick={() => go(hidden === 1 ? Math.floor(okTotal / MAP_PAGE) : 0)}>
-              Ir a {hidden === 1 ? "No cumple" : "Cumple"} según el cliente
-            </Button>
-          )}
           <Button ref={prevRef} size="sm" disabled={current === 0} onClick={() => go(current - 1)}>
             Anterior
           </Button>

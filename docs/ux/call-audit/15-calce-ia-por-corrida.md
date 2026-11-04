@@ -373,37 +373,55 @@ Corridas  [● Gemini 3.8 Flash · v2.10 · Vigente ×] [● GPT-6 Luna · v2.8 
 
 **Q2 · ¿Se aprueba la paleta `--series-1..6` (§7.6) como tokens nuevos en `08-tokens.css`?** Recomiendo sí. Es la única adición al design system.
 
-### 7.10 Paginador del mapa llamada por llamada (revisión rápida, 2026-11-03)
+### 7.10 Paginador del mapa llamada por llamada (revisión rápida, 2026-11-03; ajuste de reparto el mismo día)
 
-Pedido de Johannes: "en el mapa de llamada por llamada, pon un paginador, para cargar solo de 100 en 100, ver todas es demasiado". Es un cambio menor sobre el bloque 6 de §7.2 (D-56). No cambia el flujo, la AI ni los CUJ. Decisión **D-59**; supuesto **H-102**.
+Pedidos de Johannes:
+1. "en el mapa de llamada por llamada, pon un paginador, para cargar solo de 100 en 100, ver todas es demasiado".
+2. Después de verlo en producción: "en las 100, quiero que se alternen cumple y no cumple, la idea es que se vea lo más lleno posible". Con 566 llamadas (282 Cumple, 284 No cumple), la página 6 mostraba solo No cumple, con 66 columnas.
 
-**1. Reparto por página.** Se muestran **100 columnas en total** por página, sobre la lista ya ordenada: primero Cumple y luego No cumple, cada grupo por `callId` numérico, como hoy. No se pagina cada grupo por separado: eso daría hasta 200 columnas y dos paginadores.
-- Una página puede tener los dos grupos (la página del cambio de grupo) o uno solo.
-- Un grupo sin llamadas en la página **no se dibuja**: no queda una columna vacía. La grilla usa `repeat(<grupos visibles>, auto)`.
-- El encabezado de cada grupo visible muestra **siempre el total del grupo**: "Cumple según el cliente (534)", no las llamadas de la página.
-- **Atajo al otro grupo.** Si la página no muestra uno de los dos grupos, aparece un botón fantasma pequeño en la barra del paginador: "Ir a No cumple según el cliente" o "Ir a Cumple según el cliente". Lleva a la primera página donde aparece ese grupo. Para No cumple es `floor(nCumple / 100)`; para Cumple es la página 0. Así se llega a las No cumple, que suelen ser las interesantes, sin pasar página por página.
+Es un cambio menor sobre el bloque 6 de §7.2 (D-56); no cambia el flujo, la AI ni los CUJ. Decisión **D-59**, ajustada el 2026-11-03; supuesto **H-102**.
 
-**2. Ubicación y forma.** Debajo del mapa, antes de la leyenda. Es el mismo paginador de "Llamadas en desacuerdo": `Button size="sm"` Anterior · "k de n" · Siguiente, alineado a la derecha. A la izquierda, en la misma fila, va el rango con clase `help tabular`: **"Llamadas 101–200 de 534"**, con guion corto y sin separador de miles hasta 9999.
-- Con 100 llamadas o menos no se muestran ni el paginador ni el rango, igual que en la lista.
-- El texto del rango va en `aria-live="polite"` para anunciar el cambio de página.
-- Si la página nueva deshabilita el botón que tenía el foco (primera o última página), el foco pasa al otro botón.
-- Constante propia: `MAP_PAGE = 100`, distinta de `PAGE = 25` de la lista.
+**1. Reparto por página (reemplaza la versión contigua).** Cada página muestra hasta **50 llamadas Cumple y hasta 50 No cumple**, las siguientes de cada grupo por `callId` numérico. Si un grupo se agota, el otro rellena hasta 100.
+- Total de páginas: `ceil(n / 100)`. Solo la última puede tener menos de 100 columnas.
+- Fórmula (sin estado; `n = nC + nN`, `MAP_PAGE = 100`, `HALF = 50`). Llamadas tomadas de cada grupo después de `k` páginas:
+  - `t(k) = min(100·k, n)`
+  - `c(k) = min(nC, max(50·k, t(k) − nN))`
+  - `m(k) = t(k) − c(k)`
+- La página `p` (base 0) muestra `cumple.slice(c(p), c(p+1))` y `noCumple.slice(m(p), m(p+1))`.
+- Ejemplo con 282 / 284: las páginas 1 a 5 muestran 50 + 50; la página 6 muestra 32 + 34.
+- Siguen los **dos bloques lado a lado** con sus encabezados. No se intercala columna a columna, para no perder el corte Cumple | No cumple que da sentido a la fila de veredicto.
+- El encabezado de cada bloque muestra **siempre el total del grupo**: "Cumple según el cliente (282)".
+- Un grupo sin llamadas en la página (solo pasa cuando se agotó) no se dibuja. La grilla usa `repeat(<grupos visibles>, auto)`.
+- **Se elimina el atajo "Ir a {grupo}"**: ya no hay páginas con un solo grupo mientras queden llamadas de ambos.
 
-**3. URL.** Parámetro propio **`mapPage`**, base 0 como `page`, y se omite cuando vale 0. Sigue H-96: al volver desde `/calls/[id]` se conserva la página.
-- **No se resetea al cambiar la corrida del mapa** (se desvía de lo sugerido; ver H-102). El conjunto y el orden de las llamadas no dependen de la corrida: `data.calls` es el mismo y las llamadas sin resultado se dibujan como "Sin referencia". Mantener la página deja **las mismas 100 columnas** al cambiar de corrida, y esa es justamente la comparación que el mapa permite.
-- Tampoco se resetea al cambiar las corridas elegidas.
-- Si `mapPage` queda fuera de rango (enlace viejo o datos nuevos), se ajusta a la última página, como hace la lista (`Math.min(page, pages - 1)`).
-- `mapPage` y `page` son independientes: ninguna acción de la lista toca `mapPage` y ninguna del mapa toca `page`.
+**2. Ubicación y forma.** Debajo del mapa, antes de la leyenda. Es el mismo paginador de "Llamadas en desacuerdo": `Button size="sm"` Anterior · "k de n" · Siguiente, alineado a la derecha.
+- A la izquierda de la misma fila va el rango, con clase `help tabular`: **"Cumple 51–100 · No cumple 51–100"**.
+  - No repite "Página k de n" (ya está en el paginador) ni los totales (ya están en los encabezados).
+  - Si un grupo no tiene llamadas en la página, se omite su tramo, por ejemplo "No cumple 251–284".
+  - Si el tramo es de una sola llamada: "Cumple 282".
+- Con 100 llamadas o menos no se muestran ni el paginador ni el rango.
+- El rango va en `aria-live="polite"`.
+- Si el botón que tenía el foco queda deshabilitado, el foco pasa al otro botón.
+
+**3. URL.** Parámetro propio **`mapPage`**, base 0, que se omite cuando vale 0.
+- Se conserva al volver desde `/calls/[id]` (H-96).
+- No se resetea al cambiar la corrida del mapa ni las corridas elegidas (H-102). El reparto depende solo de `data.calls`, así que las mismas columnas se comparan entre corridas.
+- Si queda fuera de rango, se ajusta con `Math.min(mapPage, pages − 1)`.
+- `mapPage` y `page` son independientes.
 - Los parámetros quedan así: `?tab=quality&series=…&map=…&mapPage=…&list=…&reason=…&kind=…&page=…`.
 
-**4. Conteos y accesibilidad.** `aiOnly`, `missed` y los totales de grupo se siguen calculando sobre **todas** las llamadas. El `aria-label` del `role="img"` conserva el total y suma el rango visible: "Gemini 3.8 Flash · v2.10: 12 llamadas con solo la IA y 31 omitidas, en 534 llamadas. Se muestran las llamadas 101 a 200." Con una sola página no se agrega la segunda oración. "Ver como lista" no cambia: sigue siendo el equivalente con teclado del mapa entero.
+**4. Conteos y accesibilidad.**
+- `aiOnly`, `missed` y los totales de grupo se calculan sobre **todas** las llamadas.
+- Con más de una página, el `aria-label` del `role="img"` suma una oración con el tramo visible: "Gemini 3.8 Flash · v2.10: 12 llamadas con solo la IA y 31 omitidas, en 566 llamadas. Se muestran Cumple 51 a 100 y No cumple 51 a 100." Si falta un grupo, la oración nombra solo el otro.
+- "Ver como lista" no cambia.
 
-**Estados nuevos (se suman a §7.4):**
+**Estados (se suman a §7.4):**
 
 | Estado | Qué se ve |
 |---|---|
-| ≤ 100 llamadas | Igual que hoy: sin paginador ni rango |
-| Página solo con Cumple o solo con No cumple | Se ve un solo grupo con su total, más "Ir a {otro grupo}" en la barra del paginador |
-| `mapPage` fuera de rango | Se muestra la última página |
+| ≤ 100 llamadas | Igual que antes del paginador |
+| Página normal | Hasta 50 Cumple + 50 No cumple, lado a lado |
+| Un grupo agotado | Solo el otro bloque, que rellena hasta 100; el rango nombra solo ese grupo |
+| `mapPage` fuera de rango | Última página |
 
-**Revisión rápida:** trazabilidad D-56/D-59 · navegación sin callejones (el atajo evita recorrer páginas) · WCAG 2.2 AA: objetivos de 24 px (2.5.8), anuncio del cambio (4.1.3), el foco no se pierde (2.4.3) · microcopy coherente con la lista · sin dark patterns · sin ítems legales nuevos.
+**Revisión rápida:** trazabilidad D-56/D-59 · sin callejones · WCAG 2.2 AA: 2.4.3, 2.5.8 y 4.1.3 · microcopy coherente con la lista · sin dark patterns · sin ítems legales nuevos.
