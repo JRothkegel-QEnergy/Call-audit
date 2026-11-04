@@ -595,6 +595,13 @@ function CriteriaTable({
                   {c.byCode && <span className="help"> · código</span>}
                   {c.minor && <span className="help"> · leve</span>}
                   {c.partial && <span className="help"> · parcial</span>}
+                  {/* Cambio 16 (D-62): el porqué está en el análisis de discrepancias de la corrida vigente. */}
+                  {selected.some((s) => s.isCurrent) && data.currentSeriesPatternCounts?.[String(r.id)] ? (
+                    <>
+                      {" · "}
+                      <Link href={`/admin/discrepancies?motivo=${r.id}&status=all`}>Ver por qué</Link>
+                    </>
+                  ) : null}
                 </td>
                 {selected.map((s, i) => {
                   const v = left[i];

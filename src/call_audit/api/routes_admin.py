@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from call_audit import accounts, prompt_evaluation, prompt_registry
+from call_audit import accounts, discrepancy_runs, prompt_evaluation, prompt_registry
 from call_audit.api import serializers as out
 from call_audit.api.deps import Admin, CurrentUser, DbSession, set_session
 from call_audit.config import Settings, get_settings
@@ -308,6 +308,8 @@ class PromptIn(BaseModel):
     model: str
     changelog: str
     rationale: str | None = None
+    # Propuestas aceptadas del análisis de discrepancias que entran en esta versión (Cambio 16, D-68).
+    includedProposalIds: list[str] = []
 
 
 @router.post("/admin/prompts")
@@ -327,6 +329,10 @@ def create_prompt(body: PromptIn, session: DbSession, user: Admin):
         )
     except PromptError as exc:
         raise bad_prompt(exc) from exc
+    try:
+        discrepancy_runs.include_in_version(session, body.includedProposalIds, row.version)
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from exc
     accounts.log(session, user, "prompt_published", f"Prompt v{row.version}", body.changelog.strip()[:500])
     session.commit()
     return prompt_out(row)
@@ -383,6 +389,7 @@ def discard_prompt(version: str, session: DbSession, user: Admin) -> None:
     if row.status != "draft":
         raise HTTPException(409, "immutable")
     session.delete(row)
+    discrepancy_runs.release_version(session, version)
     accounts.log(session, user, "prompt_discarded", f"Prompt v{version}")
     session.commit()
 
@@ -640,6 +647,8 @@ def admin_quality(session: DbSession, _: Admin):
         ],
         "goals": QUALITY_GOALS,
         "promptTestRunning": running,
+        # "Ver por qué" en los motivos de la corrida vigente con patrones (Cambio 16, D-62).
+        "currentSeriesPatternCounts": discrepancy_runs.pattern_counts(session),
     }
 
 
@@ -700,6 +709,7 @@ def processing_status(session: DbSession, _: Admin):
         .limit(1)
     )
     queued = session.scalar(select(func.count()).select_from(CatalogUpload).where(CatalogUpload.status == "processing"))
+    discrepancy = discrepancy_runs.running(session)
     return {
         "state": state,
         "stage": current.stage if current is not None and state == "running" else None,
@@ -716,6 +726,13 @@ def processing_status(session: DbSession, _: Admin):
                 "n": len(evaluation.case_ids or []),
             }
             if evaluation
+            else None,
+            "discrepancyAnalysis": {
+                "id": discrepancy.id,
+                "done": len(discrepancy.done_criteria) + len(discrepancy.failed_criteria),
+                "total": len(discrepancy.criteria),
+            }
+            if discrepancy
             else None,
         },
     }

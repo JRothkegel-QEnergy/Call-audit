@@ -35,7 +35,7 @@ import { durationText, shortDateTime } from "@/lib/format";
 import { usePreferences } from "@/lib/preferences";
 import { loadRubric } from "@/lib/rubric";
 import { useSession } from "@/lib/session";
-import { QualityBanner } from "@/components/admin/quality-banner";
+import { AnalysisBanner, QualityBanner } from "@/components/admin/quality-banner";
 import { useAsync } from "@/lib/use-async";
 import { caseStatusLabel } from "@/lib/verdicts";
 
@@ -80,6 +80,8 @@ export function CallDetail({ id }: { id: string }) {
       startAtMs={params.get("t") ? Number(params.get("t")) : undefined}
       qualitySeries={params.get("serie")}
       qualityCall={params.get("llamada")}
+      analysisPattern={params.get("pattern")}
+      analysisMotive={params.get("motivo") ? Number(params.get("motivo")) : null}
     />
   );
 }
@@ -91,6 +93,8 @@ function CallWorkspace({
   startAtMs,
   qualitySeries,
   qualityCall,
+  analysisPattern,
+  analysisMotive,
 }: {
   rubric: Rubric;
   data: CaseDetail;
@@ -99,6 +103,9 @@ function CallWorkspace({
   /** Abierta desde «Calidad de la IA» (Cambio 15): la corrida que se estaba mirando. */
   qualitySeries?: string | null;
   qualityCall?: string | null;
+  /** Abierta desde un patrón del «Análisis de discrepancias» (Cambio 16, D-65): el patrón y su motivo. */
+  analysisPattern?: string | null;
+  analysisMotive?: number | null;
 }) {
   const router = useRouter();
   const { user } = useSession();
@@ -142,7 +149,9 @@ function CallWorkspace({
   }, []);
 
   // ---- Foco y audio: el caso abre en el primer hallazgo que pide acción, 4–5 s antes de la cita ----
-  const firstFocus = order[0] ?? null;
+  // Desde un patrón del análisis de discrepancias, el checklist abre en su motivo (D-65).
+  const fromAnalysis = role === "qubico_admin" && !!analysisPattern;
+  const firstFocus = (fromAnalysis && analysisMotive != null ? analysisMotive : null) ?? order[0] ?? null;
   const [focusId, setFocusId] = useState<number | null>(firstFocus);
   const firstEvidence = firstFocus != null ? findingFor(data.findings, firstFocus).evidence : null;
   const [currentMs, setCurrentMs] = useState(startAtMs ?? Math.max(0, (firstEvidence?.startMs ?? 0) - 5000));
@@ -226,7 +235,9 @@ function CallWorkspace({
   const fromQuality = role === "qubico_admin" && !!qualitySeries;
   const back = fromQuality
     ? (["/admin/stats?tab=quality", "Calidad de la IA"] as const)
-    : (BACK[from ?? ""] ?? (role === "qubico_admin" ? BACK.discrepancies : role === "supervisor" ? BACK.reviews : BACK.queue));
+    : fromAnalysis
+      ? ([`/admin/discrepancies/patterns/${encodeURIComponent(analysisPattern!)}`, "el patrón"] as const)
+      : (BACK[from ?? ""] ?? (role === "qubico_admin" ? BACK.discrepancies : role === "supervisor" ? BACK.reviews : BACK.queue));
 
   // ---- Acciones del auditor ----
   const goNext = async (message: string) => {
@@ -353,9 +364,9 @@ function CallWorkspace({
     <>
       <div className="flex flex-wrap items-center gap-3">
         {/* Desde Calidad de la IA se vuelve con el historial: así se conservan corridas, filtros y scroll (§7.1). */}
-        <Button variant="ghost" onClick={() => (fromQuality && window.history.length > 1 ? router.back() : router.push(back[0]))}>
+        <Button variant="ghost" onClick={() => ((fromQuality || fromAnalysis) && window.history.length > 1 ? router.back() : router.push(back[0]))}>
           <ChevronLeft size={14} aria-hidden />
-          Volver a {back[1]}
+          {fromAnalysis ? "Volver al patrón" : `Volver a ${back[1]}`}
         </Button>
         <h1 className="m-0 text-lg font-semibold leading-6 tabular">Llamada {data.callId}</h1>
         <span className="text-[13px] text-muted-foreground">
@@ -379,6 +390,7 @@ function CallWorkspace({
       </div>
 
       {fromQuality && <QualityBanner caseId={data.id} seriesId={qualitySeries!} callId={qualityCall ?? null} />}
+      {fromAnalysis && <AnalysisBanner caseId={data.id} patternId={analysisPattern!} />}
 
       {/* Veredicto del cliente: solo llega al supervisor (D-24) y solo si vino en la metadata (D-25). */}
       {seesClient && data.externalQualityVerdict && (

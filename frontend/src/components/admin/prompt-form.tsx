@@ -13,6 +13,8 @@ export interface PromptFormValue {
   model: string;
   changelog: string;
   rationale: string;
+  /** Reglas aceptadas del análisis de discrepancias que entran en esta versión (Cambio 16, D-68). */
+  includedProposalIds?: string[];
 }
 
 /** X.Y, como `version` de prompt.yaml (12-cambio-admin-qubico.md, ajuste 1). */
@@ -47,7 +49,19 @@ export function PromptForm({
   const [errors, setErrors] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const models = useAsync(() => api.listModels(), []);
-  const set = (patch: Partial<PromptFormValue>) => setV((x) => ({ ...x, ...patch }));
+  // Solo al crear: las reglas del prompt aceptadas que todavía no entran en ninguna versión.
+  const proposals = useAsync(
+    async () => (editing ? [] : (await api.getDiscrepancyFollowUp()).filter((p) => p.status === "accepted" && p.proposal?.type === "prompt_rule")),
+    [editing],
+  );
+  const included = v.includedProposalIds ?? [];
+  const toggleProposal = (id: string, text: string) =>
+    setV((x) => {
+      const ids = x.includedProposalIds ?? [];
+      if (ids.includes(id)) return { ...x, includedProposalIds: ids.filter((i) => i !== id) };
+      return { ...x, includedProposalIds: [...ids, id], rationale: x.rationale.includes(text) ? x.rationale : [x.rationale.trim(), text].filter(Boolean).join("\n") };
+    });
+  const set =(patch: Partial<PromptFormValue>) => setV((x) => ({ ...x, ...patch }));
   const setSource = (source: PromptFormValue["source"]) =>
     setV((x) => ({ ...x, source, content: starters && x.content === starters[x.source] ? starters[source] : x.content }));
 
@@ -130,6 +144,21 @@ export function PromptForm({
           Por qué (opcional: discrepancias o notas que lo motivan)
           <textarea className="control" rows={2} value={v.rationale} onChange={(e) => set({ rationale: e.target.value })} />
         </label>
+        {(proposals.data ?? []).length > 0 && (
+          <fieldset className="m-0 grid gap-1.5 rounded-md border border-border px-3 py-2">
+            <legend className="px-1 text-[13px] font-medium">Propuestas incluidas (del análisis de discrepancias)</legend>
+            {proposals.data!.map((p) => {
+              const text = `Motivo ${p.criterionId}: ${p.proposal!.editedText ?? p.proposal!.text}`;
+              return (
+                <label key={p.id} className="flex items-start gap-2">
+                  <input type="checkbox" className="mt-1" checked={included.includes(p.id)} onChange={() => toggleProposal(p.id, text)} />
+                  <span>{text}</span>
+                </label>
+              );
+            })}
+            <span className="help">Al guardar, quedan «Incluida en v{v.version || "X"}». Su texto se agrega a «Por qué».</span>
+          </fieldset>
+        )}
       </div>
 
       <div className="card grid gap-3">

@@ -164,6 +164,8 @@ export interface AiQuality {
   criteria: { id: number; name: string; minor: boolean; byCode: boolean; partial: boolean }[];
   goals: { falsePositivePct: number; falseNegativePct: number };
   promptTestRunning: { version: string; done: number; total: number } | null;
+  /** Patrones por motivo del último análisis de discrepancias de la corrida vigente (Cambio 16, D-62). */
+  currentSeriesPatternCounts?: Record<string, number> | null;
 }
 
 export interface ActivityLogEntry {
@@ -238,5 +240,157 @@ export interface ProcessingStatus {
   otherTasks: {
     catalogUploadsQueued: number;
     promptEvaluation: { version: string; processed: number; n: number } | null;
+    /** Análisis de discrepancias en curso (Cambio 16): motivos terminados de los pedidos. */
+    discrepancyAnalysis?: { id: string; done: number; total: number } | null;
   };
+}
+
+/** Análisis de discrepancias (Cambio 16). Misma forma que src/call_audit/api/routes_discrepancies.py. */
+export type DiscrepancyCause = "criterion" | "evaluator" | "transcript" | "missing_data";
+export type DiscrepancyDirection = "fp" | "fn" | "uncertain" | "mixed";
+export type ProposalType = "prompt_rule" | "client_question" | "calibrate_auditor" | "data_request";
+export type ProposalStatus = "pending" | "accepted" | "discarded" | "included" | "asked_client" | "calibrated";
+export type DiscrepancyAnalysisStatus = "queued" | "running" | "done" | "stopped" | "failed";
+
+export interface Layer2Series {
+  model: string;
+  promptVersion: string;
+  runLabel: string;
+}
+
+export interface DiscrepancyCriterionRow {
+  criterionId: number;
+  name: string;
+  clientFails: number;
+  aiFails: number;
+  matchFail: number;
+  fp: number;
+  fn: number;
+  aiUncertain: number;
+  disagreements: number;
+  manualItems: number;
+  /** null = el análisis mostrado no incluyó este motivo («sin analizar»). */
+  patterns: number | null;
+  summary: string | null;
+}
+
+export interface DiscrepancyEvaluatorRow {
+  evaluator: string;
+  calls: number;
+  clientCallFails: number;
+  callMatch: number;
+  clientFails: number;
+  fp: number;
+  fn: number;
+}
+
+export interface DiscrepancyAnalysisRun {
+  id: string;
+  status: DiscrepancyAnalysisStatus;
+  createdBy: string | null;
+  createdAt: string | null;
+  finishedAt: string | null;
+  model: string;
+  analysisPromptVersion: string;
+  layer2Series: Layer2Series | null;
+  criteria: number[];
+  doneCriteria: number[];
+  failedCriteria: { criterionId: number; error: string }[];
+  estimatedUsd: number | null;
+  costUsd: number;
+  error: string | null;
+  stoppedBy: string | null;
+  /** Solo en el historial: patrones (sin observaciones). */
+  patterns?: number;
+}
+
+export interface DiscrepancyQuote {
+  call_id: string;
+  text: string;
+  validated?: boolean;
+}
+
+export interface DiscrepancyPattern {
+  id: string;
+  analysisId: string;
+  criterionId: number;
+  criterionName: string | null;
+  rank: number;
+  title: string;
+  explanation: string;
+  direction: DiscrepancyDirection | null;
+  cause: DiscrepancyCause | null;
+  quotes: DiscrepancyQuote[];
+  confidence: number | null;
+  caseCount: number;
+  reviewerDisagreements: number;
+  isObservation: boolean;
+  proposal: { type: ProposalType; text: string; editedText: string | null } | null;
+  status: ProposalStatus;
+  decision: {
+    by: string | null;
+    at: string | null;
+    reason: string | null;
+    note: string | null;
+    includedInVersion: string | null;
+    versionStatus: PromptVersionStatus | null;
+  } | null;
+}
+
+export interface DiscrepancyCase {
+  caseId: string | null;
+  callId: string;
+  callDate: string | null;
+  kind: "fp" | "fn" | "ai_uncertain" | "match_fail";
+  aiVerdict: string;
+  aiComment: string;
+  aiQuote: string | null;
+  aiQuoteMs: number | null;
+  clientFail: boolean;
+  clientComment: string | null;
+  manualVerdict: string | null;
+  manualSidesWith: "ai" | "excel" | "none" | null;
+  evaluator: string | null;
+}
+
+export interface DiscrepancyPatternDetail extends DiscrepancyPattern {
+  cases: DiscrepancyCase[];
+  criterionSummary: string | null;
+  readOnly: boolean;
+}
+
+export interface DiscrepancyModelOption {
+  name: string;
+  label: string;
+  /** El servidor tiene la API key del proveedor. */
+  available: boolean;
+  priced: boolean;
+}
+
+export interface DiscrepancyOverview {
+  currentSeries: Layer2Series | null;
+  calls: number;
+  cases: number;
+  manualCases: number;
+  /** Llamadas fuera de la tabla, por razón («sin corrida vigente», «sin marca por motivo del cliente»). */
+  callsOutside: Record<string, number>;
+  callMatch: { agree: number; total: number };
+  criteria: DiscrepancyCriterionRow[];
+  evaluators: DiscrepancyEvaluatorRow[] | null;
+  analysis: DiscrepancyAnalysisRun | null;
+  readOnly: boolean;
+  running: DiscrepancyAnalysisRun | null;
+  stale: { currentSeriesChanged: boolean; currentSeries: Layer2Series | null; newReviews: number } | null;
+  patterns: DiscrepancyPattern[];
+  models: DiscrepancyModelOption[];
+  defaultModel: string;
+}
+
+export interface DiscrepancyEstimate {
+  model: string;
+  criteria: number[];
+  cases: number;
+  discardedProposals: number;
+  totalUsd: number | null;
+  minutes: number | null;
 }

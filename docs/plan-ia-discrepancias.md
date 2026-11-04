@@ -89,7 +89,8 @@ Luego una pasada de síntesis que junta los motivos en un informe priorizado por
 
 El análisis se ve en la app, en el menú del Administrador Qubico (aclarado por Johannes el 2026-11-04). La vista muestra la tabla por motivo (paso 1), los patrones con causa y propuesta (paso 2) y los casos de cada patrón, que abren la llamada. Desde ahí el admin acepta o descarta cada propuesta; nada cambia el prompt solo.
 
-- Backend: el análisis se guarda en la base (corrida de análisis: modelo, versión del prompt de análisis, corridas de capa 2 analizadas, costo) y se lanza desde la vista con costo estimado y confirmación, igual que la prueba de un prompt (Cambio 12).
+- Backend: el análisis se guarda en la base (corrida de análisis: modelo, versión del prompt de análisis, corridas de capa 2 analizadas, costo).
+- **Cuándo corre (Johannes, 2026-11-04):** a mano. El admin la lanza desde la vista después de ver el costo estimado y confirmarlo, igual que la prueba de un prompt (Cambio 12). El worker que ya existe la toma en su siguiente pasada; si ya hay una corriendo, no se pide otra. Se evaluó y se descartó una corrida diaria automática: la corrida completa cuesta ~US$3,25, unos US$100 al mes si fuera diaria.
 - Diseño: pasa por el agente `disenador-ux` con sus gates antes de escribir UI. Tiene que convivir con «Discrepancias» (árbol del supervisor) y «Calidad de la IA por corrida» (Cambio 15).
 - Mientras la vista no esté, el informe Markdown sirve para revisar los resultados del piloto.
 
@@ -102,7 +103,7 @@ El análisis se ve en la app, en el menú del Administrador Qubico (aclarado por
 | 4 | Piloto con 3 motivos con más discrepancia; contrastar con lo que ya sabemos del análisis v2.6 | ¿encuentra las causas conocidas? | 0,5 d |
 | 5 | Corrida completa + síntesis + informe | informe priorizado | 0,5 d |
 | 6 | Diseño de la vista admin con `disenador-ux` (en paralelo a 3–5) | fases aprobadas | según gates |
-| 7 | Backend (corridas de análisis en la base, endpoint admin) y vista | vista en el perfil admin | 2–3 d |
+| 7 | Backend (corridas de análisis en la base, endpoint admin) y vista. Hecho el 2026-11-04 (`discrepancy_runs.py`, `routes_discrepancies.py`, `/admin/discrepancies`); falta `ANTHROPIC_API_KEY` en el servidor para correrlo en producción | vista en el perfil admin | hecho |
 | 8 | Revisión con Agustín: aceptar / descartar propuestas desde la vista | lista de cambios para prompt v2.11 y preguntas al cliente | reunión |
 
 **Pasos 3 y 4 hechos (2026-11-04):** prompt `prompts/discrepancy_analysis/v1.0.0` y `python -m call_audit.discrepancy_analysis`. Piloto con 25, 1 y 18 en Sonnet 5.5: US$0,49, 0 citas no encontradas, y redescubrió las causas conocidas (25 dato faltante; 1 esperas anunciadas bajo 60 s). Informe en `transcripts/discrepancies/prod-2026-11-04/analysis/v1.0.0/claude-sonnet-5-5/report.md`. **Paso 5 hecho:** corrida de los 28 motivos con desacuerdos (~US$3,25 en total), mismo informe. Para la v1.1: forzar el esquema con tool use (comillas sin escapar en el 32, una causa fuera de la lista, un patrón sin propuesta) y pedir que cada caso vaya en un solo patrón (en el 25, el patrón 2 repite casos del 1).

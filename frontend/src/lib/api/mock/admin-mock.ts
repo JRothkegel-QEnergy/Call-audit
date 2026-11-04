@@ -17,6 +17,7 @@ import type {
 import { ApiError } from "../admin-types";
 import type { ApiClient } from "../client";
 import type { Role, User } from "../types";
+import { includeProposals } from "./discrepancy-mock";
 import { mockAiQuality } from "./quality-mock";
 
 type AdminApi = Pick<
@@ -341,6 +342,7 @@ export const adminMock: AdminApi = {
         run: null,
       };
       state.prompts.push(record);
+      includeProposals(input.includedProposalIds ?? [], version);
       log("prompt_published", `Prompt v${version}`, input.changelog);
       return record.meta;
     }),

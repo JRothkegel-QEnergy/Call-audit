@@ -44,6 +44,11 @@ import type {
   AdminStats,
   AiQuality,
   AsrFailure,
+  DiscrepancyAnalysisRun,
+  DiscrepancyEstimate,
+  DiscrepancyOverview,
+  DiscrepancyPattern,
+  DiscrepancyPatternDetail,
   InviteInfo,
   ModelOption,
   PipelineRun,
@@ -174,6 +179,8 @@ export interface ApiClient {
     model: string;
     changelog: string;
     rationale: string | null;
+    /** Propuestas aceptadas del análisis de discrepancias que entran en esta versión (Cambio 16, D-68). */
+    includedProposalIds?: string[];
   }): Promise<PromptVersion>;
   updatePromptDraft(
     version: string,
@@ -196,6 +203,20 @@ export interface ApiClient {
   getProcessingStatus(): Promise<ProcessingStatus>;
   listPipelineRuns(limit?: number): Promise<PipelineRun[]>;
   listAsrFailures(): Promise<AsrFailure[]>;
+
+  // Análisis de discrepancias (Cambio 16, solo qubico_admin)
+  getDiscrepancyOverview(analysisId?: string): Promise<DiscrepancyOverview>;
+  getDiscrepancyPattern(patternId: string): Promise<DiscrepancyPatternDetail>;
+  estimateDiscrepancyAnalysis(input: { criteria: number[]; model: string }): Promise<DiscrepancyEstimate>;
+  startDiscrepancyAnalysis(input: { criteria: number[]; model: string }): Promise<DiscrepancyAnalysisRun>;
+  stopDiscrepancyAnalysis(analysisId: string): Promise<void>;
+  listDiscrepancyAnalyses(): Promise<DiscrepancyAnalysisRun[]>;
+  decideProposal(
+    patternId: string,
+    input: { decision: "accepted" | "discarded" | "pending"; text?: string; reason?: string; note?: string },
+  ): Promise<DiscrepancyPattern>;
+  setProposalFollowUp(patternId: string, status: "asked_client" | "calibrated" | "accepted"): Promise<DiscrepancyPattern>;
+  getDiscrepancyFollowUp(): Promise<DiscrepancyPattern[]>;
 
   // Solo para la demo
   resetDemo(): Promise<void>;

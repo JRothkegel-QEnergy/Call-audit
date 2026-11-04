@@ -324,8 +324,8 @@ function ProgressBar({ k, n, label, text }: { k: number; n: number; label: strin
 }
 
 function OtherTasks({ status }: { status: ProcessingStatus }) {
-  const { catalogUploadsQueued, promptEvaluation } = status.otherTasks;
-  if (!catalogUploadsQueued && !promptEvaluation) return null;
+  const { catalogUploadsQueued, promptEvaluation, discrepancyAnalysis } = status.otherTasks;
+  if (!catalogUploadsQueued && !promptEvaluation && !discrepancyAnalysis) return null;
   return (
     <div className="help mb-1 grid gap-1">
       <span className="font-medium text-foreground">Otras tareas:</span>
@@ -338,6 +338,12 @@ function OtherTasks({ status }: { status: ProcessingStatus }) {
         <span>
           Prueba del prompt v{promptEvaluation.version}: {promptEvaluation.processed} de {promptEvaluation.n} ·{" "}
           <Link href={`/admin/prompts/${encodeURIComponent(promptEvaluation.version)}`}>Ver prueba</Link>
+        </span>
+      )}
+      {discrepancyAnalysis && (
+        <span>
+          Análisis de discrepancias: {discrepancyAnalysis.done} de {discrepancyAnalysis.total} motivos ·{" "}
+          <Link href="/admin/discrepancies">Ver análisis</Link>
         </span>
       )}
     </div>

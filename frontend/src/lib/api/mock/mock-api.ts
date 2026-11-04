@@ -1,5 +1,6 @@
 import type { ApiClient } from "../client";
 import { adminMock, bindUser } from "./admin-mock";
+import { bindDiscrepancyUser, discrepancyMock } from "./discrepancy-mock";
 import type {
   Alert,
   AuditorAccount,
@@ -118,6 +119,7 @@ function initialState(): State {
 
 let state: State | null = null;
 bindUser(() => state?.user ?? null);
+bindDiscrepancyUser(() => state?.user ?? null);
 
 function load(): State {
   if (state) return state;
@@ -286,6 +288,7 @@ function upsertMyReview(row: MyReviewRow) {
 
 export const mockApi: ApiClient = {
   ...adminMock,
+  ...discrepancyMock,
   resendAuditorInvite: () => delay(() => undefined),
   login: (input) =>
     delay(() => {

@@ -18,6 +18,7 @@ import {
   List,
   LogOut,
   PanelLeft,
+  ScanSearch,
   Settings,
   ShieldCheck,
   SquareCheckBig,
@@ -68,6 +69,8 @@ export function SidebarNav({
     user.role === "qubico_admin"
       ? [
           { label: "Estadísticas", href: "/admin/stats", icon: LineChart },
+          // Cambio 16 (D-61): entre Estadísticas y Prompt; nombre largo para no confundirlo con «Discrepancias».
+          { label: "Análisis de discrepancias", href: "/admin/discrepancies", icon: ScanSearch },
           { label: "Procesamiento", href: "/admin/processing", icon: Cpu },
           { label: "Prompt", href: "/admin/prompts", icon: FileCode2 },
           { label: "Cuentas", href: "/admin/accounts", icon: UserCog },

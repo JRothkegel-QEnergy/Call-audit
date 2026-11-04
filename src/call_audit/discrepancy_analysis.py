@@ -116,8 +116,25 @@ def render_case(r: dict, transcript: list[dict] | None) -> str:
     return "\n".join(lines)
 
 
+def render_discarded(discarded: list[dict]) -> list[str]:
+    """Propuestas que el admin ya descartó en este motivo (D-64), para que la IA no las repita sin evidencia nueva."""
+    if not discarded:
+        return []
+    lines = [
+        "",
+        "## Propuestas ya descartadas por el equipo",
+        "No las repitas salvo que los casos muestren evidencia distinta; si lo haces, explica qué cambió.",
+    ]
+    lines += [f"- «{d['text']}» · motivo del descarte: {d.get('reason') or 'sin motivo'}" for d in discarded]
+    return lines
+
+
 def build_request(
-    cid: int, rows: list[dict], transcripts: dict[str, list[dict]], counts: dict
+    cid: int,
+    rows: list[dict],
+    transcripts: dict[str, list[dict]],
+    counts: dict,
+    discarded: list[dict] | None = None,
 ) -> tuple[str, list[dict]]:
     """Pedido de un motivo y los casos que van en él."""
     first = rows[0]
@@ -133,6 +150,7 @@ def build_request(
         f"fn: {counts['fn']} · IA dudosa: {counts['ai_uncertain']}.",
         "",
         DATA_NOTES,
+        *render_discarded(discarded or []),
     ]
     sent: list[dict] = []
     for kind in SAMPLE:

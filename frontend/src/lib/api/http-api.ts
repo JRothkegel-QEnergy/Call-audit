@@ -188,5 +188,16 @@ export const httpApi: ApiClient = {
   listPipelineRuns: (limit = 20) => get(`/api/admin/processing/runs${query({ limit: String(limit) })}`),
   listAsrFailures: () => get("/api/admin/processing/asr-failures"),
 
+  getDiscrepancyOverview: (analysisId) => get(`/api/admin/discrepancies${query({ analysis: analysisId })}`),
+  getDiscrepancyPattern: (id) => get(`/api/admin/discrepancies/patterns/${encodeURIComponent(id)}`),
+  estimateDiscrepancyAnalysis: (input) => post("/api/admin/discrepancies/estimate", input),
+  startDiscrepancyAnalysis: (input) => post("/api/admin/discrepancies/analyses", { ...input, confirm: true }),
+  stopDiscrepancyAnalysis: (id) => post(`/api/admin/discrepancies/analyses/${encodeURIComponent(id)}/stop`),
+  listDiscrepancyAnalyses: () => get("/api/admin/discrepancies/analyses"),
+  decideProposal: (id, input) => post(`/api/admin/discrepancies/patterns/${encodeURIComponent(id)}/decision`, input),
+  setProposalFollowUp: (id, status) =>
+    post(`/api/admin/discrepancies/patterns/${encodeURIComponent(id)}/follow-up`, { status }),
+  getDiscrepancyFollowUp: () => get("/api/admin/discrepancies/follow-up"),
+
   resetDemo: async () => undefined,
 };

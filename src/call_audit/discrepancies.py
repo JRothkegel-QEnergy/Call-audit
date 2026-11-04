@@ -188,6 +188,8 @@ def build(session: Session, manual_csv: dict[str, dict]) -> tuple[list[dict], di
         evaluator = (case.call_metadata or {}).get("external_evaluator")
         call_info = {
             "call_id": case.call_id,
+            "case_id": case.id,
+            "call_date": case.call_date,
             "excel_evaluator": evaluator,
             "model": run.model,
             "run_label": run.run_label,
@@ -276,19 +278,17 @@ def pct(a: int, b: int) -> str:
     return f"{100 * a / b:.0f} %" if b else "—"
 
 
-def write_summary(out: Path, rows: list[dict], summary: dict) -> None:
-    counts, n = summary["counts"], summary["n_calls"]
+def criterion_table(counts: dict[int, Counter]) -> list[dict]:
+    """Una fila por motivo con los conteos del resumen (también la usa la vista del admin)."""
     table = []
     for cid in CRITERIA:
         c = counts[cid]
-        excel = c["fn"] + c["match_fail"]
-        ai = c["fp"] + c["match_fail"]
         table.append(
             {
                 "criterion_id": cid,
                 "criterion_name": real_calls.CRITERIA.get(cid),
-                "excel_fail": excel,
-                "ai_fail": ai,
+                "excel_fail": c["fn"] + c["match_fail"],
+                "ai_fail": c["fp"] + c["match_fail"],
                 "match_fail": c["match_fail"],
                 "fp": c["fp"],
                 "fn": c["fn"],
@@ -297,6 +297,12 @@ def write_summary(out: Path, rows: list[dict], summary: dict) -> None:
                 "manual_items": c["manual"],
             }
         )
+    return table
+
+
+def write_summary(out: Path, rows: list[dict], summary: dict) -> None:
+    n = summary["n_calls"]
+    table = criterion_table(summary["counts"])
     with (out / "summary.csv").open("w", encoding="utf-8-sig", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(table[0]))
         w.writeheader()

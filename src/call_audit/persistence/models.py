@@ -112,6 +112,72 @@ class PromptEvaluation(Base):
     stopped_by: Mapped[User | None] = relationship(foreign_keys=[stopped_by_id])
 
 
+class DiscrepancyAnalysis(Base):
+    """Corrida de la IA de análisis de discrepancias sobre la corrida vigente (Cambio 16). La corre el worker."""
+
+    __tablename__ = "discrepancy_analyses"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    status: Mapped[str] = mapped_column(String(20), default="queued")  # queued | running | done | failed | stopped
+    model: Mapped[str] = mapped_column(String(100))
+    analysis_prompt_version: Mapped[str] = mapped_column(String(20))
+    # Serie de la capa 2 analizada (la vigente al lanzar): {"model", "promptVersion", "runLabel"}.
+    layer2_series: Mapped[dict[str, Any]] = mapped_column(default=dict)
+    criteria: Mapped[list[Any]] = mapped_column(default=list)
+    done_criteria: Mapped[list[Any]] = mapped_column(default=list)
+    # Motivos que fallaron: [{"criterionId", "error"}]. No cortan los demás.
+    failed_criteria: Mapped[list[Any]] = mapped_column(default=list)
+    # Resumen de la IA por motivo: {"25": "…"}.
+    summaries: Mapped[dict[str, Any]] = mapped_column(default=dict)
+    estimated_cost_usd: Mapped[float | None] = mapped_column(Float)
+    cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
+    error: Mapped[str | None] = mapped_column(Text)
+    created_by_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    stopped_by_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(default=now)
+    started_at: Mapped[datetime | None] = mapped_column()
+    finished_at: Mapped[datetime | None] = mapped_column()
+
+    created_by: Mapped[User] = relationship(foreign_keys=[created_by_id])
+    stopped_by: Mapped[User | None] = relationship(foreign_keys=[stopped_by_id])
+
+
+class DiscrepancyPattern(Base):
+    """Patrón (u observación) que devolvió la IA de análisis para un motivo, con los casos tal como estaban."""
+
+    __tablename__ = "discrepancy_patterns"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    analysis_id: Mapped[str] = mapped_column(ForeignKey("discrepancy_analyses.id"), index=True)
+    criterion_id: Mapped[int] = mapped_column(Integer)
+    rank: Mapped[int] = mapped_column(Integer, default=0)
+    impact: Mapped[float] = mapped_column(Float, default=0.0)
+    is_observation: Mapped[bool] = mapped_column(Boolean, default=False)
+    # El patrón tal como lo devolvió la IA (title, direction, cause, explanation, quotes, proposal, confidence).
+    data: Mapped[dict[str, Any]] = mapped_column(default=dict)
+    # Foto de cada caso al analizar: llamada, tipo, IA, cliente y revisión manual.
+    cases: Mapped[list[Any]] = mapped_column(default=list)
+    reviewer_disagreements: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class ProposalDecision(Base):
+    """Decisión del admin sobre la propuesta de un patrón (D-64). Vive aparte para sobrevivir a análisis nuevos."""
+
+    __tablename__ = "proposal_decisions"
+
+    pattern_id: Mapped[str] = mapped_column(ForeignKey("discrepancy_patterns.id"), primary_key=True)
+    # pending | accepted | discarded | included | asked_client | calibrated
+    status: Mapped[str] = mapped_column(String(20), default="pending")
+    edited_text: Mapped[str | None] = mapped_column(Text)
+    reason: Mapped[str | None] = mapped_column(Text)
+    note: Mapped[str | None] = mapped_column(Text)
+    included_in_version: Mapped[str | None] = mapped_column(String(20))
+    decided_by_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    decided_at: Mapped[datetime] = mapped_column(default=now)
+
+    decided_by: Mapped[User] = relationship()
+
+
 class Case(Base):
     __tablename__ = "cases"
 

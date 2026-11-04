@@ -49,6 +49,7 @@ export default function NewPromptPage() {
                 model: v.model,
                 changelog: v.changelog.trim(),
                 rationale: v.rationale.trim() || null,
+                includedProposalIds: v.includedProposalIds,
               });
               toast(`Borrador v${created.version} guardado.`);
               router.push(`/admin/prompts/${encodeURIComponent(created.version)}`);

@@ -20,6 +20,12 @@ Cada componente tiene además su propio historial detallado:
   - Corrida completa (28 motivos con desacuerdos, Sonnet 5.5): ~US$3,25 con el piloto. 64 patrones: 35 de criterio, 16 de evaluador, 8 de dato faltante y 5 de transcripción. Propuestas: 26 preguntas al cliente, 18 calibraciones, 10 pedidos de datos y 10 reglas del prompt. 0 citas no encontradas.
   - Pendiente para la v1.1: forzar el esquema con tool use. El 32 devolvió dos veces comillas sin escapar (se reparó a mano), un patrón vino con una causa fuera de la lista y otro sin propuesta.
 - **Evaluador del cliente:** `EVALUADOR_CALIDAD` del Excel nuevo de S4P se guarda en `call_metadata.external_evaluator` al importar la metadata (no sale por la API).
+- **Análisis de discrepancias en la app** (Cambio 16 de UX): sección «Análisis de discrepancias» del admin Qubico (`/admin/discrepancies`), con pestañas Análisis, Seguimiento e Historial, y el detalle de cada patrón con sus casos.
+  - El análisis se lanza a mano, con motivos, modelo y costo estimado, y solo corre si el admin confirma. Lo corre el worker; no hay corrida automática por calendario (Johannes, 2026-11-04).
+  - Tablas nuevas `discrepancy_analyses`, `discrepancy_patterns` y `proposal_decisions` (migración 0006). Cada motivo se guarda al terminar, así un análisis detenido o fallido conserva lo hecho y ofrece «Analizar motivos pendientes». Si la respuesta no trae JSON válido, el worker reintenta una vez y después marca el motivo como fallido.
+  - Aceptar no toca el prompt: la propuesta pasa a Seguimiento. Las reglas aceptadas se marcan al subir una versión del prompt y quedan «Incluida en vX»; si ese borrador se descarta, vuelven a «Aceptada». Descartar exige motivo, y la siguiente corrida recibe lo descartado para no repetirlo.
+  - Enlaces: «Ver por qué» en Calidad de la IA, una línea en Procesamiento y un banner al abrir una llamada desde un patrón.
+  - Para correrlo en producción falta `ANTHROPIC_API_KEY` en el `.env` del servidor (hoy solo están Gemini y OpenRouter). Sin ella, el diálogo marca el modelo como no disponible.
 
 ## 2026-11-02
 
