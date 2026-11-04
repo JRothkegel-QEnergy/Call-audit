@@ -109,6 +109,7 @@
 | 2026-11-02 | D-58 · Banner en `/calls/[id]?serie=…` con lo que marcó la corrida; el panel muestra la vigente | Johannes |
 | 2026-11-03 | D-59 · Paginador del mapa llamada por llamada: 100 columnas por página sobre la lista Cumple→No cumple, encabezados con el total del grupo, "Llamadas a–b de n", atajo "Ir a {grupo}", parámetro `mapPage` que se mantiene al cambiar de corrida; conteos y `aria-label` sobre el total (`15-calce-ia-por-corrida.md` §7.10). Revisión rápida, implementable | Johannes (pedido); diseñador (especificación) |
 | 2026-11-03 | D-59 ajustado · Reparto del mapa por página: hasta 50 Cumple + 50 No cumple, y el otro grupo rellena si uno se agota; se quita el atajo "Ir a {grupo}"; rango "Cumple a–b · No cumple c–d" (§7.10). Pedido tras verlo en producción | Johannes (pedido); diseñador (especificación) |
+| 2026-11-04 | D-60 · "Últimas pasadas" (Cambio 14 §7): resultado nuevo "Sin trabajo"; se agrupan pasadas consecutivas sin trabajo y rachas idénticas de "Con errores" (mismos números) o "Falló" (mismo mensaje), 2 o más, en una fila expandible (botón con `aria-expanded`/`aria-controls`); nunca `running` ni `interrupted`; se piden 200 pasadas y se muestran 20 filas. Revisión rápida, implementable | Johannes (pedido); diseñador (especificación) |
 
 ## Preguntas abiertas
 

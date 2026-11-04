@@ -106,3 +106,6 @@
 | H-100 | Etiquetas y orden de color de los modelos salen de `models.toml` vía backend. | Cambio 15 §7 | Johannes | Sin objeción (2026-11-02) |
 | H-101 | Meta de detección = 80 % (equivale a FN ≤ 20 %). | Cambio 15 §7 | Johannes | Sin objeción (2026-11-02) |
 | H-102 | En el mapa, mantener la página al cambiar de corrida (mismas 100 llamadas) sirve más que volver a la página 1. | Cambio 15 §7.10 | Johannes | Pendiente (2026-11-03) |
+| H-103 | Agrupar también rachas idénticas de errores (no solo las sin trabajo) reduce el ruido sin esconder un error nuevo, porque cualquier cambio de números o mensaje abre fila aparte. | Cambio 14 §7 | Johannes | Pendiente (2026-11-04) |
+| H-104 | 20 filas (grupos) sobre las últimas 200 pasadas (~50 h) bastan para el historial; reemplaza a H-82. | Cambio 14 §7 | Uso real | Pendiente (2026-11-04) |
+| H-105 | Una pasada con audios pero sin nada procesado se lee mejor como "Sin trabajo" que como "Completa". | Cambio 14 §7 | Johannes | Pendiente (2026-11-04) |

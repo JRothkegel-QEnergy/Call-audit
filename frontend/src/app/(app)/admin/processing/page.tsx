@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Check, CircleDashed, Loader2, Moon, XCircle } from "lucide-react";
+import { AlertTriangle, Check, ChevronRight, CircleDashed, Loader2, Moon, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AdminHeader } from "@/components/admin/admin-header";
@@ -10,6 +10,7 @@ import { api } from "@/lib/api";
 import type { PipelineRun, PipelineStage, ProcessingStatus, WorkerState } from "@/lib/api/admin-types";
 import { cn } from "@/lib/cn";
 import { durationText, int, shortDateTime } from "@/lib/format";
+import { groupRuns, isIdle, type RunRow } from "@/lib/run-groups";
 import { useAsync } from "@/lib/use-async";
 
 type Tab = "runs" | "failures";
@@ -30,7 +31,10 @@ const STAGE_LABEL: Record<PipelineStage, string> = {
 // Consulta más seguido con una pasada en curso (H-83).
 const POLL_MS: Record<WorkerState, number> = { running: 5_000, idle: 30_000, stale: 30_000, last_failed: 30_000, no_data: 30_000 };
 
-const hhmm = (iso: string) => new Date(iso).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
+const RUNS_FETCHED = 200;
+const ROWS = 20;
+
+const hhmm =(iso: string) => new Date(iso).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
 const secondsBetween = (from: string, to = Date.now()) => Math.max(0, (to - new Date(from).getTime()) / 1000);
 
 function ago(iso: string): string {
@@ -49,7 +53,8 @@ function runDuration(run: PipelineRun): string {
 /** Procesamiento (Cambio 14): estado del worker, avance de la pasada en curso, últimas pasadas y fallas de ASR. */
 export default function ProcessingPage() {
   const status = useAsync(() => api.getProcessingStatus(), []);
-  const runs = useAsync(() => api.listPipelineRuns(20), []);
+  // Se piden las últimas RUNS_FETCHED pasadas y se muestran ROWS filas, con las rachas iguales agrupadas (§7, H-104).
+  const runs = useAsync(() => api.listPipelineRuns(RUNS_FETCHED), []);
   const failures = useAsync(() => api.listAsrFailures(), []);
   const [tab, setTab] = useState<Tab>("runs");
   const state = status.data?.state ?? "no_data";
@@ -114,7 +119,7 @@ export default function ProcessingPage() {
       </div>
       {tab === "runs" ? (
         <AsyncView state={runs} what="las últimas pasadas">
-          {(rows) => <RunsTable runs={rows} />}
+          {(rows) => <RunsTable runs={rows} complete={rows.length < RUNS_FETCHED} />}
         </AsyncView>
       ) : (
         <AsyncView state={failures} what="las fallas de transcripción">
@@ -354,6 +359,12 @@ function RunResult({ run }: { run: PipelineRun }) {
       </StatusBadge>
     );
   if (run.asrErrors > 0) return <StatusBadge tone="doubt">Con errores</StatusBadge>;
+  if (isIdle(run))
+    return (
+      <StatusBadge tone="neutral" title="La pasada terminó sin transcribir, validar ni archivar audios.">
+        Sin trabajo
+      </StatusBadge>
+    );
   return <StatusBadge tone="ink">Completa</StatusBadge>;
 }
 
@@ -371,45 +382,142 @@ function ErrorText({ text }: { text: string }) {
   );
 }
 
-function RunsTable({ runs }: { runs: PipelineRun[] }) {
-  if (runs.length === 0) return <EmptyState title="Todavía no hay pasadas registradas." />;
+const GROUP_LABEL = { idle: "sin trabajo", errors: "con errores", failed: "que fallaron" } as const;
+
+/** "4 nov · 08:07 – 10:23", o con las dos fechas si la racha cruza de día. */
+function groupRange(runs: PipelineRun[]): string {
+  const first = runs[runs.length - 1].startedAt;
+  const last = runs[0].startedAt;
+  if (!first || !last) return "—";
+  if (new Date(first).toDateString() === new Date(last).toDateString()) return `${shortDateTime(first)} – ${hhmm(last)}`;
+  return `${shortDateTime(first).replace(" ·", "")} – ${shortDateTime(last).replace(" ·", "")}`;
+}
+
+function RunCells({ run, indent = false }: { run: PipelineRun; indent?: boolean }) {
   return (
-    <table className="tbl">
-      <thead>
-        <tr>
-          <th>Inicio</th>
-          <th>Duración</th>
-          <th>Audios</th>
-          <th>Transcritos</th>
-          <th>Errores</th>
-          <th>Por cuota</th>
-          <th>Validadas</th>
-          <th>Archivados</th>
-          <th>Resultado</th>
-        </tr>
-      </thead>
+    <tr>
+      <td className={cn("tabular", indent && "pl-10")}>{run.startedAt ? shortDateTime(run.startedAt) : "—"}</td>
+      <td className="tabular">{runDuration(run)}</td>
+      <td className="num">{int(run.audios)}</td>
+      <td className="num">{int(run.transcribed)}</td>
+      <td className="num">{run.asrErrors}</td>
+      <td className="num">{run.asrRateLimited}</td>
+      <td className="num">{int(run.validated)}</td>
+      <td className="num">{int(run.archived)}</td>
+      <td>
+        <RunResult run={run} />
+        {run.status === "failed" && run.error && (
+          <div className="help mt-1 max-w-[320px]">
+            <ErrorText text={run.error} />
+          </div>
+        )}
+      </td>
+    </tr>
+  );
+}
+
+/** Racha de pasadas iguales (§7): una fila resumen con disclosure y, debajo, las pasadas sueltas. */
+function GroupRows({ row, open, onToggle }: { row: Extract<RunRow, { kind: "group" }>; open: boolean; onToggle: () => void }) {
+  const { runs } = row;
+  const newest = runs[0];
+  const range = groupRange(runs);
+  const what = GROUP_LABEL[row.signature];
+  const id = `runs-${row.key}`;
+  const seconds = runs.map((r) => (r.startedAt && r.finishedAt ? secondsBetween(r.startedAt, new Date(r.finishedAt).getTime()) : 0));
+  const [shortest, longest] = [durationText(Math.min(...seconds)), durationText(Math.max(...seconds))];
+  const audios = runs.map((r) => r.audios);
+  const [minAudios, maxAudios] = [Math.min(...audios), Math.max(...audios)];
+  // Todas las pasadas del grupo tienen los mismos contadores; si no son 0, se lee "por pasada".
+  const each = (v: number, text = String(v)) => (v > 0 ? `${text} c/u` : text);
+  return (
+    <>
       <tbody>
+        <tr>
+          <td>
+            <button
+              type="button"
+              className="flex min-h-6 items-start gap-1.5 border-0 bg-transparent p-0 text-left"
+              aria-expanded={open}
+              aria-controls={id}
+              aria-label={`${open ? "Ocultar" : "Ver"} las ${runs.length} pasadas ${what}, ${range}`}
+              onClick={onToggle}
+            >
+              <ChevronRight size={16} aria-hidden className={cn("mt-0.5 flex-none transition-transform", open && "rotate-90")} />
+              <span>
+                <span className="font-semibold">
+                  {row.truncated ? "Al menos " : ""}
+                  {runs.length} pasadas
+                </span>
+                <span className="help tabular block">{range}</span>
+              </span>
+            </button>
+          </td>
+          <td className="tabular">{shortest === longest ? shortest : `${shortest} – ${longest}`}</td>
+          <td className="num" title={minAudios !== maxAudios ? `Entre ${int(minAudios)} y ${int(maxAudios)}` : undefined}>
+            {int(newest.audios)}
+          </td>
+          <td className="num">{each(newest.transcribed, int(newest.transcribed))}</td>
+          <td className="num">{each(newest.asrErrors)}</td>
+          <td className="num">{each(newest.asrRateLimited)}</td>
+          <td className="num">{each(newest.validated, int(newest.validated))}</td>
+          <td className="num">{each(newest.archived, int(newest.archived))}</td>
+          <td>
+            <RunResult run={newest} />
+            {newest.status === "failed" && newest.error && (
+              <div className="help mt-1 max-w-[320px]">
+                <ErrorText text={newest.error} />
+              </div>
+            )}
+          </td>
+        </tr>
+      </tbody>
+      <tbody id={id} hidden={!open}>
         {runs.map((r) => (
-          <tr key={r.id}>
-            <td className="tabular">{r.startedAt ? shortDateTime(r.startedAt) : "—"}</td>
-            <td className="tabular">{runDuration(r)}</td>
-            <td className="num">{int(r.audios)}</td>
-            <td className="num">{int(r.transcribed)}</td>
-            <td className="num">{r.asrErrors}</td>
-            <td className="num">{r.asrRateLimited}</td>
-            <td className="num">{int(r.validated)}</td>
-            <td className="num">{int(r.archived)}</td>
-            <td>
-              <RunResult run={r} />
-              {r.status === "failed" && r.error && (
-                <div className="help mt-1 max-w-[320px]">
-                  <ErrorText text={r.error} />
-                </div>
-              )}
-            </td>
-          </tr>
+          <RunCells key={r.id} run={r} indent />
         ))}
       </tbody>
-    </table>
+    </>
+  );
+}
+
+function RunsTable({ runs, complete }: { runs: PipelineRun[]; complete: boolean }) {
+  // Abierto/cerrado por la id de la pasada más antigua del grupo: no cambia cuando entran pasadas nuevas.
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  if (runs.length === 0) return <EmptyState title="Todavía no hay pasadas registradas." />;
+  const rows = groupRuns(runs, ROWS, complete);
+  const toggle = (key: string) =>
+    setOpen((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(key)) next.add(key);
+      return next;
+    });
+  return (
+    <>
+      <table className="tbl">
+        <thead>
+          <tr>
+            <th>Inicio</th>
+            <th>Duración</th>
+            <th>Audios</th>
+            <th>Transcritos</th>
+            <th>Errores</th>
+            <th>Por cuota</th>
+            <th>Validadas</th>
+            <th>Archivados</th>
+            <th>Resultado</th>
+          </tr>
+        </thead>
+        {rows.map((row) =>
+          row.kind === "run" ? (
+            <tbody key={row.run.id}>
+              <RunCells run={row.run} />
+            </tbody>
+          ) : (
+            <GroupRows key={row.key} row={row} open={open.has(row.key)} onToggle={() => toggle(row.key)} />
+          ),
+        )}
+      </table>
+      {rows.some((r) => r.kind === "group") && <p className="help mb-0 mt-2">Las pasadas iguales y seguidas se agrupan en una fila.</p>}
+    </>
   );
 }

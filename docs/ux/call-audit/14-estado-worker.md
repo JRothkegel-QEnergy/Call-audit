@@ -197,3 +197,81 @@ Columnas: **Archivo · Error · Intentos · Último intento**.
 - **Microcopy:** tuteo, errores que dicen qué pasó y qué hacer, sin culpar. Términos nuevos para el glosario: **pasada** y **latido**.
 - **Dark patterns:** no aplica.
 - **Mínimo privilegio:** solo el admin; sin datos por persona; no muestra contenido de las llamadas.
+
+## 7. Ajuste: agrupar pasadas repetidas en "Últimas pasadas" (D-60, 2026-11-04)
+
+> Revisión rápida sobre §3.5. **Pedido de Johannes (textual):** "me gustaría evitar tanto ruido de llamadas que no funcionaron, quizás esas agruparlas."
+> **Contexto en producción:** los 534 audios están bloqueados por fallas de ASR (cuenta de Gemini sin saldo). Cada pasada dura ~2 s, deja todo en 0 y sale como "Completa"; antes hubo una racha de pasadas "Con errores" con 100 errores cada una (mismo error 402). La tabla queda llena de filas iguales.
+> **Estado:** especificación lista para implementar. No cambia CUJ, AI ni puntos legales.
+
+### 7.1 Resultado nuevo: "Sin trabajo"
+
+- Una pasada es **sin trabajo** si `status = done` y `transcribed`, `asr_errors`, `asr_rate_limited`, `validated` y `archived` son todos 0 (`audios` puede ser > 0: hay audios, pero ninguno se pudo procesar).
+- Lleva la insignia **"Sin trabajo"** (`tone="neutral"`), no "Completa". Vale también para una pasada suelta.
+- `title` de la insignia: "La pasada terminó sin transcribir, validar ni archivar audios."
+
+### 7.2 Regla de agrupación
+
+- Se agrupan **solo pasadas consecutivas** (vecinas en la lista ordenada de más nueva a más antigua) con la **misma firma**, y solo si son **2 o más**:
+
+| Resultado | Firma (todo debe coincidir) |
+|---|---|
+| Sin trabajo | Ser sin trabajo (§7.1). `audios` puede variar |
+| Con errores | `transcribed`, `asr_errors`, `asr_rate_limited`, `validated`, `archived` iguales |
+| Falló | Mismo `error` (texto exacto) |
+
+- **Nunca se agrupan:** `running` (En curso), `interrupted` (Interrumpida) ni "Completa" con trabajo real. Cualquiera de ellas corta la racha.
+- Así no se esconde información: un error nuevo o un cambio en los números abre una fila aparte.
+
+### 7.3 Fila de grupo
+
+| Columna | Contenido |
+|---|---|
+| Inicio | Botón de disclosure + **"{n} pasadas"**, debajo el rango **"{d mmm} · {hh:mm} – {hh:mm}"** (de la más antigua a la más nueva). Si el rango cruza días: "{d mmm hh:mm} – {d mmm hh:mm}" |
+| Duración | Mín–máx, p. ej. "2–3 s"; un solo valor si son iguales |
+| Audios | El de la pasada más nueva; si varía, el rango min–máx va en `title` |
+| Transcritos … Archivados | El valor de una pasada (es el mismo en todas). Si es > 0 se agrega "c/u" (p. ej. "100 c/u") |
+| Resultado | Insignia del grupo: "Sin trabajo" / "Con errores" / "Falló", con el mismo tono que la pasada suelta. En "Falló", el mensaje (`ErrorText`) una sola vez |
+
+- **Expandida:** debajo aparecen las pasadas del grupo como filas normales, con sangría en la primera celda y la misma insignia. Cerrada por defecto.
+- El estado abierto/cerrado se guarda por la `id` de la pasada **más antigua** del grupo (no cambia cuando entran pasadas nuevas arriba) y se mantiene entre consultas. No va a la URL ni a localStorage.
+
+### 7.4 Cuántas pasadas se piden y se muestran
+
+- La vista pide `listPipelineRuns(200)` (el máximo del endpoint y la retención de §5) y muestra las **20 filas más recientes**, contando cada grupo como una fila.
+- 200 pasadas ≈ 50 h de historia con el bucle de 15 min.
+- Si el grupo más antiguo que se muestra incluye la pasada número 200 (puede haber más atrás): el texto dice **"Al menos {n} pasadas"**.
+- Pie de la tabla, solo si se agrupó algo: "Las pasadas iguales y seguidas se agrupan en una fila."
+
+### 7.5 Accesibilidad (WCAG 2.2 AA)
+
+- El disclosure es un `<button>` nativo en la celda Inicio, con `aria-expanded` y `aria-controls` apuntando a un `<tbody id>` propio del grupo (se puede tener varios `<tbody>` en una tabla), oculto con `hidden` cuando está cerrado.
+- **Nombre accesible:** "Ver las {n} pasadas sin trabajo, {rango}" / "Ocultar las {n} pasadas sin trabajo" (o "con errores" / "que fallaron").
+- **Ícono:** chevron Lucide (`ChevronRight`, gira 90° al abrir), `aria-hidden`. Objetivo táctil ≥ 24 × 24 px (2.5.8). Foco visible con el token de foco existente.
+- El foco queda en el botón al abrir y cerrar. Las filas hijas no se anuncian solas (sin `aria-live`).
+- El resultado sigue teniendo texto, no solo color (1.4.1).
+
+### 7.6 Textos (complementan §4)
+
+| Clave | Texto |
+|---|---|
+| Resultado nuevo | Sin trabajo |
+| `title` de "Sin trabajo" | La pasada terminó sin transcribir, validar ni archivar audios. |
+| Fila de grupo | {n} pasadas · {rango} / Al menos {n} pasadas · {rango} |
+| Botón (nombre accesible) | Ver las {n} pasadas {sin trabajo \| con errores \| que fallaron}, {rango} / Ocultar las {n} pasadas … |
+| Valor repetido | {v} c/u |
+| Pie | Las pasadas iguales y seguidas se agrupan en una fila. |
+
+- §3.5 queda con los resultados: Completa · **Sin trabajo** · Con errores · Falló · En curso · Interrumpida.
+
+### 7.7 Impacto en el código (orientativo)
+
+- Solo front: `RunResult` (caso "Sin trabajo"), `RunsTable` (agrupación + `tbody` por grupo) y la llamada `listPipelineRuns(200)`. Sin cambios de backend ni de tipos.
+- La agrupación es una función pura (`groupRuns(runs, maxRows = 20)`) que conviene probar con: racha de sin trabajo, racha de 402 idénticos, error distinto que corta, `running` arriba, grupo cortado en la pasada 200.
+
+### 7.8 Revisión rápida
+
+- **Trazabilidad:** P-14.1 / R-14.3 (ver el resultado de las últimas pasadas sin ruido).
+- **Patrones:** tabla existente + disclosure. Ya se usa `<details>` en `ErrorText`; acá va un botón, porque `<details>` no sirve para filas de tabla.
+- **Microcopy:** consistente con §4 ("pasada").
+- **Dark patterns:** no aplica. Nada se oculta sin aviso: el grupo dice cuántas pasadas tiene y se puede abrir.
