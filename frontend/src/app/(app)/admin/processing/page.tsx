@@ -34,7 +34,7 @@ const POLL_MS: Record<WorkerState, number> = { running: 5_000, idle: 30_000, sta
 const RUNS_FETCHED = 200;
 const ROWS = 20;
 
-const hhmm =(iso: string) => new Date(iso).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
+const hhmm = (iso: string) => new Date(iso).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 const secondsBetween = (from: string, to = Date.now()) => Math.max(0, (to - new Date(from).getTime()) / 1000);
 
 function ago(iso: string): string {

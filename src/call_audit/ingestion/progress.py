@@ -120,15 +120,24 @@ class Heartbeat:
 
 class Failures:
     """Intentos fallidos de ASR por grabación, en la tabla asr_failures: tras `max_attempts` se deja de reintentar
-    (cada intento se paga). `legacy` es el work/asr_failures.json de antes del Cambio 14: se importa una vez."""
+    (cada intento se paga). `legacy` es el work/asr_failures.json de antes del Cambio 14: se importa una vez.
+    `transient` son marcas de error que no son culpa del audio (cuota, falta de saldo): esas fallas no bloquean, y
+    las que quedaron registradas de antes (ej. los 402 del 2 nov) se borran al cargar."""
 
-    def __init__(self, sessions: Sessions, max_attempts: int, legacy: Path | None = None):
+    def __init__(
+        self, sessions: Sessions, max_attempts: int, legacy: Path | None = None, transient: tuple[str, ...] = ()
+    ):
         self.sessions = sessions
         self.max_attempts = max_attempts
         if legacy is not None and legacy.exists():
             self.import_legacy(legacy)
-        with sessions() as session:
-            self.attempts = {row.stem: row.attempts for row in session.scalars(select(AsrFailure))}
+        with sessions() as session, session.begin():
+            rows = session.scalars(select(AsrFailure)).all()
+            stale = [row.stem for row in rows if any(marker in row.error for marker in transient)]
+            if stale:
+                session.execute(delete(AsrFailure).where(AsrFailure.stem.in_(stale)))
+                logger.info("Fallas por cuota o saldo descartadas (no bloquean): %d", len(stale))
+            self.attempts = {row.stem: row.attempts for row in rows if row.stem not in set(stale)}
 
     def import_legacy(self, path: Path) -> None:
         data = json.loads(path.read_text(encoding="utf-8"))

@@ -3,7 +3,7 @@
 import json
 import os
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -265,6 +265,41 @@ def test_rate_limit_does_not_spend_attempts(env: dict, monkeypatch: pytest.Monke
         assert pipeline.run_once(env["settings"])["asr_rate_limited"] == 1
 
     assert not pipeline.Failures(env["db"], pipeline.MAX_ASR_ATTEMPTS).blocked(RECORDING)
+
+
+def test_old_payment_failures_do_not_block(env: dict) -> None:
+    # Fallas 402 registradas antes de que dejaran de contar como intento: el audio se vuelve a transcribir.
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(env["inbox"], "lote.csv", CSV)
+    with env["db"]() as session, session.begin():
+        session.add(
+            AsrFailure(
+                stem=RECORDING,
+                error="RuntimeError: HTTPError: HTTP Error 402: Payment Required",
+                attempts=pipeline.MAX_ASR_ATTEMPTS,
+                last_attempt_at=datetime.now(UTC),
+            )
+        )
+
+    assert pipeline.run_once(env["settings"])["transcribed"] == 1
+    with env["db"]() as session:
+        assert session.get(AsrFailure, RECORDING) is None
+
+
+def test_real_failures_still_block(env: dict) -> None:
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(env["inbox"], "lote.csv", CSV)
+    with env["db"]() as session, session.begin():
+        session.add(
+            AsrFailure(
+                stem=RECORDING,
+                error="ValueError: audio corrupto",
+                attempts=pipeline.MAX_ASR_ATTEMPTS,
+                last_attempt_at=datetime.now(UTC),
+            )
+        )
+
+    assert pipeline.run_once(env["settings"])["transcribed"] == 0 and env["calls"]["asr"] == 0
 
 
 class FakeSftp:

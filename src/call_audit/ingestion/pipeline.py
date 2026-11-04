@@ -422,7 +422,9 @@ def run_pass(settings: Settings, progress: Progress) -> dict[str, int]:
     work = settings.pipeline_work_dir
     (work / "asr").mkdir(parents=True, exist_ok=True)
     asr_model = settings.pipeline_asr_model
-    failures = Failures(get_sessionmaker(), MAX_ASR_ATTEMPTS, legacy=work / "asr_failures.json")
+    failures = Failures(
+        get_sessionmaker(), MAX_ASR_ATTEMPTS, legacy=work / "asr_failures.json", transient=RATE_LIMIT_MARKERS
+    )
     store = open_store(settings)
     try:
         entries = store.entries()
