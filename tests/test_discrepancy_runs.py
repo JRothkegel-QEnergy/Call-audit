@@ -221,3 +221,16 @@ def test_big_criterion_runs_in_batches_and_merges(
     assert "## Tanda 3 de 3" in model.users[3] and "Transcripción completa" not in model.users[3]
     assert data["analysis"]["status"] == "done" and data["analysis"]["costUsd"] == pytest.approx(0.08)
     assert estimate["cases"] == 3
+
+
+def test_pattern_without_proposal_has_nothing_to_accept(
+    client: TestClient, admin: User, imported: sessionmaker[Session], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Desde la v1.2.0 un patrón sin cambio de prompt ni calibración del auditor viene con "proposal": null."""
+    login(client, admin)
+    pattern = PATTERN["patterns"][0] | {"cause": "missing_data", "proposal": None}
+    monkeypatch.setitem(PATTERN, "patterns", [pattern])
+    data = run(client, imported, FakeModel())
+    assert data["analysis"]["status"] == "done"
+    without, _ = data["patterns"]
+    assert without["caseCount"] == 3 and without["isObservation"] and without["proposal"] is None

@@ -16,6 +16,7 @@ Cada componente tiene además su propio historial detallado:
   - cada caso trae el código del ejecutivo, y el analista avisa cuando un patrón se concentra en pocos ejecutivos o en un auditor;
   - un motivo que no cabe en un pedido (tope de 150 mil tokens) se parte en tandas y una pasada con `merge.txt` las junta en un resultado.
   - Con producción (29 motivos, 1.385 casos): 91 pedidos, ~US$20,5 y ~28 min con Sonnet 5.5, contra ~US$3,7 de la v1.0.0. Los motivos 25 y 18 van en 11 y 10 tandas.
+- **Prompt de análisis v1.2.0** (Johannes, al ver la primera corrida con la v1.1.0): las propuestas son solo un cambio en la regla del prompt o calibrar al auditor. Sin preguntas a la corredora ni pedidos de datos: un patrón que no se arregla con ninguna de las dos queda con `proposal: null` y la vista lo muestra entre las observaciones. Si la pauta es ambigua y el auditor marca parejo, propone la regla que refleja su práctica; si marca disparejo, calibrarlo.
 - **Calidad de la IA:** corrida «Vigente», elegida por defecto, que junta la corrida vigente de cada llamada. En producción la vigente estaba repartida entre «v2.10» (100 llamadas) y «v2.10 automático» (997), y la vista elegía la de 100: 997 salían sin resultado y el mapa quedaba vacío.
 - **Procesamiento:** las pasadas iguales y seguidas que solo tienen audios «por cuota» (cuenta sin saldo) también se agrupan.
 - **Análisis de discrepancias:** las llamadas cuya corrida vigente terminó con error ya no se cuentan como «sin corrida vigente».

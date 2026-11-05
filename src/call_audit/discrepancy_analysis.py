@@ -25,7 +25,7 @@ from typing import Any
 from call_audit.ingestion.import_bench import bench, real_calls
 
 ROOT = Path(__file__).resolve().parents[2]
-PROMPT_VERSION = "1.1.0"
+PROMPT_VERSION = "1.2.0"
 PROMPT_DIR = ROOT / "prompts" / "discrepancy_analysis"
 # Sonnet 5.5 por la API de Anthropic (Johannes, 2026-11-05): el modelo del piloto y de la corrida completa.
 DEFAULT_MODEL = "claude-sonnet-5-5"
@@ -278,7 +278,9 @@ def write_report(out: Path, results: list[dict], model: str) -> None:
                 f"- **Quién tiene más razón:** {p.get('who_is_right') or '—'}"
                 + (" · **tentativo**" if p.get("tentative") else ""),
                 f"- **Por qué:** {p.get('explanation')}",
-                f"- **Propuesta ({prop.get('type')}):** {prop.get('text')}",
+                f"- **Propuesta ({prop.get('type')}):** {prop.get('text')}"
+                if prop.get("text")
+                else "- **Sin propuesta**",
             ]
             if p.get("concentration"):
                 lines.append(f"- **Concentración:** {p['concentration']}")
