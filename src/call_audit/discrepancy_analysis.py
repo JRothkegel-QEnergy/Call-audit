@@ -27,8 +27,8 @@ from call_audit.ingestion.import_bench import bench, real_calls
 ROOT = Path(__file__).resolve().parents[2]
 PROMPT_VERSION = "1.0.0"
 PROMPT_DIR = ROOT / "prompts" / "discrepancy_analysis"
-# Gemini Flash por costo (Johannes, 2026-11-04); el piloto y la corrida completa se hicieron con Sonnet 5.5.
-DEFAULT_MODEL = "gemini-3-8-flash"
+# Sonnet 5.5 por la API de Anthropic (Johannes, 2026-11-05): el modelo del piloto y de la corrida completa.
+DEFAULT_MODEL = "claude-sonnet-5-5"
 # Máximo de casos por tipo que van al modelo; del resto solo van los conteos. Los fn llevan la llamada completa.
 SAMPLE = {"fp": 25, "fn": 12, "ai_uncertain": 12, "match_fail": 6}
 # Cómo se arman los datos que recibe la IA evaluadora: sin esto, el modelo no puede reconocer un dato faltante.

@@ -318,10 +318,10 @@ export const discrepancyMock: DiscrepancyApi = {
         stale: shown && shown.id === last?.id ? { currentSeriesChanged: false, currentSeries: null, newReviews: 4 } : null,
         patterns: patterns.map(summary),
         models: [
-          { name: "gemini-demo", label: "Gemini Flash (demo)", available: true, priced: true },
           { name: "sonnet-demo", label: "Sonnet (demo)", available: true, priced: true },
+          { name: "gemini-demo", label: "Gemini Flash (demo)", available: true, priced: true },
         ],
-        defaultModel: "gemini-demo",
+        defaultModel: "sonnet-demo",
       };
     }),
   getDiscrepancyPattern: (id) =>

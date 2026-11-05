@@ -25,7 +25,7 @@ Cada componente tiene además su propio historial detallado:
   - Tablas nuevas `discrepancy_analyses`, `discrepancy_patterns` y `proposal_decisions` (migración 0006). Cada motivo se guarda al terminar, así un análisis detenido o fallido conserva lo hecho y ofrece «Analizar motivos pendientes». Si la respuesta no trae JSON válido, el worker reintenta una vez y después marca el motivo como fallido.
   - Aceptar no toca el prompt: la propuesta pasa a Seguimiento. Las reglas aceptadas se marcan al subir una versión del prompt y quedan «Incluida en vX»; si ese borrador se descarta, vuelven a «Aceptada». Descartar exige motivo, y la siguiente corrida recibe lo descartado para no repetirlo.
   - Enlaces: «Ver por qué» en Calidad de la IA, una línea en Procesamiento y un banner al abrir una llamada desde un patrón.
-  - Modelo por defecto: Gemini 3.8 Flash (Johannes, 2026-11-04), con respaldo por OpenRouter si Gemini falla, igual que el pipeline. El admin puede elegir otro en el diálogo. El piloto y la corrida completa del paso 2 se hicieron con Sonnet 5.5, así que la calidad con Flash está por verse.
+  - Modelo por defecto: Sonnet 5.5 por la API de Anthropic (Johannes, 2026-11-05), el mismo del piloto y la corrida completa. Necesita `ANTHROPIC_API_KEY` en el entorno; sin ella, el diálogo lo muestra no disponible. El admin puede elegir Gemini 3.8 Flash, que tiene respaldo por OpenRouter igual que el pipeline.
 
 ## 2026-11-02
 

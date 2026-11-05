@@ -13,7 +13,7 @@ from call_audit import discrepancy_runs
 from call_audit.persistence.models import Case, Review, User
 from tests.conftest import PASSWORD, login
 
-MODEL = "gemini-3-8-flash"
+MODEL = "claude-sonnet-5-5"
 # Motivos que el cliente marcó NO CUMPLE por llamada. Con la corrida del fixture, en el motivo 30 queda:
 # 1002 fp (la IA marca y el cliente no), 1001 y 1003 fn (el cliente marca y la IA no).
 CLIENT_FAILS = {"1001": [30], "1002": [], "1003": [12, 30]}
@@ -42,7 +42,7 @@ PATTERN = {
 
 @pytest.fixture
 def admin(imported: sessionmaker[Session], monkeypatch: pytest.MonkeyPatch) -> User:
-    monkeypatch.setenv("GEMINI_API_KEY", "clave-ficticia")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "clave-ficticia")
     user = User(
         email="admin@qubico-ejemplo.cl",
         name="Admin",
@@ -203,6 +203,6 @@ def test_gemini_falls_back_to_openrouter(monkeypatch: pytest.MonkeyPatch) -> Non
 
     monkeypatch.setattr(discrepancy_runs.bench, "call_with_retries", fake_call)
     monkeypatch.setattr(discrepancy_runs.bench, "load_dotenv", lambda path: None)
-    cfg = discrepancy_runs.analysis.model_config(MODEL)
+    cfg = discrepancy_runs.analysis.model_config("gemini-3-8-flash")
     text, cost = discrepancy_runs.bench_caller()(cfg, "system", "user")
-    assert used == [MODEL, "or-gemini-3-8-flash"] and text == "{}" and cost > 0
+    assert used == ["gemini-3-8-flash", "or-gemini-3-8-flash"] and text == "{}" and cost > 0

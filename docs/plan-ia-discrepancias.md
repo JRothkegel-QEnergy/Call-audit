@@ -117,5 +117,5 @@ El paso 4 es el control de calidad: si la IA no redescubre las causas que ya enc
 
 ## Decisiones pendientes
 
-1. **Modelo para la cuarta IA.** Decidido (Johannes, 2026-11-04): Gemini 3.8 Flash, con respaldo por OpenRouter. El piloto y la corrida completa se hicieron con Sonnet 5.5; conviene comparar la primera corrida con Flash contra ese informe.
+1. **Modelo para la cuarta IA.** Decidido (Johannes, 2026-11-05): Sonnet 5.5 por la API de Anthropic, el mismo del piloto y la corrida completa. Requiere `ANTHROPIC_API_KEY` en `.env` (local) y en `.deploy/server.env` (producción). Gemini 3.8 Flash queda como alternativa en el diálogo, con respaldo por OpenRouter.
 2. **Si el Excel y la revisión manual Qubico se contradicen, ¿cuál manda?** Propuesta: ninguna. El caso se marca como "desacuerdo entre revisores" y va a la sección de calibración con el cliente, no a cambios del prompt.
