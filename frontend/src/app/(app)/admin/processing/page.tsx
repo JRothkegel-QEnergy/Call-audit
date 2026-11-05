@@ -388,7 +388,7 @@ function ErrorText({ text }: { text: string }) {
   );
 }
 
-const GROUP_LABEL = { idle: "sin trabajo", errors: "con errores", failed: "que fallaron" } as const;
+const GROUP_LABEL = { idle: "sin trabajo", errors: "con errores", quota: "por cuota", failed: "que fallaron" } as const;
 
 /** "4 nov · 08:07 – 10:23", o con las dos fechas si la racha cruza de día. */
 function groupRange(runs: PipelineRun[]): string {

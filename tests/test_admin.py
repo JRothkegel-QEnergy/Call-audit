@@ -294,6 +294,8 @@ def test_quality_series_and_calls(client: TestClient, admin: User, imported: ses
     with imported() as session, session.begin():
         cases = list(session.scalars(select(Case).order_by(Case.call_id)))
         cases[0].external_item_fails = [14]
+        # La vigente repartida en dos corridas, como en producción (la manual y la automática del worker).
+        cases[1].runs[0].run_label = "v9.9 automático"
         session.add(
             PromptEvaluation(
                 version="9.9",
@@ -308,9 +310,11 @@ def test_quality_series_and_calls(client: TestClient, admin: User, imported: ses
         )
     login(client, admin)
     body = client.get("/api/admin/quality").json()
-    run = next(s for s in body["series"] if s["source"] == "run")
+    run = next(s for s in body["series"] if s["source"] == "run" and s["isCurrent"])
     test = next(s for s in body["series"] if s["source"] == "prompt_test")
-    assert run["id"] == "run:modelo-a:v9.9" and run["isCurrent"] and run["calls"] == 3
+    assert run["id"] == "current" and run["runLabel"] == "Vigente" and run["calls"] == 3
+    by_label = {s["id"]: s for s in body["series"] if s["source"] == "run" and not s["isCurrent"]}
+    assert {k: s["calls"] for k, s in by_label.items()} == {"run:modelo-a:v9.9": 2, "run:modelo-a:v9.9 automático": 1}
     assert test["runLabel"] == "Prueba v9.9" and test["calls"] == 1 and test["costPerCallUsd"] == 0.01
     first = next(c for c in body["calls"] if c["caseId"] == cases[0].id)
     assert first["clientFails"] == [14]

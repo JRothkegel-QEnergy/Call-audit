@@ -560,21 +560,32 @@ def admin_quality(session: DbSession, _: Admin):
     labels = {m["name"]: m.get("label", m["name"]) for m in toml}
 
     groups: dict[tuple[str, str], list[ModelRun]] = defaultdict(list)
+    current: list[ModelRun] = []
     for r in session.scalars(select(ModelRun).where(ModelRun.case_id.in_(ids))):
         groups[(r.model, r.run_label)].append(r)
+        if r.is_current:
+            current.append(r)
+    # La vigente de cada llamada puede venir de corridas distintas (la manual de 100 y la automática del worker):
+    # la serie "Vigente" las junta y es la que se elige por defecto. Las corridas por etiqueta quedan como antes.
+    run_groups: list[tuple[str, str, list[ModelRun], bool]] = [
+        (f"run:{model}:{label}", label, items, False) for (model, label), items in groups.items()
+    ]
+    if current:
+        models_in_current = Counter(r.model for r in current)
+        run_groups.insert(0, ("current", "Vigente", current, True))
     series: list[dict] = []
     results: dict[str, dict[str, dict | None]] = defaultdict(dict)
-    for (model, label), items in groups.items():
-        sid = f"run:{model}:{label}"
+    for sid, label, items, is_current in run_groups:
         priced = [r.cost_usd for r in items if r.cost_usd]
+        versions = Counter(r.prompt_version for r in items)
         series.append(
             {
                 "id": sid,
-                "model": model,
-                "promptVersion": items[0].prompt_version,
+                "model": models_in_current.most_common(1)[0][0] if is_current else items[0].model,
+                "promptVersion": versions.most_common(1)[0][0],
                 "runLabel": label,
                 "source": "run",
-                "isCurrent": any(r.is_current for r in items),
+                "isCurrent": is_current,
                 "ranAt": iso(max(accounts.aware(r.run_at) for r in items)),
                 "calls": len(items),
                 "costPerCallUsd": round(mean(priced), 6) if priced else None,

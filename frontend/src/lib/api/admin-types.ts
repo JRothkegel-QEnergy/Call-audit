@@ -246,7 +246,17 @@ export interface ProcessingStatus {
 }
 
 /** Análisis de discrepancias (Cambio 16). Misma forma que src/call_audit/api/routes_discrepancies.py. */
-export type DiscrepancyCause = "criterion" | "evaluator" | "transcript" | "missing_data";
+/** criterion y evaluator vienen del prompt de análisis v1.0.0; la v1.1.0 usa rule_text, ai_application, auditor y
+ * motive_overlap. */
+export type DiscrepancyCause =
+  | "rule_text"
+  | "ai_application"
+  | "auditor"
+  | "motive_overlap"
+  | "criterion"
+  | "evaluator"
+  | "transcript"
+  | "missing_data";
 export type DiscrepancyDirection = "fp" | "fn" | "uncertain" | "mixed";
 export type ProposalType = "prompt_rule" | "client_question" | "calibrate_auditor" | "data_request";
 export type ProposalStatus = "pending" | "accepted" | "discarded" | "included" | "asked_client" | "calibrated";
@@ -372,7 +382,7 @@ export interface DiscrepancyOverview {
   calls: number;
   cases: number;
   manualCases: number;
-  /** Llamadas fuera de la tabla, por razón («sin corrida vigente», «sin marca por motivo del cliente»). */
+  /** Llamadas fuera de la tabla, por razón («sin corrida vigente», «la corrida vigente terminó con error», «sin marca por motivo del cliente»). */
   callsOutside: Record<string, number>;
   callMatch: { agree: number; total: number };
   criteria: DiscrepancyCriterionRow[];

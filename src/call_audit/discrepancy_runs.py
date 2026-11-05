@@ -37,8 +37,9 @@ WORKERS = 4
 MIN_CASES = 3
 # Peso en el impacto (H-108): un motivo menor no rechaza la llamada por sí solo.
 MINOR_WEIGHT = 0.5
-# Segundos por motivo, medidos en la corrida completa del 2026-11-04 con Sonnet 5.5 (30–90 s). Estimación.
-SECONDS_PER_CRITERION = 60
+# Segundos por pedido, medidos en la corrida completa del 2026-11-04 con Sonnet 5.5 (30–90 s). Estimación: un motivo
+# grande hace varias tandas seguidas y la pasada que las junta.
+SECONDS_PER_REQUEST = 60
 DISAGREEMENT = ("fp", "fn", "ai_uncertain")
 RUNNING = ("queued", "running")
 FOLLOW_UP = ("accepted", "asked_client", "calibrated")
@@ -60,8 +61,9 @@ def iso(value: datetime | None) -> str | None:
     return value.isoformat() if value else None
 
 
-def system_prompt() -> str:
-    return (analysis.PROMPT_DIR / f"v{analysis.PROMPT_VERSION}" / "system.txt").read_text(encoding="utf-8")
+def prompts() -> tuple[str, str]:
+    """System del análisis por tanda y de la pasada que junta las tandas."""
+    return analysis.prompt_text("system.txt"), analysis.prompt_text("merge.txt")
 
 
 def model_options() -> list[dict]:
@@ -119,20 +121,22 @@ def estimate(session: Session, criteria: list[int], model: str) -> dict[str, Any
     """Costo estimado con el mismo pedido que se mandará; precio de models.toml, no escrito en el código."""
     cfg = analysis.model_config(model)
     rows, transcripts, summary = table(session)
-    system = system_prompt()
+    system, merge_system = prompts()
     total, cases, discarded, missing_price = 0.0, 0, 0, False
+    requests_per_criterion = []
     for cid in criteria:
         rows_c = of_criterion(rows, cid)
         if not rows_c:
             continue
         done = discarded_for(session, cid)
         discarded += len(done)
-        user, sent = analysis.build_request(
+        requests = analysis.build_requests(
             cid, rows_c, transcripts, analysis.criterion_counts(rows_c, summary["n_calls"]), done
         )
-        cases += len(sent)
-        tokens_in = int((len(system) + len(user)) / analysis.CHARS_PER_TOKEN)
-        cost = bench.cost_usd(cfg, {"input_tokens": tokens_in, "output_tokens": analysis.EXPECTED_OUTPUT_TOKENS})
+        cases += sum(len(sent) for _, sent in requests)
+        requests_per_criterion.append(len(requests) + (len(requests) > 1))
+        tokens_in, tokens_out = analysis.estimate_tokens(system, merge_system, requests)
+        cost = bench.cost_usd(cfg, {"input_tokens": tokens_in, "output_tokens": tokens_out})
         if cost is None:
             missing_price = True
         total += cost or 0
@@ -142,7 +146,8 @@ def estimate(session: Session, criteria: list[int], model: str) -> dict[str, Any
         "cases": cases,
         "discardedProposals": discarded,
         "totalUsd": None if missing_price else round(total, 4),
-        "minutes": round(-(-len(criteria) // WORKERS) * SECONDS_PER_CRITERION / 60, 1),
+        # Los motivos corren de a WORKERS en paralelo y cada uno hace sus pedidos seguidos.
+        "minutes": round(sum(sorted(requests_per_criterion, reverse=True)[::WORKERS]) * SECONDS_PER_REQUEST / 60, 1),
     }
 
 
@@ -280,23 +285,45 @@ def patterns_from(result: dict, rows_c: list[dict], cid: int, weight: float) -> 
     return out
 
 
-def analyze_criterion(
-    cfg: dict, system: str, user: str, sent: list[dict], transcripts: dict, caller: ModelCaller
-) -> tuple[dict, float]:
-    """Respuesta del modelo con las citas validadas y su costo. Si el JSON no se puede leer, reintenta una vez."""
-    cost = 0.0
+def ask(cfg: dict, system: str, user: str, caller: ModelCaller, spent: list[float]) -> dict:
+    """Un pedido al modelo. Si el JSON no se puede leer, reintenta una vez. Suma lo gastado en `spent`."""
     for attempt in range(2):
-        text, spent = caller(cfg, system, user)
-        cost += spent
+        text, cost = caller(cfg, system, user)
+        spent.append(cost)
         try:
-            result = analysis.parse_response(text)
+            return analysis.parse_response(text)
         except ValueError:
             if attempt:
-                raise ValueError(f"respuesta sin JSON válido · {cost:.3f} USD") from None
-            continue
-        analysis.validate_quotes(result, sent, transcripts)
-        return result, cost
+                raise ValueError(f"respuesta sin JSON válido · {sum(spent):.3f} USD") from None
     raise AssertionError("unreachable")
+
+
+def analyze_criterion(
+    cfg: dict,
+    systems: tuple[str, str],
+    requests: list[tuple[str, list[dict]]],
+    merge_user: Callable[[list[dict]], str],
+    transcripts: dict,
+    caller: ModelCaller,
+) -> tuple[dict, float]:
+    """Análisis de un motivo con las citas validadas y su costo: una respuesta por tanda y, si hay más de una, la
+    pasada que las junta. Si falla, el error lleva lo que ya se gastó."""
+    spent: list[float] = []
+    try:
+        partials = [ask(cfg, systems[0], user, caller, spent) for user, _ in requests]
+        result = partials[0] if len(partials) == 1 else ask(cfg, systems[1], merge_user(partials), caller, spent)
+    except Exception as exc:
+        raise CriterionError(str(exc), sum(spent)) from exc
+    analysis.validate_quotes(result, [r for _, sent in requests for r in sent], transcripts)
+    return result, sum(spent)
+
+
+class CriterionError(Exception):
+    """Un motivo que falló, con lo que alcanzó a gastar (se suma al costo del análisis)."""
+
+    def __init__(self, message: str, cost: float) -> None:
+        super().__init__(message)
+        self.cost = cost
 
 
 def run_analysis(factory: sessionmaker[Session], run_id: str, caller: ModelCaller) -> None:
@@ -309,7 +336,7 @@ def run_analysis(factory: sessionmaker[Session], run_id: str, caller: ModelCalle
         discarded = {cid: discarded_for(session, cid) for cid in criteria}
 
     cfg = analysis.model_config(model)
-    system = system_prompt()
+    systems = prompts()
     minor = load_minor()
     todo = [cid for cid in criteria if cid not in finished]
 
@@ -318,11 +345,16 @@ def run_analysis(factory: sessionmaker[Session], run_id: str, caller: ModelCalle
         if not rows_c:
             return cid, {"summary": "Sin desacuerdos en este motivo."}, [], 0.0, None
         counts = analysis.criterion_counts(rows_c, summary["n_calls"])
-        user, sent = analysis.build_request(cid, rows_c, transcripts, counts, discarded.get(cid))
+        requests = analysis.build_requests(cid, rows_c, transcripts, counts, discarded.get(cid))
+
+        def merge_user(partials: list[dict]) -> str:
+            return analysis.merge_request(cid, rows_c[0], counts, partials)
+
         try:
-            result, cost = analyze_criterion(cfg, system, user, sent, transcripts, caller)
-        except Exception as exc:  # noqa: BLE001 - un motivo con error no frena los demás
-            return cid, None, [], 0.0, f"{type(exc).__name__}: {exc}"[:300]
+            result, cost = analyze_criterion(cfg, systems, requests, merge_user, transcripts, caller)
+        except CriterionError as exc:  # un motivo con error no frena los demás
+            cause = exc.__cause__ or exc
+            return cid, None, [], exc.cost, f"{type(cause).__name__}: {cause}"[:300]
         weight = MINOR_WEIGHT if cid in minor else 1.0
         return cid, result, patterns_from(result, rows_c, cid, weight), cost, None
 

@@ -9,6 +9,11 @@ import type {
 } from "@/lib/api/admin-types";
 
 export const CAUSE: Record<DiscrepancyCause, string> = {
+  rule_text: "Texto de la regla",
+  ai_application: "La IA aplica mal la regla",
+  auditor: "Auditor",
+  motive_overlap: "Frontera entre motivos",
+  // Causas del prompt de análisis v1.0.0, que siguen en los análisis guardados.
   criterion: "Criterio del prompt",
   evaluator: "Evaluador del cliente",
   transcript: "Transcripción",

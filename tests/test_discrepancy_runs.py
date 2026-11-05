@@ -206,3 +206,18 @@ def test_gemini_falls_back_to_openrouter(monkeypatch: pytest.MonkeyPatch) -> Non
     cfg = discrepancy_runs.analysis.model_config("gemini-3-8-flash")
     text, cost = discrepancy_runs.bench_caller()(cfg, "system", "user")
     assert used == ["gemini-3-8-flash", "or-gemini-3-8-flash"] and text == "{}" and cost > 0
+
+
+def test_big_criterion_runs_in_batches_and_merges(
+    client: TestClient, admin: User, imported: sessionmaker[Session], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Un motivo que no cabe en un pedido: una respuesta por tanda y la pasada que las junta, con el costo de todas."""
+    login(client, admin)
+    monkeypatch.setattr(discrepancy_runs.analysis, "BATCH_TOKENS", 1)
+    estimate = client.post("/api/admin/discrepancies/estimate", json={"criteria": [30], "model": MODEL}).json()
+    model = FakeModel()
+    data = run(client, imported, model)
+    assert len(model.users) == 4  # 3 casos, uno por tanda, y la pasada que junta
+    assert "## Tanda 3 de 3" in model.users[3] and "Transcripción completa" not in model.users[3]
+    assert data["analysis"]["status"] == "done" and data["analysis"]["costUsd"] == pytest.approx(0.08)
+    assert estimate["cases"] == 3

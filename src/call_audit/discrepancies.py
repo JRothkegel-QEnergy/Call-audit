@@ -167,8 +167,11 @@ def build(session: Session, manual_csv: dict[str, dict]) -> tuple[list[dict], di
     skipped = Counter()
     for case in session.scalars(select(Case).order_by(Case.call_id)):
         run = next((r for r in case.runs if r.is_current), None)
-        if run is None or run.error:
+        if run is None:
             skipped["sin corrida vigente"] += 1
+            continue
+        if run.error:
+            skipped["la corrida vigente terminó con error"] += 1
             continue
         if case.external_item_fails is None:
             skipped["sin marca por motivo del cliente"] += 1
@@ -191,6 +194,7 @@ def build(session: Session, manual_csv: dict[str, dict]) -> tuple[list[dict], di
             "case_id": case.id,
             "call_date": case.call_date,
             "excel_evaluator": evaluator,
+            "agent_id": (case.call_metadata or {}).get("agent_id"),
             "model": run.model,
             "run_label": run.run_label,
             "prompt_version": run.prompt_version,
@@ -247,8 +251,11 @@ def build(session: Session, manual_csv: dict[str, dict]) -> tuple[list[dict], di
                     "manual_finding_notes": manual["finding_notes"].get(cid, []),
                     "rule": rules.get(cid),
                     "rule_prompt_version": prompt_version,
-                    "typification": meta.get("typification") if cid >= 18 else None,
-                    "holds_sec": meta.get("holds_sec") if cid == 1 else None,
+                    # Los datos de la llamada que recibió la IA evaluadora, en todos los motivos: sin ellos el
+                    # análisis no puede ver un dato faltante (v1.1.0 del prompt de análisis).
+                    "policies": meta.get("policies"),
+                    "typification": meta.get("typification"),
+                    "holds_sec": meta.get("holds_sec"),
                     "transcript_excerpt": [
                         {"speaker": t["speaker"], "startMs": t["startMs"], "text": t["text"]}
                         for t in excerpt(case.transcript, ev.get("startMs"), ev.get("endMs"))

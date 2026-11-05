@@ -3,7 +3,7 @@ import type { PipelineRun } from "@/lib/api/admin-types";
 /** Fila de "Últimas pasadas": una pasada suelta o una racha de pasadas iguales y seguidas (Cambio 14 §7, D-60). */
 export type RunRow =
   | { kind: "run"; run: PipelineRun }
-  | { kind: "group"; key: string; signature: "idle" | "errors" | "failed"; runs: PipelineRun[]; truncated: boolean };
+  | { kind: "group"; key: string; signature: "idle" | "errors" | "quota" | "failed"; runs: PipelineRun[]; truncated: boolean };
 
 /** Terminó sin transcribir, validar ni archivar nada (puede haber audios bloqueados en la raíz). */
 export function isIdle(run: PipelineRun): boolean {
@@ -21,8 +21,10 @@ export function isIdle(run: PipelineRun): boolean {
 function signature(run: PipelineRun): string | null {
   if (isIdle(run)) return "idle";
   if (run.status === "failed") return `failed:${run.error ?? ""}`;
-  if (run.status === "done" && run.asrErrors > 0)
-    return `errors:${[run.transcribed, run.asrErrors, run.asrRateLimited, run.validated, run.archived].join(",")}`;
+  const counts = [run.transcribed, run.asrErrors, run.asrRateLimited, run.validated, run.archived].join(",");
+  if (run.status === "done" && run.asrErrors > 0) return `errors:${counts}`;
+  // Desde que un 429/402 no cuenta como intento, una cuenta sin saldo deja pasadas solo "por cuota", todas iguales.
+  if (run.status === "done" && run.asrRateLimited > 0) return `quota:${counts}`;
   return null;
 }
 
@@ -40,7 +42,7 @@ export function groupRuns(runs: PipelineRun[], maxRows = 20, complete = true): R
       rows.push({
         kind: "group",
         key: String(group[group.length - 1].id),
-        signature: sig === "idle" ? "idle" : sig.startsWith("failed:") ? "failed" : "errors",
+        signature: sig === "idle" ? "idle" : (sig.split(":")[0] as "errors" | "quota" | "failed"),
         runs: group,
         truncated: j === runs.length && !complete,
       });

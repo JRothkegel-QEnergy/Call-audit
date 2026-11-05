@@ -7,6 +7,20 @@ Cada componente tiene además su propio historial detallado:
 - Prompt de verificación de afirmaciones: historial al final de `docs/layer2-claims-prompt.md`.
 - Diseño del front: `docs/ux/call-audit/estado.md` (fases y cambios aprobados).
 
+## 2026-11-05
+
+- **Prompt de análisis de discrepancias v1.1.0** (`prompts/discrepancy_analysis/v1.1.0`), con los comentarios de Johannes sobre la v1.0.0:
+  - el analista ya no sabe del Excel: solo que un auditor humano marcó cumple o no cumple por motivo;
+  - por patrón decide qué lado tiene más razón: si es el auditor, propone el cambio a la regla del prompt de la capa 2; si es la IA, explica el problema del auditor;
+  - recibe **todos los casos**, sin muestra, y cada uno con la **llamada completa** y los datos que recibió la IA evaluadora (seguros, tipificación, duración, esperas), para que un «dato faltante» se pueda mostrar en el caso;
+  - cada caso trae el código del ejecutivo, y el analista avisa cuando un patrón se concentra en pocos ejecutivos o en un auditor;
+  - un motivo que no cabe en un pedido (tope de 150 mil tokens) se parte en tandas y una pasada con `merge.txt` las junta en un resultado.
+  - Con producción (29 motivos, 1.385 casos): 91 pedidos, ~US$20,5 y ~28 min con Sonnet 5.5, contra ~US$3,7 de la v1.0.0. Los motivos 25 y 18 van en 11 y 10 tandas.
+- **Calidad de la IA:** corrida «Vigente», elegida por defecto, que junta la corrida vigente de cada llamada. En producción la vigente estaba repartida entre «v2.10» (100 llamadas) y «v2.10 automático» (997), y la vista elegía la de 100: 997 salían sin resultado y el mapa quedaba vacío.
+- **Procesamiento:** las pasadas iguales y seguidas que solo tienen audios «por cuota» (cuenta sin saldo) también se agrupan.
+- **Análisis de discrepancias:** las llamadas cuya corrida vigente terminó con error ya no se cuentan como «sin corrida vigente».
+- **Imagen de la API:** lleva el bench completo (`scripts/prompt_bench/*.py` y el extra `bench`). Sin eso, el deploy del análisis no arrancaba (`ModuleNotFoundError: real_calls`) y producción estuvo caída unos 10 minutos.
+
 ## 2026-11-04
 
 - **Tabla de discrepancias** (`python -m call_audit.discrepancies`), paso 1 de la cuarta IA (`docs/plan-ia-discrepancias.md`). Sin IA y solo lectura:
