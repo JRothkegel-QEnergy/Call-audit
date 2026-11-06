@@ -129,6 +129,18 @@
 | 2026-11-05 | D-72 · La empresa como contraparte se llama **la empresa**; `{clientName}` se interpola solo en el encabezado del admin, Cuentas y la invitación ("Preguntas a la empresa", no "a {clientName}") | Johannes |
 | 2026-11-05 | D-73 · "Por presentar al cliente" pasa a **"Por presentar"** | Johannes |
 | 2026-11-05 | D-74 · Las etiquetas de la fuente se centralizan en una constante del front (`SOURCE_LABEL`). Alcance: copy visible y mocks de la demo; comentarios y JSDoc no se tocan. Aviso del panel del modelo: "Contenido técnico confidencial de Qubico y de la empresa, con datos de clientes. …" (el original se refería a ambas) | Johannes |
+| 2026-11-06 | Cambio 19 (revisión rápida, `19-discrepancias-visual.md`): capa visual sobre Análisis de discrepancias (cifras clave, «¿Quién tiene más razón?», barras divergentes por motivo, mapa de prioridad). Hallazgo: `who_is_right`, `concentration`, `side_effects` y `expected_fix` del prompt v1.1/v1.2 no llegan a la API ni a la vista. Pendientes P1–P5; supuestos H-132 a H-138; decisiones desde D-80 | Diseñador; pedido de Johannes |
+| 2026-11-06 | Cambio 19: alcance aprobado (Johannes: todas las recomendadas, P1–P5 = A); H-132 a H-138 sin objeción (H-132 ajustado: todos los admin) | Johannes |
+| 2026-11-06 | D-80 · Arriba: cifras clave + «¿Dónde se arregla?» + barras por motivo (cuánto es del prompt y cuánto del auditor, y en qué motivos) | Johannes |
+| 2026-11-06 | D-81 · Se exponen `who_is_right`, `concentration`, `side_effects`, `expected_fix`, `tentative`, `unexplained_cases` | Johannes |
+| 2026-11-06 | D-82 · Mapa de prioridad de patrones plegado y usable como filtro | Johannes |
+| 2026-11-06 | D-83 · Barras por motivo por defecto + «Ver como tabla» | Johannes |
+| 2026-11-06 | D-84 · Lo de v1.0.0 se oculta solo cuando el análisis mostrado no lo tiene | Johannes |
+| 2026-11-06 | D-85 · Se diseña sobre el análisis v1.0.0 existente, sin re-correr (~20 USD); lo de v1.1+ con estado «sin dato en este análisis» | Johannes (vía PM) |
+| 2026-11-06 | D-86 · «Quién tiene más razón» se grafica rotulado «según el análisis», no como medición | Johannes (vía PM) |
+| 2026-11-06 | D-87 · Lo ven todos los `qubico_admin` | Johannes (vía PM) |
+| 2026-11-06 | Cambio 19 §7 entregado (qué se puede mostrar por versión, estructura, wireframe v1.0.0 y v1.1+, detalle y Seguimiento, estados, textos, accesibilidad, impacto en tipos y API). Supuestos H-139 a H-142. Esperando aprobación | Diseñador |
+| 2026-11-06 | Cambio 19 §7 **aprobado e implementado** (Johannes: «Sí, implementa», todas las recomendadas): corte del mapa de prioridad en 10 casos fijos (H-139) y «Depende de la empresa» como un solo segmento (H-142). Backend (`pattern_out`, `summary`, `followUp`, `capabilities`) y front (`discrepancy-charts.tsx`). Revisado en el modo demo; falta verlo con el análisis real de producción | Johannes; implementación |
 
 ## Preguntas abiertas
 

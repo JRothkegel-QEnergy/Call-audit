@@ -433,10 +433,61 @@ def version_status(session: Session, version: str | None) -> str | None:
     return row.status if row else None
 
 
+WHO_IS_RIGHT = ("auditor", "ia", "ambiguo")
+# Grupo de «¿Dónde se arregla?» por tipo de propuesta (Cambio 19 §7.3). Pregunta y pedido de datos son del prompt de
+# análisis v1.0.0 y van juntos (H-142).
+ACTION_GROUP = {
+    "prompt_rule": "prompt_rule",
+    "calibrate_auditor": "calibrate_auditor",
+    "client_question": "company",
+    "data_request": "company",
+}
+RESOLVED = ("included", "asked_client", "calibrated")
+
+
+def text_or_none(value: Any) -> str | None:
+    """Texto del análisis; vacío o ausente = sin dato (null), nunca un texto inventado."""
+    return value.strip() if isinstance(value, str) and value.strip() else None
+
+
+def ai_fields(data: dict) -> dict:
+    """Lo que solo trae el prompt de análisis v1.1+ (Cambio 19 §7.9). Clave ausente = null = «sin dato»."""
+    who = data.get("who_is_right")
+    fix = data.get("expected_fix")
+    tentative = data.get("tentative")
+    return {
+        "whoIsRight": who if who in WHO_IS_RIGHT else None,
+        "concentration": text_or_none(data.get("concentration")),
+        "sideEffects": text_or_none(data.get("side_effects")),
+        "expectedFix": [str(c) for c in fix] if isinstance(fix, list) else None,
+        "tentative": tentative if isinstance(tentative, bool) else None,
+    }
+
+
+def kind_counts(cases: list[dict]) -> dict[str, int]:
+    """fp / fn / dudosa de los casos del patrón, tal como estaban al analizar (sin IA)."""
+    kinds = Counter(c.get("kind") for c in cases)
+    return {"fp": kinds["fp"], "fn": kinds["fn"], "uncertain": kinds["ai_uncertain"]}
+
+
+def capabilities(patterns: list[DiscrepancyPattern]) -> dict[str, bool]:
+    """Qué campos de v1.1+ trae el análisis, según las claves de sus patrones (no según la versión del prompt)."""
+    keys = {k for p in patterns if not p.is_observation for k in (p.data or {})}
+    return {
+        "whoIsRight": "who_is_right" in keys,
+        "expectedFix": "expected_fix" in keys,
+        "sideEffects": "side_effects" in keys,
+        "concentration": "concentration" in keys,
+        "tentative": "tentative" in keys,
+    }
+
+
 def pattern_out(session: Session, p: DiscrepancyPattern, decision: ProposalDecision | None) -> dict:
     data = p.data or {}
     proposal = data.get("proposal") or None
     return {
+        **ai_fields(data),
+        "kindCounts": kind_counts(p.cases or []),
         "id": p.id,
         "analysisId": p.analysis_id,
         "criterionId": p.criterion_id,
@@ -506,6 +557,80 @@ def stale(session: Session, run: DiscrepancyAnalysis) -> dict | None:
     return {"currentSeriesChanged": changed, "currentSeries": series if changed else None, "newReviews": reviews}
 
 
+def best_pattern(patterns: list[DiscrepancyPattern]) -> dict[tuple[int, str], DiscrepancyPattern]:
+    """Caso (motivo × llamada) -> el patrón de mejor prioridad que lo contiene (H-140). `patterns` viene ordenado
+    como la lista: primero los patrones, por impacto, y al final las observaciones."""
+    out: dict[tuple[int, str], DiscrepancyPattern] = {}
+    for p in patterns:
+        for c in p.cases or []:
+            out.setdefault((p.criterion_id, str(c["callId"])), p)
+    return out
+
+
+def action_of(p: DiscrepancyPattern) -> str:
+    if p.is_observation:
+        return "observation"
+    return ACTION_GROUP.get(((p.data or {}).get("proposal") or {}).get("type"), "none")
+
+
+def analysis_summary(
+    rows: list[dict],
+    shown: DiscrepancyAnalysis | None,
+    patterns: list[DiscrepancyPattern],
+    decisions: dict[str, ProposalDecision],
+    caps: dict[str, bool],
+) -> tuple[dict, dict[int, dict]]:
+    """Cifras del resumen y de las barras (Cambio 19 §7.3), sin IA y sobre la tabla vigente. Un caso es motivo ×
+    llamada y cuenta una vez. Devuelve el resumen y, por motivo analizado, sus casos en un patrón y analizados."""
+    analyzed = set(shown.done_criteria) if shown else set()
+    current = {(r["criterion_id"], str(r["call_id"])): r["kind"] for r in rows if r["kind"] in DISAGREEMENT}
+    best = best_pattern(patterns)
+    by_action = dict.fromkeys(("prompt_rule", "calibrate_auditor", "company", "none", "observation", "unpatterned"), 0)
+    by_who = dict.fromkeys((*WHO_IS_RIGHT, "unpatterned"), 0)
+    per_criterion: dict[int, dict] = {cid: {"fp": 0, "fn": 0, "uncertain": 0, "analyzed": 0} for cid in analyzed}
+    explained = 0
+    for (cid, call), kind in current.items():
+        if cid not in analyzed:
+            continue
+        per_criterion[cid]["analyzed"] += 1
+        p = best.get((cid, call))
+        by_action[action_of(p) if p else "unpatterned"] += 1
+        if p is None or p.is_observation:
+            by_who["unpatterned"] += 1
+            continue
+        explained += 1
+        per_criterion[cid]["uncertain" if kind == "ai_uncertain" else kind] += 1
+        by_who[ai_fields(p.data or {})["whoIsRight"] or "ambiguo"] += 1
+    pending = [
+        p for p in patterns if not p.is_observation and (p.id not in decisions or decisions[p.id].status == "pending")
+    ]
+    disagreements = {k: v for k, v in current.items() if v in ("fp", "fn")}
+    summary = {
+        "disagreements": len(disagreements),
+        "criteriaWithDisagreements": len({cid for cid, _ in disagreements}),
+        "criteriaNotAnalyzed": len({cid for cid, _ in disagreements} - analyzed) if shown else None,
+        "analyzedCases": sum(c["analyzed"] for c in per_criterion.values()),
+        "explainedCases": explained,
+        "byAction": by_action,
+        "byWhoIsRight": by_who if caps["whoIsRight"] else None,
+        "pendingProposals": len(pending),
+        "pendingCases": len({(p.criterion_id, str(c["callId"])) for p in pending for c in p.cases or []}),
+        # Casos del análisis que con la corrida vigente ya no están en desacuerdo.
+        "staleCases": sum(1 for key in best if key not in current),
+    }
+    return summary, per_criterion
+
+
+def follow_up_counts(session: Session) -> dict[str, int]:
+    """Avance de Seguimiento (Cambio 19 §7.5): siempre el estado actual, de todos los análisis."""
+    statuses = Counter(session.scalars(select(ProposalDecision.status)))
+    return {
+        "accepted": sum(statuses[s] for s in (*FOLLOW_UP, "included")),
+        "resolved": sum(statuses[s] for s in RESOLVED),
+        "discarded": statuses["discarded"],
+    }
+
+
 def overview(session: Session, analysis_id: str | None = None) -> dict[str, Any]:
     rows, _, summary = table(session)
     shown = session.get(DiscrepancyAnalysis, analysis_id) if analysis_id else latest_finished(session)
@@ -526,6 +651,8 @@ def overview(session: Session, analysis_id: str | None = None) -> dict[str, Any]
     decisions = decisions_for(session, [p.id for p in patterns])
     per_criterion = Counter(p.criterion_id for p in patterns if not p.is_observation)
     analyzed = set(shown.done_criteria) if shown else set()
+    caps = capabilities(patterns)
+    analysis_summary_out, explained = analysis_summary(rows, shown, patterns, decisions, caps)
     criteria = [
         {
             "criterionId": t["criterion_id"],
@@ -539,6 +666,10 @@ def overview(session: Session, analysis_id: str | None = None) -> dict[str, Any]
             "disagreements": t["disagreements"],
             "manualItems": t["manual_items"],
             "patterns": per_criterion[t["criterion_id"]] if t["criterion_id"] in analyzed else None,
+            "explained": {k: explained[t["criterion_id"]][k] for k in ("fp", "fn", "uncertain")}
+            if t["criterion_id"] in analyzed
+            else None,
+            "analyzedCases": explained[t["criterion_id"]]["analyzed"] if t["criterion_id"] in analyzed else None,
             "summary": (shown.summaries or {}).get(str(t["criterion_id"])) if shown else None,
         }
         for t in discrepancies.criterion_table(summary["counts"])
@@ -573,7 +704,9 @@ def overview(session: Session, analysis_id: str | None = None) -> dict[str, Any]
         },
         "criteria": criteria,
         "evaluators": evaluators,
-        "analysis": analysis_out(shown),
+        "analysis": {**analysis_out(shown), "capabilities": caps} if shown else None,
+        "summary": analysis_summary_out,
+        "followUp": follow_up_counts(session),
         "readOnly": shown is not None and latest is not None and shown.id != latest.id,
         "running": analysis_out(running(session)),
         "stale": stale(session, shown) if shown is not None and shown.id == getattr(latest, "id", None) else None,
@@ -590,9 +723,10 @@ def pattern_detail(session: Session, pattern_id: str) -> dict[str, Any]:
     decision = session.get(ProposalDecision, pattern_id)
     run = session.get(DiscrepancyAnalysis, p.analysis_id)
     latest = latest_finished(session)
+    fix = ai_fields(p.data or {})["expectedFix"]
     return {
         **pattern_out(session, p, decision),
-        "cases": p.cases,
+        "cases": [{**c, "expectedFix": None if fix is None else str(c["callId"]) in fix} for c in p.cases],
         "criterionSummary": (run.summaries or {}).get(str(p.criterion_id)),
         "readOnly": latest is not None and run.id != latest.id,
     }

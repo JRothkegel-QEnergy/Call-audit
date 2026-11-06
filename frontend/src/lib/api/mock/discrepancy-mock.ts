@@ -10,6 +10,7 @@ import type {
   DiscrepancyOverview,
   DiscrepancyPattern,
   DiscrepancyPatternDetail,
+  DiscrepancySummary,
 } from "../admin-types";
 import { ApiError } from "../admin-types";
 import type { ApiClient } from "../client";
@@ -53,6 +54,8 @@ const row = (
   disagreements: fp + fn + aiUncertain,
   manualItems,
   patterns: null,
+  explained: null,
+  analyzedCases: null,
   summary: null,
 });
 
@@ -82,6 +85,7 @@ function makeCases(n: number, kind: DiscrepancyCase["kind"], seed: number): Disc
       manualVerdict: manual,
       manualSidesWith: manual == null ? null : manual === "non_compliant" ? (kind === "fp" ? "ai" : "excel") : kind === "fp" ? "excel" : "ai",
       evaluator: null,
+      expectedFix: null,
     };
   });
 }
@@ -100,6 +104,17 @@ const pattern = (p: Partial<MockPattern> & Pick<MockPattern, "id" | "criterionId
   caseCount: p.cases.length,
   reviewerDisagreements: p.cases.filter((c) => c.manualVerdict && (c.manualVerdict === "non_compliant") !== c.clientFail).length,
   isObservation: false,
+  kindCounts: {
+    fp: p.cases.filter((c) => c.kind === "fp").length,
+    fn: p.cases.filter((c) => c.kind === "fn").length,
+    uncertain: p.cases.filter((c) => c.kind === "ai_uncertain").length,
+  },
+  // El análisis de la demo es v1.0.0 (Cambio 19 D-85): sin los campos de v1.1+.
+  whoIsRight: null,
+  expectedFix: null,
+  sideEffects: null,
+  concentration: null,
+  tentative: null,
   proposal: null,
   status: "pending",
   decision: null,
@@ -289,6 +304,50 @@ function tick() {
   }
 }
 
+const NO_CAPABILITIES = { whoIsRight: false, expectedFix: false, sideEffects: false, concentration: false, tentative: false };
+const kindKey = (kind: DiscrepancyCase["kind"]) => (kind === "ai_uncertain" ? "uncertain" : kind === "fp" ? "fp" : "fn");
+
+/** Cifras del resumen (Cambio 19 §7.3), como el backend: un caso cuenta una vez, en su patrón de mejor prioridad. */
+function summarize(shown: DiscrepancyAnalysisRun | null | undefined, patterns: MockPattern[]) {
+  const analyzed = new Set(shown?.doneCriteria ?? []);
+  const ordered = [...patterns].sort((a, b) => Number(a.isObservation) - Number(b.isObservation) || a.rank - b.rank);
+  const best = new Map<string, MockPattern>();
+  for (const p of ordered) for (const c of p.cases) if (!best.has(`${p.criterionId}:${c.callId}`)) best.set(`${p.criterionId}:${c.callId}`, p);
+  const byAction: DiscrepancySummary["byAction"] = { prompt_rule: 0, calibrate_auditor: 0, company: 0, none: 0, observation: 0, unpatterned: 0 };
+  const explained = new Map<number, { fp: number; fn: number; uncertain: number }>();
+  let analyzedCases = 0;
+  for (const c of CRITERIA) {
+    if (!analyzed.has(c.criterionId)) continue;
+    const counts = { fp: 0, fn: 0, uncertain: 0 };
+    let inAny = 0;
+    for (const [key, p] of best) {
+      if (!key.startsWith(`${c.criterionId}:`)) continue;
+      inAny += 1;
+      const t = p.proposal?.type;
+      byAction[p.isObservation ? "observation" : t === "client_question" || t === "data_request" ? "company" : (t ?? "none")] += 1;
+      if (!p.isObservation) counts[kindKey(p.cases.find((x) => `${p.criterionId}:${x.callId}` === key)!.kind)] += 1;
+    }
+    byAction.unpatterned += Math.max(0, c.disagreements - inAny);
+    explained.set(c.criterionId, counts);
+    analyzedCases += c.disagreements;
+  }
+  const pending = patterns.filter((p) => !p.isObservation && p.status === "pending");
+  const disagreeing = CRITERIA.filter((c) => c.fp + c.fn > 0);
+  const summary: DiscrepancySummary = {
+    disagreements: CRITERIA.reduce((n, c) => n + c.fp + c.fn, 0),
+    criteriaWithDisagreements: disagreeing.length,
+    criteriaNotAnalyzed: shown ? disagreeing.filter((c) => !analyzed.has(c.criterionId)).length : null,
+    analyzedCases,
+    explainedCases: [...explained.values()].reduce((n, e) => n + e.fp + e.fn + e.uncertain, 0),
+    byAction,
+    byWhoIsRight: null,
+    pendingProposals: pending.length,
+    pendingCases: pending.reduce((n, p) => n + p.caseCount, 0),
+    staleCases: 0,
+  };
+  return { summary, explained };
+}
+
 const latest = () => state.analyses.find((a) => a.status !== "running" && a.doneCriteria.length > 0) ?? null;
 
 export const discrepancyMock: DiscrepancyApi = {
@@ -300,6 +359,8 @@ export const discrepancyMock: DiscrepancyApi = {
       if (analysisId && !shown) throw new ApiError("not_found");
       const patterns = shown ? state.patterns.filter((p) => shown.doneCriteria.includes(p.criterionId) && (shown.id === last?.id || p.criterionId === 25)) : [];
       const cases = CRITERIA.reduce((n, c) => n + c.disagreements, 0);
+      const { summary: totals, explained } = summarize(shown, patterns);
+      const decided = state.patterns.filter((p) => p.status !== "pending");
       return {
         currentSeries: SERIES,
         calls: 480,
@@ -311,9 +372,17 @@ export const discrepancyMock: DiscrepancyApi = {
           ...c,
           patterns: shown?.doneCriteria.includes(c.criterionId) ? patterns.filter((p) => p.criterionId === c.criterionId && !p.isObservation).length : null,
           summary: shown?.doneCriteria.includes(c.criterionId) ? (state.summaries[c.criterionId] ?? null) : null,
+          explained: explained.get(c.criterionId) ?? null,
+          analyzedCases: explained.has(c.criterionId) ? c.disagreements : null,
         })),
         evaluators: null,
-        analysis: shown ?? null,
+        analysis: shown ? { ...shown, capabilities: NO_CAPABILITIES } : null,
+        summary: totals,
+        followUp: {
+          accepted: decided.filter((p) => p.status !== "discarded").length,
+          resolved: decided.filter((p) => ["included", "asked_client", "calibrated"].includes(p.status)).length,
+          discarded: decided.filter((p) => p.status === "discarded").length,
+        },
         readOnly: !!shown && !!last && shown.id !== last.id,
         running: state.analyses.find((a) => a.status === "running") ?? null,
         stale: shown && shown.id === last?.id ? { currentSeriesChanged: false, currentSeries: null, newReviews: 4 } : null,

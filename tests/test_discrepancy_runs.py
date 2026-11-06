@@ -234,3 +234,72 @@ def test_pattern_without_proposal_has_nothing_to_accept(
     assert data["analysis"]["status"] == "done"
     without, _ = data["patterns"]
     assert without["caseCount"] == 3 and without["isObservation"] and without["proposal"] is None
+
+
+def test_summary_with_analysis_v1_0(client: TestClient, admin: User, imported: sessionmaker[Session]) -> None:
+    """Cambio 19: con un análisis sin los campos de v1.1+ las cifras salen sin IA y lo demás queda en null."""
+    login(client, admin)
+    before = client.get("/api/admin/discrepancies").json()
+    assert before["summary"]["analyzedCases"] == 0 and before["summary"]["criteriaNotAnalyzed"] is None
+    data = run(client, imported, FakeModel())
+    assert data["analysis"]["capabilities"] == dict.fromkeys(
+        ("whoIsRight", "expectedFix", "sideEffects", "concentration", "tentative"), False
+    )
+    pattern, _ = data["patterns"]
+    assert pattern["kindCounts"] == {"fp": 1, "fn": 2, "uncertain": 0}
+    assert [pattern[k] for k in ("whoIsRight", "expectedFix", "sideEffects", "concentration", "tentative")] == [
+        None
+    ] * 5
+    summary = data["summary"]
+    # Los 3 casos del motivo 30 están en el patrón; 1002 también en la observación, pero cuenta una vez.
+    assert summary["analyzedCases"] == 3 and summary["explainedCases"] == 3
+    assert summary["byAction"] == {
+        "prompt_rule": 3,
+        "calibrate_auditor": 0,
+        "company": 0,
+        "none": 0,
+        "observation": 0,
+        "unpatterned": 0,
+    }
+    assert summary["byWhoIsRight"] is None
+    assert (summary["pendingProposals"], summary["pendingCases"], summary["staleCases"]) == (1, 3, 0)
+    row = next(c for c in data["criteria"] if c["criterionId"] == 30)
+    assert row["explained"] == {"fp": 1, "fn": 2, "uncertain": 0} and row["analyzedCases"] == 3
+    assert all(c["explained"] is None for c in data["criteria"] if c["criterionId"] != 30)
+    assert data["followUp"] == {"accepted": 0, "resolved": 0, "discarded": 0}
+    detail = client.get(f"/api/admin/discrepancies/patterns/{pattern['id']}").json()
+    assert {c["expectedFix"] for c in detail["cases"]} == {None}
+
+    url = f"/api/admin/discrepancies/patterns/{pattern['id']}/decision"
+    client.post(url, json={"decision": "accepted"})
+    after = client.get("/api/admin/discrepancies").json()
+    assert after["followUp"] == {"accepted": 1, "resolved": 0, "discarded": 0}
+    assert after["summary"]["pendingProposals"] == 0
+
+
+def test_summary_with_analysis_v1_2(
+    client: TestClient, admin: User, imported: sessionmaker[Session], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Con los campos de v1.1+: quién tiene más razón, lo que corregiría y los casos sin patrón."""
+    login(client, admin)
+    pattern = PATTERN["patterns"][0] | {
+        "cause": "rule_text",
+        "cases": ["1001", "1003", "1002"],
+        "who_is_right": "auditor",
+        "tentative": False,
+        "concentration": "",
+        "side_effects": "1004 podría cambiar.",
+        "expected_fix": ["1001", "1003"],
+        "proposal": {"type": "calibrate_auditor", "action": None, "find": None, "text": "Calibrar el cierre."},
+    }
+    monkeypatch.setitem(PATTERN, "patterns", [pattern])
+    data = run(client, imported, FakeModel())
+    assert all(data["analysis"]["capabilities"].values())
+    out, _ = data["patterns"]
+    assert out["whoIsRight"] == "auditor" and out["expectedFix"] == ["1001", "1003"]
+    assert out["concentration"] is None and out["sideEffects"] == "1004 podría cambiar." and out["tentative"] is False
+    summary = data["summary"]
+    assert summary["byWhoIsRight"] == {"auditor": 3, "ia": 0, "ambiguo": 0, "unpatterned": 0}
+    assert summary["byAction"]["calibrate_auditor"] == 3
+    detail = client.get(f"/api/admin/discrepancies/patterns/{out['id']}").json()
+    assert {c["callId"]: c["expectedFix"] for c in detail["cases"]} == {"1001": True, "1002": False, "1003": True}

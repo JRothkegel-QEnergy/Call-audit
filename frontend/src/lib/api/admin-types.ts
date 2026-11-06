@@ -284,7 +284,43 @@ export interface DiscrepancyCriterionRow {
   manualItems: number;
   /** null = el análisis mostrado no incluyó este motivo («sin analizar»). */
   patterns: number | null;
+  /** Casos del motivo que quedaron en un patrón (Cambio 19); null = sin analizar. */
+  explained: KindCounts | null;
+  /** fp + fn + IA dudosa del motivo enviados al análisis; null = sin analizar. */
+  analyzedCases: number | null;
   summary: string | null;
+}
+
+export interface KindCounts {
+  fp: number;
+  fn: number;
+  uncertain: number;
+}
+
+/** Qué campos del prompt de análisis v1.1+ trae el análisis (Cambio 19 §7.9). */
+export interface DiscrepancyCapabilities {
+  whoIsRight: boolean;
+  expectedFix: boolean;
+  sideEffects: boolean;
+  concentration: boolean;
+  tentative: boolean;
+}
+
+export type WhoIsRight = "auditor" | "ia" | "ambiguo";
+export type ActionGroup = "prompt_rule" | "calibrate_auditor" | "company" | "none" | "observation" | "unpatterned";
+
+/** Cifras del resumen (Cambio 19 §7.3), en casos (motivo × llamada), sin IA. */
+export interface DiscrepancySummary {
+  disagreements: number;
+  criteriaWithDisagreements: number;
+  criteriaNotAnalyzed: number | null;
+  analyzedCases: number;
+  explainedCases: number;
+  byAction: Record<ActionGroup, number>;
+  byWhoIsRight: Record<WhoIsRight | "unpatterned", number> | null;
+  pendingProposals: number;
+  pendingCases: number;
+  staleCases: number;
 }
 
 export interface DiscrepancyEvaluatorRow {
@@ -315,6 +351,8 @@ export interface DiscrepancyAnalysisRun {
   stoppedBy: string | null;
   /** Solo en el historial: patrones (sin observaciones). */
   patterns?: number;
+  /** Solo en el overview. */
+  capabilities?: DiscrepancyCapabilities;
 }
 
 export interface DiscrepancyQuote {
@@ -338,6 +376,13 @@ export interface DiscrepancyPattern {
   caseCount: number;
   reviewerDisagreements: number;
   isObservation: boolean;
+  kindCounts: KindCounts;
+  /** Campos del prompt de análisis v1.1+; null = sin dato en este análisis. */
+  whoIsRight: WhoIsRight | null;
+  expectedFix: string[] | null;
+  sideEffects: string | null;
+  concentration: string | null;
+  tentative: boolean | null;
   proposal: {
     type: ProposalType;
     /** Cómo se aplica una regla del prompt (análisis v1.3.0, Cambio 18). null = texto libre (propuestas anteriores). */
@@ -372,6 +417,8 @@ export interface DiscrepancyCase {
   manualVerdict: string | null;
   manualSidesWith: "ai" | "excel" | "none" | null;
   evaluator: string | null;
+  /** La propuesta lo corregiría, según el análisis; null = sin dato. */
+  expectedFix: boolean | null;
 }
 
 export interface DiscrepancyPatternDetail extends DiscrepancyPattern {
@@ -399,6 +446,8 @@ export interface DiscrepancyOverview {
   criteria: DiscrepancyCriterionRow[];
   evaluators: DiscrepancyEvaluatorRow[] | null;
   analysis: DiscrepancyAnalysisRun | null;
+  summary: DiscrepancySummary;
+  followUp: { accepted: number; resolved: number; discarded: number };
   readOnly: boolean;
   running: DiscrepancyAnalysisRun | null;
   stale: { currentSeriesChanged: boolean; currentSeries: Layer2Series | null; newReviews: number } | null;

@@ -127,3 +127,14 @@
 | H-121 | El supervisor reconoce "la planilla" como la planilla de aprobado/rechazado de su equipo de calidad. | Cambio 17 | 1–2 supervisores | Pendiente (2026-11-05) |
 | H-122 | El veredicto de calidad seguirá llegando en planilla durante el MVP; si llega por API, se revisa D-71 (barato por D-74). | Cambio 17 | Johannes / `pipeline-architect` | Pendiente (2026-11-05) |
 | H-123 | "Datos del cliente" en el aviso del panel del modelo (L-29) cubría a la empresa y a las personas que llaman; confirmado por Johannes. | Cambio 17 | Johannes | Validada (2026-11-05) |
+| H-132 | La vista la usan todos los `qubico_admin` en escritorio ≥ 1280 px; sin modo presentación ni exportación de imágenes. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
+| H-133 | Los gráficos se hacen con HTML/CSS o SVG simple, sin librería de gráficos nueva. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
+| H-134 | Auditor e IA se distinguen con `--series-*`, nunca verde/rojo; el texto y el relleno los distinguen sin color. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
+| H-135 | Las cifras cuentan casos (llamada × motivo), no patrones. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
+| H-136 | "Sin patrón" junta observaciones aparte y casos sin explicar, para no inflar lo explicado. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
+| H-137 | El resumen visual es del análisis mostrado; si está desactualizado, el aviso se repite junto a las cifras. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
+| H-138 | Cada gráfico lleva al detalle filtrado; ninguno lo reemplaza. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
+| H-139 | El corte "muchos casos" del mapa de prioridad es 10 casos. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
+| H-140 | Un caso en dos patrones cuenta para el de mejor prioridad. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
+| H-141 | "Explicado por patrones" usa como base fp + fn + IA dudosa de los motivos analizados; "Casos en desacuerdo" es fp + fn. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
+| H-142 | Pregunta y pedido de datos se juntan como "Depende de la empresa" solo en la barra. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |

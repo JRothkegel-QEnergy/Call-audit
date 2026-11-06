@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { CaseMix, PatternAiLines } from "@/components/admin/discrepancy-charts";
 import { StatusBadge } from "@/components/ui/badges";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -156,6 +157,8 @@ export function PatternCard({
         {p.isObservation ? "Observación" : `${p.rank} ·`} Motivo {p.criterionId} · {p.title}
       </h3>
       <PatternTags p={p} />
+      <CaseMix k={p.kindCounts} />
+      <PatternAiLines p={p} />
       <PatternBody p={p} />
       <PatternActions p={p} readOnly={readOnly} onChange={onChange} />
     </article>

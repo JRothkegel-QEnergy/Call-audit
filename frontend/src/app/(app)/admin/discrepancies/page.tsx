@@ -6,12 +6,33 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AdminHeader } from "@/components/admin/admin-header";
+import {
+  ACTION_LABEL,
+  ActionBar,
+  CriteriaChart,
+  FollowUpProgress,
+  PriorityMap,
+  quadrantOf,
+  QUADRANT_LABEL,
+  SummaryTiles,
+  WHO_LABEL,
+  WhoIsRightBar,
+  type Quadrant,
+} from "@/components/admin/discrepancy-charts";
 import { AnalyzeDialog, PatternBody, PatternCard } from "@/components/admin/discrepancy-parts";
 import { StatusBadge } from "@/components/ui/badges";
 import { Button } from "@/components/ui/button";
 import { AsyncView, EmptyState, LoadingState } from "@/components/ui/states";
 import { api } from "@/lib/api";
-import type { DiscrepancyCause, DiscrepancyOverview, DiscrepancyPattern, ProposalType } from "@/lib/api/admin-types";
+import type {
+  ActionGroup,
+  DiscrepancyCause,
+  DiscrepancyCriterionRow,
+  DiscrepancyOverview,
+  DiscrepancyPattern,
+  ProposalType,
+  WhoIsRight,
+} from "@/lib/api/admin-types";
 import { ANALYSIS_STATUS, CAUSE, followUpGroup, PROPOSAL, statusLabel, usd } from "@/lib/discrepancy-labels";
 import { int, shortDateTime } from "@/lib/format";
 import { useAsync } from "@/lib/use-async";
@@ -19,7 +40,8 @@ import { useAsync } from "@/lib/use-async";
 type Tab = "analysis" | "followup" | "history";
 
 /** Análisis de discrepancias del admin Qubico (Cambio 16). Estado en la URL: ?tab=…&cause=…&type=…&status=…&motivo=…
- * &analysis=… (un análisis anterior se abre en solo lectura, H-112). */
+ * &analysis=… (un análisis anterior se abre en solo lectura, H-112). Cambio 19: &view=table, &quad=…, &action=…,
+ * &right=… (filtros desde los gráficos). */
 export default function DiscrepancyAnalysisPage() {
   return (
     <Suspense fallback={<LoadingState />}>
@@ -134,6 +156,7 @@ function AnalysisView({
   const [decided, setDecided] = useState<Record<string, DiscrepancyPattern>>({});
   const patterns = data.patterns.map((p) => decided[p.id] ?? p);
   const patternsTitle = useRef<HTMLHeadingElement>(null);
+  const observationsRef = useRef<HTMLDetailsElement>(null);
   const [announce, setAnnounce] = useState("");
 
   if (data.calls === 0) {
@@ -150,14 +173,36 @@ function AnalysisView({
   const type = params.get("type") as ProposalType | null;
   const status = params.get("status") ?? "pending";
   const motive = params.get("motivo") ? Number(params.get("motivo")) : null;
+  const view = params.get("view") === "table" ? "table" : "chart";
+  const quad = (Object.keys(QUADRANT_LABEL) as Quadrant[]).find((q) => q === params.get("quad")) ?? null;
+  const action = (Object.keys(ACTION_LABEL) as ActionGroup[]).find((k) => k === params.get("action")) ?? null;
+  const right = (["auditor", "ia", "ambiguo"] as WhoIsRight[]).find((k) => k === params.get("right")) ?? null;
   const visible = patterns.filter(
     (p) =>
       !p.isObservation &&
       (!cause || p.cause === cause) &&
       (!type || p.proposal?.type === type) &&
       (status === "all" || (status === "pending" ? p.status === "pending" : p.status !== "pending")) &&
-      (motive == null || p.criterionId === motive),
+      (motive == null || p.criterionId === motive) &&
+      (!quad || quadrantOf(p) === quad) &&
+      (!action || actionOf(p) === action) &&
+      (!right || p.whoIsRight === right),
   );
+  // D-84: los filtros solo ofrecen las causas y tipos que trae el análisis mostrado.
+  const causes = (Object.entries(CAUSE) as [DiscrepancyCause, string][]).filter(([k]) =>
+    patterns.some((p) => !p.isObservation && p.cause === k),
+  );
+  const types = (Object.entries(PROPOSAL) as [ProposalType, string][]).filter(([k]) => patterns.some((p) => p.proposal?.type === k));
+  const caps = a?.capabilities;
+  const lacking = caps
+    ? [
+        !caps.whoIsRight && "quién tiene más razón",
+        !caps.expectedFix && "casos que corregiría",
+        !caps.sideEffects && "posibles efectos",
+        !caps.concentration && "concentración",
+      ].filter((x): x is string => !!x)
+    : [];
+  const focusPatterns = () => setTimeout(() => patternsTitle.current?.focus(), 50);
   const observations = patterns.filter((p) => p.isObservation && (motive == null || p.criterionId === motive));
   const pending = a ? a.criteria.filter((c) => !a.doneCriteria.includes(c)) : [];
   const manualPct = data.cases ? Math.round((100 * data.manualCases) / data.cases) : 0;
@@ -166,7 +211,7 @@ function AnalysisView({
     setAnnounce(`Patrón de motivo ${p.criterionId}: ${statusLabel(p)}`);
     onDecision();
   };
-  const filtered = !!(cause || type || motive != null || status !== "pending");
+  const filtered = !!(cause || type || motive != null || status !== "pending" || quad || action || right);
 
   return (
     <div className="grid gap-4">
@@ -238,6 +283,54 @@ function AnalysisView({
         )}
       </section>
 
+      <SummaryTiles
+        s={data.summary}
+        hasAnalysis={!!a}
+        followUp={data.followUp}
+        stale={!!data.stale}
+        onFollowUp={() => setParams({ tab: "followup", analysis: null })}
+      />
+
+      {a ? (
+        <section className="card grid gap-3">
+          <ActionBar
+            s={data.summary}
+            criteria={a.doneCriteria.length}
+            selected={action}
+            onSelect={(k) => {
+              if (k === "observation") {
+                if (observationsRef.current) observationsRef.current.open = true;
+                observationsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                return;
+              }
+              setParams({ action: k, status: k ? "all" : null });
+              if (k && k !== "unpatterned") focusPatterns();
+            }}
+          />
+          {action === "unpatterned" && (
+            <p className="m-0 text-sm" role="note">
+              {int(data.summary.byAction.unpatterned)} casos analizados sin patrón: la IA no encontró algo en común.{" "}
+              <Link href="/admin/stats?tab=quality">Revísalos desde Calidad de la IA →</Link>
+            </p>
+          )}
+          <WhoIsRightBar
+            s={data.summary}
+            version={a.analysisPromptVersion}
+            selected={right}
+            onSelect={(k) => {
+              setParams({ right: k, status: k ? "all" : null });
+              if (k) focusPatterns();
+            }}
+          />
+        </section>
+      ) : (
+        !run && (
+          <p className="help m-0">
+            Todavía no hay análisis con IA. Analizar busca patrones y propone dónde se arregla cada uno; no cambia el prompt.
+          </p>
+        )
+      )}
+
       <p className="help m-0">
         {int(data.calls)} llamadas · {int(data.cases)} casos en desacuerdo · {data.manualCases} casos con revisión manual Qubico ({manualPct} %)
         {Object.entries(data.callsOutside).map(([why, n]) => ` · ${n} llamadas fuera (${why})`)}
@@ -245,64 +338,41 @@ function AnalysisView({
       </p>
 
       <section className="grid gap-2">
-        <h2 className="m-0 text-lg font-semibold">¿Dónde están los desacuerdos?</h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="m-0 flex-1 text-lg font-semibold">¿Dónde están los desacuerdos?</h2>
+          <div className="seg" role="group" aria-label="Vista">
+            <button type="button" aria-pressed={view === "chart"} onClick={() => setParams({ view: null })}>
+              Gráfico
+            </button>
+            <button type="button" aria-pressed={view === "table"} onClick={() => setParams({ view: "table" })}>
+              Tabla
+            </button>
+          </div>
+        </div>
         <p className="help m-0">
           Calce de llamada: {data.callMatch.agree} de {data.callMatch.total} (
           {data.callMatch.total ? Math.round((100 * data.callMatch.agree) / data.callMatch.total) : 0} %) ·{" "}
           <Link href="/admin/stats?tab=quality">Ver en Calidad de la IA →</Link>
         </p>
-        <div className="overflow-x-auto">
-          <table className="tbl">
-            <thead>
-              <tr>
-                <th scope="col">Motivo</th>
-                <th scope="col">Planilla NO CUMPLE</th>
-                <th scope="col">IA NO CUMPLE</th>
-                <th scope="col">Coinciden</th>
-                <th scope="col">Solo la IA detectó</th>
-                <th scope="col">Omitidos por la IA</th>
-                <th scope="col">IA dudosa</th>
-                <th scope="col">Con revisión manual</th>
-                <th scope="col">Patrones</th>
-                <th scope="col">
-                  <span className="sr-only">Acción</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.criteria.map((c) => (
-                <tr key={c.criterionId} aria-current={motive === c.criterionId || undefined}>
-                  <td>
-                    {c.criterionId} · {c.name}
-                    {c.summary && <div className="help">{c.summary}</div>}
-                  </td>
-                  <td className="num">{c.clientFails}</td>
-                  <td className="num">{c.aiFails}</td>
-                  <td className="num">{c.matchFail}</td>
-                  <td className="num">{c.fp}</td>
-                  <td className="num">{c.fn}</td>
-                  <td className="num">{c.aiUncertain}</td>
-                  <td className="num">{c.manualItems}</td>
-                  <td className="num">{c.patterns == null ? <span className="help">sin analizar</span> : c.patterns}</td>
-                  <td>
-                    {c.patterns != null && (
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-sm whitespace-nowrap"
-                        onClick={() => {
-                          setParams({ motivo: String(c.criterionId), status: "all" });
-                          setTimeout(() => patternsTitle.current?.focus(), 50);
-                        }}
-                      >
-                        Ver patrones
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {view === "chart" ? (
+          <CriteriaChart
+            rows={data.criteria}
+            selected={motive}
+            onSelect={(cid) => {
+              setParams({ motivo: motive === cid ? null : String(cid), status: "all" });
+              if (motive !== cid) focusPatterns();
+            }}
+          />
+        ) : (
+          <CriteriaTable
+            rows={data.criteria}
+            motive={motive}
+            onSelect={(cid) => {
+              setParams({ motivo: String(cid), status: "all" });
+              focusPatterns();
+            }}
+          />
+        )}
       </section>
 
       <details className="card">
@@ -344,23 +414,35 @@ function AnalysisView({
         )}
       </details>
 
+      {a && <PriorityMap patterns={patterns} selected={quad} onSelect={(q) => setParams({ quad: q, status: null })} />}
+
       {a && (
         <section className="grid gap-2">
           <h2 ref={patternsTitle} tabIndex={-1} className="m-0 text-lg font-semibold">
             Patrones · ordenados por impacto
           </h2>
+          <span className="sr-only" aria-live="polite">
+            {visible.length} patrones
+          </span>
+          {lacking.length > 0 && (
+            <p className="help m-0" role="note">
+              ⓘ Este análisis usó el prompt de análisis v{a.analysisPromptVersion}: no trae {lacking.slice(0, -1).join(", ")}
+              {lacking.length > 1 ? " ni " : ""}
+              {lacking[lacking.length - 1]}. Aparecen al correr un análisis nuevo.
+            </p>
+          )}
           <div className="flex flex-wrap items-center gap-2">
             <FilterSeg
               label="Causa"
               value={cause}
-              options={Object.entries(CAUSE) as [string, string][]}
+              options={causes}
               onChange={(v) => setParams({ cause: v })}
             />
             <FilterSeg
               label="Tipo"
               allLabel="Todos"
               value={type}
-              options={Object.entries(PROPOSAL) as [string, string][]}
+              options={types}
               onChange={(v) => setParams({ type: v })}
             />
             <select
@@ -374,8 +456,11 @@ function AnalysisView({
               <option value="all">Todas</option>
             </select>
             {motive != null && <StatusBadge>Motivo {motive}</StatusBadge>}
+            {quad && <StatusBadge>{QUADRANT_LABEL[quad][0]}</StatusBadge>}
+            {action && action !== "unpatterned" && <StatusBadge>{ACTION_LABEL[action]}</StatusBadge>}
+            {right && <StatusBadge>Más razón: {WHO_LABEL[right].toLowerCase()}</StatusBadge>}
             {filtered && (
-              <Button size="sm" variant="ghost" onClick={() => setParams({ cause: null, type: null, status: null, motivo: null })}>
+              <Button size="sm" variant="ghost" onClick={() => setParams({ cause: null, type: null, status: null, motivo: null, quad: null, action: null, right: null })}>
                 Quitar filtros
               </Button>
             )}
@@ -391,7 +476,7 @@ function AnalysisView({
       )}
 
       {observations.length > 0 && (
-        <details className="card">
+        <details className="card" ref={observationsRef}>
           <summary className="cursor-pointer font-medium">
             Observaciones ({observations.length}) · patrones con menos de 3 casos, sin propuesta para aceptar
           </summary>
@@ -417,6 +502,10 @@ function AnalysisView({
           hallazgos para revisar: nada cambia el prompt ni los resultados hasta que una persona sube una versión nueva. Un patrón con menos de 3
           casos queda como observación. Si la planilla y la revisión manual Qubico no coinciden, el caso va a calibración y no al prompt.
         </p>
+        <p className="mb-0">
+          Las barras cuentan casos (llamada × motivo), no patrones; un caso en varios patrones cuenta una vez, en el de mejor prioridad.
+          «Según el análisis» quiere decir que lo decidió la IA de análisis y nadie lo ha verificado.
+        </p>
       </details>
 
       {dialog && (
@@ -431,6 +520,72 @@ function AnalysisView({
           }}
         />
       )}
+    </div>
+  );
+}
+
+/** Grupo de «¿Dónde se arregla?» de un patrón (igual que el backend). */
+function actionOf(p: DiscrepancyPattern): ActionGroup {
+  if (p.isObservation) return "observation";
+  const t = p.proposal?.type;
+  return t === "client_question" || t === "data_request" ? "company" : (t ?? "none");
+}
+
+/** La tabla por motivo de siempre (Cambio 16), en «Ver como tabla» (D-83). */
+function CriteriaTable({
+  rows,
+  motive,
+  onSelect,
+}: {
+  rows: DiscrepancyCriterionRow[];
+  motive: number | null;
+  onSelect: (criterionId: number) => void;
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="tbl">
+        <thead>
+          <tr>
+            <th scope="col">Motivo</th>
+            <th scope="col">Planilla NO CUMPLE</th>
+            <th scope="col">IA NO CUMPLE</th>
+            <th scope="col">Coinciden</th>
+            <th scope="col">Solo la IA detectó</th>
+            <th scope="col">Omitidos por la IA</th>
+            <th scope="col">IA dudosa</th>
+            <th scope="col">Con revisión manual</th>
+            <th scope="col">Patrones</th>
+            <th scope="col">
+              <span className="sr-only">Acción</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((c) => (
+            <tr key={c.criterionId} aria-current={motive === c.criterionId || undefined}>
+              <td>
+                {c.criterionId} · {c.name}
+                {c.summary && <div className="help">{c.summary}</div>}
+              </td>
+              <td className="num">{c.clientFails}</td>
+              <td className="num">{c.aiFails}</td>
+              <td className="num">{c.matchFail}</td>
+              <td className="num">{c.fp}</td>
+              <td className="num">{c.fn}</td>
+              <td className="num">{c.aiUncertain}</td>
+              <td className="num">{c.manualItems}</td>
+              <td className="num">{c.patterns == null ? <span className="help">sin analizar</span> : c.patterns}</td>
+              <td>
+                {c.patterns != null && (
+                  <button type="button" className="btn btn-ghost btn-sm whitespace-nowrap" onClick={() => onSelect(c.criterionId)}>
+                    Ver patrones
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -527,8 +682,16 @@ function FollowUpTab({ rows, onChange }: { rows: DiscrepancyPattern[]; onChange:
       : ready.length > 0 && checked.length === 0
         ? "Marca al menos una regla."
         : null;
+  const resolved = active.filter((p) => ["included", "asked_client", "calibrated"].includes(p.status)).length;
   return (
     <div className="grid gap-4">
+      <section className="card grid gap-1">
+        <FollowUpProgress resolved={resolved} waiting={active.length - resolved} discarded={discarded.length} />
+        <p className="help m-0">
+          Para la próxima versión {prompt.length}
+          {client.length > 0 ? ` · Preguntas a la empresa ${client.length}` : ""} · Para calibrar {calibrate.length}
+        </p>
+      </section>
       <FollowUpList
         title="Para la próxima versión del prompt"
         empty="Nada pendiente para la próxima versión."
@@ -578,6 +741,7 @@ function FollowUpTab({ rows, onChange }: { rows: DiscrepancyPattern[]; onChange:
           )
         }
       </FollowUpList>
+      {client.length > 0 && (
       <FollowUpList
         title="Preguntas a la empresa"
         empty="Sin preguntas a la empresa."
@@ -607,6 +771,7 @@ function FollowUpTab({ rows, onChange }: { rows: DiscrepancyPattern[]; onChange:
           </>
         )}
       </FollowUpList>
+      )}
       <FollowUpList title="Para calibrar con el auditor" empty="Nada para calibrar." rows={calibrate}>
         {(p) => (
           <>
