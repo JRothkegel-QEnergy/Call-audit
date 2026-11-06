@@ -99,6 +99,8 @@ COLUMN_ALIASES = {
 # Error de cuota o de saldo de Gemini (402: la cuenta prepago quedó sin créditos): no es culpa del audio, así que no
 # gasta uno de sus MAX_ASR_ATTEMPTS.
 RATE_LIMIT_MARKERS = ("429", "RESOURCE_EXHAUSTED", "HTTP Error 402")
+# Lo mismo en la validación (los SDK dicen «Error code: 402»): esa corrida queda con error y se reintenta.
+VALIDATION_RETRY_MARKERS = (*RATE_LIMIT_MARKERS, "Error code: 402")
 
 
 def load_asr() -> ModuleType:
@@ -260,13 +262,47 @@ def restore_asr(store: Store, stem: str, asr_dir: Path, asr_model: str) -> None:
 
 
 def validated(session: Session, model: str) -> set[str]:
-    """Grabaciones que ya tienen una corrida automática de `model` (con cualquier versión de prompt)."""
+    """Grabaciones que ya tienen una corrida automática de `model` (con cualquier versión de prompt). Una corrida que
+    falló por cuota o saldo del modelo no cuenta: esa grabación se vuelve a validar en la próxima pasada."""
+    return {recording for recording, error in automatic_runs(session, model) if not transient(error)}
+
+
+def retry_validation(session: Session, model: str) -> set[str]:
+    """Grabaciones cuya corrida automática falló por cuota o saldo y que no tienen otra que sirva."""
+    failed = {recording for recording, error in automatic_runs(session, model) if transient(error)}
+    return failed - validated(session, model)
+
+
+def automatic_runs(session: Session, model: str) -> list[tuple[str, str | None]]:
     query = (
-        select(Case.recording)
+        select(Case.recording, ModelRun.error)
         .join(Case.runs)
         .where(ModelRun.model == model, ModelRun.run_label.endswith(f" {LABEL_SUFFIX}"))
     )
-    return set(session.scalars(query))
+    return [(recording, error) for recording, error in session.execute(query)]
+
+
+def transient(error: str | None) -> bool:
+    return bool(error) and any(marker in error for marker in VALIDATION_RETRY_MARKERS)
+
+
+def retry_archived(store: Store, stems: set[str], rows: dict[str, dict], asr_dir: Path, asr_model: str) -> list[str]:
+    """Grabaciones ya archivadas en output/ cuya validación falló por saldo (ej. los 402 del 2 y 4 nov): el output
+    trae la transcripción y la fila de metadata, así que se validan de nuevo sin el audio ni el Excel."""
+    ready = []
+    for stem in sorted(stems):
+        try:
+            restore_asr(store, stem, asr_dir, asr_model)
+            meta = json.loads(store.read_output(stem)).get("metadata") or {} if stem not in rows else None
+        except Exception:  # noqa: BLE001 - un output ilegible no frena a los demás
+            logger.exception("No se pudo leer el output de %s", stem)
+            continue
+        if meta is not None:
+            row = {k: parse_date(v) if str(k).startswith("FECHA") else v for k, v in meta.items()}
+            complete_row(stem, row)
+            rows[stem] = row
+        ready.append(stem)
+    return ready
 
 
 def upload_audio(audio: Path, settings: Settings) -> None:
@@ -285,7 +321,7 @@ def upload_audio(audio: Path, settings: Settings) -> None:
 def validate(
     stems: list[str],
     rows: dict[str, dict],
-    audio: Callable[[str], Path],
+    audio: Callable[[str], Path | None],
     settings: Settings,
     on_done: Callable[[], None] | None = None,
 ) -> tuple[int, list[Path]]:
@@ -318,6 +354,8 @@ def validate(
     for item in index:
         try:
             path = audio(item["recording"])
+            if path is None:
+                continue
             upload_audio(path, settings)
             uploaded.append(path)
         except Exception:  # noqa: BLE001 - sin audio la llamada igual se puede revisar
@@ -494,11 +532,17 @@ def run_pass(settings: Settings, progress: Progress) -> dict[str, int]:
 
         with get_sessionmaker()() as session:
             done = validated(session, settings.pipeline_model)
+            retry = retry_validation(session, settings.pipeline_model)
         pending = [s for s in audios if s in outputs and s in rows and s not in done]
+        pending += retry_archived(store, (retry & outputs) - audios.keys(), rows, work / "asr", asr_model)
         progress.set(stage="validating", validate_total=len(pending))
         if pending:
             stats["validated"], uploaded = validate(
-                pending, rows, lambda s: store.fetch(audios[s]), settings, on_done=lambda: progress.add(validated=1)
+                pending,
+                rows,
+                lambda s: store.fetch(audios[s]) if s in audios else None,  # el archivado ya está en S3
+                settings,
+                on_done=lambda: progress.add(validated=1),
             )
             for path in uploaded:
                 store.release(path)

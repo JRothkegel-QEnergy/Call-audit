@@ -302,6 +302,75 @@ def test_real_failures_still_block(env: dict) -> None:
     assert pipeline.run_once(env["settings"])["transcribed"] == 0 and env["calls"]["asr"] == 0
 
 
+def failing_model(monkeypatch: pytest.MonkeyPatch, error: str) -> None:
+    """El modelo de validación falla con `error` (como lo deja bench: un .error.txt sin respuesta)."""
+
+    def fake_run_one(cfg: dict, stem: str, system: str, force: bool) -> str:
+        out = bench.RESULTS_DIR / cfg["name"]
+        out.mkdir(parents=True, exist_ok=True)
+        (out / f"{stem}.error.txt").write_text(error, encoding="utf-8")
+        return "error"
+
+    monkeypatch.setattr(bench, "run_one", fake_run_one)
+
+
+def current_run(db: sessionmaker[Session]):
+    with db() as session:
+        case = session.scalar(select(Case).where(Case.recording == RECORDING))
+        return next(r for r in case.runs if r.run_label.endswith(" automático"))
+
+
+NO_CREDITS = "APIStatusError: Error code: 402 - Your prepayment credits are depleted."
+
+
+def test_validation_without_credits_is_retried(env: dict, monkeypatch: pytest.MonkeyPatch) -> None:
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(env["inbox"], "lote.csv", CSV)
+    real_run_one = bench.run_one
+    failing_model(monkeypatch, NO_CREDITS)
+
+    first = pipeline.run_once(env["settings"])
+
+    # Sin saldo la corrida queda con error y el audio no se archiva: sigue pendiente.
+    assert first["archived"] == 0 and current_run(env["db"]).error == NO_CREDITS
+    monkeypatch.setattr(bench, "run_one", real_run_one)
+    second = pipeline.run_once(env["settings"])
+    assert second["transcribed"] == 0 and second["validated"] == 1 and second["archived"] == 1
+    run = current_run(env["db"])
+    assert run.error is None and run.verdict == "non_compliant"
+
+
+def test_archived_call_without_credits_is_validated_from_output(env: dict, monkeypatch: pytest.MonkeyPatch) -> None:
+    # Caso de los 402 del 2 y 4 nov: la validación falló pero el audio y el Excel ya estaban en output/.
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(env["inbox"], "lote.csv", CSV)
+    real_run_one = bench.run_one
+    failing_model(monkeypatch, NO_CREDITS)
+    pipeline.run_once(env["settings"])
+    root = env["settings"].pipeline_local_dir
+    for name in (f"{RECORDING}.mp3", "lote.csv"):
+        (root / name).replace(root / "output" / name)
+    for path in sorted((env["settings"].pipeline_work_dir / "asr").rglob("*"), reverse=True):
+        path.unlink() if path.is_file() else path.rmdir()
+
+    monkeypatch.setattr(bench, "run_one", real_run_one)
+    stats = pipeline.run_once(env["settings"])
+
+    assert stats["audios"] == 0 and stats["validated"] == 1 and env["calls"]["asr"] == 1
+    run = current_run(env["db"])
+    assert run.error is None and run.verdict == "non_compliant"
+    assert pipeline.run_once(env["settings"])["validated"] == 0
+
+
+def test_other_validation_errors_are_not_retried(env: dict, monkeypatch: pytest.MonkeyPatch) -> None:
+    drop(env["inbox"], f"{RECORDING}.mp3", b"ID3 audio sintetico")
+    drop(env["inbox"], "lote.csv", CSV)
+    failing_model(monkeypatch, "la respuesta no trae una auditoría con 'criterios'")
+
+    assert pipeline.run_once(env["settings"])["archived"] == 1
+    assert pipeline.run_once(env["settings"])["validated"] == 0
+
+
 class FakeSftp:
     """Lo que SftpStore usa de paramiko.SFTPClient, sobre una carpeta local."""
 
