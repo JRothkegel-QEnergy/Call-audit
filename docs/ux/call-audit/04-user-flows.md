@@ -356,7 +356,7 @@ flowchart TD
 | ID | Supuesto |
 |---|---|
 | H-36 | 30 min de inactividad para cerrar sesión y liberar casos `in_review` |
-| H-37 | El umbral de "revisión sospechosamente rápida" es 60 s (como en el v2) mientras el cliente no lo defina |
+| H-37 | El umbral de "revisión sospechosamente rápida" es 60 s (como en el v2) mientras la corredora no lo defina |
 | H-38 | "Deshacer" en la aprobación en lote dura 10 s; después solo se reabre caso a caso |
 | H-39 | La edición de una revisión propia está permitida hasta que el supervisor la apruebe |
 | H-34 | Estado `awaiting_approval`: pendiente de validar con `pipeline-architect` |

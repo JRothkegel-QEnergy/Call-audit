@@ -246,8 +246,8 @@ Término de UI ↔ identificador en el código (`.claude/rules/frontend.md`: ide
 | **Ficha del seguro** | Condiciones del seguro según el catálogo | `product_sheet` | "ficha técnica" |
 | **Seguros** (sección, Cambio 11) | Catálogo de fichas que la IA usa para validar | `catalog` | "Pautas" (la pauta son los 33 motivos), "Productos" |
 | **Versión de la ficha** | Cada guardado crea una versión; cada validación guarda cuál usó (D-29) | `sheet_version` | "revisión" |
-| **Excel de seguros** / **Carga** | Archivo del cliente con condiciones de seguros / una subida y su revisión | `catalog_upload` / `upload` | "pauta", "plantilla", "importación" |
-| **Nombre en sistema** | Cómo aparece el seguro en los sistemas del cliente (lo que trae la llamada) | `system_names` | "alias" |
+| **Excel de seguros** / **Carga** | Archivo de la corredora con condiciones de seguros / una subida y su revisión | `catalog_upload` / `upload` | "pauta", "plantilla", "importación" |
+| **Nombre en sistema** | Cómo aparece el seguro en los sistemas de la corredora (lo que trae la llamada) | `system_names` | "alias" |
 | **Descripción para identificarlo** | Texto libre que ayuda a la IA a reconocer el seguro | `identification_notes` | "prompt" |
 | **Nuevo** / **Ya existe** | Estado de un seguro en una carga según la clave nombre + aseguradora (D-27) | `new` / `exists` | "repetido", "conflicto" |
 | **Posible duplicado** | Advertencia (no estado): comparte póliza o nombre en sistema con otro seguro | `warning = possible_duplicate` | "duplicado" |
@@ -298,4 +298,4 @@ Término de UI ↔ identificador en el código (`.claude/rules/frontend.md`: ide
 
 ---
 
-> **Adición 2026-10-19 (Cambio 09):** rol **Calidad de la IA**, sección **Discrepancias** (`/discrepancies`), panel "Prompt y respuesta del modelo" que reemplaza "Capas y motor", notas por caso y por motivo, y términos nuevos del glosario (veredicto del cliente, ramas, clasificación). Ver `09-cambio-auditoria-ia.md` §2 y §4.
+> **Adición 2026-10-19 (Cambio 09):** rol **Calidad de la IA**, sección **Discrepancias** (`/discrepancies`), panel "Prompt y respuesta del modelo" que reemplaza "Capas y motor", notas por caso y por motivo, y términos nuevos del glosario (veredicto de la corredora, ramas, clasificación). Ver `09-cambio-auditoria-ia.md` §2 y §4.

@@ -333,11 +333,11 @@ function FindingItem(props: Props & { criterionId: number }) {
             )}
             {props.externalItemVerdicts && (
               <>
-                {" "}→ Cliente:{" "}
+                {" "}→ Planilla:{" "}
                 {client ? (
                   ITEM_VERDICT[client.verdict].label
                 ) : (
-                  <span title="Sin dato del cliente en este motivo" aria-label="Sin dato del cliente en este motivo">
+                  <span title="Sin dato de la planilla en este motivo" aria-label="Sin dato de la planilla en este motivo">
                     —
                   </span>
                 )}

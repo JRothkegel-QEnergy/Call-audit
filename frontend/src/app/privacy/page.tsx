@@ -28,7 +28,7 @@ export default function PrivacyPage() {
             <b>Quién los ve:</b> tu supervisor y el equipo de Qubico que opera la plataforma.
           </li>
           <li>
-            <b>Cuánto tiempo:</b> TBD (lo define la empresa cliente).
+            <b>Cuánto tiempo:</b> TBD (lo define la empresa).
           </li>
           <li>
             <b>Tus derechos:</b> puedes pedir acceso, rectificación o eliminación de tus datos a TBD.

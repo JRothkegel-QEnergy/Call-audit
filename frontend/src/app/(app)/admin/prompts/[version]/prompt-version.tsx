@@ -19,7 +19,7 @@ import { useRubric } from "@/lib/rubric";
 import { useAsync } from "@/lib/use-async";
 
 type Tab = "diff" | "test" | "history" | "edit";
-const REF_LABEL = { client: "auditoría del cliente", app_auditors: "auditores de la app" } as const;
+const REF_LABEL = { client: "planilla de calidad", app_auditors: "auditores de la app" } as const;
 const usd = (n: number, d = 4) => `${n.toFixed(d).replace(".", ",")} USD`;
 
 export function PromptVersionView({ version }: { version: string }) {
@@ -304,7 +304,7 @@ function TestTab({ detail }: { detail: PromptVersionDetail }) {
       </p>
     );
   const shown = same ? base : mine;
-  if (!shown) return <p className="help">No hay llamadas con veredicto del cliente para medir.</p>;
+  if (!shown) return <p className="help">No hay llamadas con planilla de calidad para medir.</p>;
   const row = (label: string, get: (m: EvaluationMetrics) => number | undefined, fmt: (n: number) => string, higherIsBetter: boolean) => {
     const a = base ? get(base) : undefined;
     const b = get(shown);
@@ -341,7 +341,7 @@ function TestTab({ detail }: { detail: PromptVersionDetail }) {
           </tr>
         </thead>
         <tbody>
-          {row("Coincidencia con el cliente", (m) => refOf(m, "client")?.matchRate, (n) => pct(n), true)}
+          {row("Coincidencia con la planilla", (m) => refOf(m, "client")?.matchRate, (n) => pct(n), true)}
           {row("Coincidencia con los auditores de la app", (m) => refOf(m, "app_auditors")?.matchRate, (n) => pct(n), true)}
           {row("Dudosas", (m) => refOf(m, "client")?.uncertainRate, (n) => pct(n), false)}
           {row("Solo la IA detectó", (m) => refOf(m, "client")?.aiOnlyFail, String, false)}
@@ -415,7 +415,7 @@ function TestDialog({
                 onStarted();
               } catch (err) {
                 const code = err instanceof Error ? err.message : "";
-                setError(code === "no_calibration" ? "No hay llamadas con veredicto del cliente para probar." : "No pudimos iniciar la prueba. Intenta de nuevo.");
+                setError(code === "no_calibration" ? "No hay llamadas con planilla de calidad para probar." : "No pudimos iniciar la prueba. Intenta de nuevo.");
               } finally {
                 setBusy(false);
               }
@@ -430,11 +430,11 @@ function TestDialog({
       {!e ? (
         <div className="skel" />
       ) : e.calls === 0 ? (
-        <p className="m-0">No hay llamadas con veredicto del cliente para probar.</p>
+        <p className="m-0">No hay llamadas con planilla de calidad para probar.</p>
       ) : (
         <div className="grid gap-2">
           <p className="m-0">
-            Se correrá el modelo <b>{e.model}</b> sobre <b>{e.calls} llamadas</b> que traen el veredicto del cliente.
+            Se correrá el modelo <b>{e.model}</b> sobre <b>{e.calls} llamadas</b> que traen la planilla de calidad.
           </p>
           {cost ? (
             <p className="m-0">
@@ -516,14 +516,14 @@ function ActivateDialog({
       {a != null && b != null && (
         <div className="summary-box">
           <span>
-            v{detail.activeVersion} → v{v} · Coincidencia con el cliente: {pct(a)} → {pct(b)}
+            v{detail.activeVersion} → v{v} · Coincidencia con la planilla: {pct(a)} → {pct(b)}
           </span>
         </div>
       )}
       {worse && (
         <div className="flex items-start gap-1.5 rounded-sm border border-[var(--amber-600)] bg-[var(--amber-100)] px-2 py-1.5 text-[13px] text-amber-800" role="alert">
           <AlertTriangle size={14} aria-hidden className="mt-0.5 flex-none" />
-          Esta versión baja la coincidencia con el cliente de {pct(a!)} a {pct(b!)}.
+          Esta versión baja la coincidencia con la planilla de {pct(a!)} a {pct(b!)}.
         </div>
       )}
       <label className="field">

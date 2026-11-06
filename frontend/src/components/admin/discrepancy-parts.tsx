@@ -147,7 +147,7 @@ export function PatternCard({
 
 const ACCEPT_HELP = {
   prompt: "Queda en Seguimiento para incluirla en la próxima versión del prompt. No cambia el prompt vigente.",
-  client: "Queda en Seguimiento, en Preguntas al cliente.",
+  client: "Queda en Seguimiento, en Preguntas a la empresa.",
   calibrate: "Queda en Seguimiento, en Para calibrar con el auditor.",
 } as const;
 

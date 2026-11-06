@@ -61,10 +61,10 @@ export function SourceBadge({ source }: { source: "ai" | "human" | "queue" | "cl
     return (
       <span
         className="src border-solid"
-        title="Veredicto de la auditoría del cliente. En su planilla: Aprobado = Cumple · Rechazado = No cumple."
+        title="Veredicto de la planilla de calidad. Aprobado = Cumple · Rechazado = No cumple."
       >
         <Building2 size={12} aria-hidden />
-        Auditoría del cliente
+        Planilla de calidad
       </span>
     );
   if (source === "human")

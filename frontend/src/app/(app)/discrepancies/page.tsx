@@ -17,10 +17,10 @@ import { useAsync } from "@/lib/use-async";
 
 /** Ramas en el orden de las pestañas (09 §3.1): la prioritaria primero. */
 const BRANCHES: { key: DiscrepancyBranch; label: string; help: string }[] = [
-  { key: "ai_only_fail", label: "Solo la IA detectó", help: "La IA dice No cumple y el cliente dice Cumple. Clasifica si la IA tenía razón." },
-  { key: "ai_missed_fail", label: "Omitidos por la IA", help: "La IA dice Cumple y el cliente dice No cumple." },
-  { key: "ai_uncertain", label: "IA dudosa", help: "La IA no se decidió, con cualquier veredicto del cliente." },
-  { key: "match", label: "Coinciden", help: "La IA y el cliente dan el mismo veredicto de llamada." },
+  { key: "ai_only_fail", label: "Solo la IA detectó", help: "La IA dice No cumple y la planilla dice Cumple. Clasifica si la IA tenía razón." },
+  { key: "ai_missed_fail", label: "Omitidos por la IA", help: "La IA dice Cumple y la planilla dice No cumple." },
+  { key: "ai_uncertain", label: "IA dudosa", help: "La IA no se decidió, con cualquier veredicto de la planilla." },
+  { key: "match", label: "Coinciden", help: "La IA y la planilla dan el mismo veredicto de llamada." },
 ];
 
 const CLASS_LABEL: Record<DiscrepancyClassification, string> = { ai_correct: "La IA acertó", ai_wrong: "La IA se equivocó" };
@@ -58,8 +58,8 @@ export default function DiscrepanciesPage() {
   return (
     <>
       <PageHeader
-        title="Discrepancias con el cliente"
-        description="Compara la IA con la auditoría del cliente en las llamadas que traen su veredicto."
+        title="Discrepancias con la planilla"
+        description="Compara la IA con la planilla de calidad en las llamadas que la traen."
         actions={
           isRealMode ? undefined : (
             <Button onClick={() => toast("Estamos preparando el archivo. Te avisaremos cuando esté listo.")}>
@@ -73,17 +73,17 @@ export default function DiscrepanciesPage() {
         {(data) =>
           data.length === 0 ? (
             <EmptyState
-              title="Este periodo no trae veredictos del cliente."
-              body="Las discrepancias aparecen cuando un lote incluye la auditoría del cliente."
+              title="Este periodo no trae planilla de calidad."
+              body="Las discrepancias aparecen cuando un lote incluye la planilla de calidad."
             />
           ) : (
             <>
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <SourceBadge source="client" />
-                <span className="help">Referencia: auditoría del cliente · {data.length} llamadas</span>
+                <span className="help">Referencia: planilla de calidad · {data.length} llamadas</span>
               </div>
               <div className="mb-4 grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-3">
-                <Metric label="Coinciden" value={`${counts.match}`} hint={`${pct((counts.match / counts.total) * 100)} de coincidencia con el cliente`} />
+                <Metric label="Coinciden" value={`${counts.match}`} hint={`${pct((counts.match / counts.total) * 100)} de coincidencia con la planilla`} />
                 <Metric label="Solo la IA detectó" value={`${counts.aiOnly}`} hint={`${counts.aiOnlyPending} sin clasificar`} strong />
                 <Metric label="Omitidos por la IA" value={`${counts.missed}`} />
                 <Metric label="IA dudosa" value={`${counts.uncertain}`} />
@@ -106,7 +106,7 @@ export default function DiscrepanciesPage() {
                     onChange={(e) => setPresentationFilter(e.target.value as "all" | "pending")}
                   >
                     <option value="all">Seguimiento: todos</option>
-                    <option value="pending">Por presentar al cliente</option>
+                    <option value="pending">Por presentar</option>
                   </select>
                 )}
               </div>
@@ -121,7 +121,7 @@ export default function DiscrepanciesPage() {
                       <th>Fecha</th>
                       <th>Ejecutivo</th>
                       <th>IA</th>
-                      <th>Cliente</th>
+                      <th>Planilla</th>
                       <th>Auditor de la app</th>
                       <th>Motivos de la IA que incumplen</th>
                       {branch === "ai_only_fail" && <th>Clasificación</th>}
@@ -175,7 +175,7 @@ export default function DiscrepanciesPage() {
                                         void rows.reload({ silent: true });
                                       }}
                                     />
-                                    {r.presentation === "presented" ? "Presentado" : "Por presentar al cliente"}
+                                    {r.presentation === "presented" ? "Presentado" : "Por presentar"}
                                   </label>
                                 )}
                                 <Button variant="ghost" size="sm" onClick={() => void unclassify(r)}>

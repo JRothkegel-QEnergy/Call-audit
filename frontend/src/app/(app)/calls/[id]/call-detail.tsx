@@ -395,12 +395,12 @@ function CallWorkspace({
       {/* Veredicto del cliente: solo llega al supervisor (D-24) y solo si vino en la metadata (D-25). */}
       {seesClient && data.externalQualityVerdict && (
         <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px]">
-          <span className="text-muted-foreground">Cliente:</span>
+          <span className="text-muted-foreground">Planilla:</span>
           <CallVerdictBadge verdict={data.externalQualityVerdict} />
           <SourceBadge source="client" />
           {data.externalComment && (
             <details className="ml-1">
-              <summary className="cursor-pointer text-accent-foreground">Comentario del cliente</summary>
+              <summary className="cursor-pointer text-accent-foreground">Comentario en la planilla</summary>
               <p className="m-0 mt-1 max-w-[720px] rounded-md border border-border bg-card px-2.5 py-1.5">«{data.externalComment}»</p>
             </details>
           )}

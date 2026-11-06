@@ -75,7 +75,7 @@ export default function AdminAccountsPage() {
     <>
       <AdminHeader
         title="Cuentas"
-        description={`Personas con acceso a Call Audit en ${user?.clientName ?? "el cliente"}.`}
+        description={`Personas con acceso a Call Audit en ${user?.clientName ?? "la empresa"}.`}
         actions={
           <Button variant="primary" onClick={() => setInviteOpen(true)}>
             <Plus size={14} aria-hidden />

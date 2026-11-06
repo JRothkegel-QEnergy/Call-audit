@@ -210,7 +210,7 @@ Todas en `08-prototipo-alta-fidelidad.html`, con los estados del selector "Estad
 | Recharts (si se usa) | MIT | Sí | — |
 | Design system "Modernist" del zip | **Desconocida** | **Verificar** | Solo se tomó la dirección visual vía `app.css` (tokens de color y radios). No se copió su CSS de componentes |
 | Logo Qubico | Propiedad de Qubico | — | Falta el SVG oficial |
-| Marca BancoEstado | De terceros | **No usar** | El nombre aparece solo dentro de los textos de la pauta (motivos 10 y 11), como contenido del cliente |
+| Marca BancoEstado | De terceros | **No usar** | El nombre aparece solo dentro de los textos de la pauta (motivos 10 y 11), como contenido de la corredora |
 
 > Las licencias de las librerías se verifican al instalar la versión exacta (CLAUDE.md: verificar antes de citar).
 

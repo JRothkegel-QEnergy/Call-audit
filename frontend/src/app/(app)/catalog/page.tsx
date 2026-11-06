@@ -147,7 +147,7 @@ export default function CatalogPage() {
                     </Button>
                   </EmptyState>
                 ) : (
-                  <EmptyState title="Aún no hay seguros en el catálogo." body="Sube el Excel del cliente para empezar.">
+                  <EmptyState title="Aún no hay seguros en el catálogo." body="Sube el Excel de seguros para empezar.">
                     <Button variant="primary" onClick={() => setUploadOpen(true)}>
                       Subir Excel
                     </Button>

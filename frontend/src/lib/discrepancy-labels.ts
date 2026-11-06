@@ -15,7 +15,7 @@ export const CAUSE: Record<DiscrepancyCause, string> = {
   motive_overlap: "Frontera entre motivos",
   // Causas del prompt de análisis v1.0.0, que siguen en los análisis guardados.
   criterion: "Criterio del prompt",
-  evaluator: "Evaluador del cliente",
+  evaluator: "Evaluador de la planilla",
   transcript: "Transcripción",
   missing_data: "Dato faltante",
 };
@@ -29,8 +29,8 @@ export const DIRECTION: Record<DiscrepancyDirection, string> = {
 
 export const PROPOSAL: Record<ProposalType, string> = {
   prompt_rule: "Regla del prompt",
-  client_question: "Pregunta al cliente",
-  data_request: "Pedido de datos al cliente",
+  client_question: "Pregunta a la empresa",
+  data_request: "Pedido de datos a la empresa",
   calibrate_auditor: "Calibrar con el auditor",
 };
 

@@ -14,7 +14,7 @@ import { useAsync } from "@/lib/use-async";
 type Filter = "all" | "manual" | "disagree";
 
 const AI = { compliant: "Cumple", non_compliant: "No cumple", uncertain: "Dudosa", not_applicable: "No aplica" } as Record<string, string>;
-const SIDES = { ai: "da razón a la IA", excel: "da razón al Excel", none: "no se alinea" } as const;
+const SIDES = { ai: "da razón a la IA", excel: "da razón a la planilla", none: "no se alinea" } as const;
 
 const disagree = (c: DiscrepancyCase) =>
   (c.manualVerdict === "compliant" || c.manualVerdict === "non_compliant") && (c.manualVerdict === "non_compliant") !== c.clientFail;
@@ -74,9 +74,9 @@ function PatternDetail({ initial }: { initial: DiscrepancyPatternDetail }) {
               <th scope="col">Llamada</th>
               <th scope="col">Fecha</th>
               <th scope="col">IA</th>
-              <th scope="col">Cliente</th>
+              <th scope="col">Planilla</th>
               <th scope="col">Revisión manual</th>
-              <th scope="col">Cita de la IA · comentario del cliente</th>
+              <th scope="col">Cita de la IA · comentario en la planilla</th>
               <th scope="col">
                 <span className="sr-only">Abrir</span>
               </th>
@@ -104,7 +104,7 @@ function PatternDetail({ initial }: { initial: DiscrepancyPatternDetail }) {
                   <div>
                     IA: {c.aiQuote ? `«${c.aiQuote}»${c.aiQuoteMs != null ? ` (${mmss(c.aiQuoteMs)})` : ""}` : c.aiComment || "—"}
                   </div>
-                  <div className="help">Cliente: {c.clientComment ?? "sin comentario"}</div>
+                  <div className="help">Planilla: {c.clientComment ?? "sin comentario"}</div>
                 </td>
                 <td>
                   {c.caseId && (

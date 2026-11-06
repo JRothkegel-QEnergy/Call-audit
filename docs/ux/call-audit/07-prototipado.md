@@ -1,7 +1,7 @@
 # Fase 7 · Prototipado · Front de Call Audit
 
 > Estado: **entregada para aprobación** (2026-10-15). Incluye 7a (wireframes), 7b (prototipo navegable) y 7c (evaluación heurística propia y plan de test).
-> **Contenido 100 % sintético** (L-19): llamadas, ejecutivos, auditores, seguros y transcripciones son ficticios. Los nombres de los motivos son los de la pauta del cliente (`docs/layer2-prompt-example.md`), que es configuración de dominio y no PII.
+> **Contenido 100 % sintético** (L-19): llamadas, ejecutivos, auditores, seguros y transcripciones son ficticios. Los nombres de los motivos son los de la pauta de la corredora (`docs/layer2-prompt-example.md`), que es configuración de dominio y no PII.
 > El test con usuarios **no se ha ejecutado**: no hay acceso a usuarios reales (D-16) y se decidió **no hacerlo por ahora** (D-21, 2026-10-16). El plan queda documentado para más adelante. La lista de cambios de la sección 5 sale de la evaluación heurística; se completa con los resultados del test.
 
 ---
@@ -89,11 +89,11 @@ Severidad: **0** no es problema · **1** cosmético · **2** menor · **3** mayo
 
 ### Participantes
 
-- **Ideal:** 5 auditores y 3 supervisores del cliente. **No hay acceso (D-16).**
+- **Ideal:** 5 auditores y 3 supervisores de la corredora. **No hay acceso (D-16).**
 - **Alternativa propuesta: usuarios proxy** (H-29):
   - 5 personas con experiencia en QA, auditoría o calidad de contact center (pueden ser de la red de Qubico), más 1–2 personas sin experiencia en el dominio como control de comprensión;
   - incluir, si se puede, a 1 persona que use lector de pantalla o solo teclado.
-- **Límite de la alternativa:** los proxies no conocen la pauta ni la herramienta actual. Los tiempos medidos son indicativos y los hallazgos de dominio (criterios, ficha) se validan después con el cliente.
+- **Límite de la alternativa:** los proxies no conocen la pauta ni la herramienta actual. Los tiempos medidos son indicativos y los hallazgos de dominio (criterios, ficha) se validan después con la corredora.
 
 ### Formato
 

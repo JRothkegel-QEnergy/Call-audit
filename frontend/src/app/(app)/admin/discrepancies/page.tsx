@@ -49,7 +49,7 @@ function DiscrepancyAnalysis() {
     <>
       <AdminHeader
         title="Análisis de discrepancias"
-        description="Por qué la IA y el cliente no coinciden. Son hallazgos para revisar: nada cambia el prompt hasta que una persona sube una versión nueva."
+        description="Por qué la IA y la planilla no coinciden. Son hallazgos para revisar: nada cambia el prompt hasta que una persona sube una versión nueva."
       />
       <div className="tabs" role="tablist">
         {(
@@ -137,10 +137,10 @@ function AnalysisView({
   const [announce, setAnnounce] = useState("");
 
   if (data.calls === 0) {
-    return <EmptyState title="Aún no hay llamadas con corrida vigente y marca por motivo del cliente para comparar." />;
+    return <EmptyState title="Aún no hay llamadas con corrida vigente y marca por motivo en la planilla para comparar." />;
   }
   if (data.cases === 0) {
-    return <EmptyState title="La corrida vigente coincide con el cliente en todos los motivos. No hay nada que analizar." />;
+    return <EmptyState title="La corrida vigente coincide con la planilla en todos los motivos. No hay nada que analizar." />;
   }
 
   const a = data.analysis;
@@ -187,7 +187,7 @@ function AnalysisView({
       <section className="card grid gap-1.5">
         <p className="m-0">
           Comparamos la corrida vigente{" "}
-          <b>{series ? `${series.model} · v${series.promptVersion}` : "—"}</b> con el Excel del cliente y la revisión manual Qubico.
+          <b>{series ? `${series.model} · v${series.promptVersion}` : "—"}</b> con la planilla de calidad y la revisión manual Qubico.
         </p>
         {a ? (
           <p className="m-0 text-sm">
@@ -241,7 +241,7 @@ function AnalysisView({
       <p className="help m-0">
         {int(data.calls)} llamadas · {int(data.cases)} casos en desacuerdo · {data.manualCases} casos con revisión manual Qubico ({manualPct} %)
         {Object.entries(data.callsOutside).map(([why, n]) => ` · ${n} llamadas fuera (${why})`)}
-        {manualPct < 10 && ". Hay poca revisión manual: la causa Evaluador del cliente se apoya casi solo en el Excel."}
+        {manualPct < 10 && ". Hay poca revisión manual: la causa Evaluador de la planilla se apoya casi solo en la planilla."}
       </p>
 
       <section className="grid gap-2">
@@ -256,7 +256,7 @@ function AnalysisView({
             <thead>
               <tr>
                 <th scope="col">Motivo</th>
-                <th scope="col">Cliente NO CUMPLE</th>
+                <th scope="col">Planilla NO CUMPLE</th>
                 <th scope="col">IA NO CUMPLE</th>
                 <th scope="col">Coinciden</th>
                 <th scope="col">Solo la IA detectó</th>
@@ -306,7 +306,7 @@ function AnalysisView({
       </section>
 
       <details className="card">
-        <summary className="cursor-pointer font-medium">Por evaluador del cliente</summary>
+        <summary className="cursor-pointer font-medium">Por evaluador de la planilla</summary>
         {data.evaluators ? (
           <>
             <p className="help">
@@ -317,7 +317,7 @@ function AnalysisView({
                 <tr>
                   <th scope="col">Evaluador</th>
                   <th scope="col">Llamadas</th>
-                  <th scope="col">Rechaza (Excel)</th>
+                  <th scope="col">Rechaza (planilla)</th>
                   <th scope="col">Calce con la IA</th>
                   <th scope="col">NO CUMPLE por llamada</th>
                   <th scope="col">Solo la IA</th>
@@ -340,7 +340,7 @@ function AnalysisView({
             </table>
           </>
         ) : (
-          <p className="help mb-0">El Excel de estas llamadas no trae el evaluador. Reimporta la metadata con el Excel nuevo para verlo.</p>
+          <p className="help mb-0">La planilla de estas llamadas no trae el evaluador. Reimporta la metadata con la planilla nueva para verlo.</p>
         )}
       </details>
 
@@ -413,9 +413,9 @@ function AnalysisView({
       <details className="card">
         <summary className="cursor-pointer font-medium">Cómo leer este análisis</summary>
         <p className="mb-0">
-          La IA de análisis agrupa los desacuerdos entre la corrida vigente y el Excel del cliente, y propone una causa y una solución. Son
+          La IA de análisis agrupa los desacuerdos entre la corrida vigente y la planilla de calidad, y propone una causa y una solución. Son
           hallazgos para revisar: nada cambia el prompt ni los resultados hasta que una persona sube una versión nueva. Un patrón con menos de 3
-          casos queda como observación. Si el Excel y la revisión manual Qubico no coinciden, el caso va a calibración y no al prompt.
+          casos queda como observación. Si la planilla y la revisión manual Qubico no coinciden, el caso va a calibración y no al prompt.
         </p>
       </details>
 
@@ -526,8 +526,8 @@ function FollowUpTab({ rows, onChange }: { rows: DiscrepancyPattern[]; onChange:
         }
       </FollowUpList>
       <FollowUpList
-        title="Preguntas al cliente"
-        empty="Sin preguntas al cliente."
+        title="Preguntas a la empresa"
+        empty="Sin preguntas a la empresa."
         rows={client}
         action={
           client.length > 0 && (

@@ -88,7 +88,7 @@ export function ModelPanel({
           </p>
           <div className="banner mx-5 mt-2" role="note" style={{ borderLeftColor: "var(--amber-600)" }}>
             <ShieldAlert size={14} aria-hidden className="flex-none" />
-            <span>Contenido técnico confidencial de Qubico y datos del cliente. No lo compartas fuera de la app.</span>
+            <span>Contenido técnico confidencial de Qubico y de la empresa, con datos de clientes. No lo compartas fuera de la app.</span>
           </div>
           <div className="tabs mx-5 mb-0 mt-2" role="tablist">
             {TABS.map(([k, label]) => (

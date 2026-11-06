@@ -107,7 +107,7 @@ export function AiQualityView({ data }: { data: AiQuality }) {
   const silent = data.criteria.filter((c) => !rows.some((r) => r.id === c.id)).map((c) => c.id);
   const critName = new Map(data.criteria.map((c) => [c.id, c]));
 
-  if (data.calls.length === 0) return <EmptyState title="Aún no hay llamadas con veredicto del cliente para medir." />;
+  if (data.calls.length === 0) return <EmptyState title="Aún no hay llamadas con planilla de calidad para medir." />;
 
   const openList = (seriesId: string, criterion: number | null, k: Kind) => {
     update({
@@ -128,11 +128,11 @@ export function AiQualityView({ data }: { data: AiQuality }) {
       <SeriesBar data={data} selected={selected} striped={striped} onChange={setSeries} />
       <div className="help -mt-2 grid gap-0.5">
         <span>
-          Referencia: veredicto del auditor del cliente · {int(data.calls.length)} llamadas ({okCount} Cumple · {badCount} No cumple)
+          Referencia: planilla de calidad · {int(data.calls.length)} llamadas ({okCount} Cumple · {badCount} No cumple)
         </span>
         {marked === 0 ? (
           <span className="font-medium text-amber-800">
-            El Excel de estas llamadas no trae la marca por motivo: por motivo solo se ven los falsos positivos en llamadas Cumple.
+            La planilla de estas llamadas no trae la marca por motivo: por motivo solo se ven los falsos positivos en llamadas Cumple.
           </span>
         ) : (
           marked < data.calls.length && (
@@ -154,7 +154,7 @@ export function AiQualityView({ data }: { data: AiQuality }) {
       <section className="card" aria-labelledby="q-rank">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 id="q-rank" className="m-0 text-base font-semibold">
-            ¿Qué corrida calza mejor con el cliente?
+            ¿Qué corrida calza mejor con la planilla?
           </h2>
           <div className="seg" role="radiogroup" aria-label="Métrica del ranking">
             {METRICS.map((m) => (
@@ -202,9 +202,9 @@ export function AiQualityView({ data }: { data: AiQuality }) {
           onCell={openList}
         />
         <p className="help mb-0 mt-2">
-          Borde grueso = la única mejor de la fila · +n = la IA lo marca en una No cumple y el cliente no · clic en un número para ver esas llamadas.
+          Borde grueso = la única mejor de la fila · +n = la IA lo marca en una No cumple y la planilla no · clic en un número para ver esas llamadas.
         </p>
-        {silent.length > 0 && <p className="help mb-0 mt-1">Ninguna corrida ni el cliente marcaron los motivos {silent.join(", ")}.</p>}
+        {silent.length > 0 && <p className="help mb-0 mt-1">Ninguna corrida ni la planilla marcaron los motivos {silent.join(", ")}.</p>}
       </section>
 
       <CallMap
@@ -239,21 +239,21 @@ export function AiQualityView({ data }: { data: AiQuality }) {
           </Term>
           <Term t="Prueba desde la app">Corrida lanzada desde Prompt, con costo confirmado.</Term>
           <Term t="Vigente">La corrida que hoy define el veredicto del motor.</Term>
-          <Term t="Marca del cliente por motivo">Motivos que el auditor del cliente marcó NO CUMPLE en el Excel.</Term>
-          <Term t="Detección">De las llamadas que el cliente marcó No cumple, cuántas marca también la IA. Meta ≥ {detectionGoal(data)} %.</Term>
+          <Term t="Marca de la planilla por motivo">Motivos marcados NO CUMPLE en la planilla de calidad.</Term>
+          <Term t="Detección">De las llamadas que la planilla marcó No cumple, cuántas marca también la IA. Meta ≥ {detectionGoal(data)} %.</Term>
           <Term t="Falsos positivos · Solo la IA detectó">
-            Llamadas Cumple según el cliente que la IA marca No cumple. Meta ≤ {data.goals.falsePositivePct} %. Por motivo: la IA marca un motivo que el cliente
+            Llamadas Cumple según la planilla que la IA marca No cumple. Meta ≤ {data.goals.falsePositivePct} %. Por motivo: la IA marca un motivo que la planilla
             no marcó.
           </Term>
           <Term t="Falsos negativos · Omitidos por la IA">
-            Llamadas No cumple según el cliente que la IA deja en Cumple. Meta ≤ {data.goals.falseNegativePct} %. Por motivo: el cliente lo marcó y la IA no.
+            Llamadas No cumple según la planilla que la IA deja en Cumple. Meta ≤ {data.goals.falseNegativePct} %. Por motivo: la planilla lo marcó y la IA no.
           </Term>
           <Term t="Calce equilibrado">Promedio entre la detección y (1 − falsos positivos). Una IA que marca todo No cumple saca 50 %.</Term>
-          <Term t="Coincidencia">Porcentaje de llamadas donde la IA dijo lo mismo que el cliente.</Term>
-          <Term t="Desacuerdo">La IA y el cliente difieren en el veredicto o en al menos un motivo.</Term>
+          <Term t="Coincidencia">Porcentaje de llamadas donde la IA dijo lo mismo que la planilla.</Term>
+          <Term t="Desacuerdo">La IA y la planilla difieren en el veredicto o en al menos un motivo.</Term>
         </dl>
         <p className="mb-0 mt-3 text-sm">
-          La marca del cliente se toma como verdad. Si el auditor del cliente pasó por alto un incumplimiento, aquí la IA aparece con un falso positivo que en
+          La planilla se toma como verdad. Si quien la llenó pasó por alto un incumplimiento, aquí la IA aparece con un falso positivo que en
           realidad es un acierto; para revisarlo, abre la llamada desde la lista. El motivo 1 lo calcula el código desde las esperas, así que es igual en todas
           las corridas.
         </p>
@@ -483,14 +483,14 @@ function Matrix({ s, striped, m, data }: { s: QualitySeries; striped: boolean; m
         <tbody className="tabular">
           <tr>
             <th scope="row" className="py-1 text-left font-medium">
-              Cliente No cumple
+              Planilla: No cumple
             </th>
             <td className="text-right">{m.detected} ✓</td>
             <td className="text-right text-red-700">{m.missed} ✗ omitidas</td>
           </tr>
           <tr>
             <th scope="row" className="py-1 text-left font-medium">
-              Cliente Cumple
+              Planilla: Cumple
             </th>
             <td className="text-right text-amber-800">{m.falsePositives} ! solo la IA</td>
             <td className="text-right">{m.trueNegatives} ✓</td>
@@ -539,7 +539,7 @@ function CriteriaTable({
 }) {
   const total = (fn: (r: (typeof rows)[number]) => number) => rows.reduce((acc, r) => acc + fn(r), 0);
   const cellBtn = "min-h-6 min-w-6 rounded px-1.5 tabular hover:bg-muted focus-visible:outline-2";
-  if (rows.length === 0) return <p className="help m-0">Ninguna corrida ni el cliente marcaron motivos en estas llamadas.</p>;
+  if (rows.length === 0) return <p className="help m-0">Ninguna corrida ni la planilla marcaron motivos en estas llamadas.</p>;
   return (
     <div className="relative overflow-x-auto">
       <table className="tbl flat text-sm">
@@ -551,7 +551,7 @@ function CriteriaTable({
             </th>
             {showRight && (
               <th colSpan={selected.length + 1} className="border-l border-border text-center">
-                No cumple: detecta lo del cliente (de {badMarked})
+                No cumple: detecta lo de la planilla (de {badMarked})
               </th>
             )}
           </tr>
@@ -567,7 +567,7 @@ function CriteriaTable({
             ))}
             {showRight && (
               <>
-                <th className="border-l border-border text-right">Cliente</th>
+                <th className="border-l border-border text-right">Planilla</th>
                 {selected.map((s) => (
                   <th key={s.id} className="text-right" title={seriesName(s)}>
                     <span className="inline-flex items-center gap-1">
@@ -805,7 +805,7 @@ function CallMap({
           <span />
           {visible.map(({ i }) => (
             <span key={i} className="help pb-1 font-semibold">
-              {i === 0 ? "Cumple" : "No cumple"} según el cliente ({groups[i].length})
+              {i === 0 ? "Cumple" : "No cumple"} según la planilla ({groups[i].length})
             </span>
           ))}
           <div className="grid gap-[2px] pr-1 text-right text-[10px] leading-[8px] text-muted-foreground">
@@ -852,7 +852,7 @@ function CallMap({
       <ul className="help m-0 mt-3 flex list-none flex-wrap gap-4 p-0">
         {(
           [
-            ["match", "Coincide con el cliente"],
+            ["match", "Coincide con la planilla"],
             ["ai_only", "Solo la IA"],
             ["missed", "Omitido por la IA"],
             ["unknown", "Sin referencia (sin marca por motivo o sin resultado)"],
@@ -965,7 +965,7 @@ function Disagreements({
         <span className="help tabular">{plural(rows.length, "llamada", "llamadas")}</span>
       </div>
       {all.length === 0 ? (
-        <p className="help m-0">{seriesName(s)} coincide con el cliente en todas las llamadas.</p>
+        <p className="help m-0">{seriesName(s)} coincide con la planilla en todas las llamadas.</p>
       ) : rows.length === 0 ? (
         <p className="help m-0">
           Ninguna llamada en desacuerdo con estos filtros.{" "}
@@ -981,7 +981,7 @@ function Disagreements({
                 <tr>
                   <th>Llamada</th>
                   <th>Fecha</th>
-                  <th>Cliente</th>
+                  <th>Planilla</th>
                   <th>IA</th>
                   <th>Solo la IA</th>
                   <th>Omitidos por la IA</th>

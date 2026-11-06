@@ -29,7 +29,7 @@ export function AnalysisBanner({ caseId, patternId }: { caseId: string; patternI
         Llegaste desde Análisis de discrepancias · <b>Motivo {p.criterionId}</b>
         {c && (
           <>
-            : IA {VERDICT[c.aiVerdict as keyof typeof VERDICT] ?? c.aiVerdict} · Cliente {c.clientFail ? "No cumple" : "Cumple"} · Revisión manual:{" "}
+            : IA {VERDICT[c.aiVerdict as keyof typeof VERDICT] ?? c.aiVerdict} · Planilla {c.clientFail ? "No cumple" : "Cumple"} · Revisión manual:{" "}
             {manual}
           </>
         )}

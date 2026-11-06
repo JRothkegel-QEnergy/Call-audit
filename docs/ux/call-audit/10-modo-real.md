@@ -1,5 +1,6 @@
 # Cambio 10 — Modo real (`NEXT_PUBLIC_API_MODE=http`)
 
+> **Ajuste 2026-11-05 (Cambio 17):** "cliente" ya no nombra a la corredora en la UI. La fuente del veredicto del lote es **Planilla de calidad** (corto: **la planilla**) y la contraparte es **la empresa**. Textos de este documento actualizados; detalle en `17-termino-auditoria-corredora.md`.
 **Tipo:** revisión rápida contra lo aprobado (fases 0–8 + Cambio 09). No reabre fases.
 **Fecha:** 2026-10-19 · **Estado:** aprobado por Johannes con la adenda (2026-10-19) e implementado en `frontend/` (`isRealMode`).
 
@@ -32,6 +33,6 @@ No se reabre la decisión de enmascarado; solo se ajusta el microcopy para que n
 | 4 | Ayuda junto a "Transcripción" (`components/call/transcript.tsx:68`) | Reemplazar por **"Transcripción automática; puede tener errores."** | Se mantiene "Datos personales enmascarados". |
 | 5 | Panel "Prompt y respuesta del modelo" | Sí lleva nota, sobre el aviso de confidencialidad ya aprobado: **"Esto es lo que se envió al modelo. Los datos personales van anonimizados, por eso ves marcas como [NOMBRE_CLIENTE]."** Texto plano (`help`), siempre visible, sin tooltip. | Igual (el mock también muestra marcas). |
 
-- El aviso fijo del panel ("Contenido técnico confidencial de Qubico y datos del cliente. No lo compartas fuera de la app.", L-29) se mantiene.
+- El aviso fijo del panel ("Contenido técnico confidencial de Qubico y de la empresa, con datos de clientes. No lo compartas fuera de la app.", L-29; texto ajustado en el Cambio 17) se mantiene.
 - Ningún otro texto de la app puede afirmar que los datos están enmascarados en modo http (revisar tooltips, ayuda de exportación y Discrepancias).
 - L-03 se actualiza en el registro para remitir a L-34; L-28 y L-32 ya estaban actualizados y no se tocan.

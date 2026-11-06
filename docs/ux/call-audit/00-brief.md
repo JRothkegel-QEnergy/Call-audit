@@ -18,13 +18,13 @@
 
 | D-09 | **Proceso UX completo** (no acelerado), 2026-10-14 | Se hacen todas las fases con sus entregables. El prototipo v2 sigue siendo una referencia, no un atajo |
 | D-10 | **Supervisor: todas sus historias MVP de una vez** (opción c, 2026-10-14). Reemplaza la propuesta de dos olas | Entran HU-SUP-01 a 08 y HU-SUP-12 |
-| D-11 | Los **auditores son personal del cliente** (del contact center). Hoy auditan con una **herramienta interna** en la que escuchan el audio completo y agregan observaciones minuto a minuto, solo cuando algo no cumple | Confirma H-06 (en parte) y H-03. Actualiza el journey actual |
-| D-12 | **Alta de cuentas**: autoriza Qubico o alguien del cliente. **Los supervisores pueden crear auditores; solo Qubico crea supervisores** | Entra al MVP una gestión mínima de auditores para el supervisor. Cómo crea Qubico a los supervisores está por definir |
+| D-11 | Los **auditores son personal de la corredora** (del contact center). Hoy auditan con una **herramienta interna** en la que escuchan el audio completo y agregan observaciones minuto a minuto, solo cuando algo no cumple | Confirma H-06 (en parte) y H-03. Actualiza el journey actual |
+| D-12 | **Alta de cuentas**: autoriza Qubico o alguien de la corredora. **Los supervisores pueden crear auditores; solo Qubico crea supervisores** | Entra al MVP una gestión mínima de auditores para el supervisor. Cómo crea Qubico a los supervisores está por definir |
 | D-13 | **Se acepta registrar en el log de acceso cada búsqueda o filtro por ejecutivo** | Cierra la mitigación de L-18 |
 | D-14 | **Logo Qubico** disponible: PNG negro sobre blanco (símbolo de cubo con nodos + logotipo geométrico en mayúsculas), en `Qubico/src/qubico-cloud/frontend/src/assets/qubico-logo.png` | Solo como referencia para la Fase 8; no se copia al repo todavía. Faltan una versión vectorial (SVG) y una versión para fondo oscuro |
 | D-15 | **El supervisor aprueba todas las revisiones** por ahora (resuelve #22). Más adelante podrá configurar un % de muestreo de revisiones aceptadas y rechazadas (`Post`) | La bandeja de revisiones del supervisor debe soportar volumen alto: aprobación eficiente, atajos de teclado, aprobación en lote con control. Riesgo de cuello de botella (ex H-21) |
 | D-16 | **No se puede entrevistar a usuarios**, y no se sabe cuántos auditores ni supervisores hay | Las proto-personas quedan como definitivas para el proyecto; se validan en el test de la Fase 7 (si no hay acceso, con usuarios proxy) |
-| D-17 | **No se sabe qué SSO usa el cliente** | Login agnóstico: botón "Ingresar con SSO" genérico + cuenta propia. Registrado como #25 en `client-open-questions.md` |
+| D-17 | **No se sabe qué SSO usa la corredora** | Login agnóstico: botón "Ingresar con SSO" genérico + cuenta propia. Registrado como #25 en `client-open-questions.md` |
 
 **Supuestos por defecto (sin respuesta; no bloquean):** Qubico crea a los supervisores con un **script o consola fuera de la app** (sin pantalla interna en el MVP); el logo se **adapta desde el PNG** en la Fase 8 (vectorización y versión para fondo oscuro).
 
@@ -62,7 +62,7 @@ Lo que sigue abierto: nada bloqueante para la Fase 2. Cantidad de usuarios desco
 
 ## 1. Problema
 
-Hoy un equipo de auditores del cliente escucha llamadas a mano y solo alcanza a auditar una **muestra**. El backend de Call Audit transcribe y evalúa el 100 % de las llamadas, pero ese trabajo solo genera valor si:
+Hoy un equipo de auditores de la corredora escucha llamadas a mano y solo alcanza a auditar una **muestra**. El backend de Call Audit transcribe y evalúa el 100 % de las llamadas, pero ese trabajo solo genera valor si:
 
 - el **auditor** puede validar o corregir los hallazgos de la IA rápido y con evidencia (si revisar un caso toma lo mismo que escuchar la llamada completa, el ahorro desaparece), y
 - el **supervisor** puede convertir los hallazgos confirmados en feedback a ejecutivos y controlar la calidad de la revisión humana.
@@ -117,7 +117,7 @@ Todas las historias marcadas `MVP` en `docs/user-stories-auditor-supervisor.md`:
 - Equipo: un desarrollador backend-first (Johannes) con Claude Code. Los componentes deben salir de una librería accesible existente, no hechos a mano **[SUPUESTO: elegir en Fase 5/8 entre opciones como Radix/shadcn o React Aria]**.
 - Audio estéreo, un canal por hablante (prototipo v2); transcripción por canal con timestamps.
 
-**De dominio y del cliente**
+**De dominio y de la corredora**
 - Pauta de BancoEstado: **33 motivos en 5 bloques, sin puntaje ni pesos**. El prototipo usa protocolos genéricos con pesos y nota sobre 100: para BancoEstado no aplica.
 - Gravedad y motivos críticos `TBD` (#1): la cola ordena por "tiene no cumple" > dudosa > muestra cumple, y luego antigüedad.
 - Lista de motivos de corrección (#21), % de muestreo de "cumple" (#23, propuesta 5 %), aprobación del supervisor sobre todo o muestra (#22): abiertos.
@@ -142,9 +142,9 @@ Todas las historias marcadas `MVP` en `docs/user-stories-auditor-supervisor.md`:
 |---|---|---|
 | Johannes Rothkegel (Qubico) | Lead developer, implementa el front | Restricciones técnicas, aprueba gates **[SUPUESTO]** |
 | Agustín Desmadryl (Qubico) | Producto y presentación; el plan le asigna "UI de revisión y dashboard (por confirmar)" | Posible dueño del diseño; ¿co-aprueba? |
-| Jean Paul de Dompierre (Qubico) | Comercial | Relación con el cliente, condiciones legales (NDA, DPA), acceso a auditores |
+| Jean Paul de Dompierre (Qubico) | Comercial | Relación con la corredora, condiciones legales (NDA, DPA), acceso a auditores |
 | BancoEstado Corredores de Seguros | Cliente, dueño de la pauta | Pauta, gravedades, motivos de corrección, aprobación del piloto |
-| Auditores del cliente (o del contact center) | Usuarios primarios | Validación en entrevistas y tests |
+| Auditores de la corredora (o del contact center) | Usuarios primarios | Validación en entrevistas y tests |
 | Supervisores del contact center | Usuarios secundarios | Validación de dashboard, alertas y feedback |
 | Ejecutivos del contact center | **Afectados, no usuarios** | Su desempeño se evalúa; no ven la app **[SUPUESTO]** |
 
@@ -172,5 +172,5 @@ Como ya existen historias de usuario, flujos por rol y un prototipo navegable, p
 
 - **Fase 1**: proto-personas y CUJ derivados de las HU (sin entrevistas, salvo que haya acceso a auditores), benchmark corto de herramientas de QA de contact center, journey actual del auditor.
 - **Fases 2–4**: convergencia rápida; el prototipo v2 se usa como "solución candidata" y se audita contra dolencias y CUJ (pasos de más, cuellos de botella, PII).
-- **Fases 5–7**: patrones, microcopy y wireframes de los CUJ, con test de usabilidad con 3–5 auditores si el cliente los presta.
+- **Fases 5–7**: patrones, microcopy y wireframes de los CUJ, con test de usabilidad con 3–5 auditores si la corredora los presta.
 - **Fase 8**: tokens y componentes alineados con el código, solo después de aprobar lo anterior.

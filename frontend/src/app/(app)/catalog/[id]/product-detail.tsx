@@ -196,7 +196,7 @@ function Editor({
         <input
           id="edit-note"
           className="control"
-          placeholder="Ej.: Cliente actualizó la devolución de primas en octubre"
+          placeholder="Ej.: Se actualizó la devolución de primas en octubre"
           value={note}
           onChange={(e) => setNote(e.target.value)}
         />

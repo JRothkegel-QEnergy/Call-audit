@@ -17,7 +17,7 @@
 | **Honesta sobre la IA** | La IA "propone" y "detecta"; las personas "confirman" y "deciden" | "La IA propone: No cumple." | "La IA determinó el incumplimiento." |
 | **Sobria** | Sin exclamaciones, emojis ni celebraciones; no gamifica | "Revisaste 58 casos hoy." | "¡Genial! ¡Eres un crack!" |
 
-**Tratamiento:** "tú" en toda la app (el prototipo ya lo usa: "Revisaste…"). **[SUPUESTO: es una herramienta interna del contact center del cliente; si su cultura exige "usted", se cambia de forma global]** (H-44).
+**Tratamiento:** "tú" en toda la app (el prototipo ya lo usa: "Revisaste…"). **[SUPUESTO: es una herramienta interna del contact center de la corredora; si su cultura exige "usted", se cambia de forma global]** (H-44).
 
 ### 1.2 Tono según el contexto
 
@@ -83,7 +83,7 @@
 
 ### 2.8 Nombres de motivos
 
-- Formato: `Motivo {n} · {nombre en la pauta}`. El nombre del motivo es un término del dominio del cliente: se respeta tal como viene en la rúbrica (CLAUDE.md), sin reescribirlo.
+- Formato: `Motivo {n} · {nombre en la pauta}`. El nombre del motivo es un término del dominio de la corredora: se respeta tal como viene en la rúbrica (CLAUDE.md), sin reescribirlo.
 
 ### 2.9 PII en textos
 
@@ -340,7 +340,7 @@ Textos completos en `11-catalogo-seguros.md` §7.2 (fuente de verdad). Los princ
 > - **Qué datos:** tu nombre, correo, rol y tu actividad en la app (qué casos revisas, tus decisiones, tiempos de revisión y un registro de accesos que incluye las búsquedas por ejecutivo).
 > - **Para qué:** darte acceso, dejar trazabilidad de cada decisión y permitir que tu supervisor apruebe y controle la calidad de las revisiones.
 > - **Quién los ve:** tu supervisor y el equipo de Qubico que opera la plataforma.
-> - **Cuánto tiempo:** `TBD` (lo define {empresa cliente}).
+> - **Cuánto tiempo:** `TBD` (lo define la empresa).
 > - **Tus derechos:** puedes pedir acceso, rectificación o eliminación de tus datos a `TBD`.
 >
 > Leer el aviso completo.
@@ -399,22 +399,37 @@ El glosario aprobado en `03-arquitectura-informacion.md` §4.2 es la fuente úni
 
 | Término en la UI | Uso | Código |
 |---|---|---|
-| **Análisis de discrepancias** | Sección del admin que explica por qué la IA y el cliente no coinciden. No confundir con **Discrepancias** del supervisor (C09) | `/admin/discrepancies` |
+| **Análisis de discrepancias** | Sección del admin que explica por qué la IA y la corredora no coinciden. No confundir con **Discrepancias** del supervisor (C09) | `/admin/discrepancies` |
 | **Corrida de análisis** | Una ejecución de la IA de análisis sobre la corrida vigente, con costo. No es una corrida de capa 2 ni una prueba del prompt | `discrepancy_analyses` |
-| **Desacuerdo** | La IA y el cliente difieren en un motivo de una llamada (igual que C15) | — |
+| **Desacuerdo** | La IA y la corredora difieren en un motivo de una llamada (igual que C15) | — |
 | **Patrón** | Grupo de 3 o más desacuerdos de un motivo con una explicación común | `discrepancy_patterns` |
 | **Observación** | Patrón con menos de 3 casos; sin propuesta para aceptar | `is_observation` |
-| **Causa** | Criterio del prompt · Evaluador del cliente · Transcripción · Dato faltante | `criterion \| evaluator \| transcript \| missing_data` |
-| **Dirección** | Solo la IA detectó (la IA marca y el cliente no) · Omitidos por la IA (el cliente marca y la IA no) | `fp \| fn` |
-| **Propuesta** | Regla del prompt · Pregunta al cliente · Calibrar con el auditor | `prompt_rule \| client_question \| calibrate_auditor` |
+| **Causa** | Criterio del prompt · Evaluador de la planilla · Transcripción · Dato faltante | `criterion \| evaluator \| transcript \| missing_data` |
+| **Dirección** | Solo la IA detectó (la IA marca y la corredora no) · Omitidos por la IA (la corredora marca y la IA no) | `fp \| fn` |
+| **Propuesta** | Regla del prompt · Pregunta a la empresa · Calibrar con el auditor | `prompt_rule \| client_question \| calibrate_auditor` |
 | **Estado de la propuesta** | Pendiente · Aceptada · Descartada · Incluida en v{X} · Preguntada · Calibrada | `pending \| accepted \| discarded \| included \| asked_client \| calibrated` |
-| **Desacuerdo entre revisores** | El Excel y la revisión manual Qubico dicen cosas distintas en el mismo motivo; va a calibración | `reviewer_disagreements` |
+| **Desacuerdo entre revisores** | La planilla y la revisión manual Qubico dicen cosas distintas en el mismo motivo; va a calibración | `reviewer_disagreements` |
 | **Desactualizado** | Cambió la corrida vigente o entraron revisiones desde el último análisis; aviso, no bloqueo | `stale` |
 | **Confianza** | Alta (≥ 0,7) · Media (0,4–0,7) · Baja (< 0,4) | `confidence` |
 
 Textos completos de botones y diálogos: `16-ia-discrepancias.md` §7.5.
 
-**Palabras prohibidas en la UI:** sanción, falta, infracción, castigo, amonestación, puntaje, nota, agente (para referirse al ejecutivo), alucinación, error del usuario.
+**Ajuste 2026-11-05 · "Cliente" es solo la persona que llama (Cambio 17, D-71 a D-74).** Reemplaza "Veredicto / Auditoría / Comentario del cliente", "Coincidencia con el cliente", "Excel del cliente" y "Pregunta al cliente" de C09, C15 y C16:
+
+| Término en la UI | Uso | Código |
+|---|---|---|
+| **Cliente** | Solo la persona que llama (hablante, Ficha del cliente, datos personales) | `customer` |
+| **Planilla de calidad** (corto: **la planilla**) | Veredicto, marca por motivo y comentario que llena el equipo de calidad de la empresa y llegan con el lote. Badge, referencia de métricas y columnas ("Planilla") | `externalQualityVerdict`, `externalItemVerdicts`, `source/kind = client` |
+| **Coincidencia con la planilla** | % de llamadas donde la IA dice lo mismo que la planilla | — |
+| **Comentario en la planilla** | Comentario libre que trae la planilla, enmascarado | `externalComment` |
+| **Evaluador de la planilla** | Causa del Análisis de discrepancias: criterio de quien llenó la planilla | `evaluator` |
+| **La empresa** | La organización dueña de la instalación (hoy, la corredora). Se interpola `{clientName}` solo en el encabezado del admin, Cuentas y la invitación | `clientId`, `client_name` |
+| **Pregunta a la empresa** / **Preguntas a la empresa** | Propuesta y lista del Seguimiento del admin | `client_question` |
+| **Por presentar** / **Presentado** | Seguimiento de "La IA acertó" (antes "Por presentar al cliente") | `presentation` |
+
+Evitar en la UI: "cliente" para la empresa o su planilla, "auditoría del cliente", "auditor externo", "Excel del cliente", "estado de calidad". Las etiquetas de la fuente viven en una constante del front (D-74).
+
+**Palabras prohibidas en la UI:** sanción, falta, infracción, castigo, amonestación, puntaje, nota, agente (para referirse al ejecutivo), cliente (para referirse a la empresa), alucinación, error del usuario.
 
 ---
 
@@ -423,7 +438,7 @@ Textos completos de botones y diálogos: `16-ia-discrepancias.md` §7.5.
 | ID | Supuesto |
 |---|---|
 | H-44 | Tratamiento de "tú" en toda la app; fórmulas sin género ("Te damos la bienvenida") cuando no se sabe el género |
-| H-45 | Los motivos de corrección y de escalamiento usados son la propuesta de HU-AUD-03/05, hasta que el cliente cierre la #21 |
+| H-45 | Los motivos de corrección y de escalamiento usados son la propuesta de HU-AUD-03/05, hasta que la corredora cierre la #21 |
 
 ---
 

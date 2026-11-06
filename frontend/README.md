@@ -25,7 +25,7 @@ src/
       calls/[id]/               Detalle de llamada: modos auditor, supervisor y lectura
       my-reviews/               Mis revisiones (auditor)
       dashboard/, alerts/, reviews/, agents/, dashboard/criteria/, auditors/   supervisor
-      discrepancies/            Discrepancias con el cliente (supervisor, Cambio 09)
+      discrepancies/            Discrepancias con la planilla (supervisor, Cambio 09 y 17)
       settings/                 Preferencias (atajos de una tecla, velocidad del audio)
   components/
     ui/                         Button, badges, Dialog/Sheet, estados vacío/error/carga

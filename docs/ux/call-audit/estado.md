@@ -1,6 +1,6 @@
 # Estado del proceso UX · Front de Call Audit
 
-- **Estado:** **proceso UX cerrado** (2026-10-16) · **Cambio 09 aprobado** (2026-10-19, `09-cambio-auditoria-ia.md` §0) · **Cambio 10 aprobado e implementado** (2026-10-19) · **Cambio 11 aprobado** (2026-10-22, `11-catalogo-seguros.md` §0: sección Seguros con permiso `manage_catalog`, carga de Excel con IA y confirmación humana, clave única nombre + aseguradora, versionado de fichas). · **Cambio 12 aprobado** (2026-10-23, `12-cambio-admin-qubico.md` §0: rol Administrador Qubico, prompt versionado en BD con prompt.yaml o system prompt, prueba con costo confirmado, invitaciones por correo, sin MFA, logo oficial). Listo para implementar. · **Cambio 14 aprobado** (2026-11-02, `14-estado-worker.md` §0: sección Procesamiento del admin con estado del worker, avance por etapa, historial y fallas de ASR; requiere backend nuevo). · **Cambio 15 aprobado** (2026-11-02, `15-calce-ia-por-corrida.md`: calce de la IA por corrida y por motivo para `qubico_admin`, D-52 a D-58; requiere backend nuevo). Implementable. Fases 0 a 8 aprobadas por Johannes. El diseño está listo para implementar en `frontend/`; los cambios posteriores pasan por la revisión rápida contra lo aprobado.
+- **Estado:** **proceso UX cerrado** (2026-10-16) · **Cambio 09 aprobado** (2026-10-19, `09-cambio-auditoria-ia.md` §0) · **Cambio 10 aprobado e implementado** (2026-10-19) · **Cambio 11 aprobado** (2026-10-22, `11-catalogo-seguros.md` §0: sección Seguros con permiso `manage_catalog`, carga de Excel con IA y confirmación humana, clave única nombre + aseguradora, versionado de fichas). · **Cambio 12 aprobado** (2026-10-23, `12-cambio-admin-qubico.md` §0: rol Administrador Qubico, prompt versionado en BD con prompt.yaml o system prompt, prueba con costo confirmado, invitaciones por correo, sin MFA, logo oficial). Listo para implementar. · **Cambio 14 aprobado** (2026-11-02, `14-estado-worker.md` §0: sección Procesamiento del admin con estado del worker, avance por etapa, historial y fallas de ASR; requiere backend nuevo). · **Cambio 15 aprobado** (2026-11-02, `15-calce-ia-por-corrida.md`: calce de la IA por corrida y por motivo para `qubico_admin`, D-52 a D-58; requiere backend nuevo). Implementable. **Cambio 17 aprobado** (2026-11-05, `17-termino-auditoria-corredora.md`: "Planilla de calidad" y "la empresa" reemplazan "cliente" cuando no es la persona que llama; solo copy, sin cambios de API). Fases 0 a 8 aprobadas por Johannes. El diseño está listo para implementar en `frontend/`; los cambios posteriores pasan por la revisión rápida contra lo aprobado.
 - **Ubicación de los artefactos:** `call-audit/docs/ux/call-audit/` (dentro del repo, junto al resto de `docs/`).
 - **Aprueba los gates:** Johannes (D-04).
 
@@ -35,8 +35,8 @@
 | 2026-10-14 | D-08 · El supervisor entra al MVP para cerrar el hueco de escalamientos y reaperturas (alcance exacto por confirmar; se recomiendan dos olas) | Johannes |
 | 2026-10-14 | D-09 · Proceso UX completo | Johannes |
 | 2026-10-14 | D-10 · Supervisor con todas sus HU MVP de una vez (opción c) | Johannes |
-| 2026-10-14 | D-11 · Auditores = personal del cliente; hoy escuchan el audio completo en una herramienta interna y anotan por minuto solo los incumplimientos | Johannes |
-| 2026-10-14 | D-12 · Autorizan cuentas Qubico o el cliente; el supervisor crea auditores; solo Qubico crea supervisores | Johannes |
+| 2026-10-14 | D-11 · Auditores = personal de la corredora; hoy escuchan el audio completo en una herramienta interna y anotan por minuto solo los incumplimientos | Johannes |
+| 2026-10-14 | D-12 · Autorizan cuentas Qubico o la corredora; el supervisor crea auditores; solo Qubico crea supervisores | Johannes |
 | 2026-10-14 | D-13 · Log de acceso para búsquedas y filtros por ejecutivo | Johannes |
 | 2026-10-14 | D-14 · Logo Qubico disponible (PNG), referencia para la Fase 8 | Johannes |
 | 2026-10-14 | D-15 · El supervisor aprueba todas las revisiones; el % de muestreo configurable queda como `Post` (resuelve #22) | Johannes |
@@ -56,12 +56,12 @@
 | 2026-10-16 | D-20 · Por motivo: Cumple / Incumple / Dudoso, sin "No aplica" (si la situación no se dio, Cumple). Por llamada se mantiene Cumple / No cumple / Dudosa | Johannes (llamada: diseñador) |
 | 2026-10-16 | D-21 · Sin test con usuarios por ahora; el plan queda documentado en `07-prototipado.md` | Johannes |
 | 2026-10-16 | Fase 8 aprobada; proceso UX cerrado | Johannes |
-| 2026-10-19 | Cambio 09 (revisión rápida): se aprueban con ajustes los puntos 1–4 para esta semana y 5–7 para después; rol nuevo Calidad de la IA; sección Discrepancias; prompt visible anonimizado; notas; revisión a ciegas del auditor frente al veredicto del cliente | Diseñador; confirmado por Johannes (D-22 a D-25) |
-| 2026-10-19 | Vocabulario: el veredicto del cliente se muestra como Cumple / No cumple (no aprobado / rechazado); ramas: Coinciden · Solo la IA detectó · Omitidos por la IA · IA dudosa | Diseñador |
+| 2026-10-19 | Cambio 09 (revisión rápida): se aprueban con ajustes los puntos 1–4 para esta semana y 5–7 para después; rol nuevo Calidad de la IA; sección Discrepancias; prompt visible anonimizado; notas; revisión a ciegas del auditor frente al veredicto de la corredora | Diseñador; confirmado por Johannes (D-22 a D-25) |
+| 2026-10-19 | Vocabulario: el veredicto de la corredora se muestra como Cumple / No cumple (no aprobado / rechazado); ramas: Coinciden · Solo la IA detectó · Omitidos por la IA · IA dudosa | Diseñador |
 | 2026-10-19 | D-22 · Vero y el equipo externo entran como Auditor con `view_model_io`; no ven Discrepancias | Johannes |
 | 2026-10-19 | D-23 · Sin rol "Calidad de la IA" en el MVP; Discrepancias y su clasificación quedan en Supervisor | Diseñador (supuesto, H-57) |
-| 2026-10-19 | D-24 · El auditor nunca ve el veredicto ni el comentario del cliente | Diseñador |
-| 2026-10-19 | D-25 · El veredicto del cliente es opcional: no viene / por llamada / por llamada + motivo; más un comentario opcional; el backend lo pasa si viene | Johannes |
+| 2026-10-19 | D-24 · El auditor nunca ve el veredicto ni el comentario de la corredora | Diseñador |
+| 2026-10-19 | D-25 · El veredicto de la corredora es opcional: no viene / por llamada / por llamada + motivo; más un comentario opcional; el backend lo pasa si viene | Johannes |
 | 2026-10-19 | Cambio 10 (revisión rápida, `10-modo-real.md`): modo real aprobado con cambios; acciones sin backend se ocultan en vez de fallar; L-28 condiciona el uso con datos reales; nuevo L-33; adenda por L-34 (ayuda de la transcripción y nota del panel del modelo) | Diseñador; aprobado por Johannes (2026-10-19) e implementado |
 | 2026-10-22 | Cambio 11 (revisión rápida, `11-catalogo-seguros.md`): **aprobado**. Sección **Seguros** (supervisor), carga de Excel con extracción por IA y confirmación humana por seguro, clave única nombre + aseguradora (D-27), versionado de fichas y L-35 a L-39 | Diseñador; aprobado por Johannes (2026-10-22) |
 | 2026-10-22 | D-26 · Excel de formato variable con varios seguros por archivo: el flujo sirve para el estandarizado, uno por archivo y el formato de cada aseguradora | Johannes |
@@ -96,12 +96,12 @@
 | 2026-11-02 | D-49 · Historial de las últimas 20 pasadas + fallas de transcripción (pasan a BD) | Johannes |
 | 2026-11-02 | D-50 · Solo lectura, sin "Correr pasada ahora" | Johannes |
 | 2026-11-02 | D-51 · Avance por etapa con "k de n", contadores actualizados por audio | Johannes |
-| 2026-11-02 | Cambio 15 (revisión rápida, `15-calce-ia-por-corrida.md`): brief y propuesta de alcance para comparar corridas (modelo × versión × corrida) contra el cliente por llamada y por motivo (C01..C33). Requiere importar la marca del cliente por motivo (sin IA) y un endpoint nuevo. Pendientes P1–P5; supuestos H-87 a H-95 | Diseñador; pedido de Johannes |
+| 2026-11-02 | Cambio 15 (revisión rápida, `15-calce-ia-por-corrida.md`): brief y propuesta de alcance para comparar corridas (modelo × versión × corrida) contra la corredora por llamada y por motivo (C01..C33). Requiere importar la marca de la corredora por motivo (sin IA) y un endpoint nuevo. Pendientes P1–P5; supuestos H-87 a H-95 | Diseñador; pedido de Johannes |
 | 2026-11-02 | Cambio 15: alcance aprobado (Johannes: "1. A / 2. A / 3. A / 4. A / 5. B"); H-87 a H-95 sin objeción | Johannes |
 | 2026-11-02 | D-52 · El Cambio 15 absorbe "Calce IA vs humano" (proceso cerrado); el dashboard local se mantiene para exploración | Johannes |
 | 2026-11-02 | D-53 · La vista reemplaza el contenido de la pestaña "Calidad de la IA" de `/admin/stats` | Johannes |
 | 2026-11-02 | D-54 · Corrida = modelo + versión + `run_label`, más las pruebas del prompt terminadas, en un selector | Johannes |
-| 2026-11-02 | D-55 · Se importan las marcas del cliente por motivo (C01..C33) sin IA ni costo; solo las usa el admin | Johannes |
+| 2026-11-02 | D-55 · Se importan las marcas de la corredora por motivo (C01..C33) sin IA ni costo; solo las usa el admin | Johannes |
 | 2026-11-02 | D-56 · Primera entrega: ranking + matriz + tabla por motivo + mapa llamada × motivo + lista de desacuerdos | Johannes |
 | 2026-11-02 | Cambio 15 §7 entregado (flujo, estructura, wireframe, estados, textos, accesibilidad, impacto en tipos). Pendientes Q1 y Q2; supuestos H-96 a H-101 | Diseñador |
 | 2026-11-02 | Cambio 15 **aprobado** e implementable (Johannes: "Sí, las recomendadas"); H-96 a H-101 sin objeción | Johannes |
@@ -123,7 +123,12 @@
 | 2026-11-04 | D-67 · Texto de la propuesta editable al aceptar; se guardan original y editado | Johannes |
 | 2026-11-04 | D-68 · "Incluida en v{X}" al guardar la versión con la propuesta marcada; vuelve a "Aceptada" si la versión se retira sin activarse | Johannes |
 | 2026-11-04 | D-69 · Detalle del patrón en `/admin/discrepancies/patterns/[id]` | Johannes |
-| 2026-11-04 | D-70 · Preguntas al cliente aceptadas solo en Seguimiento; no pasan a "Por presentar" del supervisor | Johannes |
+| 2026-11-04 | D-70 · Preguntas a la corredora aceptadas solo en Seguimiento; no pasan a "Por presentar" del supervisor | Johannes |
+| 2026-11-05 | Cambio 17 (revisión rápida, `17-termino-auditoria-corredora.md`): "cliente" deja de nombrar a la corredora o a su planilla en la UI, por la decisión de actores de Johannes (`CLAUDE.md`, `docs/context.md` § Actores). **Aprobado** (Johannes: "Aprobar todo"); H-121 a H-123 sin objeción | Johannes; diseñador |
+| 2026-11-05 | D-71 · El veredicto, la marca por motivo y el comentario que llegan con el lote se llaman **Planilla de calidad** (corto: **la planilla**); reemplaza "Veredicto / Auditoría / Comentario del cliente" y "Excel del cliente" | Johannes |
+| 2026-11-05 | D-72 · La empresa como contraparte se llama **la empresa**; `{clientName}` se interpola solo en el encabezado del admin, Cuentas y la invitación ("Preguntas a la empresa", no "a {clientName}") | Johannes |
+| 2026-11-05 | D-73 · "Por presentar al cliente" pasa a **"Por presentar"** | Johannes |
+| 2026-11-05 | D-74 · Las etiquetas de la fuente se centralizan en una constante del front (`SOURCE_LABEL`). Alcance: copy visible y mocks de la demo; comentarios y JSDoc no se tocan. Aviso del panel del modelo: "Contenido técnico confidencial de Qubico y de la empresa, con datos de clientes. …" (el original se refería a ambas) | Johannes |
 
 ## Preguntas abiertas
 
@@ -138,7 +143,7 @@ Ninguna bloqueante.
 - Verificar la licencia del design system "Modernist" del zip (L-13).
 - ADR del prompt único vs las capas de `CLAUDE.md` (`pipeline-architect`, H-52).
 - L-28: no desplegar datos reales a externos sin enmascarado ni DPA.
-- L-36: confirmar contrato/NDA para enviar las condiciones comerciales del cliente al proveedor del LLM (Cambio 11).
+- L-36: confirmar contrato/NDA para enviar las condiciones comerciales de la corredora al proveedor del LLM (Cambio 11).
 - H-65: anonimización del Excel antes del LLM sin enmascarar teléfonos de empresas (`privacy-reviewer`).
 - Cambio 11: antes de la carga inicial, verificar que los 66 productos no tengan claves nombre + aseguradora repetidas (§9.3).
 - Cambio 12: ADR del registro de versiones del prompt (validación del yaml en el servidor, versión vigente por lote, conjunto de calibración, evaluación que se puede detener, costo por corrida y exportación al repo) con `pipeline-architect` y `llm-engineer`.
@@ -148,3 +153,4 @@ Ninguna bloqueante.
 - Cambio 14: diseño del backend (tablas `pipeline_runs`, `worker_heartbeat`, `asr_failures`, hilo de latido, endpoint) con `pipeline-architect` (§5). Agregar "pasada" y "latido" al glosario de `06-ux-writing.md`.
 - Cambio 15: backend (`Case.external_item_fails`, reimportación de metadata sin IA, `GET /api/admin/quality`) con `pipeline-architect` (§3, §7.7). Agregar el glosario de §7.5 a `06-ux-writing.md`. Revisión rápida post-implementación contra §7.
 - Cambio 16: backend (§7.8: `discrepancy_analyses`, `discrepancy_patterns`, `proposal_decisions`, paso 1 como servicio, jobs por motivo, endpoints `/api/admin/discrepancies`) con `pipeline-architect` y `llm-engineer`. Revisión rápida post-implementación contra §7.
+- Cambio 17: copy de §6 implementado en `frontend/` (2026-11-06); falta la revisión rápida post-implementación. Ojo: IDs duplicados de antes (H-115 a H-119 los usan C14 §8–§10 y C16; D-61 a D-66 propuestos en C14 §10 chocan con C16) — renumerar los de C14 cuando se aprueben.

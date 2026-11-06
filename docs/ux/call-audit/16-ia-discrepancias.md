@@ -6,7 +6,8 @@
 > **Origen:** acuerdo Agustín–Johannes del 2026-11-04, `docs/plan-ia-discrepancias.md` (sección "Salida: vista en el perfil admin").
 > **Numeración:** P-16.x, R-16.x; decisiones desde D-61; supuestos H-106 a H-114. Sin ítems L nuevos (preferencia de Johannes).
 > **Revisado:** `docs/plan-ia-discrepancias.md`, `src/call_audit/discrepancies.py`, `../transcripts/discrepancies/prod-2026-11-04/summary.md`, `15-calce-ia-por-corrida.md`, `12-cambio-admin-qubico.md` (§2.2 subir versión, §2.3 prueba con costo), `09-cambio-auditoria-ia.md` (Discrepancias del supervisor), `14-estado-worker.md`, `frontend/src/components/shell/sidebar-nav.tsx`.
-> **No contradice:** regla no negociable 5 y el plan ("no modifica criterios automáticamente"), D-35 (lo que gasta IA muestra *n* y costo y solo corre si el admin confirma), D-24 (el auditor nunca ve el veredicto del cliente), D-53 (Calidad de la IA sigue en `/admin/stats?tab=quality`).
+> **No contradice:** regla no negociable 5 y el plan ("no modifica criterios automáticamente"), D-35 (lo que gasta IA muestra *n* y costo y solo corre si el admin confirma), D-24 (el auditor nunca ve el veredicto de la corredora), D-53 (Calidad de la IA sigue en `/admin/stats?tab=quality`).
+> **Ajuste 2026-11-05 (Cambio 17):** "cliente" ya no nombra a la corredora en la UI. La fuente del veredicto del lote es **Planilla de calidad** (corto: **la planilla**) y la contraparte es **la empresa**. Textos de este documento actualizados; detalle en `17-termino-auditoria-corredora.md`.
 
 ---
 
@@ -17,19 +18,19 @@
 | D-61 | Sección nueva en la sidebar del admin, **"Análisis de discrepancias"** (`/admin/discrepancies`), entre Estadísticas y Prompt | Johannes (P1 A) |
 | D-62 | Convive con Calidad de la IA sin duplicarla: la vista nueva parte con la tabla del paso 1 (corrida vigente, con revisión manual, dudosas y por evaluador) y debajo los patrones. Enlaces cruzados "Ver por qué" (desde C15, solo en la corrida vigente) y "Ver en Calidad de la IA" | Johannes (P2 A) |
 | D-63 | Se analiza siempre la **corrida vigente**. El admin elige los motivos (preseleccionados los de 3 o más desacuerdos) y confirma con costo estimado | Johannes (P3 A) |
-| D-64 | Aceptar **no toca el prompt**: la propuesta pasa a seguimiento según su tipo (regla del prompt → "Incluida en v{X}" al subir versión; pregunta al cliente → "Preguntada"; calibrar → "Calibrada"). Descartar exige motivo y lo descartado se le pasa a la siguiente corrida de análisis | Johannes (P4 A) |
+| D-64 | Aceptar **no toca el prompt**: la propuesta pasa a seguimiento según su tipo (regla del prompt → "Incluida en v{X}" al subir versión; pregunta a la corredora → "Preguntada"; calibrar → "Calibrada"). Descartar exige motivo y lo descartado se le pasa a la siguiente corrida de análisis | Johannes (P4 A) |
 | D-65 | Casos de un patrón con las tres miradas por fila; "Abrir" va a `/calls/[id]` con banner (patrón D-58) y volver conserva el patrón | Johannes (P5 A) |
 | D-66 | El admin elige el modelo de la IA de análisis en el diálogo (selector con modelo por defecto de la configuración); el costo se recalcula al cambiarlo | Johannes (Q1 A) |
 | D-67 | Al aceptar, el texto de la propuesta es editable; se guardan original y editado ("Editado", original plegable) | Johannes (Q2 A) |
 | D-68 | "Incluida en v{X}" al guardar la versión (borrador) con la propuesta marcada; se muestra el estado de la versión; si se retira sin activarse, vuelve a "Aceptada" | Johannes (Q3 A) |
 | D-69 | Detalle del patrón en página propia, `/admin/discrepancies/patterns/[id]` | Johannes (Q4 A) |
-| D-70 | Las preguntas al cliente aceptadas quedan solo en Seguimiento (Copiar / Copiar todas, "Preguntada" a mano); no pasan a "Por presentar" del supervisor | Johannes (Q5 A) |
+| D-70 | Las preguntas a la corredora aceptadas quedan solo en Seguimiento (Copiar / Copiar todas, "Preguntada" a mano); no pasan a "Por presentar" del supervisor | Johannes (Q5 A) |
 
 Nota: la columna "Revisión manual" = 1 en todos los motivos de producción **no es un bug**: hay una sola revisión de la app (llamada 233422) y cubre los 33 motivos. H-113 se mantiene.
 
 ## 1. Hechos de partida
 
-- **Paso 1 existe y es determinístico** (`discrepancies.py`): por llamada × motivo cruza la corrida vigente con el Excel (veredicto, comentario, C01..C33) y con la revisión manual Qubico. Tipos `fp`, `fn`, `ai_uncertain`, `match_fail`. Resúmenes por motivo, por veredicto de llamada y por evaluador del cliente. Hoy sale como Markdown/JSONL fuera de la app.
+- **Paso 1 existe y es determinístico** (`discrepancies.py`): por llamada × motivo cruza la corrida vigente con el Excel (veredicto, comentario, C01..C33) y con la revisión manual Qubico. Tipos `fp`, `fn`, `ai_uncertain`, `match_fail`. Resúmenes por motivo, por veredicto de llamada y por evaluador de la corredora. Hoy sale como Markdown/JSONL fuera de la app.
 - **Producción (2026-11-04):** 493 llamadas, calce de llamada 58 %. Los desacuerdos se concentran: motivo 25 (97 fp, dato faltante: tipificación), 18 (36 fp / 69 fn), 1 (51 fp, lo calcula el código), 6, 32, 2. 73 llamadas sin corrida vigente quedan fuera.
 - **Dos vacíos de datos que afectan el diseño:**
   - Revisión manual por motivo: **1 caso por motivo** en todo el corte. Casi ningún patrón tendrá "el porqué" humano; la causa `evaluator` va a depender casi solo del Excel.
@@ -40,7 +41,7 @@ Nota: la columna "Revisión manual" = 1 en todos los motivos de producción **no
 
 | Vista | Rol | Pregunta que responde | Relación con el Cambio 16 |
 |---|---|---|---|
-| Calidad de la IA (C15, `/admin/stats?tab=quality`) | Admin | ¿Qué corrida calza mejor con el cliente, y en qué motivos y llamadas falla? | Mismos números fp/fn por motivo para la corrida vigente. Responde **dónde** falla; no **por qué** |
+| Calidad de la IA (C15, `/admin/stats?tab=quality`) | Admin | ¿Qué corrida calza mejor con la corredora, y en qué motivos y llamadas falla? | Mismos números fp/fn por motivo para la corrida vigente. Responde **dónde** falla; no **por qué** |
 | Discrepancias (C09, árbol) | Supervisor | ¿La IA acertó o se equivocó en esta llamada? Seguimiento "Por presentar" | Es **fuente** del paso 1 (`discrepancy_classifications`, notas). Se llama igual: hay que evitar el choque de nombre |
 | Prompt (C12, `/admin/prompts`) | Admin | Versiones, prueba con costo, activar | **Destino** de las propuestas `prompt_rule` aceptadas |
 | Procesamiento (C14) | Admin | ¿Qué está corriendo? | Una corrida de análisis en curso aparece como línea con enlace, igual que la prueba del prompt (D-48) |
@@ -48,17 +49,17 @@ Nota: la columna "Revisión manual" = 1 en todos los motivos de producción **no
 ## 2. Problema, objetivo y requisitos
 
 - **P-16.1** Calidad de la IA dice en qué motivos hay desacuerdo, pero no **por qué**. Hoy el porqué se arma a mano (análisis v2.6) leyendo llamada por llamada.
-- **P-16.2** Un desacuerdo no siempre es culpa del prompt: puede ser el evaluador del cliente, la transcripción o un dato que la IA no tiene (motivo 25). Sin separar eso, se corrige el prompt donde no corresponde.
+- **P-16.2** Un desacuerdo no siempre es culpa del prompt: puede ser el evaluador de la corredora, la transcripción o un dato que la IA no tiene (motivo 25). Sin separar eso, se corrige el prompt donde no corresponde.
 - **P-16.3** Las conclusiones se pierden: no hay registro de qué se propuso, qué se aceptó y en qué versión entró.
 
-**Objetivo:** que el admin Qubico, en la app, lance el análisis con costo conocido, lea los patrones priorizados por impacto con su causa y evidencia, revise los casos de cada patrón y **acepte o descarte** cada propuesta, dejando rastro hasta la versión del prompt (o la pregunta al cliente) donde terminó.
+**Objetivo:** que el admin Qubico, en la app, lance el análisis con costo conocido, lea los patrones priorizados por impacto con su causa y evidencia, revise los casos de cada patrón y **acepte o descarte** cada propuesta, dejando rastro hasta la versión del prompt (o la pregunta a la corredora) donde terminó.
 
 **Requisitos propuestos:**
 - **R-16.1** Lanzar una corrida de análisis desde la vista con *n* de casos, motivos, modelo y costo estimado; solo corre si el admin confirma (D-35).
-- **R-16.2** Ver la tabla del paso 1 (dónde duele) con las tres miradas (IA, Excel, revisión manual) y el resumen por evaluador del cliente.
+- **R-16.2** Ver la tabla del paso 1 (dónde duele) con las tres miradas (IA, Excel, revisión manual) y el resumen por evaluador de la corredora.
 - **R-16.3** Ver los patrones priorizados: resumen, dirección (de más / se le pasa), causa, evidencia, confianza, casos y propuesta. Los de menos de 3 casos se muestran como **observación**, sin botón de aceptar.
 - **R-16.4** Desde un patrón, ver sus casos y abrir la llamada en `/calls/[id]` con el contexto del motivo.
-- **R-16.5** Aceptar o descartar cada propuesta, con registro de quién, cuándo y qué pasó después (incluida en versión X, preguntada al cliente, calibrada).
+- **R-16.5** Aceptar o descartar cada propuesta, con registro de quién, cuándo y qué pasó después (incluida en versión X, preguntada a la corredora, calibrada).
 - **R-16.6** Historial de corridas de análisis (fecha, corrida de capa 2 analizada, modelo, versión del prompt de análisis, costo) y aviso cuando el análisis quedó viejo (cambió la corrida vigente o entraron revisiones nuevas).
 
 **Fuera de alcance:** que la IA escriba el `prompt.yaml` o active versiones; mostrar esto al supervisor o al auditor; correr el análisis automático por calendario; analizar corridas que no sean la vigente (ver P3).
@@ -91,14 +92,14 @@ Nota: la columna "Revisión manual" = 1 en todos los motivos de producción **no
 **P4 · ¿Qué significa "aceptar" una propuesta?**
 - **A (recomendada):** aceptar **no toca el prompt**. La propuesta pasa a una lista de pendientes según su tipo:
   - *Regla del prompt:* "Aceptada · falta incluirla en una versión". Al subir una versión nueva en Prompt (C12 §2.2), el admin marca cuáles incluye y quedan como "Incluida en v2.11"; su texto se precarga en "Por qué".
-  - *Pregunta al cliente:* lista "Preguntas al cliente" con botón Copiar; se marca "Preguntada" a mano.
+  - *Pregunta a la empresa:* lista "Preguntas a la empresa" con botón Copiar; se marca "Preguntada" a mano.
   - *Calibrar con el auditor:* lista con sus casos, para la reunión de calibración; se marca "Calibrada" a mano.
   - Descartar pide un motivo corto (obligatorio) y la próxima corrida de análisis recibe lo descartado para no repetirlo.
 - B: como A, pero sin seguimiento: solo aceptar/descartar y un export.
 - C: aceptar genera un borrador de `prompt.yaml` con la regla redactada por la IA, para revisar y subir. Más rápido, pero más backend y roza el "no modifica criterios automáticamente".
 
 **P5 · ¿Cómo se revisan los casos de un patrón?**
-- **A (recomendada):** al abrir un patrón, lista de sus casos con las tres miradas por fila (IA / Excel / revisión manual), cita de la IA y comentario del cliente. "Abrir" va a `/calls/[id]?motivo=…` con un banner (mismo patrón que D-58) que dice qué marcó cada uno en ese motivo; volver conserva el patrón abierto.
+- **A (recomendada):** al abrir un patrón, lista de sus casos con las tres miradas por fila (IA / Excel / revisión manual), cita de la IA y comentario de la corredora. "Abrir" va a `/calls/[id]?motivo=…` con un banner (mismo patrón que D-58) que dice qué marcó cada uno en ese motivo; volver conserva el patrón abierto.
 - B: A + panel lateral con el tramo de transcripción (± 30 s) para leer sin salir de la vista.
 - C: solo la lista de IDs; abrir la llamada para ver el resto.
 
@@ -107,9 +108,9 @@ Nota: la columna "Revisión manual" = 1 en todos los motivos de producción **no
 | ID | Supuesto |
 |---|---|
 | H-106 | Solo `qubico_admin` ve la vista (403 para otros roles), escritorio ≥ 1280 px, como C15 (H-90, H-91) |
-| H-107 | El resumen por evaluador del cliente muestra el nombre tal cual viene en `EVALUADOR_CALIDAD`. Es una excepción acotada a "sin indicadores por persona" del Cambio 12, que apuntaba a ejecutivos; los ejecutivos siguen sin aparecer |
+| H-107 | El resumen por evaluador de la corredora muestra el nombre tal cual viene en `EVALUADOR_CALIDAD`. Es una excepción acotada a "sin indicadores por persona" del Cambio 12, que apuntaba a ejecutivos; los ejecutivos siguen sin aparecer |
 | H-108 | Orden de los patrones = impacto de la síntesis (casos afectados × peso en el veredicto de llamada); los de menos de 3 casos van al final como "Observaciones" |
-| H-109 | Causas en la UI: Criterio del prompt · Evaluador del cliente · Transcripción · Dato faltante. El motivo 1 (umbral de espera en código) entra como "Criterio" y su propuesta típica es una pregunta al cliente (umbral TBD), no una regla del prompt |
+| H-109 | Causas en la UI: Criterio del prompt · Evaluador de la planilla · Transcripción · Dato faltante. El motivo 1 (umbral de espera en código) entra como "Criterio" y su propuesta típica es una pregunta a la empresa (umbral TBD), no una regla del prompt |
 | H-110 | Si el Excel y la revisión manual se contradicen, el caso se marca "Desacuerdo entre revisores" y va a calibración, no a cambios del prompt (decisión pendiente 2 del plan) |
 | H-111 | El análisis queda "desactualizado" (aviso, no bloqueo) si cambió la corrida vigente o entraron revisiones/clasificaciones nuevas desde que corrió |
 | H-112 | Se ve la última corrida de análisis; las anteriores se abren en solo lectura desde el historial. Las decisiones sobre propuestas viven aparte y no se pierden al correr de nuevo |
@@ -134,7 +135,7 @@ Mismo formato que los Cambios 12–15: **un solo documento y dos gates**.
 
 ```mermaid
 flowchart TD
-  A[Sidebar admin · Análisis de discrepancias] --> B{¿Hay corrida vigente con veredicto del cliente?}
+  A[Sidebar admin · Análisis de discrepancias] --> B{¿Hay corrida vigente con planilla de calidad?}
   B -- No --> B0[Vacío: aún no hay llamadas para comparar]
   B -- Sí --> C[Pestaña Análisis: tabla de desacuerdos por motivo · paso 1, sin IA]
   C --> D{¿Hay análisis con IA?}
@@ -168,13 +169,13 @@ Ruta `/admin/discrepancies`, tres pestañas (mismo control que Estadísticas):
 
 | Pestaña | Bloques (de arriba hacia abajo) | Requisito |
 |---|---|---|
-| **Análisis** (por defecto) | 1. Encabezado: corrida vigente comparada, último análisis (fecha, modelo, costo), aviso de desactualizado y botón **Analizar discrepancias** · 2. Cobertura: llamadas, casos, revisión manual (H-113) · 3. **¿Dónde están los desacuerdos?** (tabla por motivo, paso 1) · 4. **Por evaluador del cliente** (plegable) · 5. **Patrones** priorizados con filtros · 6. **Observaciones** (< 3 casos, plegable) · 7. **Cómo leer este análisis** (plegable) | R-16.1–R-16.3 |
-| **Seguimiento** | Listas con contador: **Para la próxima versión del prompt** · **Preguntas al cliente** · **Para calibrar con el auditor**, más **Descartadas** (plegable) | R-16.5 |
+| **Análisis** (por defecto) | 1. Encabezado: corrida vigente comparada, último análisis (fecha, modelo, costo), aviso de desactualizado y botón **Analizar discrepancias** · 2. Cobertura: llamadas, casos, revisión manual (H-113) · 3. **¿Dónde están los desacuerdos?** (tabla por motivo, paso 1) · 4. **Por evaluador de la planilla** (plegable) · 5. **Patrones** priorizados con filtros · 6. **Observaciones** (< 3 casos, plegable) · 7. **Cómo leer este análisis** (plegable) | R-16.1–R-16.3 |
+| **Seguimiento** | Listas con contador: **Para la próxima versión del prompt** · **Preguntas a la empresa** · **Para calibrar con el auditor**, más **Descartadas** (plegable) | R-16.5 |
 | **Historial** | Corridas de análisis: fecha, quién, corrida de capa 2, modelo, versión del prompt de análisis, motivos, patrones, costo real, estado. Abrir → pestaña Análisis en solo lectura | R-16.6 |
 
 Detalle de un patrón: ruta propia `/admin/discrepancies/patterns/[patternId]` (ver Q4), con la ficha del patrón y sus casos (R-16.4).
 
-**Tabla por motivo (bloque 3):** Motivo · Cliente NO CUMPLE · IA NO CUMPLE · Coinciden · Solo la IA detectó · Omitidos por la IA · IA dudosa · Con revisión manual · Patrones · "Ver patrones" (filtra el bloque 5 por ese motivo y mueve el foco). Orden: desacuerdos (solo la IA + omitidos) de mayor a menor, como `summary.md`. Arriba, una línea con el calce de llamada y "Ver en Calidad de la IA"; la matriz 2×2 de C15 no se repite (H-116).
+**Tabla por motivo (bloque 3):** Motivo · Planilla NO CUMPLE · IA NO CUMPLE · Coinciden · Solo la IA detectó · Omitidos por la IA · IA dudosa · Con revisión manual · Patrones · "Ver patrones" (filtra el bloque 5 por ese motivo y mueve el foco). Orden: desacuerdos (solo la IA + omitidos) de mayor a menor, como `summary.md`. Arriba, una línea con el calce de llamada y "Ver en Calidad de la IA"; la matriz 2×2 de C15 no se repite (H-116).
 
 **Tarjeta de patrón (bloque 5):**
 - Encabezado: n.º de prioridad · motivo · **dirección** · **causa** · confianza (Alta/Media/Baja) · *k* casos · estado de la propuesta.
@@ -191,7 +192,7 @@ Detalle de un patrón: ruta propia `/admin/discrepancies/patterns/[patternId]` (
 Análisis de discrepancias
 [ Análisis ] [ Seguimiento (6) ] [ Historial ]
 ─────────────────────────────────────────────────────────────────────────────────────────────
-Comparamos la corrida vigente Gemini 3.8 Flash · v2.10 con el Excel del cliente y la revisión manual Qubico.
+Comparamos la corrida vigente Gemini 3.8 Flash · v2.10 con la planilla de calidad y la revisión manual Qubico.
 Último análisis: 04-11-2026 18:40 · Sonnet 5.5 · prompt de análisis v1.0.0 · 12 motivos · 3,10 USD
 ⚠ Desactualizado: entraron 4 revisiones nuevas desde el último análisis.    [ Analizar discrepancias ]
 
@@ -200,7 +201,7 @@ Comparamos la corrida vigente Gemini 3.8 Flash · v2.10 con el Excel del cliente
 
 ┌ ¿Dónde están los desacuerdos? ────────────────────────────────────────────────────────────┐
 │ Calce de llamada: 280 de 480 (58 %) · Ver en Calidad de la IA →                           │
-│ Motivo                               Cliente  IA  Coinc. Solo IA Omit. Dudosa Manual Patr.│
+│ Motivo                               Planilla IA  Coinc. Solo IA Omit. Dudosa Manual Patr.│
 │ 25 · No tipifica todas las gestiones     0    90    0      90     0     20     2     1  [Ver patrones]
 │ 18 · Tipifica motivo de renuncia inc.   90    58   22      36    68      6     3     3  [Ver patrones]
 │ 1 · Deja en espera por tiempo excesivo  18    62   14      48     4      0     1     1  [Ver patrones]
@@ -208,22 +209,22 @@ Comparamos la corrida vigente Gemini 3.8 Flash · v2.10 con el Excel del cliente
 │ 19 · Tipifica renuncia y es retención    2     0    0       0     2      0     0     —  sin analizar
 └───────────────────────────────────────────────────────────────────────────────────────────┘
 
-▸ Por evaluador del cliente   (El Excel de estas llamadas no trae el evaluador.)
+▸ Por evaluador de la planilla   (La planilla de estas llamadas no trae el evaluador.)
 
 ┌ Patrones · ordenados por impacto ─────────────────────────────────────────────────────────┐
-│ Causa: (Todas) (Criterio del prompt) (Evaluador del cliente) (Transcripción) (Dato faltante)
-│ Tipo: (Todos) (Regla del prompt) (Pregunta al cliente) (Calibrar)    Estado: [Pendientes ▾]
+│ Causa: (Todas) (Criterio del prompt) (Evaluador de la planilla) (Transcripción) (Dato faltante)
+│ Tipo: (Todos) (Regla del prompt) (Pregunta a la empresa) (Calibrar)    Estado: [Pendientes ▾]
 │                                                                                           │
 │ ┌ 1 · Motivo 25 · Solo la IA detectó · Dato faltante · Confianza alta · 88 casos · Pendiente
 │ │ La IA marca "no tipifica todas las gestiones" sin recibir la tipificación del ejecutivo:
 │ │ evalúa sobre un supuesto.
 │ │ Evidencia: en los 88 casos la metadata no trae tipificación.
-│ │ Propuesta · Pregunta al cliente: "¿Pueden enviar la tipificación de cada gestión en el Excel?"
+│ │ Propuesta · Pregunta a la empresa: "¿Pueden enviar la tipificación de cada gestión en el Excel?"
 │ │ [ Aceptar ]  [ Descartar ]  [ Ver casos (88) ]
 │ └──────────────────────────────────────────────────────────────────────────────────────
 │ ┌ 2 · Motivo 18 · Omitidos por la IA · Criterio del prompt · Confianza media · 21 casos
 │ │ Cuando el cliente da dos razones, la IA acepta la tipificación si calza con cualquiera;
-│ │ el cliente exige la principal.
+│ │ la planilla exige la principal.
 │ │ Evidencia: llamada 231063, 01:42 «es que me quedé sin pega y aparte no lo uso».
 │ │ Propuesta · Regla del prompt: "Si el cliente da más de un motivo, la tipificación debe…"
 │ │ 3 casos con desacuerdo entre revisores: van a calibración.
@@ -265,14 +266,14 @@ Motivo 18 · Omitidos por la IA · Criterio del prompt · Confianza media · 21 
 (resumen, evidencia, propuesta y acciones, como en la tarjeta)
 
 Casos (21)              Filtro: (Todos) (Con revisión manual) (Desacuerdo entre revisores)
-Llamada  Fecha       IA       Cliente    Revisión manual        Cita de la IA · comentario del cliente
+Llamada  Fecha       IA       Planilla   Revisión manual        Cita de la IA · comentario en la planilla
 231063   21-10-2026  Cumple   No cumple  No cumple · da razón   IA: «…tipifica Cambio de situación laboral…»
-                                         al Excel               Cliente: "Motivo principal es no uso"      [Abrir]
-230244   20-10-2026  Cumple   No cumple  —                      IA: «…» · Cliente: sin comentario         [Abrir]
+                                         a la planilla          Planilla: "Motivo principal es no uso"      [Abrir]
+230244   20-10-2026  Cumple   No cumple  —                      IA: «…» · Planilla: sin comentario         [Abrir]
 …
 ```
 
-**Banner en `/calls/[id]?from=analysis&pattern=…&motivo=18`:** "Llegaste desde Análisis de discrepancias · Motivo 18: IA Cumple · Cliente No cumple · Revisión manual: sin revisión. Patrón: «Cuando el cliente da dos razones…» · Volver al patrón". El checklist abre y resalta el motivo 18.
+**Banner en `/calls/[id]?from=analysis&pattern=…&motivo=18`:** "Llegaste desde Análisis de discrepancias · Motivo 18: IA Cumple · Planilla No cumple · Revisión manual: sin revisión. Patrón: «Cuando el cliente da dos razones…» · Volver al patrón". El checklist abre y resalta el motivo 18.
 
 **Seguimiento:**
 
@@ -282,7 +283,7 @@ Para la próxima versión del prompt (2)
    Aceptada por Johannes 04-11 · Falta incluirla en una versión          [Volver a pendiente]
  Motivo 13 · "Acepta el N° de seguro sin el cero inicial…"
    Incluida en v2.11 (borrador)
-Preguntas al cliente (3)                                                 [Copiar todas]
+Preguntas a la empresa (3)                                                 [Copiar todas]
  Motivo 25 · "¿Pueden enviar la tipificación…?" · Aceptada 04-11   [Marcar como preguntada] [Copiar]
 Para calibrar con el auditor (1)
  Motivo 32 · 6 casos · "Revisar con el evaluador si…"              [Marcar como calibrada] [Ver casos]
@@ -298,8 +299,8 @@ Para calibrar con el auditor (1)
 |---|---|
 | Cargando | Esqueleto de `AsyncView` |
 | Error al cargar | "No pudimos cargar el análisis de discrepancias. Intenta de nuevo." + Reintentar |
-| Sin corrida vigente con veredicto del cliente | "Aún no hay llamadas con corrida vigente y veredicto del cliente para comparar." Sin botón de analizar |
-| Sin desacuerdos | "La corrida vigente coincide con el cliente en todos los motivos. No hay nada que analizar." |
+| Sin corrida vigente con veredicto de la corredora | "Aún no hay llamadas con corrida vigente y marca por motivo en la planilla para comparar." Sin botón de analizar |
+| Sin desacuerdos | "La corrida vigente coincide con la planilla en todos los motivos. No hay nada que analizar." |
 | Paso 1 listo, sin análisis con IA | Tabla por motivo + aviso: "Todavía no hay análisis con IA. Analizar busca patrones y propone soluciones; no cambia el prompt." + botón |
 | Estimando costo | Diálogo con el costo en esqueleto; el botón primario espera |
 | Sin estimación | "No hay costo registrado para este modelo; no podemos estimarlo." · "Analizar sin estimación" (igual que C12) |
@@ -309,23 +310,23 @@ Para calibrar con el auditor (1)
 | Desactualizado (H-111) | Aviso ámbar con ícono: "Desactualizado: {cambió la corrida vigente a {corrida} \| entraron {k} revisiones nuevas} desde el último análisis." No bloquea aceptar ni descartar |
 | Motivo analizado sin patrones | Columna Patrones = "0"; nota: "La IA no encontró un patrón: los desacuerdos parecen casos aislados." |
 | Motivo no analizado | Columna Patrones = "—" con texto "sin analizar" |
-| Sin evaluador | Plegable: "El Excel de estas llamadas no trae el evaluador. Reimporta la metadata con el Excel nuevo para verlo." |
-| Revisión manual baja (H-113) | Línea de cobertura siempre visible; si es < 10 %: "Hay poca revisión manual: la causa Evaluador del cliente se apoya casi solo en el Excel." |
+| Sin evaluador | Plegable: "La planilla de estas llamadas no trae el evaluador. Reimporta la metadata con la planilla nueva para verlo." |
+| Revisión manual baja (H-113) | Línea de cobertura siempre visible; si es < 10 %: "Hay poca revisión manual: la causa Evaluador de la planilla se apoya casi solo en la planilla." |
 | Filtro sin resultados | "Ningún patrón con estos filtros." + Quitar filtros |
 | Análisis anterior (solo lectura) | Banner: "Estás viendo el análisis del {fecha}. Ver el último". Muestra el estado actual de cada propuesta, sin botones de decisión |
-| Seguimiento vacío | Por lista: "Nada pendiente para la próxima versión." · "Sin preguntas al cliente." · "Nada para calibrar." |
+| Seguimiento vacío | Por lista: "Nada pendiente para la próxima versión." · "Sin preguntas a la empresa." · "Nada para calibrar." |
 | Rol distinto de `qubico_admin` | 403; la sección no aparece en la sidebar (H-106) |
 
 ### 7.5 Textos y glosario
 
-**Títulos:** Análisis de discrepancias · ¿Dónde están los desacuerdos? · Por evaluador del cliente · Patrones · Observaciones · Cómo leer este análisis · Seguimiento · Historial.
+**Títulos:** Análisis de discrepancias · ¿Dónde están los desacuerdos? · Por evaluador de la corredora · Patrones · Observaciones · Cómo leer este análisis · Seguimiento · Historial.
 
 **Botones:** Analizar discrepancias · Analizar · {usd} USD · Detener · Analizar motivos pendientes · Ver patrones · Ver casos ({k}) · Abrir · Aceptar · Descartar · Volver a pendiente · Marcar como preguntada · Marcar como calibrada · Copiar · Copiar todas · Ver en Calidad de la IA · Volver al patrón.
 
 **Diálogo Aceptar:**
 - Título: "¿Aceptar esta propuesta?"
 - Regla del prompt: "Queda en Seguimiento para incluirla en la próxima versión del prompt. No cambia el prompt vigente."
-- Pregunta al cliente: "Queda en Seguimiento, en Preguntas al cliente."
+- Pregunta a la empresa: "Queda en Seguimiento, en Preguntas a la empresa."
 - Calibrar: "Queda en Seguimiento, en Para calibrar, con sus {k} casos."
 - Campos: "Texto de la propuesta" (editable si Q2 = A) y "Nota (opcional)". Botones: **Aceptar** · Cancelar.
 
@@ -336,22 +337,22 @@ Para calibrar con el auditor (1)
 - Error si falta: "Elige un motivo para descartar."
 - Botones: **Descartar** · Cancelar.
 
-**Cómo leer este análisis** (plegable): "La IA de análisis agrupa los desacuerdos entre la corrida vigente y el Excel del cliente, y propone una causa y una solución. Son hallazgos para revisar: nada cambia el prompt ni los resultados hasta que una persona sube una versión nueva. Un patrón con menos de 3 casos queda como observación. Si el Excel y la revisión manual Qubico no coinciden, el caso va a calibración y no al prompt."
+**Cómo leer este análisis** (plegable): "La IA de análisis agrupa los desacuerdos entre la corrida vigente y la planilla de calidad, y propone una causa y una solución. Son hallazgos para revisar: nada cambia el prompt ni los resultados hasta que una persona sube una versión nueva. Un patrón con menos de 3 casos queda como observación. Si la planilla y la revisión manual Qubico no coinciden, el caso va a calibración y no al prompt."
 
 **Glosario** (se suma a `06-ux-writing.md`; convive con **corrida** y **prueba** de C12/C15 y **pasada** de C14):
 
 | Término | Definición en la UI | Nota |
 |---|---|---|
-| **Análisis de discrepancias** | Sección del admin que explica por qué la IA y el cliente no coinciden | No confundir con **Discrepancias** del supervisor (C09) |
+| **Análisis de discrepancias** | Sección del admin que explica por qué la IA y la corredora no coinciden | No confundir con **Discrepancias** del supervisor (C09) |
 | **Corrida de análisis** | Una ejecución de la IA de análisis sobre la corrida vigente, con costo | No es una **corrida** de capa 2 ni una **prueba** del prompt |
-| **Desacuerdo** | La IA y el cliente difieren en un motivo de una llamada | Igual que C15 |
+| **Desacuerdo** | La IA y la corredora difieren en un motivo de una llamada | Igual que C15 |
 | **Patrón** | Grupo de 3 o más desacuerdos de un motivo con una explicación común | |
 | **Observación** | Patrón con menos de 3 casos; sin propuesta para aceptar | |
-| **Causa** | Criterio del prompt · Evaluador del cliente · Transcripción · Dato faltante | `criterion \| evaluator \| transcript \| missing_data` |
-| **Dirección** | Solo la IA detectó (la IA marca y el cliente no) · Omitidos por la IA (el cliente marca y la IA no) | Vocabulario de C09/C15 |
-| **Propuesta** | Regla del prompt · Pregunta al cliente · Calibrar con el auditor | `prompt_rule \| client_question \| calibrate_auditor` |
+| **Causa** | Criterio del prompt · Evaluador de la planilla · Transcripción · Dato faltante | `criterion \| evaluator \| transcript \| missing_data` |
+| **Dirección** | Solo la IA detectó (la IA marca y la corredora no) · Omitidos por la IA (la corredora marca y la IA no) | Vocabulario de C09/C15 |
+| **Propuesta** | Regla del prompt · Pregunta a la empresa · Calibrar con el auditor | `prompt_rule \| client_question \| calibrate_auditor` |
 | **Estado de la propuesta** | Pendiente · Aceptada · Descartada · Incluida en v{X} · Preguntada · Calibrada | |
-| **Desacuerdo entre revisores** | El Excel y la revisión manual Qubico dicen cosas distintas en el mismo motivo | Va a calibración (H-110) |
+| **Desacuerdo entre revisores** | La planilla y la revisión manual Qubico dicen cosas distintas en el mismo motivo | Va a calibración (H-110) |
 | **Desactualizado** | Cambió la corrida vigente o entraron revisiones desde el último análisis | Aviso, no bloqueo |
 | **Confianza** | Alta (≥ 0,7) · Media (0,4–0,7) · Baja (< 0,4) | H-114 |
 
@@ -430,9 +431,9 @@ Nombres en inglés, como el resto de `frontend/src/lib/api/admin-types.ts`.
 - **A (recomendada):** página propia (`/admin/discrepancies/patterns/[id]`): enlace compartible, "Volver" simple desde la llamada y espacio para patrones con muchos casos (88 en el ejemplo).
 - B: se expande dentro de la tarjeta, sin salir de la lista.
 
-**Q5 · ¿Las preguntas al cliente aceptadas salen de esta vista?**
+**Q5 · ¿Las preguntas a la empresa aceptadas salen de esta vista?**
 - **A (recomendada):** no; quedan en Seguimiento con Copiar / Copiar todas y se marcan "Preguntada" a mano.
-- B: además aparecen en "Por presentar" del supervisor (Discrepancias, C09), para llevarlas a la reunión con el cliente.
+- B: además aparecen en "Por presentar" del supervisor (Discrepancias, C09), para llevarlas a la reunión con la corredora.
 
 **Supuestos nuevos (van a `hipotesis.md`; sin objeción el 2026-11-04):**
 

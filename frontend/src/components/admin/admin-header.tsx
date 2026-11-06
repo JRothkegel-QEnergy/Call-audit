@@ -8,7 +8,7 @@ export function AdminHeader({ title, description, actions }: { title: string; de
   const { user } = useSession();
   return (
     <>
-      <p className="help m-0 mb-1">Cliente: {user?.clientName}</p>
+      <p className="help m-0 mb-1">Empresa: {user?.clientName}</p>
       <PageHeader title={title} description={description} actions={actions} />
     </>
   );

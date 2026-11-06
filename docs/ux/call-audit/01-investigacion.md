@@ -13,7 +13,7 @@
 - El auditor escucha llamadas a mano y las evalúa contra la pauta de BancoEstado: **33 motivos de no calidad en 5 bloques** (acreditación y cierre, conocimiento del producto, gestión de la retención, trato, tipificación). La pauta no tiene puntaje: cada motivo se cumple o no.
 - Solo alcanza a auditar una **muestra** (`context.md`). El resto de las llamadas no se revisa nunca.
 - Para evaluar "conocimiento del producto" (motivos 2, 4, 5, 6, 28), el auditor tiene que saber las condiciones de cada seguro: hoy están en el Excel de apoyo con una hoja por producto, y en la capacitación S4P.
-- **Herramienta actual (D-11, dato del usuario):** los auditores son personal del cliente, del contact center. Auditan con una **herramienta interna** en la que **escuchan el audio completo** y **agregan observaciones minuto a minuto, solo cuando algo no cumple**. El registro es por excepción: lo que no se anota se da por cumplido.
+- **Herramienta actual (D-11, dato del usuario):** los auditores son personal de la corredora, del contact center. Auditan con una **herramienta interna** en la que **escuchan el audio completo** y **agregan observaciones minuto a minuto, solo cuando algo no cumple**. El registro es por excepción: lo que no se anota se da por cumplido.
 - Todavía no sabemos cuánto se demoran por llamada, cuántas auditan al día ni cómo es el formato exacto de la observación (H-03, en parte).
 - **Implicancia clave:** Call Audit invierte el trabajo. El auditor ya no busca los incumplimientos escuchando todo: valida los que propone la IA. Para no sumar trabajo (H-24), la acción explícita se pide solo en lo `non_compliant` y `uncertain`. La marca de minuto ya es un hábito del auditor (H-25).
 
@@ -32,7 +32,7 @@
 ### 1.3 Normativa y contexto regulatorio relevante para el auditor
 
 - **Ley 21.719** (reforma la Ley 19.628): los datos personales se enmascaran por defecto y las decisiones no pueden ser solo automatizadas (L-03, L-07). El auditor es la "persona" de la regla 5: su revisión es la que da validez al hallazgo.
-- **Ley 19.496 / 21.398 (consumidor)**: varios motivos de la pauta protegen derechos del consumidor (retracto, devolución de primas, información correcta del producto). Un falso negativo no es solo un error de calidad: es un riesgo regulatorio para el cliente (L-16).
+- **Ley 19.496 / 21.398 (consumidor)**: varios motivos de la pauta protegen derechos del consumidor (retracto, devolución de primas, información correcta del producto). Un falso negativo no es solo un error de calidad: es un riesgo regulatorio para la corredora (L-16).
 - **Código del Trabajo**: las grabaciones evalúan a trabajadores (ejecutivos); el lenguaje y las funciones no deben ser sancionatorios (L-06, L-15).
 - **WCAG 2.2 AA / Ley 20.422**: uso intensivo de teclado; los atajos de una sola tecla deben poder desactivarse o reasignarse (criterio 2.1.4) (L-12).
 
@@ -132,7 +132,7 @@
 **Seguimiento de ejecutivos (13 min)**
 6. Cuéntame cómo fue la última vez que le diste feedback a un ejecutivo. ¿Qué información llevaste?
 7. ¿Dónde queda registrado ese feedback? ¿Cómo haces el seguimiento?
-8. ¿Qué indicadores miras a diario o cada semana? ¿Cuáles te piden tus jefaturas o el cliente?
+8. ¿Qué indicadores miras a diario o cada semana? ¿Cuáles te piden tus jefaturas o la corredora?
 
 **IA (3 min)**
 9. Si una herramienta separa "lo que dijo la IA" de "lo que confirmó un auditor", ¿qué usarías para tomar decisiones sobre tu equipo?
@@ -213,7 +213,7 @@ No aplica todavía: no hay transcripciones de entrevistas. Cuando las haya, se a
 | Cuadrante | Contenido **[SUPUESTO]** |
 |---|---|
 | **Piensa** | "¿Qué escalaron hoy y qué es urgente?" · "¿Este auditor está revisando muy rápido?" · "Necesito evidencia concreta para hablar con el ejecutivo" |
-| **Siente** | Presión por indicadores de calidad ante el cliente · responsabilidad por decisiones que afectan a personas · poco tiempo |
+| **Siente** | Presión por indicadores de calidad ante la corredora · responsabilidad por decisiones que afectan a personas · poco tiempo |
 | **Dice** | "Mándame el minuto exacto" · "Esto no es un incumplimiento, es criterio" · "¿Cuántas llevamos este mes?" |
 | **Hace** | Responde dudas por chat · revisa algunas auditorías al azar · arma reportes en planilla · tiene reuniones de feedback uno a uno |
 | **Dolores** | P-14, P-15, P-16, P-17, P-18, P-19 |
@@ -226,7 +226,7 @@ No aplica todavía: no hay transcripciones de entrevistas. Cuando las haya, se a
 ### 6.1 Persona primaria · Carolina, auditora de calidad (proto-persona)
 
 - **Confianza:** baja. Se construyó con las HU, el contexto del proyecto y los datos medidos; no hubo entrevistas.
-- **Contexto:** audita las llamadas de retención de seguros del cliente. Trabaja en escritorio, en Chrome o Edge, con audífonos (D-06). Nivel técnico medio: usa con soltura planillas y el sistema del contact center. Jornada completa revisando llamadas **[SUPUESTO]**.
+- **Contexto:** audita las llamadas de retención de seguros de la corredora. Trabaja en escritorio, en Chrome o Edge, con audífonos (D-06). Nivel técnico medio: usa con soltura planillas y el sistema del contact center. Jornada completa revisando llamadas **[SUPUESTO]**.
 - **Objetivos:**
   - revisar más llamadas por jornada sin perder precisión;
   - dejar decisiones defendibles, con evidencia;
@@ -249,7 +249,7 @@ No aplica todavía: no hay transcripciones de entrevistas. Cuando las haya, se a
   - resolver el mismo día los escalamientos y las alertas;
   - asegurar que las revisiones de su equipo sean consistentes antes de que cuenten en los indicadores;
   - dar feedback a los ejecutivos con evidencia concreta y hacerle seguimiento;
-  - reportar la calidad al cliente.
+  - reportar la calidad a la corredora.
 - **Dolencias:** P-06, P-09 (como receptor), P-14 a P-19.
 - **Motivaciones:** mejorar la calidad del equipo con criterios justos; tener números en que confiar; no perder tiempo armando reportes.
 - **Frustraciones:** canales informales; reescuchar llamadas para entender una duda; indicadores que mezclan IA y revisión humana.
@@ -297,10 +297,10 @@ journey
 
 | Etapa | Acciones | Puntos de contacto | Pensamientos | Emoción | Dolencias |
 |---|---|---|---|---|---|
-| Elegir llamada | Recibe la muestra y abre la llamada | Herramienta interna del cliente | "¿Cuál me toca?" | Neutra | P-02 |
+| Elegir llamada | Recibe la muestra y abre la llamada | Herramienta interna de la corredora | "¿Cuál me toca?" | Neutra | P-02 |
 | Escuchar | Escucha completo, retrocede | Reproductor de audio | "Esto es largo y casi todo está bien" | Baja (fatiga) | P-01, P-03, P-05, P-07 |
 | Evaluar | Recorre la pauta, consulta la ficha, duda | Pauta impresa o PDF, Excel de apoyo, supervisor | "¿Qué decía la devolución para este seguro?" | Baja (incertidumbre) | P-04, P-06 |
-| Registrar | Agrega observaciones por minuto, solo en los incumplimientos | Herramienta interna del cliente | "Lo que no anoto, se da por cumplido" | Media | P-03, P-08, P-09 |
+| Registrar | Agrega observaciones por minuto, solo en los incumplimientos | Herramienta interna de la corredora | "Lo que no anoto, se da por cumplido" | Media | P-03, P-08, P-09 |
 
 ### 7b. Journey actual · Rodrigo responde una duda y da feedback (sin Call Audit)
 

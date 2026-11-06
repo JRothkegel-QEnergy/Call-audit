@@ -5,7 +5,7 @@
 > **Front revisado:** `frontend/src/components/call/product-sheet.tsx`, `frontend/src/app/(app)/calls/[id]/call-detail.tsx` (columna ~483, botón ~346/~490, drawer ~577), `frontend/src/lib/api/types.ts` (`ProductSheet`, `ProductSheetSectionKey`), `frontend/src/lib/api/mock/data.ts` (`SHEET_SECTION`).
 > **Backend revisado:** `src/call_audit/ingestion/import_bench.py` (`product_sheet`, `input_data`, `Unmasker`), `src/call_audit/ingestion/pipeline.py` (`complete_row`), `src/call_audit/persistence/models.py` (`call_metadata`, `product_sheets`), `rubrics/bancoestado_retention/v1.0.1.yaml`.
 > **No contradice:**
-> - D-24: el veredicto y el comentario del cliente no aparecen. ESTADO_CALIDAD, COMENTARIO y las columnas de motivos quedan fuera de la ficha.
+> - D-24: el veredicto y el comentario de la corredora no aparecen. ESTADO_CALIDAD, COMENTARIO y las columnas de motivos quedan fuera de la ficha.
 > - La anonimización antes del LLM no cambia, y estos datos no entran al modelo.
 > - El Cambio 12 (admin en solo lectura) tampoco cambia.
 
@@ -128,7 +128,7 @@ En el aviso se nombra **solo el campo que discrepa**. Si discrepan los dos: «Re
 **Glosario:**
 - "Ficha del cliente": datos de la persona según la metadata.
 - "Ficha del seguro": catálogo.
-- "Metadata": el Excel o archivo que llega con el lote. Es el término de Johannes; no se usa "base del cliente", porque se confunde con el cliente BancoEstado.
+- "Metadata": el Excel o archivo que llega con el lote. Es el término de Johannes; no se usa "base del cliente", porque se confunde con la corredora BancoEstado.
 - En el código, el titular de la póliza es **`customer`** y no `client`, porque `clientId` ya es la empresa cliente (Cambio 12).
 
 ---
@@ -150,7 +150,7 @@ En el aviso se nombra **solo el campo que discrepa**. Si discrepan los dos: «Re
 |---|---|
 | Trazabilidad | R-13.1 → motivos 31 y 33. R-13.2 → motivos 9, 14 y 17. Compañía, tipo y fecha de venta → motivos 2 y 6 |
 | Patrones y navegación | Reutiliza `Section`, `<details>` y el resaltado por `productSheetSection`. No agrega navegación |
-| Roles | D-44: los tres roles, sin permiso nuevo. D-24 se respeta: ESTADO_CALIDAD, COMENTARIO y los motivos del cliente no se tocan |
+| Roles | D-44: los tres roles, sin permiso nuevo. D-24 se respeta: ESTADO_CALIDAD, COMENTARIO y los motivos de la corredora no se tocan |
 | Panel del modelo (`view_model_io`) | **No** agregar estos datos a `input_data`: el modelo nunca los recibió, y mostrarlos ahí falsearía la trazabilidad |
 | Dark patterns | No aplica |
 | Microcopy | §3, coherente con 06 §3.4 |
@@ -194,7 +194,7 @@ En el aviso se nombra **solo el campo que discrepa**. Si discrepan los dos: «Re
 - **H-74** RENUNCIABLE/RETENIBLE traen SI/NO o equivalentes. No se leyeron valores, solo encabezados.
 - **H-75** Los campos por seguro vienen en la fila de cada póliza (una fila por seguro).
 - **H-76** La columna MATENRO puede venir corregida como MATERNO en otros lotes.
-- **H-77** Correspondencia categoría ↔ renunciable/retenible de §1.2. Hay que confirmarla con el cliente o con `rubric-engineer`.
+- **H-77** Correspondencia categoría ↔ renunciable/retenible de §1.2. Hay que confirmarla con la corredora o con `rubric-engineer`.
 - **H-78** Cómo llega `product_sheet_section: customer` para M31 y M33: una rúbrica nueva (v1.0.2) o un mapeo de presentación fuera de la rúbrica (H-32). Con v1.0.2, las llamadas validadas con v1.0.1 no tendrían el resaltado salvo que el detalle lea el mapeo vigente. Es una decisión técnica (`rubric-engineer` / `pipeline-architect`), no de UX. El resto del cambio se implementa igual.
 
 **Gates:** no queda ninguno de UX abierto. H-78 es técnico y no bloquea.

@@ -1,14 +1,15 @@
-# Cambio 09 · Calibración contra el cliente, notas y prompt visible
+# Cambio 09 · Calibración contra la corredora, notas y prompt visible
 
 > Revisión rápida sobre el diseño aprobado (fases 0–8 cerradas). Fecha: 2026-10-19.
 > **Origen:**
 > - weekly del 2026-10-19 (Johannes, Jean Paul, Agustín; notas de Gemini tratadas como datos);
-> - aclaración de Johannes: el veredicto del auditor del cliente (`ESTADO_CALIDAD`) viene en la metadata **a veces**: sí en la calibración inicial, no en la operación;
+> - aclaración de Johannes: el veredicto del auditor de la corredora (`ESTADO_CALIDAD`) viene en la metadata **a veces**: sí en la calibración inicial, no en la operación;
 > - propuesta del coordinador (puntos 1–7).
 >
 > **Alcance de la revisión:** trazabilidad, patrones y navegación, WCAG 2.2 AA, microcopy y glosario, dark patterns y Registro Legal.
 > **Toca la AI** (rol y sección nuevos) y **puntos legales**, así que se actualizan `03`, `registro-legal.md`, `hipotesis.md` y `estado.md`. No se reabren las demás fases.
 > Front de referencia revisado: `frontend/src/lib/api/types.ts` (Next.js, datos mock).
+> **Ajuste 2026-11-05 (Cambio 17):** "cliente" ya no nombra a la corredora en la UI. La fuente del veredicto del lote es **Planilla de calidad** (corto: **la planilla**) y la contraparte es **la empresa**. Textos de este documento actualizados; detalle en `17-termino-auditoria-corredora.md`.
 
 ---
 
@@ -18,30 +19,30 @@
 
 | # | Decisión | Efecto |
 |---|---|---|
-| D-22 | **Vero y el equipo externo del cliente entran con rol Auditor**, con el permiso `view_model_io` (ven el panel "Prompt y respuesta del modelo"). Revisan casos de la cola y **no ven Discrepancias** | §2.1 y §2.2 quedan como sigue |
+| D-22 | **Vero y el equipo externo de la corredora entran con rol Auditor**, con el permiso `view_model_io` (ven el panel "Prompt y respuesta del modelo"). Revisan casos de la cola y **no ven Discrepancias** | §2.1 y §2.2 quedan como sigue |
 | D-23 | **No se crea el rol "Calidad de la IA" en el MVP** **[SUPUESTO del diseñador, H-57]**. Discrepancias, la clasificación "La IA acertó / se equivocó" y el seguimiento "Por presentar" quedan en el rol **Supervisor**. El equipo de Qubico que calibra usa cuentas de supervisor | `Role` sigue siendo `auditor \| supervisor`. Si más adelante se necesita alguien que clasifique sin ver dashboards de ejecutivos, se agrega `ai_quality` tal como estaba en §2.1 |
-| D-24 | **El auditor nunca ve el veredicto ni el comentario del cliente**, ni antes ni después de guardar. Reemplaza la "revisión a ciegas" de §3.4 | Los externos son auditores del cliente, quizás los mismos que hicieron la auditoría original. Verlo después de guardar los invitaría a editar su revisión para calzar (se puede editar hasta la aprobación, H-39) y mostraría discrepancias con su propio trabajo (L-31). Solo lo ve el supervisor |
-| D-25 | **El veredicto del cliente es opcional en tres niveles, y el backend lo pasa si viene:** (a) no viene; (b) solo por llamada (`ESTADO_CALIDAD` APROBADA / RECHAZADA, como hoy); (c) por llamada y por motivo (a futuro). Además, un **comentario libre del cliente** opcional (columna COMENTARIO; hoy en ~39 de 100 llamadas) | El front soporta los tres niveles sin cambios de diseño (ver abajo) |
+| D-24 | **El auditor nunca ve el veredicto ni el comentario de la corredora**, ni antes ni después de guardar. Reemplaza la "revisión a ciegas" de §3.4 | Los externos son auditores de la corredora, quizás los mismos que hicieron la auditoría original. Verlo después de guardar los invitaría a editar su revisión para calzar (se puede editar hasta la aprobación, H-39) y mostraría discrepancias con su propio trabajo (L-31). Solo lo ve el supervisor |
+| D-25 | **El veredicto de la corredora es opcional en tres niveles, y el backend lo pasa si viene:** (a) no viene; (b) solo por llamada (`ESTADO_CALIDAD` APROBADA / RECHAZADA, como hoy); (c) por llamada y por motivo (a futuro). Además, un **comentario libre de la corredora** opcional (columna COMENTARIO; hoy en ~39 de 100 llamadas) | El front soporta los tres niveles sin cambios de diseño (ver abajo) |
 
 ### Qué muestra el front según el nivel (D-25)
 
 | Nivel de datos | Discrepancias (supervisor) | Detalle (supervisor) | Detalle (auditor) |
 |---|---|---|---|
-| (a) Sin veredicto del cliente | La llamada no entra; si no hay ninguna, estado vacío | Nada del cliente | Nada |
-| (b) Solo por llamada | Entra a su rama según el veredicto de la llamada | Encabezado "Cliente: {Cumple / No cumple} · Auditoría del cliente" + comentario del cliente, si viene, en un bloque plegable "Comentario del cliente" | Nada |
-| (c) Llamada + motivo | Igual que (b); además, una columna "Motivos donde difieren" | Lo de (b) + por ítem, en la vista de diferencias: IA → Auditor → **Cliente**. En los motivos sin dato del cliente: "—" | Nada |
+| (a) Sin veredicto de la corredora | La llamada no entra; si no hay ninguna, estado vacío | Nada de la corredora | Nada |
+| (b) Solo por llamada | Entra a su rama según el veredicto de la llamada | Encabezado "Planilla: {Cumple / No cumple}" + badge "Planilla de calidad" + comentario de la planilla, si viene, en un bloque plegable "Comentario en la planilla" | Nada |
+| (c) Llamada + motivo | Igual que (b); además, una columna "Motivos donde difieren" | Lo de (b) + por ítem, en la vista de diferencias: IA → Auditor → **Planilla**. En los motivos sin dato de la planilla: "—" | Nada |
 
 - **Mapeo de la planilla:** APROBADA → `compliant` (Cumple) · RECHAZADA → `non_compliant` (No cumple). Cualquier otro valor se trata como "sin veredicto" y se registra como advertencia de ingesta; no se muestra un valor inventado.
-- **Comentario del cliente:**
+- **Comentario en la planilla:**
   - es texto de terceros con posible PII, así que **se enmascara igual que la transcripción** antes de llegar al front (L-32);
   - solo lo ve el supervisor;
   - no se exporta salvo en la exportación de Discrepancias, enmascarado.
 
 ### Tipo (para `types.ts`; reemplaza la fila `types.ts` de §7)
 
-- `CaseSummary.externalQualityVerdict: CallVerdict | null`: nivel llamada. Solo `compliant` o `non_compliant` (el cliente no tiene "Dudosa").
+- `CaseSummary.externalQualityVerdict: CallVerdict | null`: nivel llamada. Solo `compliant` o `non_compliant` (la corredora no tiene "Dudosa").
 - `CaseDetail.externalItemVerdicts: { criterionId: string; verdict: "compliant" | "non_compliant" }[] | null`: nivel motivo, a futuro. `null` = no vino.
-- `CaseDetail.externalComment: string | null`: comentario del cliente, ya enmascarado.
+- `CaseDetail.externalComment: string | null`: comentario de la corredora, ya enmascarado.
 - Solo el rol `supervisor` recibe estos tres campos. **[SUPUESTO técnico: el backend los omite en las respuestas al rol auditor, no solo el front]** (H-58).
 - `User.permissions: ("view_model_io")[]`: Qubico lo activa por cuenta; para Vero y el equipo externo, activado.
 - Lo demás de §7 se mantiene (`Note`, `ModelRun`, `DiscrepancyBranch`, `DiscrepancyClassification`). **Sin** `"ai_quality"` en `Role`.
@@ -57,8 +58,8 @@
 
 - Se elimina "Mis revisiones (después de guardar): El cliente auditó esta llamada…" (D-24).
 - Se agrega:
-  - "Comentario del cliente" (título del bloque plegable);
-  - "Sin dato del cliente en este motivo" (tooltip del "—").
+  - "Comentario en la planilla" (título del bloque plegable);
+  - "Sin dato de la planilla en este motivo" (tooltip del "—").
 
 ---
 
@@ -66,7 +67,7 @@
 
 | # | Propuesta | Veredicto | Ajuste del diseñador |
 |---|---|---|---|
-| 1 | Veredicto externo opcional + vista de discrepancias con el árbol de Jean Paul | **Aprobada con cambios** | Sección propia **Discrepancias** con rol y permisos definidos (§2). El auditor **no ve** el veredicto del cliente antes de guardar (revisión a ciegas, §3.4). Ramas con nombres del glosario, no "aprobado/rechazado" (§4) |
+| 1 | Veredicto externo opcional + vista de discrepancias con el árbol de Jean Paul | **Aprobada con cambios** | Sección propia **Discrepancias** con rol y permisos definidos (§2). El auditor **no ve** el veredicto de la corredora antes de guardar (revisión a ciegas, §3.4). Ramas con nombres del glosario, no "aprobado/rechazado" (§4) |
 | 2 | Notas libres por motivo y por caso | **Aprobada** | Aviso de no escribir PII, autor y fecha, visibles para quienes ven el caso, y se exportan (§3.3, L-30) |
 | 3 | Panel "Prompt y respuesta del modelo" | **Aprobada, fusionada con la 5** | Reemplaza el diálogo "Capas y motor". Se muestra **siempre la versión anonimizada** que salió al modelo. Acceso por permiso (§3.2, L-29) |
 | 4 | Conectar datos reales + enmascarado de PII + accesos para externos | **Aprobada con condición** | **No se muestran transcripciones reales a nadie sin enmascarar** (O-16 sigue). Cuentas de externos solo por alta de Qubico (L-28) |
@@ -92,7 +93,7 @@ Era el "admin de calidad", fuera del MVP. Entra **acotado** a la calibración y 
 | Exportar discrepancias clasificadas (sin PII) | Editar o publicar el prompt desde la app (se versiona en el repo, regla 2) |
 | Ver el historial de versiones del prompt (después) | — |
 
-- **Quién lo tiene:** Qubico (Johannes, Agustín) y las personas del cliente que Qubico autorice (ver la pregunta 1).
+- **Quién lo tiene:** Qubico (Johannes, Agustín) y las personas de la corredora que Qubico autorice (ver la pregunta 1).
 - **Cómo se asigna:** solo Qubico crea cuentas con este rol, igual que los supervisores (D-12).
 - **Supervisor:** recibe también Discrepancias y el panel de prompt (es un superconjunto).
 - **Auditor:** no ve Discrepancias. El panel de prompt queda **desactivado por defecto**, y Qubico puede activarlo por cuenta (permiso `view_model_io`).
@@ -107,11 +108,11 @@ Era el "admin de calidad", fuera del MVP. Entra **acotado** a la calibración y 
 
 | Ruta | Vista | Roles |
 |---|---|---|
-| `/discrepancies` | Discrepancias con el cliente (pestañas: Resumen · Solo la IA detectó · Omitidos por la IA · Coinciden · IA dudosa) | S, Q |
+| `/discrepancies` | Discrepancias con la corredora (pestañas: Resumen · Solo la IA detectó · Omitidos por la IA · Coinciden · IA dudosa) | S, Q |
 | `/discrepancies/prompts` | Versiones del prompt (después) | S, Q |
-| `/calls/[id]` | Detalle: suma el panel "Prompt y respuesta del modelo", las notas y, si existe, la columna Cliente | según permiso |
+| `/calls/[id]` | Detalle: suma el panel "Prompt y respuesta del modelo", las notas y, si existe, la columna Planilla | según permiso |
 
-- **Discrepancias siempre aparece** en la navegación de quien tiene el rol. Sin datos del cliente muestra un estado vacío (§5), en vez de esconder la sección.
+- **Discrepancias siempre aparece** en la navegación de quien tiene el rol. Sin datos de la corredora muestra un estado vacío (§5), en vez de esconder la sección.
 - Esconder y mostrar entradas de la navegación según los datos confunde (`05` §1).
 
 ---
@@ -121,17 +122,17 @@ Era el "admin de calidad", fuera del MVP. Entra **acotado** a la calibración y 
 ### 3.1 Discrepancias (`/discrepancies`)
 
 - **Alcance:** solo llamadas con `externalQualityVerdict` presente. El filtro de lote o periodo es el mismo que en Inicio.
-- **Encabezado de métricas.** Siempre visible, con su referencia: "Referencia: auditoría del cliente · {n} llamadas con veredicto del cliente". Contadores:
-  - **Coinciden** {n} ({%}) = la métrica "coincidencia con el cliente" (la del 70 % / 68 % de la reunión);
+- **Encabezado de métricas.** Siempre visible, con su referencia: "Referencia: planilla de calidad · {n} llamadas". Contadores:
+  - **Coinciden** {n} ({%}) = la métrica "coincidencia con la planilla" (la del 70 % / 68 % de la reunión);
   - **Solo la IA detectó** {n} · {k} sin clasificar ← **prioritaria**, va primera;
   - **Omitidos por la IA** {n};
   - **IA dudosa** {n}. La IA dijo Dudosa; es la cuarta rama, que el árbol original no tenía.
 - **Pestañas por rama**, en este orden: Solo la IA detectó · Omitidos por la IA · IA dudosa · Coinciden.
-- **Tabla:** Llamada · Fecha · Ejecutivo · IA · Cliente · Auditor de la app (si existe) · Motivos de la IA que incumplen · Clasificación · Notas (ícono + n).
+- **Tabla:** Llamada · Fecha · Ejecutivo · IA · Planilla · Auditor de la app (si existe) · Motivos de la IA que incumplen · Clasificación · Notas (ícono + n).
 - **Clasificación** (solo en "Solo la IA detectó"): control segmentado en la fila y en el detalle.
   - Opciones: **La IA acertó** / **La IA se equivocó** / Sin clasificar.
   - Al elegir, se piden los **motivos involucrados** (multiselección entre los que la IA marcó Incumple) y una **nota opcional**. Si se eligió "La IA se equivocó", la nota es obligatoria: es el insumo para ajustar el prompt.
-- **"La IA acertó" → "Por presentar al cliente".** Estados: Por presentar → Presentado. Hay un filtro para preparar la revisión uno a uno con la contraparte. El resultado de esa conversación va en una nota (después: estado Aceptado / No aceptado por el cliente) **[SUPUESTO]**.
+- **"La IA acertó" → "Por presentar".** Estados: Por presentar → Presentado. Hay un filtro para preparar la revisión uno a uno con la contraparte. El resultado de esa conversación va en una nota (después: estado Aceptado / No aceptado por la corredora) **[SUPUESTO]**.
 - **Exportar:** CSV/Excel de la rama filtrada con clasificación, motivos y notas. Sin PII; la casilla de PII no aparece para este rol.
 
 ### 3.2 Panel "Prompt y respuesta del modelo" (reemplaza "Capas y motor")
@@ -145,7 +146,7 @@ Era el "admin de calidad", fuera del MVP. Entra **acotado** a la calibración y 
   4. **Respuesta (JSON):** JSON con formato y plegable, con copiar. Cada criterio del JSON enlaza al motivo en el checklist.
   5. **Comparar modelos** (después; solo si hay 2 o más corridas): veredicto por motivo de cada modelo, lado a lado.
 - **Siempre se muestra lo que efectivamente salió al modelo, ya anonimizado** (`privacy.md`). Si el N° de seguro o la póliza van en el prompt, se muestran enmascarados. Nunca se muestra una versión "re-identificada".
-- **Aviso fijo** en el panel: "Contenido técnico confidencial de Qubico y datos del cliente. No lo compartas fuera de la app." (L-29).
+- **Aviso fijo** en el panel: "Contenido técnico confidencial de Qubico y de la empresa, con datos de clientes. No lo compartas fuera de la app." (L-29).
 
 ### 3.3 Notas por caso y por motivo
 
@@ -159,17 +160,17 @@ Era el "admin de calidad", fuera del MVP. Entra **acotado** a la calibración y 
 - **Ayuda del campo:** "No escribas RUT, nombres ni datos de salud del cliente." **[SUPUESTO técnico]** Si el texto parece contener un RUT (patrón), se muestra un aviso antes de guardar (no bloquea) (L-30).
 - No se notifica a nadie en el MVP.
 
-### 3.4 Veredicto del cliente en el detalle · *el auditor no lo ve nunca (D-24, §0)*
+### 3.4 Veredicto de la corredora en el detalle · *el auditor no lo ve nunca (D-24, §0)*
 
-- **Fila del encabezado:** "Cliente: No cumple · Auditoría del cliente", con `SourceBadge` nuevo `client`: contorno sólido neutro con ícono de edificio.
-- **Columna de diferencias por ítem**, solo si el cliente trae el veredicto **por motivo** (pregunta 2): IA → Auditor → Cliente. Si solo viene por llamada, se muestra solo en el encabezado.
-- **Auditor: revisión a ciegas.** El auditor **no ve** el veredicto del cliente mientras revisa; lo ve en "Mis revisiones" después de guardar. **Razón:** evitar que copie al cliente (sesgo de anclaje, H-16), lo que además invalidaría la medición de IA vs auditor de la app.
+- **Fila del encabezado:** "Planilla: No cumple", con `SourceBadge` nuevo `client` (texto "Planilla de calidad"): contorno sólido neutro con ícono de edificio.
+- **Columna de diferencias por ítem**, solo si la corredora trae el veredicto **por motivo** (pregunta 2): IA → Auditor → Planilla. Si solo viene por llamada, se muestra solo en el encabezado.
+- **Auditor: revisión a ciegas.** El auditor **no ve** el veredicto de la corredora mientras revisa; lo ve en "Mis revisiones" después de guardar. **Razón:** evitar que copie a la corredora (sesgo de anclaje, H-16), lo que además invalidaría la medición de IA vs auditor de la app.
 - **Supervisor y Calidad de la IA** lo ven siempre.
 
 ### 3.5 Tipificación (después)
 
 - En el bloque Tipificación (motivos 18–25), una tarjeta antes de los ítems: "Tipificado por el ejecutivo: **{motivo}** · Según la IA: **{motivo}**". Si son distintos, hay marca de diferencia.
-- Los motivos de renuncia son la lista cerrada de 27 del cliente (`context.md`).
+- Los motivos de renuncia son la lista cerrada de 27 de la corredora (`context.md`).
 
 ---
 
@@ -181,24 +182,24 @@ Era el "admin de calidad", fuera del MVP. Entra **acotado** a la calibración y 
 - "Aprobar" ya es una acción del supervisor ("Aprobar revisiones", D-19). Usar "Aprobado" para un veredicto confundiría dos cosas distintas en la misma pantalla.
 - Mezclar vocabularios rompe el glosario aprobado.
 
-**Para el equipo del cliente**, que habla de aprobado / rechazado: el tooltip del veredicto del cliente dice "En la planilla del cliente: Aprobado = Cumple · Rechazado = No cumple".
+**Para el equipo de la corredora**, que habla de aprobado / rechazado: el tooltip del badge dice "Veredicto de la planilla de calidad. Aprobado = Cumple · Rechazado = No cumple."
 
 | Término UI | Definición | Código | Evitar |
 |---|---|---|---|
-| **Veredicto del cliente** | `ESTADO_CALIDAD` del auditor del cliente, cuando viene en la metadata | `externalQualityVerdict: CallVerdict \| null` | "estado de calidad", "aprobado / rechazado" |
-| **Auditoría del cliente** | Fuente de ese veredicto (`SourceBadge`) | `source = client` | "auditor externo" en la UI |
-| **Coinciden** | IA y cliente dan el mismo veredicto de llamada | `branch = match` | — |
-| **Solo la IA detectó** | IA: No cumple · Cliente: Cumple (prioritaria) | `branch = ai_only_fail` | "falso positivo" (no se sabe hasta clasificar) |
-| **Omitidos por la IA** | IA: Cumple · Cliente: No cumple | `branch = ai_missed_fail` | "falso negativo" (ídem) |
-| **IA dudosa** | La IA dio Dudosa, con cualquier veredicto del cliente | `branch = ai_uncertain` | — |
+| **Veredicto de la planilla** | `ESTADO_CALIDAD` del equipo de calidad de la empresa, cuando viene en la metadata | `externalQualityVerdict: CallVerdict \| null` | "estado de calidad", "aprobado / rechazado" |
+| **Planilla de calidad** (corto: la planilla) | Fuente de ese veredicto (`SourceBadge`) | `source = client` | "cliente", "auditoría del cliente", "auditor externo" en la UI |
+| **Coinciden** | IA y planilla dan el mismo veredicto de llamada | `branch = match` | — |
+| **Solo la IA detectó** | IA: No cumple · Planilla: Cumple (prioritaria) | `branch = ai_only_fail` | "falso positivo" (no se sabe hasta clasificar) |
+| **Omitidos por la IA** | IA: Cumple · Planilla: No cumple | `branch = ai_missed_fail` | "falso negativo" (ídem) |
+| **IA dudosa** | La IA dio Dudosa, con cualquier veredicto de la corredora | `branch = ai_uncertain` | — |
 | **La IA acertó** / **La IA se equivocó** | Clasificación humana de "Solo la IA detectó" | `classification = ai_correct / ai_wrong` | "acierto / error" a secas |
-| **Por presentar al cliente** / **Presentado** | Seguimiento de "La IA acertó" | `presentation = pending / presented` | — |
-| **Coincidencia con el cliente** | % de "Coinciden" sobre las llamadas con veredicto del cliente | — | "precisión" (es otra métrica) |
+| **Por presentar** / **Presentado** | Seguimiento de "La IA acertó" | `presentation = pending / presented` | — |
+| **Coincidencia con la planilla** | % de "Coinciden" sobre las llamadas con planilla de calidad | — | "precisión" (es otra métrica) |
 | **Nota** | Texto libre por caso o por motivo | `note` | "comentario" (se reserva para la IA y las correcciones) |
 | **Prompt y respuesta del modelo** | Panel con la entrada y la salida cruda del modelo | `model_io` | "capas" |
 | **Calidad de la IA** | Rol nuevo (§2.1) | `ai_quality` | "admin" |
 
-**Referencia de las métricas:** toda métrica de acuerdo lleva "Referencia: auditoría del cliente" o "Referencia: auditores de la app", con su *n*.
+**Referencia de las métricas:** toda métrica de acuerdo lleva "Referencia: planilla de calidad" o "Referencia: auditores de la app", con su *n*.
 
 ---
 
@@ -206,20 +207,20 @@ Era el "admin de calidad", fuera del MVP. Entra **acotado** a la calibración y 
 
 | Elemento | Texto |
 |---|---|
-| Discrepancias · título | Discrepancias con el cliente |
-| Subtítulo | Compara la IA con la auditoría del cliente en las llamadas que traen su veredicto. |
-| Referencia | Referencia: auditoría del cliente · {n} llamadas |
-| Vacío (sin datos del cliente) | Este periodo no trae veredictos del cliente. Las discrepancias aparecen cuando un lote incluye la auditoría del cliente. |
+| Discrepancias · título | Discrepancias con la planilla |
+| Subtítulo | Compara la IA con la planilla de calidad en las llamadas que la traen. |
+| Referencia | Referencia: planilla de calidad · {n} llamadas |
+| Vacío (sin planilla) | Este periodo no trae planilla de calidad. Las discrepancias aparecen cuando un lote incluye la planilla de calidad. |
 | Vacío de rama | No hay llamadas en esta rama. |
 | Clasificar · pregunta | ¿La IA tenía razón? |
 | Opciones | La IA acertó · La IA se equivocó |
 | Motivos involucrados | ¿En qué motivos? |
 | Nota obligatoria (se equivocó) | Explica qué entendió mal la IA. Sirve para ajustar el prompt. |
-| Seguimiento | Por presentar al cliente · Presentado |
-| Tooltip del veredicto del cliente | Veredicto de la auditoría del cliente. En su planilla: Aprobado = Cumple · Rechazado = No cumple. |
+| Seguimiento | Por presentar · Presentado |
+| Tooltip del badge Planilla de calidad | Veredicto de la planilla de calidad. Aprobado = Cumple · Rechazado = No cumple. |
 | ~~Mis revisiones (después de guardar)~~ | *Eliminado (D-24)* |
 | Botón del panel | Modelo {modelo} · Prompt v{versión} |
-| Aviso del panel | Contenido técnico confidencial de Qubico y datos del cliente. No lo compartas fuera de la app. |
+| Aviso del panel | Contenido técnico confidencial de Qubico y de la empresa, con datos de clientes. No lo compartas fuera de la app. |
 | Pestañas del panel | Resumen · Datos enviados · Prompt enviado · Respuesta (JSON) · Comparar modelos |
 | Nota · acción | Agregar nota |
 | Nota · ayuda | No escribas RUT, nombres ni datos de salud del cliente. |
@@ -255,5 +256,5 @@ Era el "admin de calidad", fuera del MVP. Entra **acotado** a la calibración y 
 - **H-52:** el panel del modelo reemplaza "Capas y motor" aunque el backend vuelva a tener varias capas; en ese caso, cada capa sería una corrida más en la pestaña Resumen.
 - **H-53:** la clasificación "La IA acertó / se equivocó" se hace por llamada, con los motivos involucrados como multiselección.
 - **H-54:** "Por presentar / Presentado" basta para la revisión uno a uno con la contraparte; el resultado va en notas.
-- **H-55:** el auditor revisa a ciegas respecto del veredicto del cliente.
+- **H-55:** el auditor revisa a ciegas respecto del veredicto de la corredora.
 - **H-56:** el aviso de RUT en las notas es una heurística que no bloquea.

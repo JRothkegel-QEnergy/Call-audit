@@ -343,7 +343,7 @@ const FINDINGS_DESEMPLEO: Finding[] = [
 ];
 
 const FINDINGS_HOGAR: Finding[] = [
-  F(1, "non_compliant", 0.81, 161, "[música de espera]", "La espera dura cerca de 3 minutos (umbral de espera excesiva: TBD con el cliente)."),
+  F(1, "non_compliant", 0.81, 161, "[música de espera]", "La espera dura cerca de 3 minutos (umbral de espera excesiva: TBD con la empresa)."),
   F(13, "non_compliant", 0.77, 380, "Queda renunciado su seguro, con cargo en CuentaRUT.", "No indica el número de seguro en el protocolo de cierre."),
   F(14, "uncertain", 0.58, 80, "Este seguro cubre también sismo si lo tiene contratado.", "Hay una mención de cobertura, pero no queda claro si es un intento de retención."),
   F(15, "compliant", 0.9, 380, "con cargo en CuentaRUT", "Informa el medio de pago."),

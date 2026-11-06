@@ -8,6 +8,7 @@
 > - `11-catalogo-seguros.md`: sección Seguros con el permiso `manage_catalog`, versionado de fichas y D-23 (sin rol "Calidad de la IA").
 >
 > **Front revisado:** `frontend/src/lib/api/types.ts` (`Role = auditor | supervisor`, `Permission = view_model_io | manage_catalog`), `components/shell/sidebar-nav.tsx`, `prompts/layer2/` (`prompt.yaml`, `system.txt`, `schema.json`, `prompt.lock.json`, `CHANGELOG.md`, `PROVENANCE.md`) y `scripts/prompt_bench/layer2_prompt.py` (`build` / `check`).
+> **Ajuste 2026-11-05 (Cambio 17):** "cliente" ya no nombra a la corredora en la UI. La fuente del veredicto del lote es **Planilla de calidad** (corto: **la planilla**) y la contraparte es **la empresa**. Textos de este documento actualizados; detalle en `17-termino-auditoria-corredora.md`.
 
 ---
 
@@ -18,7 +19,7 @@
 | D-32 | **Rol Administrador Qubico** (`qubico_admin`) tal como en call-audit 10 §2–§4, con los ajustes de abajo | `Role = "auditor" \| "supervisor" \| "qubico_admin"` |
 | D-33 | **Versiones del prompt en un registro inmutable en la BD**, subidas desde la app, exportables al repo (call-audit 10, D-26) | Pendiente el ADR (`pipeline-architect`, `llm-engineer`) y el ajuste de la regla 2 de `CLAUDE.md` (lo hace Johannes o el ADR) |
 | D-34 | **Dos formatos al publicar** (Johannes: "puede ser el prompt.yaml o el system prompt"): (a) **`prompt.yaml` completo**, con historial y origen por regla; el servidor lo valida como `layer2_prompt.py check` y genera `system.txt`; (b) **solo el system prompt** en texto | §2.2 |
-| D-35 | **Probar contra la referencia corre el modelo de verdad** sobre el conjunto de calibración (llamadas con veredicto del cliente). Antes de correr se muestran *n* y el costo estimado; **solo corre si el admin confirma** | §2.3 |
+| D-35 | **Probar contra la referencia corre el modelo de verdad** sobre el conjunto de calibración (llamadas con veredicto de la corredora). Antes de correr se muestran *n* y el costo estimado; **solo corre si el admin confirma** | §2.3 |
 | D-36 | **Sin verificación en dos pasos** (Johannes: "sin verificacion de dos pasos"). Se elimina la re-autenticación MFA al crear un admin, activar un prompt y volver atrás. Esas acciones quedan con **diálogo de confirmación**; activar y volver atrás mantienen el **motivo obligatorio** | Descarta el supuesto de MFA de call-audit 10 (allí H-61). El estado MFA desaparece de Cuentas |
 | D-37 | **Invitación por correo** con enlace de activación **de un solo uso** para crear la contraseña. **Vence en 72 h; reenviar genera un enlace nuevo e invalida el anterior** **[SUPUESTO del coordinador, aceptado, H-66]** | §2.4 y §3.1–§3.2 |
 | D-38 | **Logo oficial PNG** de Qubico (cubo + logotipo; negro y blanco para fondo oscuro) **reemplaza la aproximación provisional**. Sidebar colapsada (64 px): solo el cubo recortado del PNG | Cierra H-28. §2.5 |
@@ -89,7 +90,7 @@ En este repo quedan como H-68 a H-73.
 5. **Guardar como borrador.**
 
 **Diferencias** (`/admin/prompts/[version]`, pestaña Diferencias):
-- **prompt.yaml vs prompt.yaml:** **por regla** (motivo o ítem). Para cada regla cambiada, texto anterior → nuevo y el **origen** de la entrada nueva del historial (Texto oficial, Feedback del cliente, Feedback de validación, …).
+- **prompt.yaml vs prompt.yaml:** **por regla** (motivo o ítem). Para cada regla cambiada, texto anterior → nuevo y el **origen** de la entrada nueva del historial (Texto oficial, Feedback de la corredora, Feedback de validación, …).
 - Cualquier otro par: diferencia de texto del `system.txt` generado.
 
 **Exportar al repo:** "Descargar para el repo".
@@ -99,7 +100,7 @@ En este repo quedan como H-68 a H-73.
 ### 2.3 Probar contra la referencia (con costo, D-35)
 
 - **"Probar contra la referencia"** abre el **diálogo de costo** (§3.3), con:
-  - *n* de llamadas del conjunto de calibración (las que traen veredicto del cliente);
+  - *n* de llamadas del conjunto de calibración (las que traen veredicto de la corredora);
   - modelo;
   - costo estimado;
   - tiempo estimado.
@@ -154,7 +155,7 @@ En este repo quedan como H-68 a H-73.
 >
 > Hola, {nombre}:
 >
-> {nombre_quien_invita} te invitó a **Call Audit**, la herramienta de auditoría de llamadas de {cliente}, con el rol **{rol}**.
+> {nombre_quien_invita} te invitó a **Call Audit**, la herramienta de auditoría de llamadas de {clientName}, con el rol **{rol}**.
 >
 > Te invitaron a Call Audit. Crea tu contraseña para activar tu cuenta.
 >
@@ -189,7 +190,7 @@ En este repo quedan como H-68 a H-73.
 | Elemento | Texto |
 |---|---|
 | Título | ¿Probar v{versión} contra la referencia? |
-| Cuerpo | Se correrá el modelo **{modelo}** sobre **{n} llamadas** que traen el veredicto del cliente. |
+| Cuerpo | Se correrá el modelo **{modelo}** sobre **{n} llamadas** que traen la planilla de calidad. |
 | Costo | **Costo estimado: {usd} USD** ({usd_por_llamada} USD por llamada, según las últimas corridas de este modelo). |
 | Tiempo | Tiempo estimado: {minutos} min. Puedes detener la prueba en cualquier momento. |
 | Sin estimación | No hay costo registrado para este modelo; no podemos estimarlo. |

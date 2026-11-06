@@ -111,10 +111,10 @@ const state = {
   ] as UserAccount[],
   prompts: [
     { meta: meta("2.9", "retired", "Criterio de Johannes para el motivo 32.", { activatedAt: "2026-10-20T09:00:00", retiredAt: "2026-10-22T09:00:00" }), content: BASE_PROMPT, history: [], run: { status: "done", startedAt: 0, total: 100, metrics: metrics(68) } },
-    { meta: meta("2.10", "active", "Exige frases exactas en el cierre.", { activatedAt: "2026-10-22T09:00:00", activationReason: "Sube la coincidencia con el cliente." }), content: `${BASE_PROMPT}\n3. Verifica las frases exactas del protocolo de cierre.`, history: [], run: { status: "done", startedAt: 0, total: 100, metrics: metrics(70, 1) } },
+    { meta: meta("2.10", "active", "Exige frases exactas en el cierre.", { activatedAt: "2026-10-22T09:00:00", activationReason: "Sube la coincidencia con la planilla." }), content: `${BASE_PROMPT}\n3. Verifica las frases exactas del protocolo de cierre.`, history: [], run: { status: "done", startedAt: 0, total: 100, metrics: metrics(70, 1) } },
   ] as Record_[],
   activity: [
-    { id: "a-1", at: "2026-10-22T09:00:00", actorId: "u-adm-1", actorName: "Admin Qubico (demo)", actorRole: "qubico_admin", action: "prompt_activated", target: "Prompt v2.10", details: "Sube la coincidencia con el cliente." },
+    { id: "a-1", at: "2026-10-22T09:00:00", actorId: "u-adm-1", actorName: "Admin Qubico (demo)", actorRole: "qubico_admin", action: "prompt_activated", target: "Prompt v2.10", details: "Sube la coincidencia con la planilla." },
   ] as ActivityLogEntry[],
   changedInApp: false,
 };

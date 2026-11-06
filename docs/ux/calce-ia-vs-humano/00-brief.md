@@ -4,7 +4,7 @@ Fecha: 2026-10-20 · Estado: **pendiente de aprobación** · Herramienta interna
 
 ## 1. Problema
 
-El dashboard local de revisión de la capa 2 (`scripts/prompt_bench/dashboard.py` + `dashboard_template.html`) compara cada modelo con el veredicto del cliente (`ESTADO_CALIDAD`), pero la información para decidir **qué modelo o combinación usar** está repartida en cuatro secciones que se solapan ("Excel vs. IA", "Comparación entre versiones del prompt", "Acuerdo entre IA", "¿Qué motivos distinguen una llamada rechazada?") y ninguna responde de forma directa:
+El dashboard local de revisión de la capa 2 (`scripts/prompt_bench/dashboard.py` + `dashboard_template.html`) compara cada modelo con el veredicto de la corredora (`ESTADO_CALIDAD`), pero la información para decidir **qué modelo o combinación usar** está repartida en cuatro secciones que se solapan ("Excel vs. IA", "Comparación entre versiones del prompt", "Acuerdo entre IA", "¿Qué motivos distinguen una llamada rechazada?") y ninguna responde de forma directa:
 
 - ¿Qué modelo calza mejor con el humano a nivel de llamada?
 - ¿En qué criterios cada modelo genera falsas alarmas?
@@ -25,7 +25,7 @@ Una pestaña que permita al equipo de Qubico elegir modelo/combinación para la 
 | K-03 | Secciones duplicadas entre pestañas | 0 (cada pregunta se responde en un solo lugar) |
 | K-04 | Esfuerzo para sumar detección por criterio cuando haya referencia | Solo agregar datos; sin rediseñar la pestaña |
 
-Metas de negocio ya definidas (`docs/context.md`): **≤ 5 % falsos positivos y ≤ 20 % falsos negativos** contra llamadas auditadas por el cliente. Propongo mostrarlas como líneas de referencia en el ranking (R-08), sujeto a la pregunta 2.
+Metas de negocio ya definidas (`docs/context.md`): **≤ 5 % falsos positivos y ≤ 20 % falsos negativos** contra llamadas auditadas por la corredora. Propongo mostrarlas como líneas de referencia en el ranking (R-08), sujeto a la pregunta 2.
 
 ## 4. Alcance
 

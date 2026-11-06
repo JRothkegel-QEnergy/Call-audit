@@ -6,6 +6,7 @@
 > **Toca la AI** (sección nueva del supervisor), **un CUJ nuevo de configuración** y **puntos legales** (L-35 a L-39). Se actualizan `registro-legal.md`, `hipotesis.md` y `estado.md`. `03-arquitectura-informacion.md` se actualiza al aprobarse este cambio. No se reabren las demás fases.
 > **Front y datos revisados:** `frontend/src/components/shell/sidebar-nav.tsx`, `frontend/src/lib/api/client.ts`, `frontend/src/lib/api/types.ts` (`ProductSheet`), `frontend/src/components/call/product-sheet.tsx`, `scripts/prompt_bench/extract_catalog.py`, `scripts/prompt_bench/catalog_match.py`, `data/catalog/products.json` (solo estructura y conteos; L-19).
 > **Estado:** **aprobado** por Johannes (2026-10-22) con las decisiones D-26 a D-31 de §0, que prevalecen sobre el resto del documento.
+> **Ajuste 2026-11-05 (Cambio 17):** "cliente" ya no nombra a la corredora en la UI. La fuente del veredicto del lote es **Planilla de calidad** (corto: **la planilla**) y la contraparte es **la empresa**. Textos de este documento actualizados; detalle en `17-termino-auditoria-corredora.md`.
 
 ---
 
@@ -44,7 +45,7 @@
 
 | ID | Tipo | Descripción |
 |---|---|---|
-| P-11.1 | Dolencia | Hoy el catálogo solo se actualiza con un script de Qubico; si el cliente cambia condiciones o agrega un seguro, la IA valida con una ficha vieja o sin ficha **[SUPUESTO: frecuencia de cambios desconocida, H-59]**. |
+| P-11.1 | Dolencia | Hoy el catálogo solo se actualiza con un script de Qubico; si la corredora cambia condiciones o agrega un seguro, la IA valida con una ficha vieja o sin ficha **[SUPUESTO: frecuencia de cambios desconocida, H-59]**. |
 | P-11.2 | Dolencia | Llamadas que quedan "sin ficha" porque el nombre del sistema no calza con el catálogo (H6). |
 | O-11.1 | Oportunidad | El supervisor mantiene el catálogo sin depender de Qubico; la IA hace el trabajo pesado de pasar el Excel al formato; el supervisor confirma. |
 | R-11.1 | Requisito | Cada validación registra la ficha usada (`productId` + versión). Las ediciones crean versión nueva; nunca se sobrescribe. |
@@ -112,7 +113,7 @@ flowchart TD
 
 ### 4.1 F-11a · Subir Excel y revisar la propuesta de la IA (CUJ-11)
 
-**Disparador:** el cliente entrega un Excel con seguros nuevos o con condiciones actualizadas.
+**Disparador:** la corredora entrega un Excel con seguros nuevos o con condiciones actualizadas.
 **Objetivo:** que el catálogo quede al día sin errores, y que la IA use la ficha correcta en las próximas validaciones.
 **Criterio de éxito:** cada seguro del Excel queda guardado como nuevo, como versión nueva de uno existente o descartado, con una decisión explícita del supervisor.
 **Métricas:** % de campos que el supervisor corrige frente a lo propuesto por la IA (calidad de la extracción); tiempo de revisión por seguro; % de llamadas "sin ficha" antes y después.
@@ -228,7 +229,7 @@ Se usan los componentes y tokens aprobados en la Fase 8 (`08-tokens.css`, shadcn
 - Búsqueda: "Busca por nombre, nombre en sistema o n° de póliza".
 - Filtros: Aseguradora · Categoría · Estado (Activos por defecto / Archivados / Todos) · "Incompletos" (sin nombre en sistema ni póliza, o sin categoría).
 - Tabla: **Seguro** (nombre + aseguradora debajo) · **Categoría** (badge con texto) · **Pólizas** (primeras 2 + "+{n}") · **Nombres en sistema** (primero + "+{n}") · **Versión** · **Actualizado** (fecha · quién) · **Estado**. Fila completa navegable con teclado; orden por nombre.
-- Estados: cargando (skeleton de filas), vacío ("Aún no hay seguros en el catálogo. Sube el Excel del cliente para empezar. · Subir Excel"), sin resultados ("No hay seguros con estos filtros. · Limpiar filtros"), error ("No pudimos cargar los seguros. · Reintentar").
+- Estados: cargando (skeleton de filas), vacío ("Aún no hay seguros en el catálogo. Sube el Excel de seguros para empezar. · Subir Excel"), sin resultados ("No hay seguros con estos filtros. · Limpiar filtros"), error ("No pudimos cargar los seguros. · Reintentar").
 
 ### 5.2 Ficha del seguro (`/catalog/[productId]`)
 - Encabezado: nombre · aseguradora · badge de categoría · "Versión {n} · actualizada el {fecha} por {nombre}" · botones **Editar**, menú "Más" → Archivar.
@@ -298,9 +299,9 @@ Se usan los componentes y tokens aprobados en la Fase 8 (`08-tokens.css`, shadcn
 | **Seguros** (sección) | Catálogo de fichas que la IA usa para validar | `catalog` | "Pautas", "Productos" |
 | **Ficha del seguro** | Condiciones del seguro según el catálogo *(sin cambios)* | `product_sheet` | "ficha técnica" |
 | **Versión de la ficha** | Cada guardado crea una versión; las validaciones guardan cuál usaron | `sheet_version` | "revisión" (ya es otra cosa) |
-| **Excel de seguros** | Archivo del cliente con las condiciones de los seguros | `catalog_upload` | "pauta", "plantilla" |
+| **Excel de seguros** | Archivo de la corredora con las condiciones de los seguros | `catalog_upload` | "pauta", "plantilla" |
 | **Carga** | Una subida de Excel y su revisión | `upload` | "importación" |
-| **Nombre en sistema** | Cómo aparece el seguro en los sistemas del cliente (lo que trae la llamada) | `system_names` | "alias" |
+| **Nombre en sistema** | Cómo aparece el seguro en los sistemas de la corredora (lo que trae la llamada) | `system_names` | "alias" |
 | **Descripción para identificarlo** | Texto libre que ayuda a la IA a reconocer el seguro | `identification_notes` | "prompt" |
 | **Nuevo** / **Ya existe** | Estado de un seguro en una carga según la clave nombre + aseguradora (D-27) | `new` / `exists` (`unchanged`, `changed`, `archived`) | "repetido", "conflicto" |
 | **Posible duplicado** | Advertencia, no estado: comparte póliza o nombre en sistema con otro seguro | `warning = possible_duplicate` | "duplicado" (afirma algo que no se sabe) |
@@ -348,7 +349,7 @@ Se usan los componentes y tokens aprobados en la Fase 8 (`08-tokens.css`, shadcn
 | Éxito · actualizar | Guardamos la versión {n} de «{nombre}». Las llamadas ya validadas mantienen la versión con que se validaron. |
 | Carga cerrada | Carga cerrada: {n} nuevos, {n} actualizados, {n} descartados. |
 | Descartar la carga | ¿Descartar esta carga? Los seguros que ya guardaste se mantienen; el resto no se agrega al catálogo. · Descartar carga · Volver |
-| Editar · nota | Nota del cambio (opcional) · Ej.: "Cliente actualizó la devolución de primas en octubre". |
+| Editar · nota | Nota del cambio (opcional) · Ej.: "Se actualizó la devolución de primas en octubre". |
 | Editar · aviso | Los cambios se usan desde la próxima validación. |
 | Descartar edición | ¿Descartar los cambios? Lo que editaste no se guarda. · Descartar · Seguir editando |
 | Concurrencia | Otra persona guardó una versión nueva de esta ficha mientras editabas. Revisa sus cambios antes de guardar los tuyos. |
@@ -356,7 +357,7 @@ Se usan los componentes y tokens aprobados en la Fase 8 (`08-tokens.css`, shadcn
 | Archivado · banda | Este seguro está archivado: la IA no lo usa en validaciones nuevas. · Reactivar |
 | Historial · restaurar | Restaurar esta versión · Se crea la versión {n+1} con estos datos. |
 | Detalle de llamada | Ficha v{n} · Hay una versión más nueva de esta ficha (v{m}). Esta llamada se validó con la v{n}. |
-| Vacío · catálogo | Aún no hay seguros en el catálogo. Sube el Excel del cliente para empezar. · Subir Excel |
+| Vacío · catálogo | Aún no hay seguros en el catálogo. Sube el Excel de seguros para empezar. · Subir Excel |
 | Error · listado | No pudimos cargar los seguros. · Reintentar |
 | Error · guardar | No pudimos guardar la ficha. Tus cambios siguen aquí. · Reintentar |
 
@@ -369,7 +370,7 @@ Se usan los componentes y tokens aprobados en la Fase 8 (`08-tokens.css`, shadcn
 | ID | Requisito | Dónde | Riesgo | Requiere abogado |
 |---|---|---|---|---|
 | L-35 | **Contenido del Excel**: solo condiciones de seguros. Aviso en la subida, detector heurístico de RUT/correo/móvil en textos extraídos (advierte, no bloquea), y la IA no extrae hojas que no sean de seguros. Si un Excel trae PII, descartar la carga borra el archivo. **Tensión con `.claude/rules/privacy.md`** ("anonimizar antes de cualquier LLM externo"): pasar el Excel por el anonimizador de llamadas enmascararía también los teléfonos de asistencia, que son datos legítimos de la ficha. Propuesta: anonimizar RUT, correos y tarjetas antes de enviar; dejar teléfonos fijos de empresas; validar con `privacy-reviewer` (H-65). | Subir Excel, revisión, extracción | Bajo | No |
-| L-36 | **Confidencialidad y envío al proveedor de LLM**: las condiciones son información comercial del cliente y de las aseguradoras (L-20); al extraer, el Excel sale al proveedor del modelo (posiblemente fuera de Chile). Verificar que el contrato/NDA con el cliente permite procesarla con ese proveedor y que el proveedor no la retiene ni entrena con ella. El catálogo es del cliente: no se reutiliza para otros clientes. | Extracción | Medio | **Sí** (contrato) |
+| L-36 | **Confidencialidad y envío al proveedor de LLM**: las condiciones son información comercial de la corredora y de las aseguradoras (L-20); al extraer, el Excel sale al proveedor del modelo (posiblemente fuera de Chile). Verificar que el contrato/NDA con la corredora permite procesarla con ese proveedor y que el proveedor no la retiene ni entrena con ella. El catálogo es de la corredora: no se reutiliza para otras empresas. | Extracción | Medio | **Sí** (contrato) |
 | L-37 | **Exactitud de la ficha y efecto en personas**: una ficha errónea (ej. devolución de primas, retracto) hace que la IA marque incumplimientos falsos a ejecutivos (L-06, L-07) o "cumple" falsos sobre información al consumidor (L-16, Ley 19.496). Mitigación: confirmación humana por seguro, origen de cada campo, versionado, y los hallazgos siguen pasando por el auditor. | Revisión, edición | Medio | No |
 | L-38 | **Seguridad de la subida**: solo `.xlsx`, ≤ 10 MB, sin macros (`.xlsm` rechazado), sin ejecutar fórmulas ni seguir vínculos externos, archivo guardado con acceso restringido a quien puede gestionar el catálogo. El contenido de las celdas es **dato, no instrucción** para la IA (inyección de prompt): la salida se valida contra el esquema JSON y nunca se guarda sin revisión. Registro de quién subió, editó, archivó o restauró (L-10, Ley 21.663). | Subida, backend | Medio | No |
 | L-39 | **Trazabilidad de versiones**: cada validación guarda `productId` + versión; las fichas no se borran (archivar); historial con autor, fecha, origen y nota. Permite defender un hallazgo ante un reclamo (como L-23). Retención del Excel original: igual que el catálogo **[SUPUESTO]**. | Ficha, detalle de llamada, pipeline | Medio | No |
@@ -548,7 +549,7 @@ export interface UploadItem {
 |---|---|---|
 | P1 | **¿Qué trae cada Excel?** (a) el Excel estandarizado completo con muchos seguros (como hoy); (b) un seguro por archivo; (c) formatos libres de cada aseguradora. | **Diseñar para N seguros por archivo y formato variable** (el flujo de §4 sirve para los tres). Confírmame cuál es el caso común para priorizar pruebas de la extracción. |
 | P2 | **Clave de duplicados.** La póliza sola no sirve: 32 de 66 seguros no tienen póliza y 14 pólizas están en 2 seguros distintos (ej. AP Pescador Plan 1 y 2). ¿Aceptas detectar por **póliza + nombre en sistema + nombre/aseguradora**, con el supervisor decidiendo siempre en "con cambios" y "posible duplicado"? | **Sí**, como en §4.2. Alternativa (solo póliza) dejaría pasar duplicados y marcaría como iguales seguros distintos. |
-| P3 | **¿Quién puede gestionar el catálogo?** (a) todos los supervisores; (b) solo cuentas con un permiso `manage_catalog` que activa Qubico (como `view_model_io`). | **(b)**: un cambio en una ficha afecta todas las validaciones de la IA; si los supervisores del cliente entran, conviene que solo algunos lo tengan. No crea un rol nuevo (respeta D-23). |
+| P3 | **¿Quién puede gestionar el catálogo?** (a) todos los supervisores; (b) solo cuentas con un permiso `manage_catalog` que activa Qubico (como `view_model_io`). | **(b)**: un cambio en una ficha afecta todas las validaciones de la IA; si los supervisores de la corredora entran, conviene que solo algunos lo tengan. No crea un rol nuevo (respeta D-23). |
 | P4 | **¿Desde cuándo aplica una ficha nueva o editada?** (a) solo validaciones futuras; (b) además re-validar las llamadas pendientes que usaban la versión anterior. Y para cumplir trazabilidad, **cada validación debe guardar `productId` + versión** (hoy no ocurre). | **(a) + guardar la versión**. Re-validar es un cambio de pipeline y de costo; queda para después con un botón explícito. |
 | P5 | **¿Qué significa "editar descripciones"?** (a) solo la identificación (nombres en sistema, pólizas y un campo nuevo "Descripción para identificarlo"); (b) todos los campos de la ficha. | **(b), con la Identificación primero**: si una condición viene mal del Excel, el supervisor debe poder corregirla sin subir otro Excel. Todo cambio crea versión. |
 
@@ -566,4 +567,4 @@ export interface UploadItem {
 | D8 | El Excel original se guarda junto a la carga, descargable solo por quien gestiona el catálogo; no se exporta la ficha | L-20, L-39 |
 
 ### Riesgo que condiciona el despliegue
-- **L-36 (requiere abogado):** confirmar que el contrato con el cliente permite enviar sus condiciones comerciales al proveedor del LLM. Es el mismo frente que L-01/L-02, pero aplicado a información comercial, no personal.
+- **L-36 (requiere abogado):** confirmar que el contrato con la corredora permite enviar sus condiciones comerciales al proveedor del LLM. Es el mismo frente que L-01/L-02, pero aplicado a información comercial, no personal.
