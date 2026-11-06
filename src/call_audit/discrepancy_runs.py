@@ -453,6 +453,9 @@ def pattern_out(session: Session, p: DiscrepancyPattern, decision: ProposalDecis
         "isObservation": p.is_observation,
         "proposal": {
             "type": proposal.get("type"),
+            # Cómo se aplica una regla del prompt (prompt de análisis v1.3.0, Cambio 18); null = texto libre.
+            "action": proposal.get("action") if proposal.get("action") in ("append", "replace") else None,
+            "find": proposal.get("find") if proposal.get("action") == "replace" else None,
             "text": proposal.get("text") or "",
             "editedText": decision.edited_text if decision else None,
         }

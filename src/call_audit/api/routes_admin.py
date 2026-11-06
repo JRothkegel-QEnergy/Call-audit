@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from call_audit import accounts, discrepancy_runs, prompt_evaluation, prompt_registry
+from call_audit import accounts, discrepancy_runs, prompt_evaluation, prompt_followup, prompt_registry
 from call_audit.api import serializers as out
 from call_audit.api.deps import Admin, CurrentUser, DbSession, set_session
 from call_audit.config import Settings, get_settings
@@ -308,8 +308,6 @@ class PromptIn(BaseModel):
     model: str
     changelog: str
     rationale: str | None = None
-    # Propuestas aceptadas del análisis de discrepancias que entran en esta versión (Cambio 16, D-68).
-    includedProposalIds: list[str] = []
 
 
 @router.post("/admin/prompts")
@@ -329,11 +327,68 @@ def create_prompt(body: PromptIn, session: DbSession, user: Admin):
         )
     except PromptError as exc:
         raise bad_prompt(exc) from exc
-    try:
-        discrepancy_runs.include_in_version(session, body.includedProposalIds, row.version)
-    except ValueError as exc:
-        raise HTTPException(409, str(exc)) from exc
     accounts.log(session, user, "prompt_published", f"Prompt v{row.version}", body.changelog.strip()[:500])
+    session.commit()
+    return prompt_out(row)
+
+
+# Versión desde Seguimiento (Cambio 18): las reglas aceptadas se aplican sin IA al criterio de su motivo.
+class FollowUpPreviewIn(BaseModel):
+    proposalIds: list[str]
+    # Texto final editado a mano, por motivo.
+    overrides: dict[int, str] = {}
+
+
+def follow_up_error(exc: prompt_followup.FollowUpError) -> HTTPException:
+    status = 422 if exc.code in ("no_rules", "review_pending") else 409
+    return HTTPException(status, {"code": exc.code, "errors": exc.errors})
+
+
+@router.post("/admin/prompts/from-follow-up/preview")
+def preview_prompt_from_follow_up(body: FollowUpPreviewIn, session: DbSession, _: Admin):
+    """La comparación por motivo. No guarda nada ni gasta."""
+    try:
+        result = prompt_followup.preview(session, body.proposalIds, body.overrides)
+    except prompt_followup.FollowUpError as exc:
+        raise follow_up_error(exc) from exc
+    session.commit()  # ensure_bootstrap puede registrar la vigente del repo
+    return result
+
+
+class FollowUpCreateIn(FollowUpPreviewIn):
+    baseVersion: str
+    model: str
+    changelog: str
+    rationale: str | None = None
+
+
+@router.post("/admin/prompts/from-follow-up")
+def create_prompt_from_follow_up(body: FollowUpCreateIn, session: DbSession, user: Admin):
+    if body.model not in {m["name"] for m in prompt_evaluation.models()}:
+        raise HTTPException(422, "unknown_model")
+    try:
+        row, manual = prompt_followup.create(
+            session,
+            author=user,
+            base=body.baseVersion,
+            proposal_ids=body.proposalIds,
+            overrides=body.overrides,
+            model=body.model,
+            changelog=body.changelog,
+            rationale=body.rationale,
+        )
+    except prompt_followup.FollowUpError as exc:
+        raise follow_up_error(exc) from exc
+    except PromptError as exc:
+        raise bad_prompt(exc) from exc
+    n = len(set(body.proposalIds))
+    accounts.log(
+        session,
+        user,
+        "prompt_published",
+        f"Prompt v{row.version}",
+        f"Creó el borrador v{row.version} desde Seguimiento con {n} reglas ({manual} editadas a mano).",
+    )
     session.commit()
     return prompt_out(row)
 

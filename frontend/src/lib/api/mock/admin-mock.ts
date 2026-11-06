@@ -10,6 +10,7 @@ import type {
   InviteInfo,
   PipelineRun,
   ProcessingStatus,
+  FollowUpPromptPreview,
   PromptVersion,
   PromptVersionDetail,
   UserAccount,
@@ -17,7 +18,7 @@ import type {
 import { ApiError } from "../admin-types";
 import type { ApiClient } from "../client";
 import type { Role, User } from "../types";
-import { includeProposals } from "./discrepancy-mock";
+import { acceptedPromptRules, includeProposals } from "./discrepancy-mock";
 import { mockAiQuality } from "./quality-mock";
 
 type AdminApi = Pick<
@@ -35,6 +36,8 @@ type AdminApi = Pick<
   | "listPromptVersions"
   | "getPromptVersion"
   | "createPromptVersion"
+  | "previewPromptFromFollowUp"
+  | "createPromptFromFollowUp"
   | "updatePromptDraft"
   | "discardPromptDraft"
   | "estimatePromptTest"
@@ -144,6 +147,59 @@ const greater = (a: string, b: string) => {
   return false;
 };
 const active = () => state.prompts.find((p) => p.meta.status === "active")!;
+
+/** Cambio 18 en la demo: aplica las reglas aceptadas a un criterio sintético por motivo, como prompt_followup.py. */
+function followUpPreview(ids: string[], overrides: Record<number, string>): FollowUpPromptPreview {
+  const cur = active().meta.version;
+  let next = `${cur.split(".")[0]}.${Number(cur.split(".")[1]) + 1}`;
+  while (state.prompts.some((p) => p.meta.version === next)) next = `${next.split(".")[0]}.${Number(next.split(".")[1]) + 1}`;
+  const byMotive = new Map<number, ReturnType<typeof acceptedPromptRules>>();
+  for (const p of acceptedPromptRules(ids)) byMotive.set(p.criterionId, [...(byMotive.get(p.criterionId) ?? []), p]);
+  const criteria = [...byMotive.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([criterionId, rules]) => {
+      const before = `Criterio sintético del motivo ${criterionId} en la demo.`;
+      let current = before;
+      const results = rules.map((p) => {
+        const action = p.proposal?.action ?? null;
+        const text = (p.proposal?.editedText ?? p.proposal?.text ?? "").trim();
+        let state: "applied" | "free_text" | "review" = action === "append" ? "applied" : "free_text";
+        let reviewReason: string | null = null;
+        if (action === "replace") {
+          const words = (p.proposal?.find ?? "").split(/\s+/).filter(Boolean).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+          const found = words.length ? [...current.matchAll(new RegExp(words.join("\\s+"), "g"))] : [];
+          if (found.length === 1) {
+            current = current.slice(0, found[0].index) + text + current.slice(found[0].index! + found[0][0].length);
+            state = "applied";
+          } else {
+            state = "review";
+            reviewReason = found.length ? `«${p.proposal?.find}» aparece ${found.length} veces; edita el texto final.` : `No se encontró «${p.proposal?.find}» en el criterio actual.`;
+          }
+        } else current = `${current}\n${text}`;
+        const note = `Patrón #${p.rank} (análisis de la demo) · aceptada por ${p.decision?.by ?? "?"}${p.decision?.note ? `: ${p.decision.note}` : ""}`;
+        return { proposalId: p.id, patternRank: p.rank, patternTitle: p.title, action, find: p.proposal?.find ?? null, text, state, reviewReason, historyNote: note, acceptedBy: p.decision?.by ?? "?", acceptedAt: p.decision?.at ?? iso(), note: p.decision?.note ?? null };
+      });
+      const override = overrides[criterionId];
+      const manual = override !== undefined && override.trim() !== current.trim();
+      return {
+        criterionId,
+        title: rules[0].criterionName ?? `Motivo ${criterionId}`,
+        before,
+        generated: current,
+        after: manual ? override.trim() : current,
+        manual,
+        rules: results.map((r) => (manual && r.state === "review" ? { ...r, state: "manual" as const, reviewReason: null } : r)),
+      };
+    });
+  return {
+    baseVersion: cur,
+    version: next,
+    model: active().meta.model,
+    changelog: `Reglas del análisis de discrepancias: ${criteria.length === 1 ? "motivo" : "motivos"} ${criteria.map((c) => c.criterionId).join(", ")}.`,
+    rationale: criteria.flatMap((c) => c.rules.map((r) => `Motivo ${c.criterionId} · Patrón #${r.patternRank}: ${r.note ?? r.patternTitle}`)).join("\n"),
+    criteria,
+  };
+}
 const find = (version: string) => {
   const p = state.prompts.find((x) => x.meta.version === version);
   if (!p) throw new ApiError("not_found");
@@ -342,8 +398,27 @@ export const adminMock: AdminApi = {
         run: null,
       };
       state.prompts.push(record);
-      includeProposals(input.includedProposalIds ?? [], version);
       log("prompt_published", `Prompt v${version}`, input.changelog);
+      return record.meta;
+    }),
+  previewPromptFromFollowUp: (input) => wait(() => followUpPreview(input.proposalIds, input.overrides ?? {})),
+  createPromptFromFollowUp: (input) =>
+    wait(() => {
+      const preview = followUpPreview(input.proposalIds, input.overrides);
+      if (preview.baseVersion !== input.baseVersion) throw new ApiError("base_changed");
+      if (preview.criteria.some((c) => c.rules.some((r) => r.state === "review"))) throw new ApiError("review_pending");
+      const cur = active();
+      const added = preview.criteria.map((c) => `Motivo ${c.criterionId} · Criterio: ${c.after}`).join("\n");
+      const record: Record_ = {
+        meta: meta(preview.version, "draft", input.changelog.trim(), { source: cur.meta.source, model: input.model, rationale: input.rationale, createdBy: currentUser()?.name ?? "?", createdAt: iso() }),
+        content: `${cur.content}\n${added}`,
+        history: [{ at: iso(), actor: currentUser()?.name ?? "?", action: "Creó el borrador" }],
+        run: null,
+      };
+      state.prompts.push(record);
+      includeProposals(input.proposalIds, preview.version);
+      const manual = preview.criteria.filter((c) => c.manual).length;
+      log("prompt_published", `Prompt v${preview.version}`, `Creó el borrador v${preview.version} desde Seguimiento con ${input.proposalIds.length} reglas (${manual} editadas a mano).`);
       return record.meta;
     }),
   updatePromptDraft: (version, input) =>

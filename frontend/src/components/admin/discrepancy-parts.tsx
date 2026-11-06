@@ -51,7 +51,8 @@ export function PatternBody({ p }: { p: DiscrepancyPattern }) {
       </p>
       {p.proposal && (
         <p className="m-0">
-          <b>Propuesta · {PROPOSAL[p.proposal.type] ?? p.proposal.type}:</b> {p.proposal.editedText ?? p.proposal.text}
+          <b>Propuesta · {PROPOSAL[p.proposal.type] ?? p.proposal.type}:</b> <RuleAction p={p} />
+          {p.proposal.type === "prompt_rule" && p.proposal.action ? `“${p.proposal.editedText ?? p.proposal.text}”` : (p.proposal.editedText ?? p.proposal.text)}
           {p.proposal.editedText && (
             <>
               {" "}
@@ -73,6 +74,22 @@ export function PatternBody({ p }: { p: DiscrepancyPattern }) {
         </p>
       )}
     </div>
+  );
+}
+
+/** Cómo se aplica una regla del prompt al criterio (Cambio 18 §8.2): Agregar, Reemplazar «…» por, o texto libre. */
+export function RuleAction({ p }: { p: DiscrepancyPattern }) {
+  if (p.proposal?.type !== "prompt_rule") return null;
+  if (p.proposal.action === "replace")
+    return (
+      <>
+        <StatusBadge>Reemplazar</StatusBadge> «{p.proposal.find}» por{" "}
+      </>
+    );
+  return (
+    <>
+      <StatusBadge>{p.proposal.action === "append" ? "Agregar" : "Texto libre"}</StatusBadge>{" "}
+    </>
   );
 }
 
@@ -198,7 +215,15 @@ function AcceptDialog({
       }
     >
       <label className="field">
-        <span>Texto de la propuesta</span>
+        <span>
+          {p.proposal?.type !== "prompt_rule"
+            ? "Texto de la propuesta"
+            : p.proposal.action === "replace"
+              ? `Reemplazar en el criterio del motivo ${p.criterionId}: «${p.proposal.find}» por:`
+              : p.proposal.action === "append"
+                ? `Agregar al criterio del motivo ${p.criterionId}:`
+                : `Texto libre: se agregará al final del criterio del motivo ${p.criterionId}.`}
+        </span>
         <textarea className="control min-h-[96px] py-2" value={text} onChange={(e) => setText(e.target.value)} />
       </label>
       <label className="field">

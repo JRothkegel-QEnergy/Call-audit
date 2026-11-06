@@ -512,12 +512,65 @@ function FollowUpTab({ rows, onChange }: { rows: DiscrepancyPattern[]; onChange:
     await api.decideProposal(p.id, { decision: "pending" });
     onChange();
   };
+  // Cambio 18: las reglas aceptadas se marcan (todas por defecto, H-127) y se llevan a una versión nueva.
+  const router = useRouter();
+  const [unchecked, setUnchecked] = useState<string[]>([]);
+  const ready = prompt.filter((p) => p.status === "accepted");
+  const checked = ready.filter((p) => !unchecked.includes(p.id));
+  const activeHasYaml = useAsync(async () => {
+    const a = await api.getActivePrompt();
+    return (await api.getPromptVersion(a.version)).meta.source !== "text";
+  }, []);
+  const why =
+    activeHasYaml.data === false
+      ? "La versión vigente no tiene prompt.yaml. Súbelo en Prompt para crear versiones desde aquí."
+      : ready.length > 0 && checked.length === 0
+        ? "Marca al menos una regla."
+        : null;
   return (
     <div className="grid gap-4">
-      <FollowUpList title="Para la próxima versión del prompt" empty="Nada pendiente para la próxima versión." rows={prompt}>
+      <FollowUpList
+        title="Para la próxima versión del prompt"
+        empty="Nada pendiente para la próxima versión."
+        rows={prompt}
+        select={(p) =>
+          p.status === "accepted" && (
+            <input
+              type="checkbox"
+              className="size-[18px]"
+              aria-label={`Incluir la regla del motivo ${p.criterionId} en la versión nueva`}
+              checked={!unchecked.includes(p.id)}
+              onChange={() => setUnchecked((u) => (u.includes(p.id) ? u.filter((x) => x !== p.id) : [...u, p.id]))}
+            />
+          )
+        }
+        action={
+          ready.length > 0 && (
+            <div className="grid justify-items-end gap-1">
+              <Button
+                size="sm"
+                variant="primary"
+                disabled={!!why || activeHasYaml.data === undefined}
+                aria-describedby={why ? "create-version-why" : undefined}
+                onClick={() => router.push(`/admin/prompts/new?from=followup&p=${checked.map((p) => p.id).join(",")}`)}
+              >
+                Crear versión con {checked.length} {checked.length === 1 ? "regla" : "reglas"}
+              </Button>
+              {why && (
+                <span id="create-version-why" className="help">
+                  {why}
+                </span>
+              )}
+            </div>
+          )
+        }
+      >
         {(p) =>
           p.status === "included" ? (
-            <span className="help">Se incluyó en una versión</span>
+            <Link className="help" href={`/admin/prompts/${encodeURIComponent(p.decision?.includedInVersion ?? "")}`}>
+              Incluida en v{p.decision?.includedInVersion}
+              {p.decision?.versionStatus === "draft" ? " (borrador)" : ""}
+            </Link>
           ) : (
             <Button size="sm" onClick={() => void reopen(p)}>
               Volver a pendiente
@@ -597,12 +650,15 @@ function FollowUpList({
   empty,
   rows,
   action,
+  select,
   children,
 }: {
   title: string;
   empty: string;
   rows: DiscrepancyPattern[];
   action?: React.ReactNode;
+  /** Casilla al lado del título (Cambio 18). */
+  select?: (p: DiscrepancyPattern) => React.ReactNode;
   children: (p: DiscrepancyPattern) => React.ReactNode;
 }) {
   return (
@@ -617,6 +673,7 @@ function FollowUpList({
       {rows.map((p) => (
         <div key={p.id} className="grid gap-1 border-t border-border pt-2">
           <div className="flex flex-wrap items-center gap-2">
+            {select?.(p)}
             <Link href={`/admin/discrepancies/patterns/${p.id}`} className="font-medium">
               Motivo {p.criterionId} · {p.title}
             </Link>

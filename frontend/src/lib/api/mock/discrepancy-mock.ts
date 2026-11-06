@@ -180,7 +180,7 @@ state.patterns = [
       { call_id: "230174", text: "es que me quedé sin pega y aparte no lo uso", validated: true },
       { call_id: "230185", text: "lo cancelo porque es muy caro", validated: false },
     ],
-    proposal: { type: "prompt_rule", text: "Si el cliente da más de un motivo, la tipificación debe corresponder al primero que menciona como razón de la renuncia.", editedText: null },
+    proposal: { type: "prompt_rule", action: "append", find: null, text: "Si el cliente da más de un motivo, la tipificación debe corresponder al primero que menciona como razón de la renuncia.", editedText: null },
   }),
   pattern({
     id: "p-1-1",
@@ -190,7 +190,8 @@ state.patterns = [
     cause: "criterion",
     confidence: 0.75,
     cases: makeCases(12, "fp", 3),
-    proposal: { type: "client_question", text: "¿Cuál es el umbral de espera excesiva cuando el ejecutivo avisa que va a dejar en espera?", editedText: null },
+    // Regla con acción (análisis v1.3.0, Cambio 18): se aplica sola sobre el criterio sintético de la demo.
+    proposal: { type: "prompt_rule", action: "replace", find: "en la demo", text: "en la demo; una espera avisada de hasta 60 s no es excesiva", editedText: null },
     status: "accepted",
     decision: { by: "Admin Demo", at: iso(60 * 19), reason: null, note: null, includedInVersion: null, versionStatus: null },
   }),
@@ -411,6 +412,13 @@ export const discrepancyMock: DiscrepancyApi = {
     }),
   getDiscrepancyFollowUp: () => wait(() => state.patterns.filter((p) => p.status !== "pending").map(summary)),
 };
+
+/** Reglas del prompt aceptadas, en orden de aceptación (Cambio 18). Lanza not_accepted si alguna no lo está. */
+export function acceptedPromptRules(ids: string[]): DiscrepancyPattern[] {
+  const rules = ids.map((id) => state.patterns.find((x) => x.id === id));
+  if (!ids.length || rules.some((p) => !p || p.status !== "accepted" || p.proposal?.type !== "prompt_rule")) throw new ApiError("not_accepted");
+  return (rules as DiscrepancyPattern[]).sort((a, b) => (a.decision?.at ?? "").localeCompare(b.decision?.at ?? ""));
+}
 
 /** Al guardar una versión del prompt con propuestas marcadas (D-68). */
 export function includeProposals(ids: string[], version: string) {

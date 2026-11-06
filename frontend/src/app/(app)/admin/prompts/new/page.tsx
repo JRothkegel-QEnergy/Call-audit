@@ -1,16 +1,52 @@
 "use client";
 
 import { ChevronLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { toast } from "sonner";
 import { AdminHeader } from "@/components/admin/admin-header";
+import { FollowUpReview } from "@/components/admin/follow-up-review";
 import { PromptForm, nextMinor } from "@/components/admin/prompt-form";
 import { Button } from "@/components/ui/button";
-import { AsyncView } from "@/components/ui/states";
+import { AsyncView, LoadingState } from "@/components/ui/states";
 import { api } from "@/lib/api";
 import { useAsync } from "@/lib/use-async";
 
 export default function NewPromptPage() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <NewPrompt />
+    </Suspense>
+  );
+}
+
+function NewPrompt() {
+  const params = useSearchParams();
+  // Cambio 18: «Crear versión con n reglas» llega desde Seguimiento con las reglas marcadas.
+  if (params.get("from") === "followup") return <FromFollowUp ids={(params.get("p") ?? "").split(",").filter(Boolean)} />;
+  return <Manual />;
+}
+
+function FromFollowUp({ ids }: { ids: string[] }) {
+  const router = useRouter();
+  return (
+    <>
+      <Button variant="ghost" onClick={() => router.push("/admin/discrepancies?tab=followup")}>
+        <ChevronLeft size={14} aria-hidden />
+        Volver a Seguimiento
+      </Button>
+      <div className="mt-2">
+        <AdminHeader
+          title="Nueva versión desde Seguimiento"
+          description="Las reglas aceptadas se aplican al criterio de cada motivo de la versión vigente. Revisa los cambios antes de crear el borrador."
+        />
+      </div>
+      <FollowUpReview proposalIds={ids} />
+    </>
+  );
+}
+
+function Manual() {
   const router = useRouter();
   const active = useAsync(async () => {
     const a = await api.getActivePrompt();
@@ -49,7 +85,6 @@ export default function NewPromptPage() {
                 model: v.model,
                 changelog: v.changelog.trim(),
                 rationale: v.rationale.trim() || null,
-                includedProposalIds: v.includedProposalIds,
               });
               toast(`Borrador v${created.version} guardado.`);
               router.push(`/admin/prompts/${encodeURIComponent(created.version)}`);

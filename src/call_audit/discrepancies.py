@@ -33,7 +33,7 @@ from sqlalchemy.orm import Session
 
 from call_audit.ingestion.import_bench import VERDICTS, real_calls
 from call_audit.persistence.db import get_sessionmaker
-from call_audit.persistence.models import Case, DiscrepancyClassification, Note, Review
+from call_audit.persistence.models import Case, DiscrepancyClassification, Note, PromptVersion, Review
 
 PROMPT_SPEC = Path(__file__).resolve().parents[2] / "prompts" / "layer2" / "prompt.yaml"
 CRITERIA = range(1, 34)
@@ -45,9 +45,10 @@ UNSURE = "uncertain"
 KINDS = ("fp", "fn", "ai_uncertain", "match_fail", "match_ok")
 
 
-def criterion_rules(spec_path: Path = PROMPT_SPEC) -> tuple[str, dict[int, str]]:
-    """Versión del prompt y texto de cada motivo (oficial + criterio Qubico), como lo ve el modelo."""
-    spec = yaml.safe_load(spec_path.read_text(encoding="utf-8"))
+def criterion_rules(spec_text: str | None = None) -> tuple[str, dict[int, str]]:
+    """Versión del prompt y texto de cada motivo (oficial + criterio Qubico), como lo ve el modelo. Sin texto, el
+    prompt.yaml del repo."""
+    spec = yaml.safe_load(spec_text if spec_text is not None else PROMPT_SPEC.read_text(encoding="utf-8"))
     rules = {}
     for section in spec["sections"]:
         for item in section["items"]:
@@ -152,7 +153,10 @@ def sides_with(manual: str | None, ai_fail: bool, excel_fail: bool) -> str | Non
 
 def build(session: Session, manual_csv: dict[str, dict]) -> tuple[list[dict], dict[str, list[dict]], dict]:
     """Casos de discrepancia, transcripciones de sus llamadas y conteos para el resumen."""
-    prompt_version, rules = criterion_rules()
+    # La regla de la versión vigente del registro (Cambio 12): las propuestas del análisis se aplican sobre ella
+    # (Cambio 18), así que la frase a reemplazar tiene que salir de ese texto.
+    active = session.scalar(select(PromptVersion).where(PromptVersion.status == "active"))
+    prompt_version, rules = criterion_rules(active.spec_yaml if active is not None and active.spec_yaml else None)
     reviews = {r.case_id: r for r in session.scalars(select(Review))}
     classifications = {c.case_id: c for c in session.scalars(select(DiscrepancyClassification))}
     notes: dict[str, list[Note]] = defaultdict(list)

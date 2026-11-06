@@ -259,6 +259,9 @@ export type DiscrepancyCause =
   | "missing_data";
 export type DiscrepancyDirection = "fp" | "fn" | "uncertain" | "mixed";
 export type ProposalType = "prompt_rule" | "client_question" | "calibrate_auditor" | "data_request";
+export type ProposalAction = "append" | "replace";
+/** Resultado de aplicar una regla al criterio (Cambio 18 §8.4). */
+export type RuleApplyState = "applied" | "manual" | "free_text" | "review";
 export type ProposalStatus = "pending" | "accepted" | "discarded" | "included" | "asked_client" | "calibrated";
 export type DiscrepancyAnalysisStatus = "queued" | "running" | "done" | "stopped" | "failed";
 
@@ -335,7 +338,15 @@ export interface DiscrepancyPattern {
   caseCount: number;
   reviewerDisagreements: number;
   isObservation: boolean;
-  proposal: { type: ProposalType; text: string; editedText: string | null } | null;
+  proposal: {
+    type: ProposalType;
+    /** Cómo se aplica una regla del prompt (análisis v1.3.0, Cambio 18). null = texto libre (propuestas anteriores). */
+    action?: ProposalAction | null;
+    /** Frase literal del criterio que reemplaza, con action "replace". */
+    find?: string | null;
+    text: string;
+    editedText: string | null;
+  } | null;
   status: ProposalStatus;
   decision: {
     by: string | null;
@@ -403,4 +414,41 @@ export interface DiscrepancyEstimate {
   discardedProposals: number;
   totalUsd: number | null;
   minutes: number | null;
+}
+
+/** Versión del prompt desde Seguimiento (Cambio 18 §8.8). Misma forma que src/call_audit/prompt_followup.py. */
+export interface FollowUpRuleResult {
+  proposalId: string;
+  patternRank: number;
+  patternTitle: string;
+  action: ProposalAction | null;
+  find: string | null;
+  text: string;
+  state: RuleApplyState;
+  reviewReason: string | null;
+  historyNote: string;
+  acceptedBy: string;
+  acceptedAt: string;
+  note: string | null;
+}
+
+export interface FollowUpCriterionChange {
+  criterionId: number;
+  title: string;
+  before: string;
+  /** El texto que sale de aplicar las reglas, sin la edición manual («Volver al texto generado»). */
+  generated: string;
+  /** El texto final: el generado o el editado a mano. */
+  after: string;
+  manual: boolean;
+  rules: FollowUpRuleResult[];
+}
+
+export interface FollowUpPromptPreview {
+  baseVersion: string;
+  version: string;
+  model: string;
+  changelog: string;
+  rationale: string;
+  criteria: FollowUpCriterionChange[];
 }

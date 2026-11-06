@@ -7,6 +7,17 @@ Cada componente tiene además su propio historial detallado:
 - Prompt de verificación de afirmaciones: historial al final de `docs/layer2-claims-prompt.md`.
 - Diseño del front: `docs/ux/call-audit/estado.md` (fases y cambios aprobados).
 
+## 2026-11-06
+
+- **Versión del prompt desde Seguimiento** (Cambio 18, `docs/ux/call-audit/18-version-desde-seguimiento.md`; Johannes: «me gustaría que eso fuera más automático»):
+  - en Seguimiento, cada regla aceptada trae una casilla y el botón «Crear versión con n reglas» lleva a una pantalla que compara, por motivo, el «Criterio:» antes y después, con el texto final editable;
+  - las reglas se aplican **sin IA** (`src/call_audit/prompt_followup.py`): agregar al final, o reemplazar una frase que aparezca una sola vez (sin distinguir espacios ni saltos de línea). Si no se encuentra, la regla queda «Revisar» hasta que se edite el texto final o se quite. Las propuestas anteriores en texto libre se agregan al final;
+  - el prompt.yaml se edita como texto: conserva comentarios y formato, suma una entrada de historial por regla con el origen nuevo «Análisis de discrepancias» y pasa por la misma validación que una subida manual;
+  - «Crear borrador y probar» crea el borrador y abre el diálogo de costo de la prueba; activar sigue aparte. Las reglas quedan «Incluida en vX» solo si se aplicaron al contenido;
+  - el formulario manual pierde las casillas «Propuestas incluidas», que marcaban la regla como incluida sin aplicarla.
+- **Prompt de análisis v1.3.0:** cada regla del prompt viene con acción (`append` o `replace`), la frase literal del criterio a reemplazar y el texto nuevo, para poder aplicarla sola.
+- **Tabla de discrepancias:** la regla de cada motivo sale de la versión vigente del registro de prompts, no del prompt.yaml del repo. Sin esto, después de activar una versión desde la app, el análisis citaría el criterio viejo y las frases a reemplazar no calzarían.
+
 ## 2026-11-05
 
 - **Prompt de análisis de discrepancias v1.1.0** (`prompts/discrepancy_analysis/v1.1.0`), con los comentarios de Johannes sobre la v1.0.0:

@@ -49,6 +49,7 @@ import type {
   DiscrepancyOverview,
   DiscrepancyPattern,
   DiscrepancyPatternDetail,
+  FollowUpPromptPreview,
   InviteInfo,
   ModelOption,
   PipelineRun,
@@ -179,8 +180,17 @@ export interface ApiClient {
     model: string;
     changelog: string;
     rationale: string | null;
-    /** Propuestas aceptadas del análisis de discrepancias que entran en esta versión (Cambio 16, D-68). */
-    includedProposalIds?: string[];
+  }): Promise<PromptVersion>;
+  /** Cambio 18: la comparación por motivo con las reglas aceptadas aplicadas. No guarda nada ni gasta. */
+  previewPromptFromFollowUp(input: { proposalIds: string[]; overrides?: Record<number, string> }): Promise<FollowUpPromptPreview>;
+  /** Cambio 18: crea el borrador con las reglas aplicadas; 409 si cambió la vigente o alguna regla. */
+  createPromptFromFollowUp(input: {
+    baseVersion: string;
+    proposalIds: string[];
+    overrides: Record<number, string>;
+    model: string;
+    changelog: string;
+    rationale: string | null;
   }): Promise<PromptVersion>;
   updatePromptDraft(
     version: string,

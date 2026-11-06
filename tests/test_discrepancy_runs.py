@@ -124,25 +124,25 @@ def test_analysis_flow(client: TestClient, admin: User, imported: sessionmaker[S
     assert accepted["status"] == "accepted" and accepted["proposal"]["editedText"] == "Exigir el guion completo."
     assert [p["id"] for p in client.get("/api/admin/discrepancies/follow-up").json()] == [pattern["id"]]
 
-    # Al guardar una versión con la propuesta queda incluida; si la versión se descarta, vuelve a aceptada.
-    active = next(v for v in client.get("/api/admin/prompts").json() if v["status"] == "active")
-    major, minor = active["version"].split(".")
-    new = f"{major}.{int(minor) + 1}"
-    created = client.post(
-        "/api/admin/prompts",
-        json={
-            "source": "text",
-            "content": "Eres un auditor sintético.",
-            "version": new,
-            "model": MODEL,
-            "changelog": "Cierre",
-            "includedProposalIds": [pattern["id"]],
-        },
-    )
+    # Versión desde Seguimiento (Cambio 18): la regla (texto libre, anterior a la v1.3.0) se agrega al criterio del
+    # motivo, la propuesta queda incluida y, si el borrador se descarta, vuelve a aceptada.
+    ids = {"proposalIds": [pattern["id"]]}
+    preview = client.post("/api/admin/prompts/from-follow-up/preview", json=ids).json()
+    (motive,) = preview["criteria"]
+    assert motive["criterionId"] == 30 and motive["after"].endswith("Exigir el guion completo.")
+    assert [r["state"] for r in motive["rules"]] == ["free_text"]
+    body = ids | {"baseVersion": preview["baseVersion"], "model": MODEL, "changelog": preview["changelog"]}
+    created = client.post("/api/admin/prompts/from-follow-up", json=body)
     assert created.status_code == 200, created.text
+    new = created.json()["version"]
+    assert new == preview["version"]
+    content = client.get(f"/api/admin/prompts/{new}").json()["content"]
+    assert "Exigir el guion completo." in content and "origin: discrepancy_analysis" in content
     included = client.get(f"/api/admin/discrepancies/patterns/{pattern['id']}").json()
     assert included["status"] == "included" and included["decision"]["includedInVersion"] == new
     assert included["decision"]["versionStatus"] == "draft"
+    # Ya incluida: no se puede volver a crear una versión con ella.
+    assert client.post("/api/admin/prompts/from-follow-up", json=body).status_code == 409
     assert client.post(f"/api/admin/prompts/{new}/discard").status_code == 204
     assert client.get(f"/api/admin/discrepancies/patterns/{pattern['id']}").json()["status"] == "accepted"
 

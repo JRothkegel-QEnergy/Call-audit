@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, ChevronLeft, Download, FlaskConical, Square } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AdminHeader } from "@/components/admin/admin-header";
@@ -29,7 +29,8 @@ export function PromptVersionView({ version }: { version: string }) {
     return { detail, all };
   }, [version]);
   const [tab, setTab] = useState<Tab>("diff");
-  const [testOpen, setTestOpen] = useState(false);
+  // «Crear borrador y probar» (Cambio 18) llega con ?test=1 y abre el diálogo de costo de la prueba.
+  const [testOpen, setTestOpen] = useState(useSearchParams().get("test") === "1");
   const [activateOpen, setActivateOpen] = useState(false);
 
   // La prueba corre en el worker: se consulta su avance mientras está en cola o corriendo.

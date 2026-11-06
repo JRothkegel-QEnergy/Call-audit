@@ -25,7 +25,7 @@ from typing import Any
 from call_audit.ingestion.import_bench import bench, real_calls
 
 ROOT = Path(__file__).resolve().parents[2]
-PROMPT_VERSION = "1.2.0"
+PROMPT_VERSION = "1.3.0"
 PROMPT_DIR = ROOT / "prompts" / "discrepancy_analysis"
 # Sonnet 5.5 por la API de Anthropic (Johannes, 2026-11-05): el modelo del piloto y de la corrida completa.
 DEFAULT_MODEL = "claude-sonnet-5-5"
