@@ -4,12 +4,12 @@
 
 ## Qué es
 
-Qubico Energy (Johannes Rothkegel, Lead Developer; Agustín Desmadryl; Jean Paul de Dompierre) está construyendo una aplicación que **audita automáticamente las grabaciones de un contact center**. El primer cliente objetivo hace llamadas de **retención de seguros de BancoEstado Corredores de Seguros**: el cliente llama para renunciar a un seguro y el ejecutivo debe gestionarlo según una pauta de calidad.
+Qubico Energy (Johannes Rothkegel, Lead Developer; Agustín Desmadryl; Jean Paul de Dompierre) está construyendo una aplicación que **audita automáticamente las grabaciones de un contact center**. La primera empresa objetivo es **BancoEstado Corredores de Seguros**, en su contact center de **retención de seguros**: el cliente llama para renunciar a un seguro y el ejecutivo intenta retenerlo según una pauta de calidad (ver [Actores](#actores)).
 
 Hoy un equipo de personas escucha las llamadas a mano y solo alcanza a auditar una muestra. La app transcribe el 100 % de las llamadas, las evalúa contra la pauta y deriva a revisión humana solo lo dudoso o lo que no cumple.
 
 - **Volumen de referencia:** ~400.000 minutos de audio al mes (~6.700 h; ~100.000 llamadas de ~4 min, supuesto).
-- **Metas de precisión:** hasta 5 % de falsos positivos y hasta 20 % de falsos negativos, medidos contra llamadas ya auditadas por el cliente (golden set).
+- **Metas de precisión:** hasta 5 % de falsos positivos y hasta 20 % de falsos negativos, medidos contra llamadas ya auditadas por la corredora (golden set).
 - **Ingreso potencial estimado:** 10–15 MM CLP al mes.
 - **Enfoque acordado:** partir con APIs en la nube y migrar a infraestructura propia cuando el volumen lo justifique.
 - **El documento técnico es genérico a propósito:** sin fechas ni cronograma.
@@ -17,7 +17,7 @@ Hoy un equipo de personas escucha las llamadas a mano y solo alcanza a auditar u
 ## Arquitectura (6 etapas)
 
 1. **Ingesta de lotes:** recibe audios y metadatos por SFTP, bucket S3 o API, valida y encola (Redis/RQ o SQS).
-2. **Transcripción (ASR):** audio a texto por canal (agente/cliente) con timestamps.
+2. **Transcripción (ASR):** audio a texto por canal (ejecutivo/cliente) con timestamps.
 3. **Pre-proceso:** separa canales, normaliza el texto y anonimiza datos personales (RUT, tarjetas) antes de cualquier LLM externo.
 4. **Pipeline de capas:** capas independientes que analizan la misma transcripción en paralelo.
    - **Capa 1 · Reglas determinísticas:** regex y fuzzy matching (rapidfuzz) para frases obligatorias o prohibidas, el cierre, la validación de identidad y los tiempos de espera.
@@ -60,9 +60,9 @@ Hoy un equipo de personas escucha las llamadas a mano y solo alcanza a auditar u
 - **Español chileno:** modismos ("po", "cachai"), habla rápida y elisiones. Se mitiga con keyterms o prompting del ASR.
 - **Alucinaciones de Whisper en silencios y música de espera:** se mitigan con VAD (Silero).
 - **Datos críticos** (montos, RUT, productos): se usa vocabulario personalizado y se mide el WER con 50–100 llamadas reales transcritas a mano.
-- **Legal:** Ley 21.719 de protección de datos. Hay que definir con el cliente si el audio puede salir de Chile y firmar un DPA.
+- **Legal:** Ley 21.719 de protección de datos. Hay que definir con la corredora si el audio puede salir de Chile y firmar un DPA.
 
-## Dominio del cliente (retención de seguros BancoEstado)
+## Dominio de la corredora (retención de seguros BancoEstado)
 
 - **Pauta de calidad:** 33 "motivos de no calidad" en 5 bloques:
   - Acreditación y protocolo de cierre: 31, 33, 29, 30, 13, 15, 27.
@@ -72,19 +72,32 @@ Hoy un equipo de personas escucha las llamadas a mano y solo alcanza a auditar u
   - Tipificación: 18–25.
 - **Motivos de renuncia:** lista cerrada de 27; por ejemplo, Problemas Económicos, Cambio de situación laboral, Desconoce contratación, Retracto.
 - **Fichas de producto** (capacitación S4P, mayo 2026): desempleo e incapacidad temporal en créditos de consumo, salud incapacidad MYPE, Incendio Hogar, Sale Seguro y Protección Global. Se usan para detectar información errónea del ejecutivo.
-- **Pendiente de definir con el cliente:**
+- **Pendiente de definir con la corredora:**
   - La gravedad de cada motivo.
   - El guion exacto de cierre y de acreditación.
   - El umbral de espera excesiva.
   - Qué seguros son retenibles o irrenunciables por canal.
   - El acceso a llamadas ya auditadas (golden set).
 
-## Usuarios y flujos principales
+## Actores
+
+Cinco actores, siempre con estos nombres en docs, prompts, UI y conversaciones:
+
+| Actor | Quién es | ¿Usa la app? | En código |
+|---|---|---|---|
+| **Cliente** | La persona que llama. Tiene un seguro contratado, quiere renunciar a él y el ejecutivo intenta retenerlo. | No. Solo aparece en la grabación y en la ficha de la llamada. | `customer` (canal y metadatos de la llamada) |
+| **Ejecutivo** | Quien atiende la llamada y da asistencia sobre el problema del cliente según la pauta de calidad. Es a quien se evalúa. | No. Se le ve en dashboards y fichas. | `agent` (`agent_id`, `agent_name`) |
+| **Auditor** | Quien audita los audios entre un ejecutivo y un cliente: revisa los casos que la IA deriva y confirma o corrige cada hallazgo. | Sí. | rol `auditor` |
+| **Supervisor** | Quien revisa las llamadas ya auditadas por el auditor, sigue a los ejecutivos y atiende las alertas críticas confirmadas. | Sí. | rol `supervisor` |
+| **Admin** | Persona de Qubico con poderes sobre la aplicación: cuentas, versiones del prompt, estadísticas, catálogo de seguros y registro de actividad. | Sí. | rol `qubico_admin` |
+
+**Ojo con "cliente":** en este proyecto *cliente* es siempre la persona que llama. La empresa que contrata a Qubico es **BancoEstado Corredores de Seguros** (o "la corredora"); en código es `client_name` / `clientId`. Al escribir docs nuevos, no uses "cliente" para la corredora.
+
+### Flujos principales por actor
 
 - **Auditor:** cola de casos ordenada por gravedad → detalle de llamada (audio, transcripción con marcas, checklist con evidencia) → confirmar o corregir con un motivo cerrado → siguiente caso, con atajos de teclado.
-- **Supervisor:** dashboard diario → vista por agente → llamada → registro de feedback. Atiende alertas de incumplimientos críticos ya confirmados.
-- **Administrador de calidad:** edita la rúbrica → la prueba en lote contra el golden set → publica una nueva versión.
-- **Operación Qubico:** lotes y errores, monitoreo de drift y costo, y trazabilidad.
+- **Supervisor:** dashboard diario → vista por ejecutivo → llamada auditada → registro de feedback. Atiende alertas de incumplimientos críticos ya confirmados.
+- **Admin:** cuentas e invitaciones, versiones del prompt (probar contra la referencia y publicar), estadísticas, monitoreo de lotes, drift y costo, y trazabilidad.
 
 ## Opciones de desarrollo (estimación)
 
@@ -97,7 +110,7 @@ Hoy un equipo de personas escucha las llamadas a mano y solo alcanza a auditar u
 ## Entregables existentes
 
 - Documento técnico (arquitectura, etapas, pipeline de capas, transcripción, mapa de IAs).
-- Preguntas para el cliente.
+- Preguntas para la corredora.
 - Historias de usuario HU-01 a HU-13.
 - Flujos de usuario y wireframes en texto de las 3 tareas principales.
 - Diagrama de flujo en FigJam.

@@ -1,15 +1,25 @@
 # Call Audit · Qubico
 
-App que audita automáticamente grabaciones de contact center. Primer cliente: retención de seguros de BancoEstado Corredores de Seguros. Transcribe el 100 % de las llamadas, las evalúa contra una pauta de calidad y deriva a revisión humana solo lo dudoso o lo que no cumple.
+App que audita automáticamente grabaciones de contact center. Primera empresa: el contact center de retención de seguros de BancoEstado Corredores de Seguros (la corredora). Transcribe el 100 % de las llamadas, las evalúa contra una pauta de calidad y deriva a revisión humana solo lo dudoso o lo que no cumple.
 
 Contexto completo del negocio y del dominio: @docs/context.md
+
+## Actores (usa siempre estos nombres)
+
+1. **Cliente** (`customer`): la persona que llama; tiene un seguro y el ejecutivo intenta retenerlo. No usa la app.
+2. **Ejecutivo** (`agent`): atiende la llamada y es a quien se evalúa. No usa la app.
+3. **Auditor** (rol `auditor`): audita los audios entre ejecutivo y cliente.
+4. **Supervisor** (rol `supervisor`): revisa las llamadas ya auditadas por el auditor.
+5. **Admin** (rol `qubico_admin`): persona de Qubico con poderes sobre la aplicación.
+
+"Cliente" nunca es la empresa: a BancoEstado Corredores de Seguros se le dice "la corredora". Detalle en `docs/context.md` § Actores.
 
 ## Cómo trabajar acá
 
 - Responde en español chileno informal, conciso y accionable.
-- **Código en inglés**: carpetas, archivos, módulos, clases, funciones, variables, campos de BD y del contrato JSON. Los docs y comentarios pueden ir en español. Los términos del dominio del cliente (nombres de motivos, motivos de renuncia, textos de prompts) se mantienen en español.
+- **Código en inglés**: carpetas, archivos, módulos, clases, funciones, variables, campos de BD y del contrato JSON. Los docs y comentarios pueden ir en español. Los términos del dominio de la corredora (nombres de motivos, motivos de renuncia, textos de prompts) se mantienen en español.
 - Prioriza soluciones simples, explicables y medibles contra el golden set.
-- **No inventes datos del cliente.** Si falta un dato (gravedad de un motivo, guion de cierre, umbral de espera, etc.), márcalo como `TBD` y regístralo en `docs/client-open-questions.md`.
+- **No inventes datos de la corredora.** Si falta un dato (gravedad de un motivo, guion de cierre, umbral de espera, etc.), márcalo como `TBD` y regístralo en `docs/client-open-questions.md`.
 - **Verifica precios y modelos actuales antes de citarlos**: cambian seguido. No los escribas de memoria en código ni en docs.
 
 ## Arquitectura (6 etapas)
@@ -44,7 +54,7 @@ prompts/         prompts versionados de las capas LLM
 golden_set/      solo metadatos y scripts; los datos reales viven fuera del repo
 tests/           pytest
 frontend/        Next.js (cola del auditor, dashboard del supervisor)
-docs/            contexto, ADRs, preguntas abiertas al cliente, prompt de ejemplo de capa 2
+docs/            contexto, ADRs, preguntas abiertas a la corredora, prompt de ejemplo de capa 2
 ```
 
 Prompt de la capa 2 (pauta de retención completa): fuente versionada en `prompts/layer2/prompt.yaml`, con el origen de cada regla (ver `prompts/layer2/README.md`). Explicación de diseño en `docs/layer2-prompt-example.md`.
@@ -56,7 +66,7 @@ Ramas `main` (producción) y `develop` (integración). Trabajo en `feature/*`, `
 ## Agentes disponibles (`.claude/agents/`)
 
 - `pipeline-architect`: diseño de etapas, interfaces y contrato común.
-- `rubric-engineer`: traduce la pauta del cliente a rúbricas YAML.
+- `rubric-engineer`: traduce la pauta de la corredora a rúbricas YAML.
 - `llm-engineer`: prompts de capa 2, batches, validación de citas.
 - `asr-specialist`: transcripción, WER, audio telefónico, español chileno.
 - `golden-set-evaluator`: métricas de FP/FN contra llamadas ya auditadas.
