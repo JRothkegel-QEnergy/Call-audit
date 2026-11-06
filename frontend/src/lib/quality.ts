@@ -162,6 +162,34 @@ export function defaultSeries(series: QualitySeries[]): string[] {
 
 export const MAX_SERIES = 6;
 
+export interface Coverage {
+  /** Llamadas con resultado de la corrida. */
+  withResult: number;
+  /** La corrida falló en la llamada (el backend manda null). */
+  errors: number;
+  /** La corrida no corrió sobre la llamada. */
+  notRun: number;
+  total: number;
+}
+
+/** Cuántas llamadas cubre una corrida (§7.11, D-89). */
+export function coverage(seriesId: string, calls: QualityCall[]): Coverage {
+  let withResult = 0,
+    errors = 0;
+  for (const c of calls) {
+    const r = c.results[seriesId];
+    if (r) withResult += 1;
+    else if (r === null) errors += 1;
+  }
+  return { withResult, errors, notRun: calls.length - withResult - errors, total: calls.length };
+}
+
+/** 0 = con resultado, 1 = con error, 2 = sin correr: el orden del mapa (§7.11, D-90). */
+export function resultTier(call: QualityCall, seriesId: string): 0 | 1 | 2 {
+  const r = call.results[seriesId];
+  return r ? 0 : r === null ? 1 : 2;
+}
+
 export function seriesName(s: QualitySeries): string {
   const run = s.source === "prompt_test" ? s.runLabel : s.runLabel.replace(/^v[\d.]+\s*/, "") || null;
   return [s.modelLabel, `v${s.promptVersion}`, s.source === "prompt_test" ? "prueba" : run].filter(Boolean).join(" · ");

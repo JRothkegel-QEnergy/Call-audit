@@ -15,12 +15,15 @@ import {
   MAX_SERIES,
   callDiff,
   clientMarks,
+  coverage,
   criterionRows,
   defaultSeries,
   detectionGoal,
   rejects,
+  resultTier,
   seriesMetrics,
   seriesName,
+  type Coverage,
   type SeriesMetrics,
 } from "@/lib/quality";
 
@@ -45,6 +48,7 @@ const METRICS: {
 ];
 const PAGE = 25;
 const MAP_PAGE = 100; // columnas del mapa llamada por llamada por página (§7.10)
+const CURRENT = "current"; // serie "Vigente": la corrida vigente de cada llamada (D-88)
 
 const usd = (v: number | null) => (v == null ? "costo sin registrar" : `${v.toFixed(4).replace(".", ",")} USD/llamada`);
 const p0 = (v: number) => pct(Math.round(v), 0);
@@ -63,6 +67,21 @@ function swatch(s: QualitySeries, striped: boolean): React.CSSProperties {
 
 function Dot({ s, striped }: { s: QualitySeries; striped: boolean }) {
   return <span aria-hidden className="inline-block h-2.5 w-2.5 flex-none rounded-full" style={swatch(s, striped)} />;
+}
+
+/** Cobertura en el chip (§7.11, D-89): "892 de 1.097", o solo el total si la corrida las tiene todas. */
+function CoverageText({ cov }: { cov: Coverage }) {
+  const text = cov.withResult === cov.total ? int(cov.total) : `${int(cov.withResult)} de ${int(cov.total)}`;
+  return (
+    <>
+      <span aria-hidden className="help tabular">
+        · {text}
+      </span>
+      <span className="sr-only">
+        , {int(cov.withResult)} de {int(cov.total)} llamadas con resultado
+      </span>
+    </>
+  );
 }
 
 /** Calidad de la IA por corrida contra el cliente (Cambio 15, §7). El estado vive en la URL (H-96). */
@@ -92,7 +111,9 @@ export function AiQualityView({ data }: { data: AiQuality }) {
     }
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
   };
-  const setSeries = (ids: string[]) => update({ series: ids.join(","), page: null });
+  // Quitar la corrida del mapa cambia la corrida del mapa: vuelve a la página 1 (D-90).
+  const setSeries = (ids: string[]) =>
+    update({ series: ids.join(","), page: null, ...(ids.includes(mapId ?? best[0].id) ? {} : { mapPage: null }) });
 
   // La segunda (o más) corrida de un mismo modelo entre las elegidas va rayada.
   const striped = new Set(selected.filter((s, i) => selected.findIndex((o) => o.model === s.model) !== i).map((s) => s.id));
@@ -213,7 +234,7 @@ export function AiQualityView({ data }: { data: AiQuality }) {
         striped={striped}
         mapId={mapId ?? best[0].id}
         page={mapPage}
-        onPick={(id) => update({ map: id })}
+        onPick={(id) => update({ map: id, mapPage: null })}
         onPage={(p) => update({ mapPage: p ? String(p) : null })}
         onList={(id) => openList(id, null, "all")}
       />
@@ -294,7 +315,8 @@ function SeriesBar({
         <span key={s.id} className="chip" style={{ borderColor: color(s) }}>
           <Dot s={s} striped={striped.has(s.id)} />
           {seriesName(s)}
-          {s.isCurrent && <span className="help">· Vigente</span>}
+          {s.isCurrent && s.id !== CURRENT && <span className="help">· Vigente</span>}
+          <CoverageText cov={coverage(s.id, data.calls)} />
           <button
             type="button"
             aria-label={`Quitar ${seriesName(s)}`}
@@ -327,6 +349,7 @@ function SeriesBar({
                   .map((s) => {
                     const on = ids.includes(s.id);
                     const full = !on && ids.length >= MAX_SERIES;
+                    const cov = coverage(s.id, data.calls);
                     return (
                       <label
                         key={s.id}
@@ -339,7 +362,7 @@ function SeriesBar({
                         <span className="flex-1">
                           v{s.promptVersion}
                           {s.source === "run" && s.runLabel.replace(/^v[\d.]+\s*/, "") ? ` · ${s.runLabel.replace(/^v[\d.]+\s*/, "")}` : ""}
-                          {s.isCurrent && <b> · Vigente</b>}
+                          {s.isCurrent && s.id !== CURRENT && <b> · Vigente</b>}
                           {s.source === "prompt_test" && (
                             <span className="help">
                               {" "}
@@ -348,7 +371,12 @@ function SeriesBar({
                             </span>
                           )}
                         </span>
-                        <span className="help tabular">{s.calls} llamadas</span>
+                        <span className="help tabular grid text-right">
+                          <span>
+                            {cov.withResult === cov.total ? int(cov.total) : `${int(cov.withResult)} de ${int(cov.total)}`}
+                          </span>
+                          {cov.errors > 0 && <span>{int(cov.errors)} con error</span>}
+                        </span>
                       </label>
                     );
                   })}
@@ -389,9 +417,31 @@ function Headline({ best, metrics, data }: { best: QualitySeries[]; metrics: Map
             : `${seriesName(a)} es la que mejor calza: ${facts}`}{" "}
         {goals(ma)}
       </p>
-      {b && <p className="help mb-0 mt-1">Con {data.calls.length} llamadas, diferencias de 1 a 3 llamadas entre corridas no son concluyentes.</p>}
+      {b && <CoverageNote best={best} metrics={metrics} />}
     </div>
   );
+}
+
+/** D-91: si las corridas cubren cantidades distintas, la comparación es orientativa. */
+function CoverageNote({ best, metrics }: { best: QualitySeries[]; metrics: Map<string, SeriesMetrics> }) {
+  const counts = best.map((s) => metrics.get(s.id)!.n);
+  if (counts.every((n) => n === counts[0]))
+    return <p className="help mb-0 mt-1">Con {int(counts[0])} llamadas, diferencias de 1 a 3 llamadas entre corridas no son concluyentes.</p>;
+  const which =
+    best.length > 3
+      ? `(${int(Math.min(...counts))} a ${int(Math.max(...counts))})`
+      : best.map((s, i) => `${mapName(s)} ${int(counts[i])}`).join(", ");
+  return (
+    <p className="help mb-0 mt-1">
+      Cada corrida se mide sobre las llamadas que tiene{best.length > 3 ? " " : ": "}
+      {which}. No son las mismas llamadas, así que la comparación es orientativa.
+    </p>
+  );
+}
+
+/** Nombre corto: "Gemini · Vigente" para la serie vigente, "{modelo} · v{versión}" para las demás. */
+function mapName(s: QualitySeries): string {
+  return s.id === CURRENT ? `${s.modelLabel.split(" ")[0]} · Vigente` : `${s.modelLabel} · v${s.promptVersion}`;
 }
 
 function Ranking({
@@ -446,7 +496,7 @@ function Ranking({
               </div>
               <span className="tabular whitespace-nowrap text-sm">
                 <b>{p0(v)}</b> · {m.detected} de {m.bad} · {m.falsePositives} FP · {usd(s.costPerCallUsd)}
-                {m.missing > 0 && <span className="help"> · {m.missing} sin resultado</span>}
+                <MissingText cov={coverage(s.id, data.calls)} />
               </span>
             </div>
           </li>
@@ -459,6 +509,11 @@ function Ranking({
       )}
     </ul>
   );
+}
+
+function MissingText({ cov }: { cov: Coverage }) {
+  const parts = [cov.errors > 0 && `${int(cov.errors)} con error`, cov.notRun > 0 && `${int(cov.notRun)} sin correr`].filter(Boolean);
+  return parts.length ? <span className="help"> · {parts.join(" · ")}</span> : null;
 }
 
 // --- Matriz por corrida ------------------------------------------------------------------------------------------
@@ -681,14 +736,16 @@ function CriteriaTable({
 
 // --- Mapa llamada × motivo ---------------------------------------------------------------------------------------
 
-type CellState = "match" | "ai_only" | "missed" | "none" | "unknown";
+type CellState = "match" | "ai_only" | "missed" | "none" | "unknown" | "error";
 const CELL: Record<CellState, string> = {
   match: "bg-[var(--teal-600)]",
   ai_only: "bg-[var(--amber-600)]",
   missed: "border-2 border-[var(--red-700)] bg-white",
   none: "bg-[var(--neutral-100)]",
   unknown: "border border-dashed border-[var(--neutral-300)] bg-white",
+  error: "bg-[var(--neutral-500)]",
 };
+const TIER_TITLE = ["", " · error de la IA, sin resultado", " · esta corrida no la evaluó"];
 
 function CallMap({
   data,
@@ -713,8 +770,16 @@ function CallMap({
   const prevRef = useRef<HTMLButtonElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
   const s = selected.find((x) => x.id === mapId) ?? selected[0];
+  // D-90: todas las llamadas; en cada grupo primero las que tienen resultado, luego con error, luego sin correr.
   const groups = (["compliant", "non_compliant"] as const).map((v) =>
-    data.calls.filter((c) => c.clientVerdict === v).sort((a, b) => a.callId.localeCompare(b.callId, undefined, { numeric: true })),
+    data.calls
+      .filter((c) => c.clientVerdict === v)
+      .sort((a, b) => resultTier(a, s.id) - resultTier(b, s.id) || a.callId.localeCompare(b.callId, undefined, { numeric: true })),
+  );
+  const cov = coverage(s.id, data.calls);
+  const name = mapName(s);
+  const lacking = [cov.errors > 0 && `${int(cov.errors)} con error`, cov.notRun > 0 && `${int(cov.notRun)} sin correr`].filter(
+    (x): x is string => !!x,
   );
   // §7.10: cada página lleva hasta 50 Cumple y 50 No cumple; si un grupo se agota, el otro rellena hasta 100.
   // consumed(k) = cuántas de cada grupo ocupan las primeras k páginas. Los encabezados muestran el total del grupo.
@@ -753,7 +818,7 @@ function CallMap({
   }
   const state = (call: AiQuality["calls"][number], crit: number | "verdict"): CellState => {
     const r = call.results[s.id];
-    if (!r) return "unknown";
+    if (!r) return r === null && crit === "verdict" ? "error" : "unknown";
     if (crit === "verdict") {
       const ai = rejects(r.verdict),
         client = call.clientVerdict === "non_compliant";
@@ -784,7 +849,7 @@ function CallMap({
               title={seriesName(x)}
             >
               <Dot s={x} striped={striped.has(x.id)} />
-              {x.modelLabel.split(" ")[0]} · v{x.promptVersion}
+              {x.id === CURRENT ? mapName(x) : `${x.modelLabel.split(" ")[0]} · v${x.promptVersion}`}
               {striped.has(x.id) ? " · 2" : ""}
             </button>
           ))}
@@ -793,11 +858,18 @@ function CallMap({
           Ver como lista
         </Button>
       </div>
+      <p className="help tabular mb-2 mt-0" aria-live="polite">
+        {cov.withResult === total
+          ? `${name}: las ${int(total)} llamadas tienen resultado.`
+          : cov.withResult === 0
+            ? `${name}: ninguna de las ${int(total)} llamadas tiene resultado (${lacking.join(" · ")}).`
+            : `${name}: ${[`${int(cov.withResult)} con resultado`, ...lacking].join(" · ")}, de ${int(total)}. Primero las que tienen resultado.`}
+      </p>
       <div className="relative overflow-x-auto overflow-y-hidden pb-1">
         <div
           role="img"
-          aria-label={`${seriesName(s)}: ${aiOnly} llamadas con solo la IA y ${missed} omitidas, en ${total} llamadas${
-            pages > 1 ? `. Se muestran ${visible.map((g) => span(g, " a ")).join(" y ")}.` : ""
+          aria-label={`${seriesName(s)}: ${aiOnly} llamadas con solo la IA y ${missed} omitidas, en ${int(cov.withResult)} llamadas con resultado de ${int(total)}. Primero las que tienen resultado.${
+            pages > 1 ? ` Se muestran ${visible.map((g) => span(g, " a ")).join(" y ")}.` : ""
           }`}
           className="inline-grid gap-x-3"
           style={{ gridTemplateColumns: `auto repeat(${visible.length}, auto)` }}
@@ -820,8 +892,12 @@ function CallMap({
               {calls.map((call, ci) => (
                 <div
                   key={`${call.callId}-${ci}`}
-                  className="grid cursor-pointer gap-[2px] hover:opacity-70"
-                  title={`Llamada ${call.callId}`}
+                  className={cn(
+                    "grid cursor-pointer gap-[2px] hover:opacity-70",
+                    // Corte entre "con resultado", "con error" y "sin correr" dentro del bloque.
+                    ci > 0 && resultTier(call, s.id) !== resultTier(calls[ci - 1], s.id) && "ml-1.5",
+                  )}
+                  title={`Llamada ${call.callId}${TIER_TITLE[resultTier(call, s.id)]}`}
                   onClick={() => router.push(`/calls/${call.caseId}?serie=${encodeURIComponent(s.id)}&llamada=${encodeURIComponent(call.callId)}`)}
                 >
                   {(["verdict", ...crits] as const).map((crit, i) => (
@@ -856,6 +932,7 @@ function CallMap({
             ["ai_only", "Solo la IA"],
             ["missed", "Omitido por la IA"],
             ["unknown", "Sin referencia (sin marca por motivo o sin resultado)"],
+            ["error", "Error de la IA (fila de veredicto)"],
           ] as const
         ).map(([k, label]) => (
           <li key={k} className="flex items-center gap-1.5">
