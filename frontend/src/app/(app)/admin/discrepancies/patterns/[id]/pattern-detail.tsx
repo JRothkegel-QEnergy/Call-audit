@@ -158,7 +158,8 @@ function PatternDetail({ initial }: { initial: DiscrepancyPatternDetail }) {
                   {c.manualVerdict ? `${AI[c.manualVerdict] ?? c.manualVerdict}${c.manualSidesWith ? ` · ${SIDES[c.manualSidesWith]}` : ""}` : "—"}
                   {disagree(c) && <div className="help">Desacuerdo entre revisores</div>}
                 </td>
-                <td className="max-w-[420px]">
+                {/* .tbl no corta líneas: la cita sí, para no pisar las columnas siguientes. */}
+                <td className="min-w-[320px] max-w-[560px] py-2 whitespace-normal">
                   <div>
                     IA: {c.aiQuote ? `«${c.aiQuote}»${c.aiQuoteMs != null ? ` (${mmss(c.aiQuoteMs)})` : ""}` : c.aiComment || "—"}
                   </div>
