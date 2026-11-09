@@ -118,15 +118,28 @@
 | H-112 | Se ve la última corrida de análisis; anteriores en solo lectura; las decisiones sobre propuestas persisten. | Cambio 16 §5 | Johannes | Sin objeción (2026-11-04) |
 | H-113 | La vista declara cuántos casos tienen revisión manual Qubico (hoy casi ninguno por motivo). | Cambio 16 §5 | Johannes | Sin objeción (2026-11-04) |
 | H-114 | Confianza del patrón como Alta / Media / Baja, no como número. | Cambio 16 §5 | Johannes | Sin objeción (2026-11-04) |
-| H-115 | Tres pestañas (Análisis · Seguimiento · Historial) bastan; Seguimiento muestra el contador de pendientes. | Cambio 16 §7 | Johannes | Sin objeción (2026-11-04) |
+| H-115 | Tres pestañas (Análisis · Seguimiento · Historial) bastan; Seguimiento muestra el contador de pendientes. | Cambio 16 §7 | Johannes | **Reemplazada (2026-11-09)** por cinco pestañas (Cambio 20, D-92); Seguimiento mantiene su contador |
 | H-116 | La matriz de veredicto de llamada no se repite: basta la línea "Calce de llamada" con enlace a Calidad de la IA. | Cambio 16 §7 | Johannes | Sin objeción (2026-11-04) |
 | H-117 | Motivos de descarte en lista cerrada + "Otro", para que la IA de análisis los lea de forma consistente. | Cambio 16 §7 | Johannes | Sin objeción (2026-11-04) |
 | H-118 | Las decisiones viven aparte del patrón y se ven en análisis posteriores; un análisis nuevo no reabre lo descartado salvo evidencia distinta. | Cambio 16 §7 | Johannes | Sin objeción (2026-11-04) |
 | H-119 | Aceptar, descartar y cambiar seguimiento quedan en el Registro de actividad; aceptar no pide motivo. | Cambio 16 §7 | Johannes | Sin objeción (2026-11-04) |
 | H-120 | Escritorio ≥ 1280 px; la tabla por motivo hace scroll horizontal dentro de su tarjeta en pantallas angostas. | Cambio 16 §7 | Johannes | Sin objeción (2026-11-04) |
+| H-115 | Mientras no haya pasadas con costo registrado, la transcripción se estima con un rango fijo de configuración (~US$ 0,01–0,03 por audio, a verificar contra el precio vigente). | Cambio 14 §8.4 | Johannes | Pendiente (2026-11-04) |
+| H-116 | Un reintento con 1 intento nuevo basta y limita el gasto si la causa sigue; el admin puede volver a reintentar. | Cambio 14 §8.4 | Johannes | Pendiente (2026-11-04) |
+| H-117 | Reintentar por audio y por grupo de error cubre los casos reales (las fallas vienen en tandas con el mismo error); no hace falta selección múltiple. | Cambio 14 §8.4 | Uso real | Pendiente (2026-11-04) |
+| H-118 | No hace falta reconstruir tiempos y costos de pasadas antiguas; basta con "Sin registro". | Cambio 14 §9.3 | Johannes | Pendiente (2026-11-04) |
+| H-119 | Una página propia sirve más que un panel lateral para el detalle de pasada (enlazable, sin chocar con la consulta cada 5 s). | Cambio 14 §9.1 | Johannes | Pendiente (2026-11-04) |
 | H-121 | El supervisor reconoce "la planilla" como la planilla de aprobado/rechazado de su equipo de calidad. | Cambio 17 | 1–2 supervisores | Pendiente (2026-11-05) |
 | H-122 | El veredicto de calidad seguirá llegando en planilla durante el MVP; si llega por API, se revisa D-71 (barato por D-74). | Cambio 17 | Johannes / `pipeline-architect` | Pendiente (2026-11-05) |
 | H-123 | "Datos del cliente" en el aviso del panel del modelo (L-29) cubría a la empresa y a las personas que llaman; confirmado por Johannes. | Cambio 17 | Johannes | Validada (2026-11-05) |
+| H-124 | La base del borrador desde Seguimiento es la versión vigente con prompt.yaml; si la vigente es «Solo system prompt», el botón queda deshabilitado con explicación. | Cambio 18 | Johannes | Sin objeción (2026-11-06) |
+| H-125 | La versión se sugiere sola (siguiente menor libre: 2.10 → 2.11, o 2.12 si ya hay borrador 2.11) y no se edita a mano. | Cambio 18 | Johannes | Sin objeción (2026-11-06) |
+| H-126 | Varias reglas del mismo motivo se aplican en orden de aceptación y se ven en una sola comparación del motivo. | Cambio 18 | Johannes | Sin objeción (2026-11-06) |
+| H-127 | Todas las reglas aceptadas vienen marcadas por defecto; desmarcar una la deja en «Aceptada». | Cambio 18 | Johannes | Sin objeción (2026-11-06) |
+| H-128 | Una regla «Revisar» no frena a las demás, pero no se crea el borrador mientras quede alguna en «Revisar». | Cambio 18 | Johannes | Sin objeción (2026-11-06) |
+| H-129 | En el diálogo Aceptar se ven la acción y la frase a reemplazar en solo lectura; el texto nuevo sigue editable (D-67). | Cambio 18 | Johannes | Sin objeción (2026-11-06) |
+| H-130 | Lo editado en el texto final se guarda en el borrador y no reescribe la propuesta. | Cambio 18 | Johannes | Sin objeción (2026-11-06) |
+| H-131 | Solo se aplica al `criterion` de los motivos; reglas sobre otras secciones del prompt siguen por el camino manual. | Cambio 18 | Johannes | Sin objeción (2026-11-06) |
 | H-132 | La vista la usan todos los `qubico_admin` en escritorio ≥ 1280 px; sin modo presentación ni exportación de imágenes. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
 | H-133 | Los gráficos se hacen con HTML/CSS o SVG simple, sin librería de gráficos nueva. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
 | H-134 | Auditor e IA se distinguen con `--series-*`, nunca verde/rojo; el texto y el relleno los distinguen sin color. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
@@ -138,3 +151,16 @@
 | H-140 | Un caso en dos patrones cuenta para el de mejor prioridad. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
 | H-141 | "Explicado por patrones" usa como base fp + fn + IA dudosa de los motivos analizados; "Casos en desacuerdo" es fp + fn. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
 | H-142 | Pregunta y pedido de datos se juntan como "Depende de la empresa" solo en la barra. | Cambio 19 | Johannes al ver la vista con datos reales | Pendiente (2026-11-06) |
+| H-144 | Las `ModelRun` del worker y la v2.10 del banco tienen `is_current = true` y no compiten en las mismas llamadas; "Vigente" cubre las 1.097. | Cambio 15 §7.11 | Johannes | Validada (2026-11-06) |
+| H-145 | Basta con `promptVersions` solo en la serie "Vigente"; las demás tienen una sola versión por `run_label`. | Cambio 15 §7.11 | Implementación | Pendiente (2026-11-06) |
+| H-146 | Ver siempre todas las llamadas, con las que tienen resultado en la corrida del mapa primero, basta para comparar las llamadas nuevas sin esconder las que faltan (Johannes eligió Q2 B). | Cambio 15 §7.11 | Uso real | Pendiente (2026-11-06) |
+| H-147 | Las llamadas con error se reintentan en el pipeline (402, cuando hay saldo) y se ven en Procesamiento; Calidad de la IA solo las muestra, con textos que no dependen de cuántas son. | Cambio 15 §7.11 | Johannes | Validada (2026-11-06) |
+| H-148 | En el mapa, con error va antes que sin correr (van a tener resultado); dentro de cada nivel, `callId` ascendente. | Cambio 15 §7.11 | Uso real | Pendiente (2026-11-06) |
+| H-149 | La escala del análisis v1.0.0 (hasta 4 patrones y 6 observaciones por motivo) se mantiene en análisis futuros; si crece, entra el paginador dentro del motivo. | Cambio 20 | Ver el próximo análisis | Pendiente (2026-11-09) |
+| H-150 | El admin prefiere entrar al panorama (Resumen) y desde ahí ir a decidir. | Cambio 20 | Johannes al usar la vista | Pendiente (2026-11-09) |
+| H-151 | 10 tarjetas, 20 observaciones y 15 evaluadores por página son tamaños cómodos. | Cambio 20 | Johannes al usar la vista | Pendiente (2026-11-09) |
+| H-152 | Mantener el orden fijo del panel y las tarjetas decididas en su lugar da más orientación que mover lo resuelto al final. | Cambio 20 | Johannes al usar la vista | Pendiente (2026-11-09) |
+| H-153 | Con menos de 10 llamadas, los porcentajes de un evaluador son poco comparables y se marcan "pocas llamadas". | Cambio 20 | Johannes con datos reales | Pendiente (2026-11-09) |
+| H-154 | La fila sin evaluador queda como un resto chico después de la reimportación y no entra en la fila Todos. | Cambio 20 | Reimportación | **Validada (2026-11-09)**: quedan 100 de 1.100 llamadas sin evaluador (octubre; su planilla no trae la columna). La fila sí aparece (D-97) |
+| H-155 | Los atajos J/K/A/D/M sirven también en esta vista y no chocan con los usos de la llamada. | Cambio 20 | Johannes al usar la vista | Pendiente (2026-11-09) |
+| H-156 | El panel lateral cabe a 1280 px con la sidebar abierta sin apretar las tarjetas; si no, la sidebar se colapsa o el panel pasa a `select`. | Cambio 20 | Implementación en navegador | Pendiente (2026-11-09) |

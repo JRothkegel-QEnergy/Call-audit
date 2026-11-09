@@ -115,6 +115,32 @@ def decide(pattern_id: str, body: DecisionIn, session: DbSession, user: Admin):
     return discrepancy_runs.pattern_out(session, pattern, row)
 
 
+class DiscardObservationsIn(BaseModel):
+    ids: list[str]
+    reason: str
+
+
+@router.post("/observations/discard")
+def discard_observations(body: DiscardObservationsIn, session: DbSession, user: Admin):
+    try:
+        rows, changed = discrepancy_runs.discard_observations(session, body.ids, user, body.reason)
+    except LookupError as exc:
+        raise HTTPException(404, str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    accounts.log(
+        session,
+        user,
+        "observations_discarded",
+        f"Motivo {rows[0][0].criterion_id} · observaciones",
+        f"{changed} observaciones · {body.reason.strip()}"[:500],
+    )
+    session.commit()
+    return [discrepancy_runs.pattern_out(session, p, d) for p, d in rows]
+
+
 class FollowUpIn(BaseModel):
     status: Literal["asked_client", "calibrated", "accepted"]
 

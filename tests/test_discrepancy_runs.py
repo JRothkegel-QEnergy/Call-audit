@@ -119,7 +119,20 @@ def test_analysis_flow(client: TestClient, admin: User, imported: sessionmaker[S
     url = f"/api/admin/discrepancies/patterns/{pattern['id']}/decision"
     assert client.post(url, json={"decision": "discarded"}).status_code == 422
     obs_url = f"/api/admin/discrepancies/patterns/{observation['id']}/decision"
-    assert client.post(obs_url, json={"decision": "accepted"}).status_code == 409
+    assert observation["observationText"] == "Una llamada corta."
+    accepted_obs = client.post(obs_url, json={"decision": "accepted", "text": "Calibrar llamadas cortas."}).json()
+    assert accepted_obs["status"] == "accepted"
+    assert accepted_obs["proposal"] == {
+        "type": "calibrate_auditor",
+        "action": None,
+        "find": None,
+        "text": "Una llamada corta.",
+        "editedText": "Calibrar llamadas cortas.",
+    }
+    follow_url = f"/api/admin/discrepancies/patterns/{observation['id']}/follow-up"
+    conflict = client.post(follow_url, json={"status": "asked_client"})
+    assert (conflict.status_code, conflict.json()["detail"]) == (409, "observation_status")
+    assert client.post(obs_url, json={"decision": "pending"}).json()["proposal"] is None
     accepted = client.post(url, json={"decision": "accepted", "text": "Exigir el guion completo."}).json()
     assert accepted["status"] == "accepted" and accepted["proposal"]["editedText"] == "Exigir el guion completo."
     assert [p["id"] for p in client.get("/api/admin/discrepancies/follow-up").json()] == [pattern["id"]]
@@ -148,6 +161,49 @@ def test_analysis_flow(client: TestClient, admin: User, imported: sessionmaker[S
 
     actions = {a["action"] for a in client.get("/api/admin/activity").json()}
     assert {"discrepancy_analysis_started", "proposal_accepted"} <= actions
+
+
+def test_discard_observations_in_bulk(client: TestClient, admin: User, imported: sessionmaker[Session]) -> None:
+    login(client, admin)
+    data = run(client, imported, FakeModel())
+    pattern, observation = data["patterns"]
+    url = "/api/admin/discrepancies/observations/discard"
+    reason = "La evidencia no alcanza"
+
+    assert client.post(url, json={"ids": [observation["id"]], "reason": " "}).json()["detail"] == "reason_required"
+    assert client.post(url, json={"ids": [], "reason": reason}).json()["detail"] == "no_ids"
+    assert client.post(url, json={"ids": ["no-existe"], "reason": reason}).status_code == 404
+    mixed = client.post(url, json={"ids": [pattern["id"], observation["id"]], "reason": reason})
+    assert (mixed.status_code, mixed.json()["detail"]) == (409, "not_observation")
+
+    done = client.post(url, json={"ids": [observation["id"]], "reason": reason}).json()
+    assert [(p["status"], p["decision"]["reason"]) for p in done] == [("discarded", reason)]
+    activity = client.get("/api/admin/activity").json()
+    assert "observations_discarded" in {a["action"] for a in activity}
+
+    # Otro análisis recibe el descarte con el texto de la observación.
+    model = FakeModel()
+    run(client, imported, model)
+    assert "Una llamada corta." in model.users[0] and reason in model.users[0]
+
+
+def test_accepted_observation_never_reaches_the_prompt(
+    client: TestClient, admin: User, imported: sessionmaker[Session]
+) -> None:
+    """Un patrón con menos de 3 casos es observación aunque guarde una propuesta de regla (D-94)."""
+    login(client, admin)
+    short = {**PATTERN["patterns"][0], "cases": ["1001"]}
+
+    class ShortPattern(FakeModel):
+        def __call__(self, cfg: dict, system: str, user: str) -> tuple[str, float]:
+            return json.dumps({**PATTERN, "patterns": [short], "observations": []}, ensure_ascii=False), 0.02
+
+    (observation,) = run(client, imported, ShortPattern())["patterns"]
+    assert observation["isObservation"] and observation["observationText"] == "Exigir el guion de cierre completo."
+    url = f"/api/admin/discrepancies/patterns/{observation['id']}/decision"
+    assert client.post(url, json={"decision": "accepted"}).json()["proposal"]["type"] == "calibrate_auditor"
+    preview = client.post("/api/admin/prompts/from-follow-up/preview", json={"proposalIds": [observation["id"]]})
+    assert preview.status_code == 409
 
 
 def test_discarded_proposals_go_to_the_next_analysis(

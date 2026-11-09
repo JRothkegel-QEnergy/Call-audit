@@ -107,11 +107,17 @@ def discarded_for(session: Session, cid: int) -> list[dict]:
         .join(ProposalDecision, ProposalDecision.pattern_id == DiscrepancyPattern.id)
         .where(DiscrepancyPattern.criterion_id == cid, ProposalDecision.status == "discarded")
     )
-    return [
-        {"text": (p.data.get("proposal") or {}).get("text", ""), "reason": d.reason}
-        for p, d in rows
-        if (p.data.get("proposal") or {}).get("text")
-    ]
+    out = []
+    for p, d in rows:
+        text = observation_text(p.data or {}) if p.is_observation else (p.data.get("proposal") or {}).get("text", "")
+        if text:
+            out.append({"text": text, "reason": d.reason})
+    return out
+
+
+def observation_text(data: dict) -> str:
+    """Texto base de una observación (Cambio 20 §13.1): puede venir sin propuesta, y las tres formas se tratan igual."""
+    return (data.get("proposal") or {}).get("text") or data.get("explanation") or data.get("title") or ""
 
 
 # --- Estimar, lanzar, detener ------------------------------------------------------------------------------------
@@ -485,6 +491,29 @@ def capabilities(patterns: list[DiscrepancyPattern]) -> dict[str, bool]:
 def pattern_out(session: Session, p: DiscrepancyPattern, decision: ProposalDecision | None) -> dict:
     data = p.data or {}
     proposal = data.get("proposal") or None
+    note = observation_text(data) if p.is_observation else None
+    decided = decision is not None and decision.status != "pending"
+    proposal_view = (
+        {
+            "type": proposal.get("type"),
+            # Cómo se aplica una regla del prompt (prompt de análisis v1.3.0, Cambio 18); null = texto libre.
+            "action": proposal.get("action") if proposal.get("action") in ("append", "replace") else None,
+            "find": proposal.get("find") if proposal.get("action") == "replace" else None,
+            "text": proposal.get("text") or "",
+            "editedText": decision.edited_text if decision else None,
+        }
+        if proposal and not p.is_observation
+        else None
+    )
+    if p.is_observation and decided:
+        # Una observación decidida solo puede ir a calibrar (D-94), aunque la IA haya propuesto otro tipo.
+        proposal_view = {
+            "type": "calibrate_auditor",
+            "action": None,
+            "find": None,
+            "text": note,
+            "editedText": decision.edited_text,
+        }
     return {
         **ai_fields(data),
         "kindCounts": kind_counts(p.cases or []),
@@ -502,16 +531,8 @@ def pattern_out(session: Session, p: DiscrepancyPattern, decision: ProposalDecis
         "caseCount": len(p.cases),
         "reviewerDisagreements": p.reviewer_disagreements,
         "isObservation": p.is_observation,
-        "proposal": {
-            "type": proposal.get("type"),
-            # Cómo se aplica una regla del prompt (prompt de análisis v1.3.0, Cambio 18); null = texto libre.
-            "action": proposal.get("action") if proposal.get("action") in ("append", "replace") else None,
-            "find": proposal.get("find") if proposal.get("action") == "replace" else None,
-            "text": proposal.get("text") or "",
-            "editedText": decision.edited_text if decision else None,
-        }
-        if proposal and not p.is_observation
-        else None,
+        "observationText": note,
+        "proposal": proposal_view,
         "status": decision.status if decision else "pending",
         "decision": {
             "by": decision.decided_by.name if decision.decided_by else None,
@@ -763,8 +784,6 @@ def decide(
     note: str | None = None,
 ) -> ProposalDecision:
     """Aceptar no toca el prompt: la propuesta pasa a seguimiento (D-64). Descartar exige motivo."""
-    if pattern.is_observation:
-        raise ValueError("observation")
     if decision == "discarded" and not (reason or "").strip():
         raise ValueError("reason_required")
     row = session.get(ProposalDecision, pattern.id)
@@ -773,7 +792,8 @@ def decide(
     if row is None:
         row = ProposalDecision(pattern_id=pattern.id, decided_by_id=actor.id)
         session.add(row)
-    original = (pattern.data.get("proposal") or {}).get("text", "")
+    data = pattern.data or {}
+    original = observation_text(data) if pattern.is_observation else (data.get("proposal") or {}).get("text", "")
     row.status, row.decided_by_id, row.decided_at = decision, actor.id, now()
     row.included_in_version = None
     row.reason = reason.strip() if decision == "discarded" and reason else None
@@ -784,7 +804,39 @@ def decide(
     return row
 
 
+def discard_observations(
+    session: Session, ids: list[str], actor: User, reason: str
+) -> tuple[list[tuple[DiscrepancyPattern, ProposalDecision]], int]:
+    """Descarta en bloque las observaciones de un motivo (D-95). Las que otro admin ya decidió no se tocan y vuelven
+    con su estado. Devuelve todas, en el orden pedido, y cuántas se descartaron."""
+    reason = reason.strip()
+    if not reason:
+        raise ValueError("reason_required")
+    ids = list(dict.fromkeys(ids))
+    if not ids:
+        raise ValueError("no_ids")
+    patterns = {p.id: p for p in session.scalars(select(DiscrepancyPattern).where(DiscrepancyPattern.id.in_(ids)))}
+    if len(patterns) != len(ids):
+        raise LookupError("not_found")
+    if len({p.criterion_id for p in patterns.values()}) > 1:
+        raise ValueError("mixed_criteria")
+    if not all(p.is_observation for p in patterns.values()):
+        raise PermissionError("not_observation")
+    out = []
+    changed = 0
+    for pattern_id in ids:
+        pattern = patterns[pattern_id]
+        row = session.get(ProposalDecision, pattern_id)
+        if row is None or row.status == "pending":
+            row = decide(session, pattern, actor, "discarded", reason=reason)
+            changed += 1
+        out.append((pattern, row))
+    return out, changed
+
+
 def set_follow_up(session: Session, pattern: DiscrepancyPattern, actor: User, status: str) -> ProposalDecision:
+    if pattern.is_observation and status == "asked_client":
+        raise ValueError("observation_status")
     row = session.get(ProposalDecision, pattern.id)
     if row is None or row.status not in FOLLOW_UP:
         raise ValueError("not_accepted")

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { Pager } from "@/components/ui/pager";
 import { CallVerdictBadge } from "@/components/ui/badges";
 import { EmptyState } from "@/components/ui/states";
 import type { AiQuality, QualitySeries } from "@/lib/api/admin-types";
@@ -654,7 +655,7 @@ function CriteriaTable({
                   {selected.some((s) => s.isCurrent) && data.currentSeriesPatternCounts?.[String(r.id)] ? (
                     <>
                       {" · "}
-                      <Link href={`/admin/discrepancies?motivo=${r.id}&status=all`}>Ver por qué</Link>
+                      <Link href={`/admin/discrepancies?tab=patterns&motivo=${r.id}`}>Ver por qué</Link>
                     </>
                   ) : null}
                 </td>
@@ -1095,19 +1096,7 @@ function Disagreements({
               </tbody>
             </table>
           </div>
-          {pages > 1 && (
-            <div className="mt-2 flex items-center justify-end gap-2 text-sm">
-              <Button size="sm" disabled={current === 0} onClick={() => onChange({ page: String(current - 1) })}>
-                Anterior
-              </Button>
-              <span className="tabular">
-                {current + 1} de {pages}
-              </span>
-              <Button size="sm" disabled={current >= pages - 1} onClick={() => onChange({ page: String(current + 1) })}>
-                Siguiente
-              </Button>
-            </div>
-          )}
+          <Pager label="Llamadas" page={current + 1} size={PAGE} total={rows.length} onChange={(p) => onChange({ page: String(p - 1) })} />
         </>
       )}
       {filtered && rows.length > 0 && (

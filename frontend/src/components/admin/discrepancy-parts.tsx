@@ -30,7 +30,7 @@ export function PatternTags({ p }: { p: DiscrepancyPattern }) {
       {p.cause && <StatusBadge tone="ink">{CAUSE[p.cause]}</StatusBadge>}
       {confidence && <StatusBadge>{confidence}</StatusBadge>}
       <StatusBadge>{p.caseCount} casos</StatusBadge>
-      {!p.isObservation && <StatusBadge tone={p.status === "pending" ? "doubt" : "teal"}>{statusLabel(p)}</StatusBadge>}
+      {(!p.isObservation || p.status !== "pending") && <StatusBadge tone={p.status === "pending" ? "doubt" : "teal"}>{statusLabel(p)}</StatusBadge>}
     </div>
   );
 }
@@ -100,14 +100,23 @@ export function PatternActions({
   readOnly,
   onChange,
   showCases = true,
+  onAsk,
+  shortcuts = false,
+  size,
 }: {
   p: DiscrepancyPattern;
   readOnly: boolean;
   onChange: (p: DiscrepancyPattern) => void;
   showCases?: boolean;
+  /** Si viene, los diálogos los abre quien llama (Cambio 20: también se abren con A y D). */
+  onAsk?: (kind: DecisionKind) => void;
+  /** Muestra las teclas A y D en los botones: solo el elemento en foco. */
+  shortcuts?: boolean;
+  size?: "sm";
 }) {
-  const [dialog, setDialog] = useState<"accept" | "discard" | null>(null);
+  const [dialog, setDialog] = useState<DecisionKind | null>(null);
   const [busy, setBusy] = useState(false);
+  const ask = onAsk ?? setDialog;
   const reopen = async () => {
     setBusy(true);
     try {
@@ -118,27 +127,89 @@ export function PatternActions({
   };
   return (
     <div className="flex flex-wrap gap-2">
-      {!readOnly && !p.isObservation && p.status === "pending" && (
+      {!readOnly && p.status === "pending" && (
         <>
-          <Button variant="primary" onClick={() => setDialog("accept")}>
+          <Button size={size} variant="primary" shortcut={shortcuts ? "A" : undefined} onClick={() => ask("accept")}>
             Aceptar
           </Button>
-          <Button onClick={() => setDialog("discard")}>Descartar</Button>
+          <Button size={size} shortcut={shortcuts ? "D" : undefined} onClick={() => ask("discard")}>
+            Descartar
+          </Button>
         </>
       )}
-      {!readOnly && !p.isObservation && p.status !== "pending" && p.status !== "included" && (
-        <Button loading={busy} onClick={reopen}>
+      {!readOnly && p.status !== "pending" && p.status !== "included" && (
+        <Button size={size} loading={busy} onClick={reopen}>
           Volver a pendiente
         </Button>
       )}
       {showCases && (
-        <Link className="btn" href={`/admin/discrepancies/patterns/${p.id}`}>
+        <Link className={size === "sm" ? "btn btn-sm" : "btn"} href={`/admin/discrepancies/patterns/${p.id}`}>
           Ver casos ({p.caseCount})
         </Link>
       )}
-      {dialog === "accept" && <AcceptDialog p={p} open onOpenChange={(o) => setDialog(o ? "accept" : null)} onDone={onChange} />}
-      {dialog === "discard" && <DiscardDialog p={p} open onOpenChange={(o) => setDialog(o ? "discard" : null)} onDone={onChange} />}
+      {dialog && <DecisionDialog p={p} kind={dialog} onClose={() => setDialog(null)} onDone={onChange} />}
     </div>
+  );
+}
+
+export type DecisionKind = "accept" | "discard";
+
+export function DecisionDialog({
+  p,
+  kind,
+  onClose,
+  onDone,
+}: {
+  p: DiscrepancyPattern;
+  kind: DecisionKind;
+  onClose: () => void;
+  onDone: (p: DiscrepancyPattern) => void;
+}) {
+  const Component = kind === "accept" ? AcceptDialog : DiscardDialog;
+  return <Component p={p} open onOpenChange={(o) => !o && onClose()} onDone={onDone} />;
+}
+
+/** Fila compacta de una observación (Cambio 20 §5): se acepta para calibrar o se descarta. */
+export function ObservationRow({
+  p,
+  readOnly,
+  onChange,
+  onAsk,
+  focused,
+  onFocus,
+  withMotive = false,
+}: {
+  p: DiscrepancyPattern;
+  readOnly: boolean;
+  onChange: (p: DiscrepancyPattern) => void;
+  onAsk?: (kind: DecisionKind) => void;
+  focused?: boolean;
+  onFocus?: () => void;
+  withMotive?: boolean;
+}) {
+  return (
+    <article
+      id={`pattern-${p.id}`}
+      tabIndex={-1}
+      onFocusCapture={onFocus}
+      aria-labelledby={`pattern-title-${p.id}`}
+      className={`grid scroll-mt-4 gap-1.5 rounded border-t border-border p-2 outline-none ${focused ? "ring-2 ring-[var(--primary)]" : ""}`}
+    >
+      <div className="flex flex-wrap items-baseline gap-2">
+        <span id={`pattern-title-${p.id}`} className="min-w-0 flex-1">
+          {withMotive && `Motivo ${p.criterionId} · `}
+          {p.title || p.observationText}
+        </span>
+        <StatusBadge>
+          {p.caseCount} {p.caseCount === 1 ? "caso" : "casos"}
+        </StatusBadge>
+        {p.status !== "pending" && <StatusBadge tone="teal">{statusLabel(p)}</StatusBadge>}
+      </div>
+      {p.explanation && <p className="help m-0">{p.explanation}</p>}
+      {p.proposal?.editedText && <p className="m-0 text-sm">Para calibrar: {p.proposal.editedText}</p>}
+      {p.decision?.reason && <p className="help m-0">Motivo del descarte: {p.decision.reason}</p>}
+      <PatternActions p={p} readOnly={readOnly} onChange={onChange} onAsk={onAsk} shortcuts={focused} size="sm" />
+    </article>
   );
 }
 
@@ -146,21 +217,33 @@ export function PatternCard({
   p,
   readOnly,
   onChange,
+  onAsk,
+  focused,
+  onFocus,
 }: {
   p: DiscrepancyPattern;
   readOnly: boolean;
   onChange: (p: DiscrepancyPattern) => void;
+  onAsk?: (kind: DecisionKind) => void;
+  focused?: boolean;
+  onFocus?: () => void;
 }) {
   return (
-    <article className="card grid gap-2" aria-labelledby={`pattern-${p.id}`}>
-      <h3 id={`pattern-${p.id}`} className="m-0 text-base font-semibold">
+    <article
+      id={`pattern-${p.id}`}
+      tabIndex={-1}
+      onFocusCapture={onFocus}
+      className={`card grid scroll-mt-4 gap-2 outline-none ${focused ? "ring-2 ring-[var(--primary)]" : ""}`}
+      aria-labelledby={`pattern-title-${p.id}`}
+    >
+      <h3 id={`pattern-title-${p.id}`} className="m-0 text-base font-semibold">
         {p.isObservation ? "Observación" : `${p.rank} ·`} Motivo {p.criterionId} · {p.title}
       </h3>
       <PatternTags p={p} />
       <CaseMix k={p.kindCounts} />
       <PatternAiLines p={p} />
       <PatternBody p={p} />
-      <PatternActions p={p} readOnly={readOnly} onChange={onChange} />
+      <PatternActions p={p} readOnly={readOnly} onChange={onChange} onAsk={onAsk} shortcuts={focused} />
     </article>
   );
 }
@@ -170,6 +253,15 @@ const ACCEPT_HELP = {
   client: "Queda en Seguimiento, en Preguntas a la empresa.",
   calibrate: "Queda en Seguimiento, en Para calibrar con el auditor.",
 } as const;
+
+/** Sin perder el contexto al decidir (Cambio 20 §5). */
+function DecisionContext({ p }: { p: DiscrepancyPattern }) {
+  return (
+    <p className="help m-0">
+      Motivo {p.criterionId} · {p.title || p.observationText}
+    </p>
+  );
+}
 
 function AcceptDialog({
   p,
@@ -183,16 +275,23 @@ function AcceptDialog({
   onDone: (p: DiscrepancyPattern) => void;
 }) {
   // Se monta al abrir: el estado parte limpio cada vez.
-  const [text, setText] = useState(p.proposal?.editedText ?? p.proposal?.text ?? "");
+  const [text, setText] = useState(p.proposal?.editedText ?? p.proposal?.text ?? p.observationText ?? "");
   const [note, setNote] = useState("");
+  // Con proposal en null, followUpGroup caería en «client»: una observación siempre va a calibrar (D-94).
+  const group = p.isObservation ? "calibrate" : followUpGroup(p.proposal?.type);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   return (
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title="¿Aceptar esta propuesta?"
-      description={<p className="m-0">{ACCEPT_HELP[followUpGroup(p.proposal?.type)]}</p>}
+      title={p.isObservation ? "¿Aceptar esta observación?" : "¿Aceptar esta propuesta?"}
+      description={
+        <>
+          <DecisionContext p={p} />
+          <p className="m-0">{ACCEPT_HELP[group]}</p>
+        </>
+      }
       footer={
         <>
           <Button
@@ -219,7 +318,9 @@ function AcceptDialog({
     >
       <label className="field">
         <span>
-          {p.proposal?.type !== "prompt_rule"
+          {p.isObservation
+            ? "Texto para calibrar"
+            : p.proposal?.type !== "prompt_rule"
             ? "Texto de la propuesta"
             : p.proposal.action === "replace"
               ? `Reemplazar en el criterio del motivo ${p.criterionId}: «${p.proposal.find}» por:`
@@ -262,8 +363,13 @@ function DiscardDialog({
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title="¿Descartar esta propuesta?"
-      description={<p className="help m-0">El próximo análisis recibe este descarte para no repetir la propuesta.</p>}
+      title={p.isObservation ? "¿Descartar esta observación?" : "¿Descartar esta propuesta?"}
+      description={
+        <>
+          <DecisionContext p={p} />
+          <p className="help m-0">El próximo análisis recibe este descarte para no repetir la propuesta.</p>
+        </>
+      }
       footer={
         <>
           <Button
@@ -291,7 +397,29 @@ function DiscardDialog({
         </>
       }
     >
-      <fieldset className="m-0 grid gap-1.5 border-0 p-0" aria-invalid={!!error && !reason} aria-describedby={error ? "discard-error" : undefined}>
+      <ReasonFields choice={choice} setChoice={setChoice} other={other} setOther={setOther} invalid={!!error && !reason} error={error} />
+    </Dialog>
+  );
+}
+
+function ReasonFields({
+  choice,
+  setChoice,
+  other,
+  setOther,
+  invalid,
+  error,
+}: {
+  choice: string;
+  setChoice: (v: string) => void;
+  other: string;
+  setOther: (v: string) => void;
+  invalid: boolean;
+  error: string | null;
+}) {
+  return (
+    <>
+      <fieldset className="m-0 grid gap-1.5 border-0 p-0" aria-invalid={invalid} aria-describedby={error ? "discard-error" : undefined}>
         <legend className="mb-1 font-medium">Motivo (obligatorio)</legend>
         {DISCARD_REASONS.map((r) => (
           <label key={r} className="flex items-center gap-2">
@@ -310,6 +438,59 @@ function DiscardDialog({
           {error}
         </span>
       )}
+    </>
+  );
+}
+
+/** Descartar las observaciones pendientes de un motivo con un único motivo de descarte (D-95). */
+export function BulkDiscardDialog({
+  items,
+  onClose,
+  onDone,
+}: {
+  items: DiscrepancyPattern[];
+  onClose: () => void;
+  onDone: (rows: DiscrepancyPattern[]) => void;
+}) {
+  const [choice, setChoice] = useState("");
+  const [other, setOther] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const reason = choice === "other" ? other.trim() : choice;
+  return (
+    <Dialog
+      open
+      onOpenChange={(o) => !o && onClose()}
+      title={`¿Descartar las ${items.length} observaciones de este motivo?`}
+      description={<p className="help m-0">El próximo análisis las recibe para no repetirlas. Puedes volver a pendiente cada una.</p>}
+      footer={
+        <>
+          <Button
+            variant="destructive"
+            loading={busy}
+            onClick={async () => {
+              if (!reason) {
+                setError("Elige un motivo para descartar.");
+                return;
+              }
+              setBusy(true);
+              try {
+                onDone(await api.discardObservations({ ids: items.map((p) => p.id), reason }));
+                onClose();
+              } catch {
+                setError("No pudimos guardar la decisión. Intenta de nuevo.");
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Descartar {items.length}
+          </Button>
+          <Button onClick={onClose}>Cancelar</Button>
+        </>
+      }
+    >
+      <ReasonFields choice={choice} setChoice={setChoice} other={other} setOther={setOther} invalid={!!error && !reason} error={error} />
     </Dialog>
   );
 }

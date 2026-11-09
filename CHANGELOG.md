@@ -7,6 +7,15 @@ Cada componente tiene además su propio historial detallado:
 - Prompt de verificación de afirmaciones: historial al final de `docs/layer2-claims-prompt.md`.
 - Diseño del front: `docs/ux/call-audit/estado.md` (fases y cambios aprobados).
 
+## 2026-11-09
+
+- **Análisis de discrepancias en pestañas y por motivo** (Cambio 20, `docs/ux/call-audit/20-analisis-pestanas-por-motivo.md`, D-92 a D-97):
+  - Cinco pestañas: Resumen, Patrones, Evaluadores, Seguimiento e Historial. Los gráficos llevan a Patrones con su filtro y los enlaces antiguos siguen funcionando.
+  - Patrones se revisa motivo por motivo, con avance y atajos (J/K, A, D, M). Lo decidido se queda en su lugar hasta cambiar de motivo. «Todos los motivos» conserva la lista por impacto, de a 10.
+  - Las observaciones ya se deciden: aceptar las deja en «Para calibrar con el auditor» y nunca llegan al prompt; se pueden descartar en bloque por motivo (`POST /api/admin/discrepancies/observations/discard`). Sin migración ni corridas de IA.
+  - Tabla por evaluador con nombres y unidades claras, total y tasa, fila «Todos los evaluadores» y fila aparte para las llamadas sin evaluador.
+- **Evaluador de la planilla:** la reimportación (`python -m call_audit.ingestion.customer`) ahora lee los encabezados nuevos de S4P. Antes, con el Excel del 30-10, habría vaciado evaluador, ficha y marcas por motivo. Producción: 1.000 de 1.100 llamadas con evaluador; las otras 100 son las de octubre, cuya planilla no lo trae. Los nombres se muestran como «Nombre Apellido».
+
 ## 2026-11-06
 
 - **Análisis de discrepancias más visual** (Cambio 19, `docs/ux/call-audit/19-discrepancias-visual.md`; Johannes: «le falta algo más visual, más gráfico que ayude a entender más rápido lo que se necesita»). Revisado antes con el agente PM (`docs/product/features/2026-11-06-analisis-discrepancias-visual.md`):

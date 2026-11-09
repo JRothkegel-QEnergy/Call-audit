@@ -8,6 +8,7 @@
 > **Revisado:** `docs/plan-ia-discrepancias.md`, `src/call_audit/discrepancies.py`, `../transcripts/discrepancies/prod-2026-11-04/summary.md`, `15-calce-ia-por-corrida.md`, `12-cambio-admin-qubico.md` (§2.2 subir versión, §2.3 prueba con costo), `09-cambio-auditoria-ia.md` (Discrepancias del supervisor), `14-estado-worker.md`, `frontend/src/components/shell/sidebar-nav.tsx`.
 > **No contradice:** regla no negociable 5 y el plan ("no modifica criterios automáticamente"), D-35 (lo que gasta IA muestra *n* y costo y solo corre si el admin confirma), D-24 (el auditor nunca ve el veredicto de la corredora), D-53 (Calidad de la IA sigue en `/admin/stats?tab=quality`).
 > **Ajuste 2026-11-05 (Cambio 17):** "cliente" ya no nombra a la corredora en la UI. La fuente del veredicto del lote es **Planilla de calidad** (corto: **la planilla**) y la contraparte es **la empresa**. Textos de este documento actualizados; detalle en `17-termino-auditoria-corredora.md`.
+> **Ajuste 2026-11-09 (Cambio 20, D-92 a D-97):** la estructura de §7.2 y H-115 quedan reemplazadas por cinco pestañas, y las observaciones se pueden decidir. Detalle en `20-analisis-pestanas-por-motivo.md`.
 
 ---
 
@@ -57,7 +58,7 @@ Nota: la columna "Revisión manual" = 1 en todos los motivos de producción **no
 **Requisitos propuestos:**
 - **R-16.1** Lanzar una corrida de análisis desde la vista con *n* de casos, motivos, modelo y costo estimado; solo corre si el admin confirma (D-35).
 - **R-16.2** Ver la tabla del paso 1 (dónde duele) con las tres miradas (IA, Excel, revisión manual) y el resumen por evaluador de la corredora.
-- **R-16.3** Ver los patrones priorizados: resumen, dirección (de más / se le pasa), causa, evidencia, confianza, casos y propuesta. Los de menos de 3 casos se muestran como **observación**, sin botón de aceptar.
+- **R-16.3** Ver los patrones priorizados: resumen, dirección (de más / se le pasa), causa, evidencia, confianza, casos y propuesta. Los de menos de 3 casos se muestran como **observación**. *Ajuste del Cambio 20 (D-94, 2026-11-09):* la observación se puede aceptar o descartar; aceptarla la deja en Seguimiento, en "Para calibrar con el auditor", con texto editable. Descartarla exige motivo. **Nunca puede volverse regla del prompt.**
 - **R-16.4** Desde un patrón, ver sus casos y abrir la llamada en `/calls/[id]` con el contexto del motivo.
 - **R-16.5** Aceptar o descartar cada propuesta, con registro de quién, cuándo y qué pasó después (incluida en versión X, preguntada a la corredora, calibrada).
 - **R-16.6** Historial de corridas de análisis (fecha, corrida de capa 2 analizada, modelo, versión del prompt de análisis, costo) y aviso cuando el análisis quedó viejo (cambió la corrida vigente o entraron revisiones nuevas).
@@ -347,7 +348,7 @@ Para calibrar con el auditor (1)
 | **Corrida de análisis** | Una ejecución de la IA de análisis sobre la corrida vigente, con costo | No es una **corrida** de capa 2 ni una **prueba** del prompt |
 | **Desacuerdo** | La IA y la corredora difieren en un motivo de una llamada | Igual que C15 |
 | **Patrón** | Grupo de 3 o más desacuerdos de un motivo con una explicación común | |
-| **Observación** | Patrón con menos de 3 casos; sin propuesta para aceptar | |
+| **Observación** | Hallazgo con menos de 3 casos o sin propuesta de la IA. Se puede aceptar para calibrar o descartar; no puede volverse regla del prompt (D-94) | |
 | **Causa** | Criterio del prompt · Evaluador de la planilla · Transcripción · Dato faltante | `criterion \| evaluator \| transcript \| missing_data` |
 | **Dirección** | Solo la IA detectó (la IA marca y la corredora no) · Omitidos por la IA (la corredora marca y la IA no) | Vocabulario de C09/C15 |
 | **Propuesta** | Regla del prompt · Pregunta a la empresa · Calibrar con el auditor | `prompt_rule \| client_question \| calibrate_auditor` |

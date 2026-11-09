@@ -403,7 +403,10 @@ El glosario aprobado en `03-arquitectura-informacion.md` §4.2 es la fuente úni
 | **Corrida de análisis** | Una ejecución de la IA de análisis sobre la corrida vigente, con costo. No es una corrida de capa 2 ni una prueba del prompt | `discrepancy_analyses` |
 | **Desacuerdo** | La IA y la corredora difieren en un motivo de una llamada (igual que C15) | — |
 | **Patrón** | Grupo de 3 o más desacuerdos de un motivo con una explicación común | `discrepancy_patterns` |
-| **Observación** | Patrón con menos de 3 casos; sin propuesta para aceptar | `is_observation` |
+| **Observación** | Hallazgo con menos de 3 casos o sin propuesta de la IA. Se puede aceptar para calibrar o descartar; no puede volverse regla del prompt (D-94) | `is_observation` |
+| **Caso** | Un motivo de una llamada. Una llamada puede aportar varios casos (Cambio 20) | llamada × motivo |
+| **Listo** | Motivo sin patrones ni observaciones por decidir (Cambio 20) | — |
+| **Veredicto No cumple** | En la tabla por evaluador, porcentaje de sus llamadas con veredicto No cumple en la planilla; reemplaza a "Rechaza" (D-96) | `clientCallFails / calls` |
 | **Causa** | Criterio del prompt · Evaluador de la planilla · Transcripción · Dato faltante | `criterion \| evaluator \| transcript \| missing_data` |
 | **Dirección** | Solo la IA detectó (la IA marca y la corredora no) · Omitidos por la IA (la corredora marca y la IA no) | `fp \| fn` |
 | **Propuesta** | Regla del prompt · Pregunta a la empresa · Calibrar con el auditor | `prompt_rule \| client_question \| calibrate_auditor` |

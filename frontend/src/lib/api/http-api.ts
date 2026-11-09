@@ -197,6 +197,7 @@ export const httpApi: ApiClient = {
   stopDiscrepancyAnalysis: (id) => post(`/api/admin/discrepancies/analyses/${encodeURIComponent(id)}/stop`),
   listDiscrepancyAnalyses: () => get("/api/admin/discrepancies/analyses"),
   decideProposal: (id, input) => post(`/api/admin/discrepancies/patterns/${encodeURIComponent(id)}/decision`, input),
+  discardObservations: (input) => post("/api/admin/discrepancies/observations/discard", input),
   setProposalFollowUp: (id, status) =>
     post(`/api/admin/discrepancies/patterns/${encodeURIComponent(id)}/follow-up`, { status }),
   getDiscrepancyFollowUp: () => get("/api/admin/discrepancies/follow-up"),

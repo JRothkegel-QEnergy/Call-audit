@@ -7,6 +7,7 @@ import type {
   DiscrepancyAnalysisRun,
   DiscrepancyCase,
   DiscrepancyCriterionRow,
+  DiscrepancyEvaluatorRow,
   DiscrepancyOverview,
   DiscrepancyPattern,
   DiscrepancyPatternDetail,
@@ -25,6 +26,7 @@ type DiscrepancyApi = Pick<
   | "stopDiscrepancyAnalysis"
   | "listDiscrepancyAnalyses"
   | "decideProposal"
+  | "discardObservations"
   | "setProposalFollowUp"
   | "getDiscrepancyFollowUp"
 >;
@@ -104,6 +106,7 @@ const pattern = (p: Partial<MockPattern> & Pick<MockPattern, "id" | "criterionId
   caseCount: p.cases.length,
   reviewerDisagreements: p.cases.filter((c) => c.manualVerdict && (c.manualVerdict === "non_compliant") !== c.clientFail).length,
   isObservation: false,
+  observationText: p.isObservation ? p.title : null,
   kindCounts: {
     fp: p.cases.filter((c) => c.kind === "fp").length,
     fn: p.cases.filter((c) => c.kind === "fn").length,
@@ -252,6 +255,33 @@ state.patterns = [
     confidence: null,
     cases: makeCases(2, "ai_uncertain", 7),
   }),
+  pattern({
+    id: "p-25-obs-2",
+    criterionId: 25,
+    title: "Una llamada con dos gestiones que se tipifican en una sola.",
+    cause: null,
+    direction: null,
+    isObservation: true,
+    confidence: null,
+    cases: makeCases(1, "fp", 8),
+  }),
+];
+
+/** Evaluadores sintéticos, de más a menos llamadas, y la fila sin dato que manda el backend (Cambio 20, D-97). */
+const EVALUATORS: DiscrepancyEvaluatorRow[] = [
+  ...["Ana Rojas", "Luis Soto", "Carla Muñoz", "Pedro Díaz", "Marta Vega", "Iván Reyes", "Rosa Lagos", "Tomás Fuentes", "Elisa Mora", "Hugo Pinto", "Sara Bravo", "Nico Salas", "Julia Araya", "Óscar Vera", "Inés Cortés", "Raúl Ibarra", "Paula Silva", "Diego Núñez"].map((evaluator, i) => {
+    const calls = Math.max(4, 64 - i * 4);
+    return {
+      evaluator,
+      calls,
+      clientCallFails: Math.round(calls * (0.3 + (i % 5) * 0.1)),
+      callMatch: Math.round(calls * (0.75 - (i % 4) * 0.08)),
+      clientFails: Math.round(calls * (0.6 + (i % 6) * 0.3)),
+      fp: Math.round(calls * (0.5 + (i % 3) * 0.4)),
+      fn: Math.round(calls * (0.2 + (i % 4) * 0.1)),
+    };
+  }),
+  { evaluator: "sin dato", calls: 100, clientCallFails: 41, callMatch: 62, clientFails: 120, fp: 80, fn: 41 },
 ];
 
 const impact = (p: MockPattern) => p.caseCount;
@@ -375,7 +405,7 @@ export const discrepancyMock: DiscrepancyApi = {
           explained: explained.get(c.criterionId) ?? null,
           analyzedCases: explained.has(c.criterionId) ? c.disagreements : null,
         })),
-        evaluators: null,
+        evaluators: EVALUATORS,
         analysis: shown ? { ...shown, capabilities: NO_CAPABILITIES } : null,
         summary: totals,
         followUp: {
@@ -452,14 +482,16 @@ export const discrepancyMock: DiscrepancyApi = {
   decideProposal: (id, input) =>
     wait(() => {
       const p = find(id);
-      if (p.isObservation) throw new ApiError("observation");
       if (input.decision === "discarded" && !input.reason?.trim()) throw new ApiError("reason_required");
       p.status = input.decision;
       if (input.decision === "pending") {
         p.decision = null;
         if (p.proposal) p.proposal.editedText = null;
+        // Como el backend: una observación pendiente no se presenta como propuesta de la IA.
+        if (p.isObservation) p.proposal = null;
       } else {
         const edited = input.text?.trim();
+        if (p.isObservation) p.proposal = { type: "calibrate_auditor", action: null, find: null, text: p.observationText ?? "", editedText: p.proposal?.editedText ?? null };
         if (p.proposal && input.decision === "accepted") p.proposal.editedText = edited && edited !== p.proposal.text ? edited : null;
         p.decision = {
           by: currentUser()?.name ?? "Admin Demo",
@@ -471,6 +503,28 @@ export const discrepancyMock: DiscrepancyApi = {
         };
       }
       return summary(p);
+    }),
+  discardObservations: ({ ids, reason }) =>
+    wait(() => {
+      if (!reason.trim()) throw new ApiError("reason_required");
+      if (!ids.length) throw new ApiError("no_ids");
+      const rows = ids.map(find);
+      if (new Set(rows.map((p) => p.criterionId)).size > 1) throw new ApiError("mixed_criteria");
+      if (rows.some((p) => !p.isObservation)) throw new ApiError("not_observation");
+      for (const p of rows) {
+        if (p.status !== "pending") continue;
+        p.status = "discarded";
+        p.proposal = { type: "calibrate_auditor", action: null, find: null, text: p.observationText ?? "", editedText: null };
+        p.decision = {
+          by: currentUser()?.name ?? "Admin Demo",
+          at: new Date().toISOString(),
+          reason: reason.trim(),
+          note: null,
+          includedInVersion: null,
+          versionStatus: null,
+        };
+      }
+      return rows.map(summary);
     }),
   setProposalFollowUp: (id, status) =>
     wait(() => {

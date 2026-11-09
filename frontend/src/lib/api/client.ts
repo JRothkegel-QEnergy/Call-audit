@@ -225,6 +225,7 @@ export interface ApiClient {
     patternId: string,
     input: { decision: "accepted" | "discarded" | "pending"; text?: string; reason?: string; note?: string },
   ): Promise<DiscrepancyPattern>;
+  discardObservations(input: { ids: string[]; reason: string }): Promise<DiscrepancyPattern[]>;
   setProposalFollowUp(patternId: string, status: "asked_client" | "calibrated" | "accepted"): Promise<DiscrepancyPattern>;
   getDiscrepancyFollowUp(): Promise<DiscrepancyPattern[]>;
 

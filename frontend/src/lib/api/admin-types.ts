@@ -376,6 +376,8 @@ export interface DiscrepancyPattern {
   caseCount: number;
   reviewerDisagreements: number;
   isObservation: boolean;
+  /** Texto base de una observación (Cambio 20, D-94); null en los patrones. */
+  observationText: string | null;
   kindCounts: KindCounts;
   /** Campos del prompt de análisis v1.1+; null = sin dato en este análisis. */
   whoIsRight: WhoIsRight | null;

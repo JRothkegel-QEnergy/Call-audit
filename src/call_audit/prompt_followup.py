@@ -233,7 +233,9 @@ def accepted_rules(session: Session, proposal_ids: list[str]) -> list[tuple[Disc
     ok = [
         (p, d)
         for p, d in rows
-        if d.status == "accepted" and ((p.data or {}).get("proposal") or {}).get("type") == "prompt_rule"
+        if d.status == "accepted"
+        and not p.is_observation  # D-94: una observación nunca llega al prompt, aunque guarde una propuesta de regla.
+        and ((p.data or {}).get("proposal") or {}).get("type") == "prompt_rule"
     ]
     if len(ok) != len(ids):
         raise FollowUpError("not_accepted")

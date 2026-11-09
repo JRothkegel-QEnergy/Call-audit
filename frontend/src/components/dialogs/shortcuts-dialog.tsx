@@ -18,6 +18,15 @@ const SHORTCUTS: [string, string][] = [
   ["?", "Esta ayuda"],
 ];
 
+/** Cambio 20 §5: solo en Análisis de discrepancias › Patrones. */
+const PATTERN_SHORTCUTS: [string, string][] = [
+  ["J  /  K", "Elemento siguiente o anterior"],
+  ["A", "Aceptar el elemento en foco"],
+  ["D", "Descartar el elemento en foco"],
+  ["M", "Siguiente motivo con pendientes"],
+  ["Shift + M", "Motivo anterior con pendientes"],
+];
+
 export function ShortcutsDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   const { prefs, setPrefs } = usePreferences();
   return (
@@ -34,6 +43,19 @@ export function ShortcutsDialog({ open, onOpenChange }: { open: boolean; onOpenC
       <table className="tbl flat">
         <tbody>
           {SHORTCUTS.map(([k, d]) => (
+            <tr key={k}>
+              <td className="w-[120px]">
+                <Kbd>{k}</Kbd>
+              </td>
+              <td>{d}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <h3 className="m-0 text-sm font-semibold">En Análisis de discrepancias · Patrones</h3>
+      <table className="tbl flat">
+        <tbody>
+          {PATTERN_SHORTCUTS.map(([k, d]) => (
             <tr key={k}>
               <td className="w-[120px]">
                 <Kbd>{k}</Kbd>

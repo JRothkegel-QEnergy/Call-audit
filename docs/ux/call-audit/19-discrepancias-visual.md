@@ -6,6 +6,7 @@
 > **Revisado:** `16-ia-discrepancias.md` (§2, §7), `CHANGELOG.md` 2026-11-04 y 2026-11-05, `docs/plan-ia-discrepancias.md`, `prompts/discrepancy_analysis/v1.2.0/system.txt` y `merge.txt` (esquema de salida), `frontend/src/app/(app)/admin/discrepancies/page.tsx`, `.../patterns/[id]/pattern-detail.tsx`, `frontend/src/components/admin/discrepancy-parts.tsx`, `frontend/src/lib/discrepancy-labels.ts`, `frontend/src/lib/api/admin-types.ts`, `src/call_audit/discrepancy_runs.py` (`pattern_out`), `frontend/src/components/admin/ai-quality.tsx` (gráficos existentes) y `08-tokens.css` (`--series-1..6`).
 > **No contradice:** D-61 a D-70 (ubicación, convivencia con Calidad de la IA, corrida vigente, aceptar no toca el prompt, detalle del patrón). Es una capa de lectura sobre la misma información; no cambia el flujo lanzar → revisar → aceptar/descartar.
 > **No revisado en el navegador:** el diagnóstico sale del código y de los datos agregados de producción; falta verlo con datos reales en pantalla.
+> **Ajuste 2026-11-09 (Cambio 20, D-92 a D-97):** el orden de bloques de §7.2 queda reemplazado. Resumen conserva D-80 y el mapa de prioridad pasa a Patrones › Todos los motivos. Detalle en `20-analisis-pestanas-por-motivo.md`.
 
 ---
 

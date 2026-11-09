@@ -357,13 +357,17 @@ export function CriteriaChart({
   rows,
   selected,
   onSelect,
+  limit,
 }: {
   rows: DiscrepancyCriterionRow[];
   selected: number | null;
   onSelect: (criterionId: number) => void;
+  /** Cambio 20 §6: solo los primeros motivos. La escala sigue saliendo de todos, para que no cambie al expandir. */
+  limit?: number;
 }) {
-  const withDisagreements = rows.filter((r) => r.fp + r.fn > 0);
-  const quiet = rows.filter((r) => r.fp + r.fn === 0);
+  const all = rows.filter((r) => r.fp + r.fn > 0);
+  const withDisagreements = limit ? all.slice(0, limit) : all;
+  const quiet = limit ? [] : rows.filter((r) => r.fp + r.fn === 0);
   const scale = Math.max(1, ...rows.map((r) => Math.max(r.fp, r.fn)));
   const row = (r: DiscrepancyCriterionRow) => {
     const analyzed = r.explained != null;
@@ -423,7 +427,7 @@ export function CriteriaChart({
           <ul className="m-0 grid list-none gap-0 p-0">{quiet.map(row)}</ul>
         </details>
       )}
-      <p className="help m-0">Clic en un motivo: muestra sus patrones abajo. Los motivos sin analizar se ven más claros y sin división.</p>
+      <p className="help m-0">Clic en un motivo: abre sus patrones. Los motivos sin analizar se ven más claros y sin división.</p>
     </figure>
   );
 }
@@ -449,10 +453,13 @@ export function PriorityMap({
   patterns,
   selected,
   onSelect,
+  onPick,
 }: {
   patterns: DiscrepancyPattern[];
   selected: Quadrant | null;
   onSelect: (q: Quadrant | null) => void;
+  /** Ficha de un patrón: lleva a su motivo (el patrón puede no estar en la página actual). */
+  onPick: (p: DiscrepancyPattern) => void;
 }) {
   const pending = patterns.filter((p) => !p.isObservation && p.status === "pending");
   return (
@@ -487,9 +494,16 @@ export function PriorityMap({
                 <span className="help px-2">{desc}</span>
                 <div className="flex flex-wrap gap-1 px-2">
                   {mine.slice(0, 8).map((p) => (
-                    <a key={p.id} href={`#pattern-${p.id}`} className="chip min-h-6" title={p.title}>
+                    <button
+                      key={p.id}
+                      type="button"
+                      className="chip min-h-6 cursor-pointer pr-3"
+                      title={p.title}
+                      aria-label={`Motivo ${p.criterionId}, ${p.caseCount} casos: ${p.title}`}
+                      onClick={() => onPick(p)}
+                    >
                       M{p.criterionId} · {p.caseCount}
-                    </a>
+                    </button>
                   ))}
                   {mine.length > 8 && <span className="help">y {mine.length - 8} más</span>}
                 </div>
