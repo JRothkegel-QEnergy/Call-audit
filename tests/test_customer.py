@@ -1,7 +1,9 @@
 """Ficha del cliente desde la metadata (Cambio 13). Datos sintéticos."""
 
 from datetime import datetime
+from pathlib import Path
 
+import openpyxl
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
@@ -176,6 +178,23 @@ def test_backfill_saves_client_fails(imported: sessionmaker[Session]) -> None:
         customer.backfill(session, {recording: client_row({3: "NO CUMPLE"})})
     with imported() as session:
         assert session.scalar(select(Case).where(Case.call_id == "1002")).external_item_fails == [3]
+
+
+def test_metadata_rows_reads_new_s4p_headers(tmp_path: Path) -> None:
+    """El Excel nuevo trae «Evaluador_Calidad» y «Retenible»: la reimportación no debe perder evaluador ni marcas."""
+    motives = [f"MOTIVO {i}" for i in range(1, 34)]
+    workbook = openpyxl.Workbook()
+    workbook.active.append(["NombreGrabacion", "Retenible", "Evaluador_Calidad", *motives])
+    workbook.active.append(
+        ["grabacion-1", "SI", "PERSONA.EVALUADORA", *["NO CUMPLE" if i == 2 else "CUMPLE" for i in range(1, 34)]]
+    )
+    path = tmp_path / "lote.xlsx"
+    workbook.save(path)
+
+    row = customer.metadata_rows(path)["grabacion-1"]
+
+    assert customer.column(row, "EVALUADOR_CALIDAD") == "PERSONA.EVALUADORA"
+    assert customer.client_fails(row) == [2]
 
 
 def test_backfill_saves_client_evaluator_outside_the_api(imported: sessionmaker[Session]) -> None:

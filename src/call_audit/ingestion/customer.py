@@ -195,6 +195,18 @@ def backfill(session: Any, rows: dict[str, dict]) -> tuple[int, int]:
     return updated, missing
 
 
+def metadata_rows(path: Any) -> dict[str, dict]:
+    """Filas del Excel por grabación, con los encabezados como los lee `apply`. Sin esto, un Excel nuevo de S4P
+    («Evaluador_Calidad», «Retenible») dejaría vacíos el evaluador, la ficha y la marca por motivo de sus llamadas."""
+    from call_audit.ingestion.import_bench import real_calls
+    from call_audit.ingestion.pipeline import column_name
+
+    return {
+        recording: {column_name(key): value for key, value in row.items()}
+        for recording, row in real_calls.load_rows(path).items()
+    }
+
+
 def main() -> None:
     """uv run python -m call_audit.ingestion.customer --metadata "../audios/Retenciones BECS Para Revision.xlsx"
 
@@ -207,7 +219,6 @@ def main() -> None:
 
     from sqlalchemy import select
 
-    from call_audit.ingestion.import_bench import real_calls
     from call_audit.persistence.db import get_sessionmaker
     from call_audit.persistence.models import Case
 
@@ -216,7 +227,7 @@ def main() -> None:
     args = parser.parse_args()
     rows: dict[str, dict] = {}
     for path in args.metadata:
-        rows.update(real_calls.load_rows(path))
+        rows.update(metadata_rows(path))
     with get_sessionmaker()() as session, session.begin():
         updated, missing = backfill(session, rows)
         marked = sum(1 for c in session.scalars(select(Case)) if c.external_item_fails is not None)

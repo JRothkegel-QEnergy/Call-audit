@@ -24,6 +24,14 @@ def test_kinds_cross_ai_with_client_marks() -> None:
     assert discrepancies.kind_of("uncertain", True) == "ai_uncertain"
 
 
+def test_evaluator_name_from_sheet_format() -> None:
+    assert discrepancies.evaluator_name("MARÍA.NÚÑEZ") == "María Núñez"
+    assert discrepancies.evaluator_name(" maría  núñez ") == "María Núñez"
+    assert discrepancies.evaluator_name("EVALUADORA") == "Evaluadora"
+    assert discrepancies.evaluator_name(None) is None
+    assert discrepancies.evaluator_name(" . ") is None
+
+
 def test_sides_with() -> None:
     assert discrepancies.sides_with("non_compliant", ai_fail=True, excel_fail=False) == "ai"
     assert discrepancies.sides_with("compliant", ai_fail=True, excel_fail=False) == "excel"

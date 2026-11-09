@@ -139,6 +139,11 @@ def manual_view(
     }
 
 
+def evaluator_name(raw: str | None) -> str | None:
+    """«NOMBRE.APELLIDO» de la planilla → «Nombre Apellido». Agrupa también las variantes de un mismo evaluador."""
+    return " ".join(word.capitalize() for word in (raw or "").replace(".", " ").split()) or None
+
+
 def sides_with(manual: str | None, ai_fail: bool, excel_fail: bool) -> str | None:
     """A quién le da la razón la revisión manual: ai | excel | none (ninguno) | None (no hay revisión)."""
     if manual is None or manual == UNSURE:
@@ -192,7 +197,7 @@ def build(session: Session, manual_csv: dict[str, dict]) -> tuple[list[dict], di
             run.verdict,
         )
         calls[(run.verdict, case.external_verdict or "none")] += 1
-        evaluator = (case.call_metadata or {}).get("external_evaluator")
+        evaluator = evaluator_name((case.call_metadata or {}).get("external_evaluator"))
         call_info = {
             "call_id": case.call_id,
             "case_id": case.id,
