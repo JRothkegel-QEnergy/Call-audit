@@ -27,11 +27,22 @@ services:
     depends_on: [api]
     restart: unless-stopped
 
+  # Visor SQL en /db (docs/db-readonly-access.md). Sin env_file a propósito: solo recibe la conexión de solo lectura,
+  # nunca el DATABASE_URL de la API.
+  pgweb:
+    image: sosedoff/pgweb:0.17.0
+    environment:
+      PGWEB_DATABASE_URL: ${PGWEB_DATABASE_URL:?Corre scripts/deploy/readonly_access.sh}
+    command: ["/usr/bin/pgweb", "--bind=0.0.0.0", "--listen=8081", "--prefix=db", "--readonly", "--lock-session"]
+    restart: unless-stopped
+
   caddy:
     image: caddy:2-alpine
     ports: ["80:80", "443:443"]
     environment:
       DOMAIN: ${DOMAIN:?Define DOMAIN, ej. audit.qubicoenergy.com}
+      PGWEB_USER: ${PGWEB_USER:?Corre scripts/deploy/readonly_access.sh}
+      PGWEB_AUTH_HASH: ${PGWEB_AUTH_HASH:?Corre scripts/deploy/readonly_access.sh}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data

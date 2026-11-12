@@ -41,7 +41,13 @@ import type {
 } from "./catalog-types";
 import type {
   ActivityLogEntry,
+  AgreementSegment,
+  CaseComparison,
+  SegmentCalls,
+  VerificationOutcome,
+  VerificationRecord,
   AdminStats,
+  AdminStatsFilters,
   AiQuality,
   AsrFailure,
   DiscrepancyAnalysisRun,
@@ -50,6 +56,7 @@ import type {
   DiscrepancyPattern,
   DiscrepancyPatternDetail,
   FollowUpPromptPreview,
+  CauseEstimate,
   InviteInfo,
   ModelOption,
   PipelineRun,
@@ -200,11 +207,23 @@ export interface ApiClient {
   estimatePromptTest(version: string, model?: string): Promise<PromptEstimate>;
   startPromptTest(version: string, model?: string): Promise<void>;
   stopPromptTest(version: string): Promise<void>;
+  /** Mosaico (E1): costo estimado y lanzamiento del análisis de causa de la prueba de la versión. */
+  estimateCauseAnalysis(version: string): Promise<CauseEstimate>;
+  startCauseAnalysis(version: string): Promise<void>;
+  /** Verificación caso a caso (04-verificacion-propuesta.md §9). */
+  getSegmentCalls(version: string, segment: AgreementSegment): Promise<SegmentCalls>;
+  getCaseComparison(version: string, caseId: string, segment?: AgreementSegment): Promise<CaseComparison>;
+  saveVerification(
+    caseId: string,
+    criterionId: number,
+    input: { outcome: VerificationOutcome; note?: string | null; version: string; seenFirst: boolean },
+  ): Promise<VerificationRecord>;
+  deleteVerification(caseId: string, criterionId: number): Promise<void>;
   activatePromptVersion(version: string, reason: string): Promise<void>;
   /** «Descargar para el repo»: el zip con prompt.yaml, system.txt, lock y la entrada del CHANGELOG. */
   exportPromptVersion(version: string): Promise<Blob>;
   getActivePrompt(): Promise<{ version: string; since: string | null; changedInApp: boolean }>;
-  getAdminStats(): Promise<AdminStats>;
+  getAdminStats(filters?: AdminStatsFilters): Promise<AdminStats>;
   /** Calidad de la IA por corrida contra el cliente (Cambio 15). */
   getAiQuality(): Promise<AiQuality>;
   listActivity(): Promise<ActivityLogEntry[]>;

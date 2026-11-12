@@ -30,6 +30,7 @@ import { Sheet } from "@/components/ui/dialog";
 import { ErrorState, LoadingState } from "@/components/ui/states";
 import { api, isRealMode } from "@/lib/api";
 import { cn } from "@/lib/cn";
+import { isAdminRole } from "@/lib/api/types";
 import type { CallVerdict, CaseDetail, Note, Rubric } from "@/lib/api/types";
 import { durationText, shortDateTime } from "@/lib/format";
 import { usePreferences } from "@/lib/preferences";
@@ -114,7 +115,7 @@ function CallWorkspace({
   const role = user!.role;
 
   const mode: DetailMode = useMemo(() => {
-    if (role === "qubico_admin") return "readonly";
+    if (isAdminRole(role)) return "readonly";
     if (role === "supervisor") return data.status === "awaiting_approval" ? "supervisor" : "readonly";
     const lockedByOther = data.lockedBy && data.lockedBy.id !== user!.id;
     if (lockedByOther) return "readonly";
@@ -150,7 +151,7 @@ function CallWorkspace({
 
   // ---- Foco y audio: el caso abre en el primer hallazgo que pide acción, 4–5 s antes de la cita ----
   // Desde un patrón del análisis de discrepancias, el checklist abre en su motivo (D-65).
-  const fromAnalysis = role === "qubico_admin" && !!analysisPattern;
+  const fromAnalysis = isAdminRole(role) && !!analysisPattern;
   const firstFocus = (fromAnalysis && analysisMotive != null ? analysisMotive : null) ?? order[0] ?? null;
   const [focusId, setFocusId] = useState<number | null>(firstFocus);
   const firstEvidence = firstFocus != null ? findingFor(data.findings, firstFocus).evidence : null;
@@ -167,7 +168,7 @@ function CallWorkspace({
   const [noteOpenFor, setNoteOpenFor] = useState<number | null>(null);
   const [caseNoteOpen, setCaseNoteOpen] = useState(false);
   // El supervisor y el admin ven el panel del modelo y los datos del cliente (D-24, Cambio 12).
-  const seesClient = role === "supervisor" || role === "qubico_admin";
+  const seesClient = role === "supervisor" || isAdminRole(role);
   const canSeeModel = seesClient || user!.permissions.includes("view_model_io");
   const run = data.modelRuns[0];
   const [saving, setSaving] = useState(false);
@@ -232,12 +233,12 @@ function CallWorkspace({
     focusId == null ? undefined : CUSTOMER_CRITERIA.has(focusId) ? "customer" : rubric.criteria[focusId]?.productSheetSection;
   const focusEvidence = focusId != null ? (evidenceList(findingFor(data.findings, focusId))[evidenceIdx] ?? null) : null;
   const markers = data.findings.filter((f) => f.verdict !== "compliant" && f.verdict !== "not_applicable");
-  const fromQuality = role === "qubico_admin" && !!qualitySeries;
+  const fromQuality = isAdminRole(role) && !!qualitySeries;
   const back = fromQuality
     ? (["/admin/stats?tab=quality", "Calidad de la IA"] as const)
     : fromAnalysis
       ? ([`/admin/discrepancies/patterns/${encodeURIComponent(analysisPattern!)}`, "el patrón"] as const)
-      : (BACK[from ?? ""] ?? (role === "qubico_admin" ? BACK.discrepancies : role === "supervisor" ? BACK.reviews : BACK.queue));
+      : (BACK[from ?? ""] ?? (isAdminRole(role) ? BACK.discrepancies : role === "supervisor" ? BACK.reviews : BACK.queue));
 
   // ---- Acciones del auditor ----
   const goNext = async (message: string) => {
@@ -412,7 +413,7 @@ function CallWorkspace({
         <span>Hallazgos generados por IA, pendientes de revisión humana. No constituyen una sanción.</span>
       </div>
 
-      {role === "qubico_admin" && (
+      {isAdminRole(role) && (
         <div className="banner mb-2.5" role="status">
           <span>Estás viendo esta llamada en solo lectura.</span>
         </div>

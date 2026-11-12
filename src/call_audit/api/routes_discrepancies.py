@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from call_audit import accounts, discrepancy_runs
-from call_audit.api.deps import Admin, DbSession
+from call_audit.api.deps import Admin, AdminReader, DbSession
 from call_audit.persistence.models import DiscrepancyAnalysis, DiscrepancyPattern
 
 router = APIRouter(prefix="/api/admin/discrepancies")
@@ -20,7 +20,7 @@ def get_pattern(session: DbSession, pattern_id: str) -> DiscrepancyPattern:
 
 
 @router.get("")
-def overview(session: DbSession, _: Admin, analysis: str | None = None):
+def overview(session: DbSession, _: AdminReader, analysis: str | None = None):
     try:
         return discrepancy_runs.overview(session, analysis)
     except LookupError as exc:
@@ -79,12 +79,12 @@ def stop(analysis_id: str, session: DbSession, user: Admin) -> None:
 
 
 @router.get("/analyses")
-def analyses(session: DbSession, _: Admin):
+def analyses(session: DbSession, _: AdminReader):
     return discrepancy_runs.list_analyses(session)
 
 
 @router.get("/patterns/{pattern_id}")
-def pattern(pattern_id: str, session: DbSession, _: Admin):
+def pattern(pattern_id: str, session: DbSession, _: AdminReader):
     try:
         return discrepancy_runs.pattern_detail(session, pattern_id)
     except LookupError as exc:
@@ -158,5 +158,5 @@ def follow_up(pattern_id: str, body: FollowUpIn, session: DbSession, user: Admin
 
 
 @router.get("/follow-up")
-def follow_up_list(session: DbSession, _: Admin):
+def follow_up_list(session: DbSession, _: AdminReader):
     return discrepancy_runs.follow_up(session)

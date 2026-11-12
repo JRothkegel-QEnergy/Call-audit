@@ -108,6 +108,7 @@ export const USERS: Record<User["role"], User> = {
   auditor: { id: "u-aud-1", name: "Ana Pérez", email: "ana.perez@empresa-ejemplo.cl", role: "auditor", permissions: ["view_model_io"], clientName: CLIENT_NAME },
   supervisor: { id: "u-sup-1", name: "Jorge Lagos", email: "jorge.lagos@empresa-ejemplo.cl", role: "supervisor", permissions: [], clientName: CLIENT_NAME },
   qubico_admin: { id: "u-adm-1", name: "Admin Qubico (demo)", email: "admin@qubico-ejemplo.cl", role: "qubico_admin", permissions: [], clientName: CLIENT_NAME },
+  qubico_viewer: { id: "u-view-1", name: "Lectura Qubico (demo)", email: "lectura@qubico-ejemplo.cl", role: "qubico_viewer", permissions: [], clientName: CLIENT_NAME },
 };
 
 export const AUDITORS = [

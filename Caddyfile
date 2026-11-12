@@ -7,5 +7,14 @@
 		Referrer-Policy same-origin
 		X-Frame-Options DENY
 	}
-	reverse_proxy front:3000
+	# Visor SQL de solo lectura (docs/db-readonly-access.md). La clave se pide aquí, antes de llegar a pgweb.
+	handle /db* {
+		basic_auth {
+			{$PGWEB_USER} {$PGWEB_AUTH_HASH}
+		}
+		reverse_proxy pgweb:8081
+	}
+	handle {
+		reverse_proxy front:3000
+	}
 }

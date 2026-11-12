@@ -16,7 +16,7 @@ from typing import Any
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, sessionmaker
 
-from call_audit import discrepancies, prompt_evaluation
+from call_audit import discrepancies, golden_split, prompt_evaluation
 from call_audit import discrepancy_analysis as analysis
 from call_audit.config import ROOT, get_settings
 from call_audit.ingestion.import_bench import bench, real_calls
@@ -25,6 +25,7 @@ from call_audit.persistence.models import (
     DiscrepancyClassification,
     DiscrepancyPattern,
     ModelRun,
+    PromptEvaluation,
     PromptVersion,
     ProposalDecision,
     Review,
@@ -92,8 +93,22 @@ def current_series(session: Session) -> dict | None:
     return {"model": row[0], "promptVersion": row[1], "runLabel": row[2]} if row else None
 
 
-def table(session: Session) -> tuple[list[dict], dict[str, list[dict]], dict]:
-    return discrepancies.build(session, {})
+def table(
+    session: Session, source: PromptEvaluation | DiscrepancyAnalysis | None = None
+) -> tuple[list[dict], dict[str, list[dict]], dict]:
+    """Sin fuente, la corrida vigente en entrenamiento: la cuarta IA aprende solo de ese set; validación y prueba quedan
+    para medir (golden_split). Con una prueba (o un análisis que salió de una), los resultados de esa prueba en su set
+    (loop de mejora del prompt, docs/plan-loop-prompt.md)."""
+    if isinstance(source, DiscrepancyAnalysis):
+        source = session.get(PromptEvaluation, source.source_evaluation_id) if source.source_evaluation_id else None
+    if source is not None:
+        return discrepancies.build(session, {}, source.split, source)
+    return discrepancies.build(session, {}, golden_split.default_split(session, "train"))
+
+
+def criteria_with_disagreements(rows: list[dict]) -> list[int]:
+    """Motivos con algún desacuerdo o duda de la IA en la tabla: los que analiza una vuelta del loop."""
+    return sorted({r["criterion_id"] for r in rows if r["kind"] in DISAGREEMENT})
 
 
 def of_criterion(rows: list[dict], cid: int) -> list[dict]:
@@ -123,10 +138,12 @@ def observation_text(data: dict) -> str:
 # --- Estimar, lanzar, detener ------------------------------------------------------------------------------------
 
 
-def estimate(session: Session, criteria: list[int], model: str) -> dict[str, Any]:
+def estimate(
+    session: Session, criteria: list[int], model: str, source: PromptEvaluation | None = None
+) -> dict[str, Any]:
     """Costo estimado con el mismo pedido que se mandará; precio de models.toml, no escrito en el código."""
     cfg = analysis.model_config(model)
-    rows, transcripts, summary = table(session)
+    rows, transcripts, summary = table(session, source)
     system, merge_system = prompts()
     total, cases, discarded, missing_price = 0.0, 0, 0, False
     requests_per_criterion = []
@@ -165,7 +182,20 @@ def running(session: Session) -> DiscrepancyAnalysis | None:
     )
 
 
-def start(session: Session, actor: User, criteria: list[int], model: str) -> DiscrepancyAnalysis:
+def start(
+    session: Session,
+    actor: User,
+    criteria: list[int],
+    model: str,
+    source: PromptEvaluation | None = None,
+    purpose: str | None = None,
+) -> DiscrepancyAnalysis:
+    """Con `source`, analiza los resultados de esa prueba. `purpose` "attribution": solo para atribuir la causa de los
+    desacuerdos de validación; sus propuestas no entran a la bandeja (R-11)."""
+    if purpose not in (None, "rules", "attribution"):
+        raise ValueError("unknown_purpose")
+    if source is not None and source.status != "done":
+        raise ValueError("source_not_done")
     if running(session) is not None:
         raise ValueError("already_running")
     option = next((m for m in model_options() if m["name"] == model), None)
@@ -176,11 +206,18 @@ def start(session: Session, actor: User, criteria: list[int], model: str) -> Dis
     criteria = sorted(set(criteria))
     if not criteria:
         raise ValueError("no_criteria")
-    est = estimate(session, criteria, model)
+    est = estimate(session, criteria, model, source)
+    series = (
+        {"model": source.model, "promptVersion": source.version, "runLabel": f"Prueba v{source.version}"}
+        if source is not None
+        else current_series(session) or {}
+    )
     run = DiscrepancyAnalysis(
         model=model,
         analysis_prompt_version=analysis.PROMPT_VERSION,
-        layer2_series=current_series(session) or {},
+        layer2_series=series,
+        source_evaluation_id=source.id if source is not None else None,
+        purpose=purpose,
         criteria=criteria,
         done_criteria=[],
         failed_criteria=[],
@@ -338,7 +375,7 @@ def run_analysis(factory: sessionmaker[Session], run_id: str, caller: ModelCalle
         run.status, run.started_at = "running", run.started_at or now()
         model, criteria = run.model, list(run.criteria)
         finished = set(run.done_criteria) | {f["criterionId"] for f in run.failed_criteria}
-        rows, transcripts, summary = table(session)
+        rows, transcripts, summary = table(session, run)
         discarded = {cid: discarded_for(session, cid) for cid in criteria}
 
     cfg = analysis.model_config(model)
@@ -431,6 +468,8 @@ def analysis_out(run: DiscrepancyAnalysis | None) -> dict | None:
         "costUsd": run.cost_usd,
         "error": run.error,
         "stoppedBy": run.stopped_by.name if run.stopped_by else None,
+        "sourceEvaluationId": run.source_evaluation_id,
+        "purpose": run.purpose,
     }
 
 
@@ -558,7 +597,7 @@ def latest_finished(session: Session) -> DiscrepancyAnalysis | None:
     """El último análisis que dejó algo (terminado, detenido o fallido con motivos hechos)."""
     for run in session.scalars(
         select(DiscrepancyAnalysis)
-        .where(DiscrepancyAnalysis.status.not_in(RUNNING))
+        .where(DiscrepancyAnalysis.status.not_in(RUNNING), DiscrepancyAnalysis.purpose.is_distinct_from("attribution"))
         .order_by(DiscrepancyAnalysis.created_at.desc())
     ):
         if run.done_criteria:
@@ -572,7 +611,10 @@ def stale(session: Session, run: DiscrepancyAnalysis) -> dict | None:
     reviews = sum(1 for at in session.scalars(select(Review.submitted_at)) if aware(at) > since)
     reviews += sum(1 for at in session.scalars(select(DiscrepancyClassification.updated_at)) if aware(at) > since)
     series = current_series(session)
-    changed = bool(run.layer2_series) and series is not None and series != run.layer2_series
+    # Un análisis de una prueba no depende de la corrida vigente.
+    changed = (
+        not run.source_evaluation_id and bool(run.layer2_series) and series is not None and series != run.layer2_series
+    )
     if not changed and not reviews:
         return None
     return {"currentSeriesChanged": changed, "currentSeries": series if changed else None, "newReviews": reviews}
@@ -653,10 +695,10 @@ def follow_up_counts(session: Session) -> dict[str, int]:
 
 
 def overview(session: Session, analysis_id: str | None = None) -> dict[str, Any]:
-    rows, _, summary = table(session)
     shown = session.get(DiscrepancyAnalysis, analysis_id) if analysis_id else latest_finished(session)
     if analysis_id and shown is None:
         raise LookupError("not_found")
+    rows, _, summary = table(session, shown)
     latest = latest_finished(session)
     patterns = (
         list(
@@ -784,6 +826,9 @@ def decide(
     note: str | None = None,
 ) -> ProposalDecision:
     """Aceptar no toca el prompt: la propuesta pasa a seguimiento (D-64). Descartar exige motivo."""
+    source = session.get(DiscrepancyAnalysis, pattern.analysis_id)
+    if source is not None and source.purpose == "attribution":
+        raise ValueError("attribution_only")
     if decision == "discarded" and not (reason or "").strip():
         raise ValueError("reason_required")
     row = session.get(ProposalDecision, pattern.id)

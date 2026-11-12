@@ -21,7 +21,14 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from call_audit import discrepancy_runs, prompt_registry
-from call_audit.persistence.models import DiscrepancyAnalysis, DiscrepancyPattern, PromptVersion, ProposalDecision, User
+from call_audit.persistence.models import (
+    DiscrepancyAnalysis,
+    DiscrepancyPattern,
+    PromptEvaluation,
+    PromptVersion,
+    ProposalDecision,
+    User,
+)
 
 ORIGIN = "discrepancy_analysis"
 ORIGIN_YAML = (
@@ -33,7 +40,8 @@ ORIGIN_YAML = (
 
 
 class FollowUpError(ValueError):
-    """`code` es lo que recibe el front: no_yaml, not_accepted, base_changed, review_pending, no_rules."""
+    """`code` es lo que recibe el front: no_yaml, not_accepted, base_changed, review_pending, no_rules,
+    mixed_base (errors = las versiones base que chocan)."""
 
     def __init__(self, code: str, errors: list[str] | None = None):
         super().__init__(code)
@@ -260,16 +268,30 @@ def to_rule(session: Session, p: DiscrepancyPattern, d: ProposalDecision) -> Rul
     )
 
 
-def base_version(session: Session) -> PromptVersion:
-    base = prompt_registry.ensure_bootstrap(session)
-    if not base.spec_yaml:
+def base_version(session: Session, proposal_ids: list[str] | None = None) -> PromptVersion:
+    """La versión sobre la que se aplican las reglas: la vigente, salvo que salgan de un análisis de una prueba (loop
+    de mejora, docs/plan-loop-prompt.md); ahí, la versión probada, que es la que el análisis leyó."""
+    sources = set()
+    for pid in proposal_ids or []:
+        pattern = session.get(DiscrepancyPattern, pid)
+        run = session.get(DiscrepancyAnalysis, pattern.analysis_id) if pattern is not None else None
+        source_id = run.source_evaluation_id if run is not None else None
+        evaluation = session.get(PromptEvaluation, source_id) if source_id else None
+        sources.add(evaluation.version if evaluation is not None else None)
+    if len(sources) > 1:
+        active = prompt_registry.ensure_bootstrap(session)
+        versions = {v or (active.version if active is not None else "?") for v in sources}
+        raise FollowUpError("mixed_base", sorted(versions, key=prompt_registry.version_key))
+    tested = next(iter(sources), None)
+    base = session.get(PromptVersion, tested) if tested else prompt_registry.ensure_bootstrap(session)
+    if base is None or not base.spec_yaml:
         raise FollowUpError("no_yaml")
     return base
 
 
 def preview(session: Session, proposal_ids: list[str], overrides: dict[int, str]) -> dict:
     """La comparación por motivo, sin guardar nada ni gastar (Cambio 18 §8.3)."""
-    base = base_version(session)
+    base = base_version(session, proposal_ids)
     pairs = accepted_rules(session, proposal_ids)
     rules = [to_rule(session, p, d) for p, d in pairs]
     taken = set(session.scalars(select(PromptVersion.version)))
@@ -299,6 +321,8 @@ def preview(session: Session, proposal_ids: list[str], overrides: dict[int, str]
     ]
     return {
         "baseVersion": base.version,
+        # La vigente, salvo cuando las reglas salen del loop de mejora (base = la versión probada).
+        "baseIsActive": base.version == prompt_registry.ensure_bootstrap(session).version,
         "version": version,
         "model": base.model,
         "changelog": f"Reglas del análisis de discrepancias: {label} {motives}.",
@@ -320,7 +344,7 @@ def create(
 ) -> tuple[PromptVersion, int]:
     """Crea el borrador con las reglas aplicadas y las deja «Incluida en vX». Devuelve el borrador y cuántos motivos
     se editaron a mano."""
-    current = base_version(session)
+    current = base_version(session, proposal_ids)
     if current.version != base:
         raise FollowUpError("base_changed")
     try:
@@ -341,6 +365,7 @@ def create(
         model=model,
         changelog=changelog,
         rationale=rationale,
+        base=current,
     )
     discrepancy_runs.include_in_version(session, [p.id for p, _ in pairs], row.version)
     return row, sum(c["manual"] for c in criteria)

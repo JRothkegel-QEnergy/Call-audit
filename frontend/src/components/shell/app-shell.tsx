@@ -18,6 +18,7 @@ const ALLOWED: Record<Role, string[]> = {
   auditor: ["/queue", "/my-reviews", ...COMMON],
   supervisor: ["/dashboard", "/alerts", "/reviews", "/agents", "/auditors", "/discrepancies", "/queue", "/catalog", ...COMMON],
   qubico_admin: ["/admin", "/discrepancies", "/catalog", ...COMMON],
+  qubico_viewer: ["/admin", ...COMMON],
 };
 
 function matchesPrefix(pathname: string, prefix: string) {
@@ -26,7 +27,7 @@ function matchesPrefix(pathname: string, prefix: string) {
 }
 
 export function homeFor(role: Role) {
-  if (role === "qubico_admin") return "/admin/stats";
+  if (role === "qubico_admin" || role === "qubico_viewer") return "/admin/stats";
   return role === "supervisor" ? "/dashboard" : "/queue";
 }
 
@@ -34,6 +35,7 @@ export const ROLE_LABEL: Record<Role, string> = {
   auditor: "Auditor",
   supervisor: "Supervisor",
   qubico_admin: "Administrador Qubico",
+  qubico_viewer: "Lectura Qubico",
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {

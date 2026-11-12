@@ -85,6 +85,15 @@
   --series-5: #c2477a;  /* frambuesa 4,69 / 4,29 */
   --series-6: #7a4fc4;  /* violeta   5,61 / 5,13 */
 
+  /* ---------- Dominio: mosaico de acuerdo IA vs revisor (docs/ux/admin-prompt-metrics/02 §4) ---------- */
+  --agree-bg: #0f7a55;            /* Coincide con el revisor · blanco encima 5,34:1 */
+  --prompt-fn-bg: var(--red-700); /* IA Sí / Revisor No · blanco encima 6,64:1 */
+  --prompt-fp-bg: #e8b931;        /* IA No / Revisor Sí · ink-900 encima 9:1 */
+  --prompt-fp-border: #8a6200;    /* 5,49:1 vs blanco (1.4.11) */
+  --reviewer-bg: #2a6fc4;         /* Inconsistencia del revisor · con rayado 45° (blanco 25 %) */
+  --undecided-bg: var(--neutral-300);
+  --undecided-border: var(--neutral-500);
+
   /* ---------- Dominio: fuente del dato ---------- */
   --source-ai-fg: var(--neutral-700);      /* "Según IA": contorno punteado */
   --source-ai-border: var(--neutral-500);

@@ -39,8 +39,8 @@ export default function PromptVersionsPage() {
                 <th>Fecha</th>
                 <th>Autor</th>
                 <th>Cambios</th>
-                <th>Coincidencia con la planilla</th>
-                <th>Dudosas</th>
+                <th>Coincide con el revisor</th>
+                <th>Sin decisión de la IA</th>
                 <th>Costo por llamada</th>
               </tr>
             </thead>

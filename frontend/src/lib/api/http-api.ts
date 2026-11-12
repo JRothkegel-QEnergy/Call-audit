@@ -176,6 +176,18 @@ export const httpApi: ApiClient = {
   startPromptTest: (version, model) =>
     post(`/api/admin/prompts/${encodeURIComponent(version)}/evaluation`, { model, confirm: true }),
   stopPromptTest: (version) => post(`/api/admin/prompts/${encodeURIComponent(version)}/evaluation/stop`),
+  estimateCauseAnalysis: (version) => get(`/api/admin/prompts/${encodeURIComponent(version)}/cause-analysis/estimate`),
+  startCauseAnalysis: (version) => post(`/api/admin/prompts/${encodeURIComponent(version)}/cause-analysis`),
+  getSegmentCalls: (version, segment) =>
+    get(`/api/admin/prompts/${encodeURIComponent(version)}/agreement/calls${query({ segment })}`),
+  getCaseComparison: (version, caseId, segment) =>
+    get(
+      `/api/admin/prompts/${encodeURIComponent(version)}/agreement/calls/${encodeURIComponent(caseId)}${query({ segment })}`,
+    ),
+  saveVerification: (caseId, criterionId, input) =>
+    request("PUT", `/api/admin/verifications/${encodeURIComponent(caseId)}/${criterionId}`, input),
+  deleteVerification: (caseId, criterionId) =>
+    request("DELETE", `/api/admin/verifications/${encodeURIComponent(caseId)}/${criterionId}`),
   activatePromptVersion: (version, reason) => post(`/api/admin/prompts/${encodeURIComponent(version)}/activate`, { reason }),
   exportPromptVersion: async (version) => {
     const response = await fetch(`/api/admin/prompts/${encodeURIComponent(version)}/export`, { credentials: "same-origin" });
@@ -183,7 +195,7 @@ export const httpApi: ApiClient = {
     return response.blob();
   },
   getActivePrompt: () => get("/api/prompts/active"),
-  getAdminStats: () => get("/api/admin/stats"),
+  getAdminStats: (f) => get(`/api/admin/stats${query({ period: f?.period, model: f?.model, prompt: f?.prompt })}`),
   getAiQuality: () => get("/api/admin/quality"),
   listActivity: () => get("/api/admin/activity"),
   getProcessingStatus: () => get("/api/admin/processing"),

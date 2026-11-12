@@ -46,7 +46,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from call_audit import discrepancy_runs, prompt_evaluation, prompt_registry
+from call_audit import discrepancy_runs, prompt_evaluation, prompt_loop, prompt_registry
 from call_audit.catalog import store as catalog_store
 from call_audit.catalog import uploads
 from call_audit.config import ROOT, Settings, get_settings
@@ -665,6 +665,12 @@ def main() -> None:
             uploads.process_pending(get_sessionmaker())
         except Exception:  # noqa: BLE001 - el worker no se cae por una carga fallida
             logger.exception("Falló el procesamiento de cargas del catálogo")
+        # Loop de mejora del prompt (docs/plan-loop-prompt.md): encola la prueba o el análisis que toque; los corre
+        # este mismo ciclo. Se detiene solo a esperar que el admin apruebe reglas.
+        try:
+            prompt_loop.advance(get_sessionmaker())
+        except Exception:  # noqa: BLE001 - el worker no se cae por el loop
+            logger.exception("Falló el avance del loop de prompt")
         # Pruebas de versiones del prompt contra la referencia (Cambio 12): las pide el admin desde la app.
         try:
             prompt_evaluation.process_pending(get_sessionmaker())

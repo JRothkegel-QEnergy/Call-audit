@@ -175,7 +175,7 @@ function CriterionCard({
 }
 
 /** «Nueva versión desde Seguimiento» (Cambio 18 §8.3): las reglas aceptadas aplicadas al criterio de cada motivo. */
-export function FollowUpReview({ proposalIds }: { proposalIds: string[] }) {
+export function FollowUpReview({ proposalIds, onBaseVersion }: { proposalIds: string[]; onBaseVersion?: (version: string) => void }) {
   const router = useRouter();
   const [removed, setRemoved] = useState<{ rule: FollowUpRuleResult; criterionId: number }[]>([]);
   const [overrides, setOverrides] = useState<Record<number, string>>({});
@@ -200,6 +200,9 @@ export function FollowUpReview({ proposalIds }: { proposalIds: string[] }) {
     [active.join(","), JSON.stringify(sent), attempt],
   );
   const p = preview.data;
+  useEffect(() => {
+    if (p?.baseVersion) onBaseVersion?.(p.baseVersion);
+  }, [p?.baseVersion, onBaseVersion]);
   const form = p ? { model: edits.model ?? p.model, changelog: edits.changelog ?? p.changelog, rationale: edits.rationale ?? p.rationale } : null;
   const setForm = (patch: typeof edits) => setEdits((e) => ({ ...e, ...patch }));
 
@@ -215,10 +218,26 @@ export function FollowUpReview({ proposalIds }: { proposalIds: string[] }) {
         </div>
       </div>
     );
+  if (code === "mixed_base") {
+    const versions = preview.error instanceof ApiError ? preview.error.errors : [];
+    const list = versions.length ? ` (${versions.map((v) => `v${v}`).join(" y ")})` : "";
+    return (
+      <div className="card grid gap-3">
+        <p className="m-0">
+          Estas reglas salen de análisis de distintas versiones del prompt{list}, y una versión nueva parte de una sola. Vuelve a Seguimiento y marca solo reglas de un mismo análisis.
+        </p>
+        <div>
+          <Link className="btn" href="/admin/discrepancies?tab=followup">
+            Volver a Seguimiento
+          </Link>
+        </div>
+      </div>
+    );
+  }
   if (code === "no_yaml")
     return (
       <div className="card grid gap-3">
-        <p className="m-0">La versión vigente no tiene prompt.yaml. Súbelo en Prompt para crear versiones desde aquí.</p>
+        <p className="m-0">La versión base no tiene prompt.yaml. Súbelo en Prompt para crear versiones desde aquí.</p>
         <div>
           <Link className="btn" href="/admin/prompts">
             Ir a Prompt
@@ -275,7 +294,7 @@ export function FollowUpReview({ proposalIds }: { proposalIds: string[] }) {
     <div className="grid max-w-[980px] gap-4">
       <p className="m-0 text-[13px]" role="status">
         {!p && preview.status === "loading"
-          ? "Aplicando las reglas a la versión vigente…"
+          ? "Aplicando las reglas…"
           : active.length
             ? `${ruleCount} ${ruleCount === 1 ? "regla" : "reglas"} en ${criteria.length} ${criteria.length === 1 ? "motivo" : "motivos"}${review.length ? ` · ${review.length} para revisar` : ""}`
             : "No queda ninguna regla."}
@@ -293,7 +312,7 @@ export function FollowUpReview({ proposalIds }: { proposalIds: string[] }) {
       )}
       {conflict && (
         <div className="error-state" role="alert">
-          <p className="m-0">La versión vigente o las reglas cambiaron mientras revisabas. Vuelve a generar la comparación; tus ediciones manuales se perderán.</p>
+          <p className="m-0">La versión base o las reglas cambiaron mientras revisabas. Vuelve a generar la comparación; tus ediciones manuales se perderán.</p>
           <Button
             size="sm"
             onClick={() => {
@@ -333,7 +352,7 @@ export function FollowUpReview({ proposalIds }: { proposalIds: string[] }) {
             <div className="field">
               Versión
               <span className="tabular">{p.version}</span>
-              <span className="help">Basada en v{p.baseVersion} (vigente).</span>
+              <span className="help">Basada en v{p.baseVersion}{p.baseIsActive ? " (vigente)" : ""}.</span>
             </div>
             <label className="field">
               Modelo de la prueba

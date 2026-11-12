@@ -458,3 +458,49 @@ Evitar en la UI: "cliente" para la empresa o su planilla, "auditoría del client
   3. El encabezado de la sección dice **"Pauta de calidad · motivos de no calidad"** y el tooltip explica: "Cada motivo describe algo que no debe ocurrir. Incumple = ocurrió."
   4. El nombre del motivo se mantiene **tal como está en la pauta** (no se reescribe; CLAUDE.md).
 - **Por qué no se unifica "No cumple" (llamada) con "Incumple" (motivo):** son dos niveles distintos. Usar la misma palabra haría pensar que un motivo que incumple es lo mismo que una llamada que no cumple, y la decisión de la llamada la toma el motor con reglas propias. **[SUPUESTO del diseñador: mantener la diferencia]**
+
+---
+
+## 8. Ajuste 2026-11-11 · Mosaico de acuerdo y "revisor" (`../admin-prompt-metrics/02-mosaico-propuesta.md`)
+
+**Alcance de "revisor" (E2):** solo en las 3 pantallas de métricas contra la planilla: pestaña Prueba de la versión del prompt, lista de versiones (`admin/prompts`) y Calidad de la IA. Discrepancias y Análisis de discrepancias no cambian. "La corredora" se mantiene como dueña de la planilla ("planilla de la corredora").
+
+| Término en la UI | Uso | Reemplaza a | Código |
+|---|---|---|---|
+| **Revisor** | Quien llenó la planilla de calidad de la corredora. Definición del "?": "Revisor: quien llenó la planilla de calidad de la corredora." No confundir con el **auditor** (rol de la app) | "la corredora" como sujeto en métricas | `excel_evaluator` |
+| **Coincide con el revisor** | Calce del veredicto contra la planilla | "Coincide con la corredora" | `callMatchRate`, `agree` |
+| **IA Sí / Revisor No** | Desacuerdo: la IA dice que cumple y el revisor que no (rojo). Equivale a rechazo no detectado (FN), sin lo atribuido al revisor | — | `promptFn` |
+| **IA No / Revisor Sí** | Desacuerdo: la IA dice que no cumple y el revisor que sí (amarillo). Equivale a falsa alarma (FP), sin lo atribuido al revisor | — | `promptFp` |
+| **Prompt o criterio** | Grupo rojo + amarillo: lo que hay que corregir en el prompt o el criterio | — | `promptFn + promptFp` |
+| **Posible error de planilla** (rótulo corto) / **Posible error de planilla (según la IA de análisis)** (leyenda) | Desacuerdo que la IA de análisis atribuye a la planilla del revisor (causa `auditor` en todos sus patrones). Siempre con "Posible" hasta calibrar con el call center. Nunca "Revisor" a secas como rótulo de esta parte: se confunde con "IA Sí / Revisor No" (ajuste 2026-11-11, §8.2) | "Inconsistencia del revisor (según el análisis)"; "Revisor" como rótulo corto | `reviewer` |
+| **Causa sin analizar** | La versión tiene prueba pero aún no tiene análisis de causa | — | `causeAnalysis.status = none` |
+| **Analizar causa** | Botón que corre el análisis de causa sobre los desacuerdos de validación (pagado) | — | — |
+| **Vuelta N** | Iteración del loop de mejora del prompt | — | `loop.round` |
+| **% del total de llamadas** | Base del mosaico. Distinta de la base de FP/FN en la tabla (aprobadas / rechazadas) | — | — |
+| **Llamada × motivo** | Unidad del detalle: cada llamada cuenta 33 veces | — | `byCallCriterion` |
+
+"Sin decisión de la IA", "Falsas alarmas (FP)" y "Rechazos no detectados (FN)" se mantienen como en el Ajuste del 2026-11-10.
+
+### 8.2 Rótulo del azul (2026-11-11)
+
+Hallazgo con el admin: bajo la barra de B, "Revisor · 1,6 % del total" al lado de "IA Sí / Revisor No" no se entendió ("¿qué dice revisor?"). En la v2.13 el azul es 59 % del desacuerdo por motivo, así que es lo primero que se lee. Regla: el azul se nombra por **qué** es (un posible error en la planilla), no por **quién**; "Revisor" queda solo dentro de "IA Sí / Revisor No", "IA No / Revisor Sí" y "Coincide con el revisor". Textos exactos en `../admin-prompt-metrics/02-mosaico-propuesta.md` §11.3.
+
+### 8.1 Nueva versión desde Seguimiento con el loop (2026-11-11)
+
+Con el loop, la versión de la que parte una versión nueva puede ser la probada en entrenamiento y no la vigente. En esta página se nombra siempre como **v{baseVersion}**; "(vigente)" solo se agrega cuando lo es.
+
+| Elemento | Texto |
+|---|---|
+| Descripción del encabezado | "Las reglas aceptadas se aplican al criterio de cada motivo de la v{baseVersion}. Revisa los cambios antes de crear el borrador." |
+| Ayuda del campo Versión | "Basada en v{baseVersion}." · si es la vigente: "Basada en v{baseVersion} (vigente)." |
+| Cargando | "Aplicando las reglas…" (sin versión: aún no se conoce) |
+| Error `mixed_base` | "Estas reglas salen de análisis de distintas versiones del prompt, y una versión nueva parte de una sola. Vuelve a Seguimiento y marca solo reglas de un mismo análisis." · botón **Volver a Seguimiento** |
+| Error `mixed_base` con dato opcional de versiones | "Estas reglas salen de análisis de distintas versiones del prompt (v2.11 y v2.12), y una versión nueva parte de una sola. Vuelve a Seguimiento y marca solo reglas de un mismo análisis." |
+
+Evitar "revisa tu conexión" en errores que no son de red.
+
+### 8.3 Verificación caso a caso (2026-11-12, `../admin-prompt-metrics/04-verificacion-propuesta.md` §6.4)
+
+- **Desacuerdo:** un motivo de una llamada en que la IA y el revisor no marcan lo mismo.
+- **Verificación:** registro humano de quién tenía razón en un desacuerdo. Vale para todas las versiones.
+- **Confirmada:** llamada en que todos los desacuerdos resultaron error de la planilla.

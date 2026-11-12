@@ -31,9 +31,17 @@ import yaml
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from call_audit import golden_split
 from call_audit.ingestion.import_bench import VERDICTS, real_calls
 from call_audit.persistence.db import get_sessionmaker
-from call_audit.persistence.models import Case, DiscrepancyClassification, Note, PromptVersion, Review
+from call_audit.persistence.models import (
+    Case,
+    DiscrepancyClassification,
+    Note,
+    PromptEvaluation,
+    PromptVersion,
+    Review,
+)
 
 PROMPT_SPEC = Path(__file__).resolve().parents[2] / "prompts" / "layer2" / "prompt.yaml"
 CRITERIA = range(1, 34)
@@ -156,12 +164,35 @@ def sides_with(manual: str | None, ai_fail: bool, excel_fail: bool) -> str | Non
     return "none"
 
 
-def build(session: Session, manual_csv: dict[str, dict]) -> tuple[list[dict], dict[str, list[dict]], dict]:
-    """Casos de discrepancia, transcripciones de sus llamadas y conteos para el resumen."""
+class EvaluationRun:
+    """Un resultado de una prueba de versión del prompt con la forma de una corrida (ModelRun) que lee build."""
+
+    def __init__(self, evaluation: PromptEvaluation, result: dict) -> None:
+        self.verdict = result.get("verdict")
+        self.findings = result.get("findings") or []
+        self.error = result.get("error")
+        self.model = evaluation.model
+        self.prompt_version = evaluation.version
+        self.run_label = f"Prueba v{evaluation.version}"
+
+
+def build(
+    session: Session,
+    manual_csv: dict[str, dict],
+    split: str | None = None,
+    evaluation: PromptEvaluation | None = None,
+) -> tuple[list[dict], dict[str, list[dict]], dict]:
+    """Casos de discrepancia, transcripciones de sus llamadas y conteos para el resumen. Con `split`, solo las llamadas
+    de ese set del golden set (la cuarta IA lee solo "train"; ver call_audit.golden_split). Con `evaluation`, cruza
+    los resultados de esa prueba en vez de la corrida vigente, solo en sus llamadas (loop de mejora del prompt)."""
     # La regla de la versión vigente del registro (Cambio 12): las propuestas del análisis se aplican sobre ella
-    # (Cambio 18), así que la frase a reemplazar tiene que salir de ese texto.
-    active = session.scalar(select(PromptVersion).where(PromptVersion.status == "active"))
-    prompt_version, rules = criterion_rules(active.spec_yaml if active is not None and active.spec_yaml else None)
+    # (Cambio 18), así que la frase a reemplazar tiene que salir de ese texto. Con una prueba, de la versión probada.
+    if evaluation is not None:
+        source = session.get(PromptVersion, evaluation.version)
+    else:
+        source = session.scalar(select(PromptVersion).where(PromptVersion.status == "active"))
+    prompt_version, rules = criterion_rules(source.spec_yaml if source is not None and source.spec_yaml else None)
+    results = {r["caseId"]: r for r in evaluation.results} if evaluation is not None else None
     reviews = {r.case_id: r for r in session.scalars(select(Review))}
     classifications = {c.case_id: c for c in session.scalars(select(DiscrepancyClassification))}
     notes: dict[str, list[Note]] = defaultdict(list)
@@ -175,7 +206,19 @@ def build(session: Session, manual_csv: dict[str, dict]) -> tuple[list[dict], di
     calls = Counter()
     skipped = Counter()
     for case in session.scalars(select(Case).order_by(Case.call_id)):
-        run = next((r for r in case.runs if r.is_current), None)
+        if split is not None and golden_split.split_of(case) != split:
+            skipped[f"fuera del set {split}"] += 1
+            continue
+        if results is not None:
+            if case.id not in results:
+                skipped["fuera de la prueba"] += 1
+                continue
+            if "findings" not in results[case.id] and not results[case.id].get("error"):
+                skipped["la prueba no guardó los hallazgos"] += 1
+                continue
+            run = EvaluationRun(evaluation, results[case.id])
+        else:
+            run = next((r for r in case.runs if r.is_current), None)
         if run is None:
             skipped["sin corrida vigente"] += 1
             continue
@@ -397,10 +440,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--out", type=Path, required=True, help="carpeta de salida, fuera del repo")
     parser.add_argument("--manual-csv", type=Path, help="revision_capa2.csv del dashboard")
+    parser.add_argument("--split", choices=golden_split.SPLITS, help="solo ese set del golden set (sin: todas)")
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     with get_sessionmaker()() as session:
-        rows, transcripts, summary = build(session, load_manual_csv(args.manual_csv))
+        rows, transcripts, summary = build(session, load_manual_csv(args.manual_csv), args.split)
     with (args.out / "discrepancies.jsonl").open("w", encoding="utf-8") as fh:
         for r in rows:
             fh.write(json.dumps(r, ensure_ascii=False, default=_json_default) + "\n")

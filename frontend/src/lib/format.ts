@@ -28,7 +28,8 @@ export function shortDateTime(iso: string): string {
 }
 
 export function shortDate(iso: string): string {
-  const d = new Date(iso);
+  // "2026-10-01" sin hora: JS la toma como medianoche UTC y en Chile mostraría el día anterior.
+  const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(iso) ? `${iso}T00:00:00` : iso);
   return `${String(d.getDate()).padStart(2, "0")} ${MONTHS[d.getMonth()]}`;
 }
 

@@ -79,6 +79,13 @@ def qubico_admin(user: Annotated[User, Depends(current_user)]) -> User:
     return user
 
 
+def admin_reader(user: Annotated[User, Depends(current_user)]) -> User:
+    """Lectura del admin: el admin Qubico o la cuenta de solo lectura (G13), que ve todo pero no cambia nada."""
+    if user.role not in ("qubico_admin", "qubico_viewer"):
+        raise HTTPException(403, "Solo para el Administrador Qubico")
+    return user
+
+
 def supervisor_or_admin(user: Annotated[User, Depends(current_user)]) -> User:
     """Discrepancias y catálogo: el admin los comparte con el supervisor (Cambio 12). No ve dashboards de ejecutivos."""
     if user.role not in ("supervisor", "qubico_admin"):
@@ -89,4 +96,5 @@ def supervisor_or_admin(user: Annotated[User, Depends(current_user)]) -> User:
 CurrentUser = Annotated[User, Depends(current_user)]
 Supervisor = Annotated[User, Depends(supervisor)]
 Admin = Annotated[User, Depends(qubico_admin)]
+AdminReader = Annotated[User, Depends(admin_reader)]
 SupervisorOrAdmin = Annotated[User, Depends(supervisor_or_admin)]

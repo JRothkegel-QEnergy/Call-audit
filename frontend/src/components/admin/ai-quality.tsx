@@ -41,7 +41,7 @@ const METRICS: {
   { key: "detection", label: "Detección", value: (m) => m.detectionPct },
   {
     key: "fp",
-    label: "Falsos positivos",
+    label: "Falsas alarmas (FP)",
     value: (m) => m.falsePositivePct,
     lowerIsBetter: true,
   },
@@ -154,7 +154,7 @@ export function AiQualityView({ data }: { data: AiQuality }) {
         </span>
         {marked === 0 ? (
           <span className="font-medium text-amber-800">
-            La planilla de estas llamadas no trae la marca por motivo: por motivo solo se ven los falsos positivos en llamadas Cumple.
+            La planilla de estas llamadas no trae la marca por motivo: por motivo solo se ven las falsas alarmas en llamadas Cumple.
           </span>
         ) : (
           marked < data.calls.length && (
@@ -263,14 +263,14 @@ export function AiQualityView({ data }: { data: AiQuality }) {
           <Term t="Vigente">La corrida que hoy define el veredicto del motor.</Term>
           <Term t="Marca de la planilla por motivo">Motivos marcados NO CUMPLE en la planilla de calidad.</Term>
           <Term t="Detección">De las llamadas que la planilla marcó No cumple, cuántas marca también la IA. Meta ≥ {detectionGoal(data)} %.</Term>
-          <Term t="Falsos positivos · Solo la IA detectó">
+          <Term t="Falsas alarmas (FP)">
             Llamadas Cumple según la planilla que la IA marca No cumple. Meta ≤ {data.goals.falsePositivePct} %. Por motivo: la IA marca un motivo que la planilla
             no marcó.
           </Term>
-          <Term t="Falsos negativos · Omitidos por la IA">
+          <Term t="Rechazos no detectados (FN)">
             Llamadas No cumple según la planilla que la IA deja en Cumple. Meta ≤ {data.goals.falseNegativePct} %. Por motivo: la planilla lo marcó y la IA no.
           </Term>
-          <Term t="Calce equilibrado">Promedio entre la detección y (1 − falsos positivos). Una IA que marca todo No cumple saca 50 %.</Term>
+          <Term t="Calce equilibrado">Promedio entre la detección y (1 − falsas alarmas). Una IA que marca todo No cumple saca 50 %.</Term>
           <Term t="Coincidencia">Porcentaje de llamadas donde la IA dijo lo mismo que la planilla.</Term>
           <Term t="Desacuerdo">La IA y la planilla difieren en el veredicto o en al menos un motivo.</Term>
         </dl>
@@ -404,9 +404,9 @@ function Headline({ best, metrics, data }: { best: QualitySeries[]; metrics: Map
     const fp = m.falsePositivePct <= data.goals.falsePositivePct;
     if (det && fp) return "Cumple las dos metas.";
     if (!det && !fp) return "No cumple ninguna de las dos metas.";
-    return det ? "Cumple la meta de detección, no la de falsos positivos." : "Cumple la meta de falsos positivos, no la de detección.";
+    return det ? "Cumple la meta de detección, no la de falsas alarmas." : "Cumple la meta de falsas alarmas, no la de detección.";
   };
-  const facts = `detecta ${ma.detected} de ${ma.bad} llamadas No cumple y da ${plural(ma.falsePositives, "falso positivo", "falsos positivos")} en ${ma.ok} Cumple.`;
+  const facts = `detecta ${ma.detected} de ${ma.bad} llamadas No cumple y da ${plural(ma.falsePositives, "falsa alarma", "falsas alarmas")} en ${ma.ok} Cumple.`;
   const close = b && Math.abs(metrics.get(b.id)!.detected - metrics.get(b.id)!.falsePositives - (ma.detected - ma.falsePositives)) <= 1;
   return (
     <div className="card border-l-4" style={{ borderLeftColor: color(a) }}>
@@ -542,24 +542,24 @@ function Matrix({ s, striped, m, data }: { s: QualitySeries; striped: boolean; m
               Planilla: No cumple
             </th>
             <td className="text-right">{m.detected} ✓</td>
-            <td className="text-right text-red-700">{m.missed} ✗ omitidas</td>
+            <td className="text-right text-red-700">{m.missed} ✗ no detectadas</td>
           </tr>
           <tr>
             <th scope="row" className="py-1 text-left font-medium">
               Planilla: Cumple
             </th>
-            <td className="text-right text-amber-800">{m.falsePositives} ! solo la IA</td>
+            <td className="text-right text-amber-800">{m.falsePositives} ! falsas alarmas</td>
             <td className="text-right">{m.trueNegatives} ✓</td>
           </tr>
         </tbody>
       </table>
       <p className="mb-0 mt-2 text-sm">
         <span className={fnOk ? "" : "font-semibold text-red-700"}>
-          {fnOk ? "✓" : "✗"} Falsos negativos {p0(m.falseNegativePct)} (meta ≤ {data.goals.falseNegativePct} %)
+          {fnOk ? "✓" : "✗"} Rechazos no detectados (FN) {p0(m.falseNegativePct)} (meta ≤ {data.goals.falseNegativePct} %)
         </span>
         {"   "}
         <span className={fpOk ? "" : "font-semibold text-red-700"}>
-          {fpOk ? "✓" : "✗"} Falsos positivos {p0(m.falsePositivePct)} (meta ≤ {data.goals.falsePositivePct} %)
+          {fpOk ? "✓" : "✗"} Falsas alarmas (FP) {p0(m.falsePositivePct)} (meta ≤ {data.goals.falsePositivePct} %)
         </span>
       </p>
       <p className="help mb-0 mt-1">
@@ -603,7 +603,7 @@ function CriteriaTable({
           <tr>
             <th rowSpan={2}>Motivo</th>
             <th colSpan={selected.length} className="border-l border-border text-center">
-              Cumple: solo la IA (de {okCount})
+              Cumple: falsas alarmas (de {okCount})
             </th>
             {showRight && (
               <th colSpan={selected.length + 1} className="border-l border-border text-center">
@@ -869,7 +869,7 @@ function CallMap({
       <div className="relative overflow-x-auto overflow-y-hidden pb-1">
         <div
           role="img"
-          aria-label={`${seriesName(s)}: ${aiOnly} llamadas con solo la IA y ${missed} omitidas, en ${int(cov.withResult)} llamadas con resultado de ${int(total)}. Primero las que tienen resultado.${
+          aria-label={`${seriesName(s)}: ${aiOnly} falsas alarmas y ${missed} no detectadas, en ${int(cov.withResult)} llamadas con resultado de ${int(total)}. Primero las que tienen resultado.${
             pages > 1 ? ` Se muestran ${visible.map((g) => span(g, " a ")).join(" y ")}.` : ""
           }`}
           className="inline-grid gap-x-3"
@@ -930,8 +930,8 @@ function CallMap({
         {(
           [
             ["match", "Coincide con la planilla"],
-            ["ai_only", "Solo la IA"],
-            ["missed", "Omitido por la IA"],
+            ["ai_only", "Falsa alarma"],
+            ["missed", "No detectado"],
             ["unknown", "Sin referencia (sin marca por motivo o sin resultado)"],
             ["error", "Error de la IA (fila de veredicto)"],
           ] as const
@@ -1013,8 +1013,8 @@ function Disagreements({
           {(
             [
               ["all", "Todas"],
-              ["ai_only", "Solo la IA detectó"],
-              ["missed", "Omitidos por la IA"],
+              ["ai_only", "Falsas alarmas"],
+              ["missed", "No detectados"],
             ] as const
           ).map(([k, label]) => (
             <button
@@ -1061,8 +1061,8 @@ function Disagreements({
                   <th>Fecha</th>
                   <th>Planilla</th>
                   <th>IA</th>
-                  <th>Solo la IA</th>
-                  <th>Omitidos por la IA</th>
+                  <th>Falsas alarmas</th>
+                  <th>No detectados</th>
                   <th>
                     <span className="sr-only">Acción</span>
                   </th>
@@ -1102,7 +1102,7 @@ function Disagreements({
       {filtered && rows.length > 0 && (
         <p className="help mb-0 mt-2">
           Filtrado por {reason ? `motivo ${reason}` : "tipo"}
-          {kind !== "all" ? ` · ${kind === "ai_only" ? "Solo la IA detectó" : "Omitidos por la IA"}` : ""} ·{" "}
+          {kind !== "all" ? ` · ${kind === "ai_only" ? "Falsas alarmas" : "No detectados"}` : ""} ·{" "}
           <button type="button" className="underline" onClick={() => onChange({ reason: null, kind: null, page: null })}>
             Quitar filtros
           </button>

@@ -66,7 +66,13 @@ export function SidebarNav({
   const [demoOpen, setDemoOpen] = useState(false);
 
   const items: Item[] =
-    user.role === "qubico_admin"
+    user.role === "qubico_viewer"
+      ? [
+          { label: "Estadísticas", href: "/admin/stats", icon: LineChart },
+          { label: "Análisis de discrepancias", href: "/admin/discrepancies", icon: ScanSearch },
+          { label: "Prompt", href: "/admin/prompts", icon: FileCode2 },
+        ]
+      : user.role === "qubico_admin"
       ? [
           { label: "Estadísticas", href: "/admin/stats", icon: LineChart },
           // Cambio 16 (D-61): entre Estadísticas y Prompt; nombre largo para no confundirlo con «Discrepancias».

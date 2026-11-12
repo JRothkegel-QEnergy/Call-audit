@@ -9,7 +9,8 @@ export function AdminHeader({ title, description, actions }: { title: string; de
   return (
     <>
       <p className="help m-0 mb-1">Empresa: {user?.clientName}</p>
-      <PageHeader title={title} description={description} actions={actions} />
+      {/* La cuenta de lectura (G13) no ve las acciones del encabezado: todas cambian algo. */}
+      <PageHeader title={title} description={description} actions={user?.role === "qubico_viewer" ? undefined : actions} />
     </>
   );
 }

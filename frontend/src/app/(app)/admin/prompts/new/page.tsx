@@ -2,7 +2,7 @@
 
 import { ChevronLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { toast } from "sonner";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { FollowUpReview } from "@/components/admin/follow-up-review";
@@ -29,6 +29,7 @@ function NewPrompt() {
 
 function FromFollowUp({ ids }: { ids: string[] }) {
   const router = useRouter();
+  const [base, setBase] = useState<string | null>(null);
   return (
     <>
       <Button variant="ghost" onClick={() => router.push("/admin/discrepancies?tab=followup")}>
@@ -38,10 +39,10 @@ function FromFollowUp({ ids }: { ids: string[] }) {
       <div className="mt-2">
         <AdminHeader
           title="Nueva versión desde Seguimiento"
-          description="Las reglas aceptadas se aplican al criterio de cada motivo de la versión vigente. Revisa los cambios antes de crear el borrador."
+          description={`Las reglas aceptadas se aplican al criterio de cada motivo de ${base ? `la v${base}` : "la versión base"}. Revisa los cambios antes de crear el borrador.`}
         />
       </div>
-      <FollowUpReview proposalIds={ids} />
+      <FollowUpReview proposalIds={ids} onBaseVersion={setBase} />
     </>
   );
 }

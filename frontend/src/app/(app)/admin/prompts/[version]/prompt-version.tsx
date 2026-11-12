@@ -1,25 +1,27 @@
 "use client";
 
-import { AlertTriangle, ChevronLeft, Download, FlaskConical, Square } from "lucide-react";
+import { AlertTriangle, Check, ChevronLeft, Download, FlaskConical, Square, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AdminHeader } from "@/components/admin/admin-header";
+import { AgreementMosaic, CauseAnalysisNotice, DisagreementZoom, LoopEvolution } from "@/components/admin/agreement-charts";
 import { PromptDiff } from "@/components/admin/prompt-diff";
 import { PromptForm } from "@/components/admin/prompt-form";
 import { PromptStatusBadge } from "@/components/admin/prompt-status";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
+import { MetricHelp } from "@/components/ui/metric-help";
 import { AsyncView } from "@/components/ui/states";
 import { api } from "@/lib/api";
-import type { EvaluationMetrics, PromptEvaluation, PromptVersionDetail, ReferenceMetrics } from "@/lib/api/admin-types";
+import type { CriterionScores, EvaluationMetrics, PromptEvaluation, PromptVersionDetail, ReferenceMetrics } from "@/lib/api/admin-types";
 import { ApiError } from "@/lib/api/admin-types";
+import { cn } from "@/lib/cn";
 import { pct, shortDateTime } from "@/lib/format";
 import { useRubric } from "@/lib/rubric";
 import { useAsync } from "@/lib/use-async";
 
 type Tab = "diff" | "test" | "history" | "edit";
-const REF_LABEL = { client: "planilla de calidad", app_auditors: "auditores de la app" } as const;
 const usd = (n: number, d = 4) => `${n.toFixed(d).replace(".", ",")} USD`;
 
 export function PromptVersionView({ version }: { version: string }) {
@@ -28,13 +30,17 @@ export function PromptVersionView({ version }: { version: string }) {
     const [detail, all] = await Promise.all([api.getPromptVersion(version), api.listPromptVersions()]);
     return { detail, all };
   }, [version]);
-  const [tab, setTab] = useState<Tab>("diff");
+  const search = useSearchParams();
+  // «Volver a vX» desde la lista de llamadas del mosaico llega con ?tab=test.
+  const [tab, setTab] = useState<Tab>(search.get("tab") === "test" ? "test" : "diff");
   // «Crear borrador y probar» (Cambio 18) llega con ?test=1 y abre el diálogo de costo de la prueba.
-  const [testOpen, setTestOpen] = useState(useSearchParams().get("test") === "1");
+  const [testOpen, setTestOpen] = useState(search.get("test") === "1");
   const [activateOpen, setActivateOpen] = useState(false);
 
   // La prueba corre en el worker: se consulta su avance mientras está en cola o corriendo.
-  const running = ["queued", "running"].includes(data.data?.detail.evaluation?.status ?? "");
+  const running =
+    ["queued", "running"].includes(data.data?.detail.evaluation?.status ?? "") ||
+    data.data?.detail.evaluation?.metrics?.agreement?.causeAnalysis.status === "running";
   const { reload } = data;
   useEffect(() => {
     if (!running) return;
@@ -147,7 +153,7 @@ export function PromptVersionView({ version }: { version: string }) {
                   <p className="help">Esta es la versión vigente. Abre otra versión para compararla contra esta.</p>
                 ))}
 
-              {tab === "test" && <TestTab detail={detail} />}
+              {tab === "test" && <TestTab detail={detail} onReload={() => void reload({ silent: true })} />}
 
               {tab === "history" && (
                 <table className="tbl">
@@ -292,7 +298,7 @@ function EvaluationBanner({ detail, onStop, onRetry }: { detail: PromptVersionDe
 
 const refOf = (m: EvaluationMetrics | null | undefined, kind: ReferenceMetrics["kind"]) => m?.references.find((r) => r.kind === kind);
 
-function TestTab({ detail }: { detail: PromptVersionDetail }) {
+function TestTab({ detail, onReload }: { detail: PromptVersionDetail; onReload: () => void }) {
   const rubric = useRubric();
   const ev: PromptEvaluation | null = detail.evaluation;
   const mine = ev?.status === "done" ? ev.metrics : null;
@@ -306,75 +312,365 @@ function TestTab({ detail }: { detail: PromptVersionDetail }) {
     );
   const shown = same ? base : mine;
   if (!shown) return <p className="help">No hay llamadas con planilla de calidad para medir.</p>;
-  const row = (label: string, get: (m: EvaluationMetrics) => number | undefined, fmt: (n: number) => string, higherIsBetter: boolean) => {
-    const a = base ? get(base) : undefined;
-    const b = get(shown);
-    const worse = !same && a != null && b != null && (higherIsBetter ? b < a : b > a);
-    return (
-      <tr key={label}>
-        <td>{label}</td>
-        {!same && <td className="num">{a != null ? fmt(a) : "—"}</td>}
-        <td className="num font-semibold">
-          {b != null ? fmt(b) : "—"}
-          {worse && (
-            <span className="vt vt-doubt ml-1.5" title="Empeora contra la vigente">
-              empeora
-            </span>
-          )}
-        </td>
-      </tr>
-    );
-  };
-  const fails = new Map((base?.byCriterion ?? []).map((c) => [c.criterionId, c.failCount]));
-  const criteria = [...new Set([...(base?.byCriterion ?? []), ...shown.byCriterion].map((c) => c.criterionId))].sort((x, y) => x - y);
+  const cols: { key: string; label: string; m: EvaluationMetrics | null }[] = same
+    ? [{ key: "shown", label: `v${detail.meta.version}`, m: shown }]
+    : [
+        { key: "base", label: `v${detail.activeVersion} (vigente)`, m: base },
+        { key: "shown", label: `v${detail.meta.version}`, m: shown },
+      ];
+  const n = shown.criterionScores?.nCalls ?? shown.criterionScores?.n ?? refOf(shown, "client")?.n;
   return (
     <div className="grid gap-4">
-      <p className="help m-0">
-        Referencia: {shown.references.map((r) => `${REF_LABEL[r.kind]} · ${r.n} ${r.kind === "client" ? "llamadas" : "casos"}`).join(" · ")}
-        {!same && " · la vigente se mide con sus corridas actuales, sin gastar."}
-      </p>
+      <div>
+        <h3 className="m-0 mb-1 text-sm font-semibold">Resultado contra la planilla de la corredora</h3>
+        <p className="help m-0">
+          Medido sobre las mismas {n ?? "—"} llamadas de validación que la corredora ya revisó. La planilla se toma como la respuesta correcta.
+          {!same && " · La vigente se mide con sus corridas actuales, sin gastar."}
+        </p>
+        <GoalSummary base={same ? null : base} shown={shown} baseLabel={`v${detail.activeVersion}`} shownLabel={`v${detail.meta.version}`} />
+      </div>
+      {shown.agreement ? (
+        <>
+          <CauseAnalysisNotice version={detail.meta.version} ca={shown.agreement.causeAnalysis} onStarted={onReload} />
+          <AgreementMosaic version={detail.meta.version} a={shown.agreement} linked={!same} />
+          <DisagreementZoom a={shown.agreement} />
+          <LoopEvolution loop={detail.loop} version={detail.meta.version} />
+        </>
+      ) : (
+        <p className="help m-0">Esta prueba no tiene la planilla por motivo, así que no se puede armar el mosaico.</p>
+      )}
       <table className="tbl">
         <thead>
           <tr>
-            <th>Métrica</th>
-            {!same && <th>v{detail.activeVersion} (vigente)</th>}
-            <th>v{detail.meta.version}</th>
+            <th scope="col">Métrica</th>
+            <th scope="col">Meta</th>
+            {cols.map((c) => (
+              <th key={c.key} scope="col">
+                {c.label}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          {row("Coincidencia con la planilla", (m) => refOf(m, "client")?.matchRate, (n) => pct(n), true)}
-          {row("Coincidencia con los auditores de la app", (m) => refOf(m, "app_auditors")?.matchRate, (n) => pct(n), true)}
-          {row("Dudosas", (m) => refOf(m, "client")?.uncertainRate, (n) => pct(n), false)}
-          {row("Solo la IA detectó", (m) => refOf(m, "client")?.aiOnlyFail, String, false)}
-          {row("Omitidos por la IA", (m) => refOf(m, "client")?.aiMissedFail, String, false)}
-          {row("Citas no validadas", (m) => refOf(m, "client")?.unvalidatedQuoteRate, (n) => pct(n), false)}
-          {row("Costo por llamada", (m) => m.costPerCallUsd, (n) => usd(n), false)}
-          {row("Latencia p95", (m) => m.latencyMsP95, (n) => `${(n / 1000).toFixed(1).replace(".", ",")} s`, false)}
+          {METRIC_ROWS.map((r) => {
+            const a = !same && base ? r.get(base) : undefined;
+            return (
+              <tr key={r.label}>
+                <td className="whitespace-normal">
+                  <span className="font-semibold">{r.label}</span>
+                  <MetricHelp title={r.label}>{r.help}</MetricHelp>
+                  {r.sub && <div className="help">{r.sub}</div>}
+                </td>
+                <td className="num">
+                  {r.goal != null ? (
+                    `≤ ${r.goal} %`
+                  ) : (
+                    <>
+                      <span aria-hidden>—</span>
+                      <span className="sr-only">Sin meta</span>
+                    </>
+                  )}
+                </td>
+                {cols.map((c) => {
+                  const v = c.m ? r.get(c.m) : undefined;
+                  const count = c.m && r.count ? r.count(c.m) : undefined;
+                  const isShown = c.key === "shown";
+                  return (
+                    <td key={c.key} className={cn("num align-top", isShown && "font-semibold")}>
+                      {v != null ? r.fmt(v) : "—"}
+                      {count && <span className="font-normal text-muted-foreground"> · {count}</span>}
+                      {r.goal != null && v != null && <GoalBadge ok={v <= r.goal} />}
+                      {isShown && !same && <Delta row={r} a={a} b={v} />}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
-      <div>
-        <h3 className="m-0 mb-2 text-sm font-semibold">Llamadas con el motivo incumplido</h3>
-        <table className="tbl">
-          <thead>
+      <CriterionErrors detail={detail} base={same ? null : base} shown={shown} rubric={rubric} />
+    </div>
+  );
+}
+
+// --- Métricas contra la planilla (docs/ux/admin-prompt-metrics) ---------------------------------------------------
+
+const p0 = (v: number) => pct(Math.round(v), 0);
+/** Tasas de la planilla por motivo (fracción 0-1) a 0-100; si la prueba no trae marca por motivo, cae a references. */
+const scoreRate = (m: EvaluationMetrics, key: "callMatchRate" | "callFpRate" | "callFnRate" | "callUncertainRate") => {
+  const v = m.criterionScores?.[key];
+  return v != null ? v * 100 : undefined;
+};
+
+type MetricRow = {
+  label: string;
+  sub?: string;
+  help: string;
+  goal?: number;
+  get: (m: EvaluationMetrics) => number | undefined;
+  count?: (m: EvaluationMetrics) => string | undefined;
+  fmt: (n: number) => string;
+  higherIsBetter: boolean;
+  /** "points": diferencia en puntos; "relative": diferencia en % (costo, tiempo). */
+  delta: "points" | "relative";
+};
+
+const ofCount = (a: number | undefined, b: number | undefined) => (a != null && b != null ? `${a} de ${b}` : undefined);
+
+const METRIC_ROWS: MetricRow[] = [
+  {
+    label: "Coincide con el revisor",
+    sub: "Mismo veredicto final que la planilla",
+    help: "De cada 100 llamadas, en cuántas la IA llegó al mismo veredicto final (Cumple o No cumple) que la planilla del revisor. Las llamadas que la IA deja sin decisión cuentan como no coincidentes.",
+    get: (m) => scoreRate(m, "callMatchRate") ?? refOf(m, "client")?.matchRate,
+    fmt: p0,
+    higherIsBetter: true,
+    delta: "points",
+  },
+  {
+    label: "Falsas alarmas (FP)",
+    sub: "La IA rechaza una llamada que el revisor aprobó",
+    help: "De las llamadas que el revisor aprobó, qué porcentaje rechaza la IA. Cada falsa alarma es una llamada que un auditor revisa sin necesidad. Meta del proyecto: 5 % o menos.",
+    goal: 5,
+    get: (m) => scoreRate(m, "callFpRate"),
+    count: (m) => ofCount(m.criterionScores?.fpCount, m.criterionScores?.nApproved),
+    fmt: p0,
+    higherIsBetter: false,
+    delta: "points",
+  },
+  {
+    label: "Rechazos no detectados (FN)",
+    sub: "La IA aprueba una llamada que el revisor rechazó",
+    help: "De las llamadas que el revisor rechazó, qué porcentaje aprueba la IA. Son incumplimientos que la IA deja pasar. Meta del proyecto: 20 % o menos.",
+    goal: 20,
+    get: (m) => scoreRate(m, "callFnRate"),
+    count: (m) => ofCount(m.criterionScores?.fnCount, m.criterionScores?.nRejected),
+    fmt: p0,
+    higherIsBetter: false,
+    delta: "points",
+  },
+  {
+    label: "Sin decisión de la IA",
+    sub: "Pasan a revisión de un auditor",
+    help: "Llamadas en que la IA no se decide y las deriva a un auditor. No cuentan como falsa alarma ni como rechazo no detectado: si este número sube, esas dos tasas pueden bajar sin que la IA sea mejor.",
+    get: (m) => scoreRate(m, "callUncertainRate") ?? refOf(m, "client")?.uncertainRate,
+    count: (m) => ofCount(m.criterionScores?.uncertainCount, m.criterionScores?.nCalls),
+    fmt: (v) => pct(v),
+    higherIsBetter: false,
+    delta: "points",
+  },
+  {
+    label: "Coincide con los auditores de la app",
+    sub: "Mismo veredicto que dejaron en la app",
+    help: "Igual que la coincidencia con el revisor, pero contra el veredicto que dejaron los auditores en la app. Se mide sobre menos casos: solo los que ya tienen revisión en la app.",
+    get: (m) => refOf(m, "app_auditors")?.matchRate,
+    fmt: p0,
+    higherIsBetter: true,
+    delta: "points",
+  },
+  {
+    label: "Citas que no aparecen en la llamada",
+    sub: "No se encontraron textuales en la transcripción",
+    help: "La IA respalda cada incumplimiento con una cita de la llamada. Este porcentaje son las citas que no se encontraron textuales en la transcripción: pueden ser paráfrasis o errores de la IA.",
+    get: (m) => refOf(m, "client")?.unvalidatedQuoteRate,
+    fmt: (v) => pct(v),
+    higherIsBetter: false,
+    delta: "points",
+  },
+  {
+    label: "Costo por llamada",
+    help: "Costo promedio del modelo por llamada en esta prueba.",
+    get: (m) => m.costPerCallUsd,
+    fmt: (v) => usd(v),
+    higherIsBetter: false,
+    delta: "relative",
+  },
+  {
+    label: "Tiempo por llamada (p95)",
+    sub: "El 95 % termina en este tiempo o menos",
+    help: "El 95 % de las llamadas se procesó en este tiempo o menos. Sirve para ver si la versión hace más lenta la cola de trabajo.",
+    get: (m) => m.latencyMsP95,
+    fmt: (v) => `${(v / 1000).toFixed(1).replace(".", ",")} s`,
+    higherIsBetter: false,
+    delta: "relative",
+  },
+];
+
+function GoalBadge({ ok }: { ok: boolean }) {
+  const Icon = ok ? Check : X;
+  return (
+    <div className="mt-1">
+      <span className={cn("vt", ok ? "vt-pass" : "vt-fail")}>
+        <Icon size={12} aria-hidden />
+        {ok ? "Cumple la meta" : "Fuera de meta"}
+      </span>
+    </div>
+  );
+}
+
+/** "−25 puntos · mejora" bajo el valor de la versión en prueba (reemplaza el badge "empeora"). */
+function Delta({ row, a, b }: { row: MetricRow; a: number | undefined; b: number | undefined }) {
+  if (a == null || b == null) return null;
+  const d = row.delta === "points" ? b - a : a === 0 ? 0 : ((b - a) / a) * 100;
+  if (Math.abs(d) < 1) return <div className="help font-normal">Sin cambio</div>;
+  const better = row.higherIsBetter ? d > 0 : d < 0;
+  const size = Math.round(Math.abs(d));
+  const unit = row.delta === "points" ? (size === 1 ? "punto" : "puntos") : "%";
+  return (
+    <div className={cn("help font-normal", !better && "text-red-700")}>
+      {d > 0 ? "+" : "−"}
+      {size} {unit} · {better ? "mejora" : "empeora"}
+    </div>
+  );
+}
+
+/** Resumen en una línea, armado con una regla fija (sin IA). */
+function GoalSummary({
+  base,
+  shown,
+  baseLabel,
+  shownLabel,
+}: {
+  base: EvaluationMetrics | null;
+  shown: EvaluationMetrics;
+  baseLabel: string;
+  shownLabel: string;
+}) {
+  const fp = METRIC_ROWS[1];
+  const fn = METRIC_ROWS[2];
+  const meets = (m: EvaluationMetrics) => {
+    const a = fp.get(m);
+    const b = fn.get(m);
+    return a != null && b != null ? a <= 5 && b <= 20 : null;
+  };
+  const s = meets(shown);
+  if (s == null) return null;
+  if (!base) return <p className="m-0 mt-2 text-sm font-semibold">{s ? `${shownLabel} cumple las metas.` : `${shownLabel} no cumple las metas.`}</p>;
+  const b = meets(base);
+  const head =
+    s && b ? "Ambas versiones cumplen las metas." : s ? `Solo ${shownLabel} cumple las metas.` : b ? `Solo ${baseLabel} cumple las metas.` : "Ninguna versión cumple las metas.";
+  const parts: { text: string; better: boolean }[] = [];
+  const fa = fp.get(base);
+  const fb = fp.get(shown);
+  if (fa != null && fb != null && Math.abs(fb - fa) >= 1)
+    parts.push({ text: `${fb < fa ? "baja" : "sube"} las falsas alarmas (${p0(fa)} → ${p0(fb)})`, better: fb < fa });
+  const na = fn.get(base);
+  const nb = fn.get(shown);
+  if (na != null && nb != null && Math.abs(nb - na) >= 1)
+    parts.push({ text: `deja pasar ${nb > na ? "más" : "menos"} rechazos (${p0(na)} → ${p0(nb)})`, better: nb < na });
+  const tail =
+    parts.length === 0
+      ? ""
+      : ` ${shownLabel} ${parts[0].text}${parts[1] ? `${parts[0].better !== parts[1].better ? ", pero " : " y "}${parts[1].text}` : ""}.`;
+  return (
+    <p className="m-0 mt-2 text-sm font-semibold">
+      {head}
+      {tail}
+    </p>
+  );
+}
+
+function CriterionErrors({
+  detail,
+  base,
+  shown,
+  rubric,
+}: {
+  detail: PromptVersionDetail;
+  base: EvaluationMetrics | null;
+  shown: EvaluationMetrics;
+  rubric: ReturnType<typeof useRubric>;
+}) {
+  const cur = shown.criterionScores;
+  if (!cur)
+    return <p className="help m-0">Esta prueba no trae la marca por motivo de la planilla: no se pueden mostrar los errores por motivo.</p>;
+  const prev = base?.criterionScores ?? null;
+  const two = base != null;
+  const at = (s: CriterionScores | null, id: number) => s?.byCriterion.find((c) => c.criterionId === id);
+  const ids = [...new Set([...(prev?.byCriterion ?? []), ...cur.byCriterion].map((c) => c.criterionId))]
+    .filter((id) => [at(prev, id), at(cur, id)].some((c) => c && (c.support || c.fp || c.fn)))
+    .sort((x, y) => x - y);
+  const head = (label: string, help: string) => (
+    <>
+      {label}
+      <MetricHelp title={label}>{help}</MetricHelp>
+    </>
+  );
+  const HELP = {
+    marked: "Llamadas en que la planilla marcó este motivo como No cumple.",
+    fp: "La IA marcó el motivo como No cumple y la corredora no.",
+    fn: "La corredora marcó el motivo como No cumple y la IA no.",
+  };
+  const cell = (a: number | undefined, b: number | undefined) => {
+    if (!two || a == null || b == null || a === b) return <>{b ?? "—"}</>;
+    const worse = b > a;
+    return (
+      <span className={worse ? "text-red-700" : undefined}>
+        {b} <span aria-hidden>{worse ? "▲" : "▼"}</span>
+        <span className="sr-only">{worse ? "empeora" : "mejora"}</span>
+      </span>
+    );
+  };
+  return (
+    <div>
+      <h3 className="m-0 mb-1 text-sm font-semibold">Errores por motivo</h3>
+      <p className="help m-0 mb-2">Compara qué motivos marcó la IA contra los que marcó la planilla, llamada por llamada.</p>
+      <table className="tbl">
+        <thead>
+          {two ? (
+            <>
+              <tr>
+                <th rowSpan={2} scope="col">
+                  Motivo
+                </th>
+                <th rowSpan={2} scope="col">
+                  {head("Marcados por la corredora", HELP.marked)}
+                </th>
+                <th colSpan={2} scope="colgroup">
+                  {head("Falsas alarmas", HELP.fp)}
+                </th>
+                <th colSpan={2} scope="colgroup">
+                  {head("No detectados", HELP.fn)}
+                </th>
+              </tr>
+              <tr>
+                <th scope="col">v{detail.activeVersion}</th>
+                <th scope="col">v{detail.meta.version}</th>
+                <th scope="col">v{detail.activeVersion}</th>
+                <th scope="col">v{detail.meta.version}</th>
+              </tr>
+            </>
+          ) : (
             <tr>
-              <th>Motivo</th>
-              {!same && <th>v{detail.activeVersion}</th>}
-              <th>v{detail.meta.version}</th>
+              <th scope="col">Motivo</th>
+              <th scope="col">{head("Marcados por la corredora", HELP.marked)}</th>
+              <th scope="col">{head("Falsas alarmas", HELP.fp)}</th>
+              <th scope="col">{head("No detectados", HELP.fn)}</th>
             </tr>
-          </thead>
-          <tbody>
-            {criteria.map((id) => (
+          )}
+        </thead>
+        <tbody>
+          {ids.map((id) => {
+            const p = at(prev, id);
+            const c = at(cur, id);
+            const support = c?.support ?? p?.support ?? 0;
+            return (
               <tr key={id}>
                 <td className="whitespace-normal">
                   Motivo {id} · {rubric?.criteria[id]?.name}
+                  {support < cur.minSupport && <div className="help">Pocos casos: el resultado varía mucho</div>}
                 </td>
-                {!same && <td className="num">{fails.get(id) ?? 0}</td>}
-                <td className="num font-semibold">{shown.byCriterion.find((c) => c.criterionId === id)?.failCount ?? 0}</td>
+                <td className="num">{support}</td>
+                {two && <td className="num">{p?.fp ?? "—"}</td>}
+                <td className="num font-semibold">{cell(p?.fp, c?.fp)}</td>
+                {two && <td className="num">{p?.fn ?? "—"}</td>}
+                <td className="num font-semibold">{cell(p?.fn, c?.fn)}</td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }

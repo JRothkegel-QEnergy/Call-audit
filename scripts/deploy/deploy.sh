@@ -15,7 +15,7 @@ SSH=(ssh -i "$KEY" -o StrictHostKeyChecking=accept-new "ec2-user@$HOST")
 
 # El worker (pipeline SFTP → ASR → capa 2) necesita la llave de Gemini, la cuenta SFTP de S4P y el catálogo de
 # productos (no está en git).
-for var in GEMINI_API_KEY SFTP_HOST SFTP_USER SFTP_PASSWORD SFTP_HOST_KEY; do
+for var in GEMINI_API_KEY SFTP_HOST SFTP_USER SFTP_PASSWORD SFTP_HOST_KEY PGWEB_DATABASE_URL PGWEB_USER PGWEB_AUTH_HASH; do
   grep -q "^$var=." .deploy/server.env || { echo "Falta $var=... en .deploy/server.env (docs/deploy.md)"; exit 1; }
 done
 # OPENROUTER_API_KEY es opcional: sin ella no hay respaldo si Gemini falla (ej. la cuenta prepago sin saldo).

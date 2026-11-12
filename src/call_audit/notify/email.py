@@ -60,7 +60,12 @@ def send(email: Email, settings: Settings) -> None:
     raise ValueError(f"EMAIL_BACKEND desconocido: {backend}")
 
 
-ROLE_LABEL = {"auditor": "Auditor", "supervisor": "Supervisor", "qubico_admin": "Administrador Qubico"}
+ROLE_LABEL = {
+    "auditor": "Auditor",
+    "supervisor": "Supervisor",
+    "qubico_admin": "Administrador Qubico",
+    "qubico_viewer": "Lectura Qubico",
+}
 
 
 def _layout(body_html: str, settings: Settings) -> str:

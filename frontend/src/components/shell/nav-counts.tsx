@@ -22,7 +22,7 @@ export function NavCountsProvider({ role, children }: { role: Role; children: Re
   const refresh = useCallback(() => {
     const load = async () => {
       try {
-        if (role === "qubico_admin") return;
+        if (role === "qubico_admin" || role === "qubico_viewer") return;
         if (role === "auditor") {
           const [q, mine] = await Promise.all([api.listQueue(), api.listMyReviews()]);
           setCounts({ ...ZERO, queue: q.total, reopened: mine.filter((m) => m.status === "reopened").length });

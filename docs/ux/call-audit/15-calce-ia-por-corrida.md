@@ -1,6 +1,6 @@
 # Cambio 15 · Calce de la IA por corrida y por motivo (admin Qubico)
 
-> Revisión rápida sobre lo aprobado (fases 0–8 y cambios 09–14). Fecha: 2026-11-02. **Estado: aprobado (2026-11-02), implementable.** Alcance D-52 a D-56; diseño §7 y Q1–Q2 aprobados (D-57, D-58). Paginador del mapa §7.10 (D-59, 2026-11-03).
+> Revisión rápida sobre lo aprobado (fases 0–8 y cambios 09–14). Fecha: 2026-11-02. **Estado: aprobado (2026-11-02), implementable.** Alcance D-52 a D-56; diseño §7 y Q1–Q2 aprobados (D-57, D-58). Paginador del mapa §7.10 (D-59, 2026-11-03). Llamadas nuevas en el mapa §7.11 (D-88 a D-91, aprobado 2026-11-06: Q1 A, Q2 B, Q3 A, Q4 A).
 > **Pedido de Johannes (textual):** "me gustaría que en la vista del admin pueda ver algo parecido al dashboard que tenemos para ver que IA funcionaba mejor y comparando con cada run del prompt. De esta forma puedo ver tambien los resultados que ha tenido la IA y comparado con el resultado que venia en la metadata por item del checkbox."
 > **Respuesta de Johannes (textual):** "1. A / 2. A / 3. A / 4. A / 5. B". Sin objeción a H-87–H-95.
 > **Aprobación de §7 (textual):** "Sí, las recomendadas". H-96 a H-101 sin objeción.
@@ -426,3 +426,175 @@ Es un cambio menor sobre el bloque 6 de §7.2 (D-56); no cambia el flujo, la AI 
 | `mapPage` fuera de rango | Última página |
 
 **Revisión rápida:** trazabilidad D-56/D-59 · sin callejones · WCAG 2.2 AA: 2.4.3, 2.5.8 y 4.1.3 · microcopy coherente con la lista · sin dark patterns · sin ítems legales nuevos.
+
+### 7.11 El mapa compara las llamadas nuevas (revisión rápida, 2026-11-06) · **aprobado, implementable**
+
+Pedido de Johannes (con captura): "hay algo raro en este gráfico, no están siendo comparados los nuevos audios, solo los 100 iniciales".
+
+Es un cambio menor sobre §7.2 (bloques 1 y 6), §7.10 y H-93. No cambia el flujo, la AI ni los CUJ. Decisiones **D-88 a D-91**; supuestos **H-144 a H-148**. No hay ítems L nuevos (preferencia de Johannes).
+
+**Respuestas de Johannes (2026-11-06):**
+- **Q1 A**, ya resuelta: prod corre `283faef`, que incluye `7a0d881`. La serie "Vigente" (`id: "current"`) ya existe; la captura era de antes de ese deploy. Las corridas del worker y la v2.10 del banco tienen `is_current = true`.
+- **Q2 B** (no la recomendada): el mapa muestra siempre todas las llamadas, primero las que tienen resultado en la corrida del mapa. No hay selector.
+- **Q3 A.**
+- **Q4 A.**
+- Además, ya se desplegó el reintento de las validaciones que fallaron con 402. Las llamadas con error se irán validando cuando haya saldo, así que los textos sobre errores no pueden depender de cuántas son.
+
+#### 7.11.1 Diagnóstico (datos de prod, 2026-11-06)
+
+| Hecho | Efecto en la pantalla |
+|---|---|
+| 1.097 llamadas con planilla (549 Cumple · 548 No cumple); el mapa tiene 11 páginas de 100 | — |
+| Las 100 del banco tienen los `callId` más altos (posiciones 996–1096) y el mapa ordena solo por `callId` | Con cualquier corrida del banco, las páginas 1 a 10 salen enteras en "Sin referencia" |
+| "Vigente" junta banco y pipeline: 1.097 llamadas; al 2026-11-06, 892 con resultado y 205 con error que se reintentan | Era la corrida que faltaba en la captura; ya está en prod |
+| Ningún chip dice cuántas llamadas cubre la corrida | Nada avisa que una corrida mide solo 100 de 1.097 |
+| El titular dice "Con 1.097 llamadas…" aunque cada corrida se mide sobre las suyas | La comparación parece hecha sobre las mismas llamadas, y no lo es |
+
+#### 7.11.2 Especificación
+
+**D-88 · Corrida por defecto: "Vigente" (ya está en prod)**
+- La regla de `defaultSeries` no cambia: la vigente más la más reciente de cada otro modelo, hasta 6. "Vigente" ya entra por `isCurrent`.
+- Las corridas por etiqueta ("v2.10", "v2.10 automático", "v2.7", "v2.7 corrida 2") siguen en "Agregar corrida", sin la marca de vigente.
+- **Nombre.** Pendiente de implementar. Hoy `seriesName` da "… · v2.10 · Vigente" y el chip le agrega otro "· Vigente".
+  - Para `id = "current"`, `seriesName` devuelve **"{modelo} · v{versión} · Vigente"**, con "Vigente" una sola vez. El chip y la lista de "Agregar corrida" no agregan el segundo "· Vigente" para esa serie.
+  - El botón del mapa dice **"Gemini · Vigente"** (hoy dice "Gemini · v2.10").
+- **Versiones mezcladas** (durante un cambio de versión del prompt).
+  - El backend agrega `promptVersions: string[]` solo en la serie "Vigente", ordenado con `prompt_registry.version_key`.
+  - Si trae más de una versión, el nombre usa la más frecuente (`promptVersion`, como hoy) y el chip y el botón del mapa llevan `title="Incluye llamadas con v2.10 y v2.11"`.
+  - Si trae una sola versión, nada cambia.
+
+**D-89 · Cobertura de cada corrida**
+
+Se calcula en el front desde `data.calls` (H-99). Conviene una función en `quality.ts`, por ejemplo `coverage(seriesId, calls) → { withResult, errors, notRun }`:
+- `withResult`: llamadas donde `results[id]` es un objeto.
+- `errors`: llamadas donde `results[id] === null`. El backend manda `null` cuando la corrida terminó con error.
+- `notRun`: llamadas donde la llave no existe; la corrida no tocó esa llamada.
+
+Dónde se ve:
+- **Chip.** Después del nombre, con `help tabular`: **"892 de 1.097"**. Si `withResult` es igual al total: **"1.097"**.
+  - El chip se lee como "{nombre}, 892 de 1.097 llamadas con resultado". Va con `aria-label` en el contenedor o con texto `sr-only`.
+  - El botón "Quitar" no cambia.
+- **"Agregar corrida".** Reemplaza "{s.calls} llamadas" por **"892 de 1.097"**.
+  - Si `errors > 0`, debajo va una línea `help`: **"{n} con error"**, en singular o plural ("1 con error", "12 con error").
+  - Si `errors = 0`, esa línea no se muestra.
+- **Ranking.** Hoy muestra "· n sin resultado". Pasa a dos partes, **"· {errors} con error"** y **"· {notRun} sin correr"**, y cada una se omite si vale 0.
+
+Ningún texto dice que los errores se resuelven solos, ni da plazos: los números bajan solos cuando el pipeline reintenta.
+
+**D-90 · Orden del mapa: primero las llamadas con resultado (Q2 B)**
+
+*Universo y reparto.*
+- El mapa muestra siempre las 1.097 llamadas. No hay selector ni parámetro de URL nuevo.
+- El reparto de §7.10 (hasta 50 Cumple + 50 No cumple por página, y el grupo que sigue rellena si el otro se agota) se aplica sobre **todas**. `nC` y `nN` son los totales de la planilla y la fórmula no cambia.
+- El encabezado de cada bloque sigue mostrando el total del grupo: "Cumple según la planilla (549)".
+
+*Orden dentro de cada grupo (Cumple y No cumple), según la corrida del mapa.*
+1. **Con resultado**: `results[id]` es un objeto.
+2. **Con error**: `results[id] === null`. Van antes que las que no se corrieron porque se van a reintentar.
+3. **Sin correr**: la llave no existe.
+
+El orden secundario, dentro de cada nivel, es `callId` numérico ascendente (como hoy, `localeCompare(..., { numeric: true })`).
+
+Con "Vigente", las primeras páginas muestran solo llamadas con resultado. Con una corrida del banco, la página 1 muestra sus 100 llamadas (50 + 50, si el reparto de esas 100 lo permite) y las páginas siguientes muestran las llamadas que no corrió.
+
+*`mapPage` (revisa H-102).*
+- El orden ahora depende de la corrida del mapa. Por eso **cambiar la corrida del mapa vuelve a la página 1** (se borra `mapPage`).
+- Agregar o quitar otras corridas no lo toca. Si al quitar una corrida cambia la corrida del mapa (porque era la que estaba en el mapa), también vuelve a la página 1.
+- Si al recargar los datos `mapPage` queda fuera de rango, se ajusta con `Math.min` (§7.10.3), como hoy.
+- Lo demás de §7.10.3 sigue igual: `mapPage` se conserva al volver desde `/calls/[id]` y es independiente de `page`.
+
+*Cómo se ven las llamadas sin resultado y con error.*
+- **Sin correr:** la columna entera se dibuja en "Sin referencia" (borde punteado), como hoy.
+- **Con error:** la columna se dibuja igual, en "Sin referencia". La única diferencia es la celda de la fila de veredicto, que usa un estado nuevo **`error`**: relleno sólido `--neutral-500`, que da 3,15:1 sobre blanco (WCAG 1.4.11).
+  - Se distingue de "No marca" (`--neutral-100`, sin borde) y de "Sin referencia" (solo borde punteado) por la forma del relleno y no solo por el color.
+- **Corte entre niveles.** Dentro de un bloque de la página, entre la última columna de un nivel y la primera del siguiente, va un espacio extra de 6 px (`ml-1.5` en esa columna), sin texto. Ayuda a ver dónde terminan las llamadas con resultado.
+- **Tooltip de cada columna** (`title`):
+  - "Llamada {callId}" si tiene resultado;
+  - "Llamada {callId} · error de la IA, sin resultado" si tuvo error;
+  - "Llamada {callId} · esta corrida no la evaluó" si no se corrió.
+- El clic abre la llamada en los tres casos, como hoy.
+- **Leyenda.**
+  - Se agrega `["error", "Error de la IA (fila de veredicto)"]`.
+  - "Sin referencia (sin marca por motivo o sin resultado)" no cambia.
+
+*Línea de cobertura del mapa.* Nueva línea `help tabular`, entre la cabecera y la grilla:
+- Texto: **"{corrida}: {withResult} con resultado · {errors} con error · {notRun} sin correr, de {total}. Primero las que tienen resultado."**
+- Cada parte con valor 0 se omite.
+- Si `withResult` es igual al total, la línea se reduce a "{corrida}: las {total} llamadas tienen resultado." y no lleva la segunda oración.
+- Si `withResult = 0`, la línea dice "{corrida}: ninguna de las {total} llamadas tiene resultado ({errors} con error · {notRun} sin correr)." Cada parte con valor 0 se omite.
+- Va con `aria-live="polite"`, porque cambia al cambiar la corrida del mapa.
+- No nombra los reintentos ni da plazos: los números se actualizan solos (aviso de Johannes).
+
+*Línea de rango y paginador.*
+- Igual que en §7.10.2: "Cumple 1–50 · No cumple 1–50". Los números son posiciones en el orden de la corrida del mapa.
+- No se le agrega nada; la cobertura ya va en la línea de arriba.
+
+*Conteos y accesibilidad.*
+- `aiOnly` y `missed` no cambian: ya cuentan solo las llamadas con resultado.
+- El `aria-label` del `role="img"` queda así: "{nombre}: {aiOnly} llamadas con solo la IA y {missed} omitidas, en {withResult} llamadas con resultado de {total}. Primero las que tienen resultado. Se muestran Cumple 1 a 50 y No cumple 1 a 50."
+  - "de {total}" se omite si son iguales.
+  - La última oración va solo si hay más de una página (§7.10.4).
+- Al cambiar la corrida del mapa, el foco se queda en el radio que se eligió. El cambio de página no mueve el foco.
+
+**D-91 · Nota del titular cuando las corridas cubren llamadas distintas (Q4 A)**
+- **Coberturas distintas** (las corridas elegidas no tienen todas el mismo `withResult`): la nota bajo el titular pasa a **"Cada corrida se mide sobre las llamadas que tiene ({min} a {max}). No son las mismas llamadas, así que la comparación es orientativa."**
+  - Con 2 o 3 corridas, en vez del rango se nombran: "Cada corrida se mide sobre las llamadas que tiene: Gemini · Vigente 892, Claude Haiku · v2.7 100. …".
+- **Misma cobertura:** se mantiene la nota de hoy, pero con `withResult` en lugar de `data.calls.length`: "Con {withResult} llamadas, diferencias de 1 a 3 llamadas entre corridas no son concluyentes."
+- **Una sola corrida elegida:** no hay nota, como hoy.
+- Ranking, matriz y tabla por motivo no cambian.
+
+#### 7.11.3 Wireframe (texto, cifras de prod al 2026-11-06)
+
+```
+Corridas  [● Gemini 3.8 Flash · v2.10 · Vigente  892 de 1.097 ×] [● Claude Haiku · v2.7  100 de 1.097 ×] … [+ Agregar corrida ▾]
+
+Mapa llamada por llamada          [● Gemini · Vigente | ● Haiku · v2.7 | …]          [Ver como lista]
+Gemini 3.8 Flash · v2.10 · Vigente: 892 con resultado · 205 con error, de 1.097. Primero las que tienen resultado.
+          Cumple según la planilla (549)           No cumple según la planilla (548)
+Llamada   ■■■■■■■■■■■■■■■■■■■■■■■…                ■■■■■■■■■■■■■■■■■■■■■■■…
+M01       ...
+Cumple 1–50 · No cumple 1–50                                        [Anterior] 1 de 11 [Siguiente]
+
+Con Haiku · v2.7 en el mapa, página 1:
+Claude Haiku · v2.7: 100 con resultado · 997 sin correr, de 1.097. Primero las que tienen resultado.
+          Cumple (549)                              No cumple (548)
+Llamada   ■■■■■■■■…■■ ┆┆┆┆┆…                         ■■■■■■■■…■■ ┆┆┆┆┆…
+          └ con resultado ┘ └ sin correr (6 px antes)
+```
+
+#### 7.11.4 Estados (se suman a §7.4 y §7.10)
+
+| Estado | Qué se ve |
+|---|---|
+| Corrida del mapa con todo resultado | Línea "las {total} llamadas tienen resultado."; orden por `callId`, como antes |
+| Corrida del banco | Página 1 con sus llamadas; desde el corte, columnas "Sin referencia"; 11 páginas |
+| Corrida con errores | Después de las con resultado, columnas con la celda de veredicto `error`; después, las sin correr |
+| Cambio de la corrida del mapa | Vuelve a la página 1; la línea de cobertura se anuncia |
+| Corrida sin ningún resultado | Todas las columnas en "Sin referencia" o `error`, y la línea "ninguna de las {total} llamadas tiene resultado (…)". No hay un estado vacío aparte: es la misma grilla |
+| Errores que se van reintentando | Al recargar suben "con resultado" y bajan "con error"; los textos no cambian de forma |
+| Corridas con cobertura distinta | Nota del titular de D-91 |
+
+#### 7.11.5 Supuestos
+
+| ID | Supuesto | Estado |
+|---|---|---|
+| H-144 | Las `ModelRun` del worker y la v2.10 del banco tienen `is_current = true` y no compiten en las mismas llamadas; "Vigente" cubre 1.097 | Validada (Johannes, 2026-11-06) |
+| H-145 | Basta con mandar `promptVersions` solo en la serie "Vigente"; las demás tienen una sola versión del prompt por `run_label` | Pendiente |
+| H-146 | Ver siempre todas las llamadas, con las que tienen resultado primero, alcanza para comparar las llamadas nuevas sin esconder las que faltan | Johannes eligió Q2 B; validar con el uso |
+| H-147 | Las llamadas con error se reintentan en el pipeline (402) y se ven en Procesamiento; esta vista solo las muestra, sin acción | Johannes, 2026-11-06 |
+| H-148 | Con error va antes que sin correr, porque esas llamadas van a tener resultado; dentro de cada nivel, `callId` ascendente | Pendiente |
+
+#### 7.11.6 Preguntas
+
+No quedan preguntas bloqueantes. Q1 a Q4 están respondidas (arriba).
+
+**Revisión rápida:**
+- Trazabilidad: D-56, D-59, H-93 y H-102 → D-88 a D-91.
+- Sin callejones sin salida: toda columna abre su llamada.
+- WCAG 2.2 AA:
+  - 1.3.1: la línea de cobertura es texto.
+  - 1.4.1 y 1.4.11: `error` se distingue por la forma del relleno, con 3,15:1.
+  - 2.4.3: el foco se queda en el radio.
+  - 4.1.3: la cobertura y el rango van en `aria-live`.
+- Microcopy coherente con §7.5 y con el Cambio 17 ("planilla"); los textos de errores no dependen de la cantidad.
+- Sin dark patterns. Sin ítems legales nuevos.

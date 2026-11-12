@@ -3,7 +3,7 @@ Todo sintético: el modelo de la prueba es un doble y los correos quedan en el O
 
 import json
 import re
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
 import yaml
@@ -13,11 +13,19 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from call_audit import prompt_evaluation
+from call_audit.api.routes_admin import (
+    chile_day,
+    first_run_days,
+    period_bounds,
+    processed_series,
+    reviewed_per_day,
+)
 from call_audit.config import ROOT
 from call_audit.notify import email as mail
 from call_audit.persistence.models import (
     AsrFailure,
     Case,
+    ModelRun,
     PipelineRun,
     PromptEvaluation,
     PromptVersion,
@@ -223,6 +231,101 @@ def test_stats_have_no_people(client: TestClient, admin: User, imported: session
     with imported() as session:
         assert session.get(PromptVersion, "9.9").status == "retired"
     assert "auditor" not in json.dumps(stats).lower()
+
+
+def run_on(case_id: str, day: int, error: str | None = None) -> ModelRun:
+    return ModelRun(case_id=case_id, run_at=datetime(2026, 10, day, 12, tzinfo=UTC), error=error)
+
+
+def test_series_counts_each_call_on_its_first_successful_run() -> None:
+    runs = [run_on("a", 3), run_on("a", 5), run_on("b", 1, error="timeout"), run_on("b", 3), run_on("c", 5)]
+    daily, bucket = processed_series(list(first_run_days(runs).values()), None)
+    assert bucket == "day"
+    assert daily == [
+        {"date": "2026-10-03", "calls": 2},
+        {"date": "2026-10-04", "calls": 0},
+        {"date": "2026-10-05", "calls": 1},
+    ]
+
+
+def test_series_covers_the_whole_period_and_handles_no_runs() -> None:
+    assert processed_series([], None) == ([], "day")
+    today = date(2026, 10, 20)
+    daily, bucket = processed_series([date(2026, 10, 15)], period_bounds("7d", today))
+    assert (daily[0]["date"], daily[-1]["date"], len(daily), bucket) == ("2026-10-14", "2026-10-20", 7, "day")
+    assert sum(d["calls"] for d in daily) == 1
+
+
+def test_all_history_over_31_days_groups_by_monday() -> None:
+    daily, bucket = processed_series([date(2026, 9, 1), date(2026, 9, 2), date(2026, 10, 12)], None)
+    assert bucket == "week"
+    assert daily[0] == {"date": "2026-08-31", "calls": 2}
+    assert daily[-1] == {"date": "2026-10-12", "calls": 1}
+    assert sum(d["calls"] for d in daily) == 3
+
+
+def test_run_before_midnight_in_chile_belongs_to_that_day() -> None:
+    # 02:00 UTC del 15 de octubre son las 23:00 del 14 en Chile (UTC-3).
+    assert chile_day(datetime(2026, 10, 15, 2, tzinfo=UTC)) == date(2026, 10, 14)
+    assert chile_day(datetime(2026, 10, 15, 2)) == date(2026, 10, 14)
+
+
+def test_reviewed_per_day_uses_the_period_or_the_first_review() -> None:
+    today = date(2026, 10, 20)
+    days = [date(2026, 10, 11), date(2026, 10, 20), date(2026, 10, 20)]
+    assert reviewed_per_day(days, period_bounds("7d", today), today) == round(2 / 7, 1)
+    assert reviewed_per_day(days, None, today) == 0.3
+    assert reviewed_per_day([], None, today) == 0.0
+
+
+def add_runs(db: sessionmaker[Session]) -> None:
+    with db() as session, session.begin():
+        case_ids = list(session.scalars(select(Case.id)))
+        for run in session.scalars(select(ModelRun)):
+            session.delete(run)
+        session.flush()
+        common = {"rubric_version": "1", "verdict": "compliant"}
+        at = datetime.now(UTC) - timedelta(days=60)
+        for label, model, version, day in [("v1", "m-a", "2.8", 0), ("v2", "m-b", "2.10", 50)]:
+            for case_id in case_ids[:2]:
+                session.add(
+                    ModelRun(
+                        case_id=case_id,
+                        model=model,
+                        run_label=label,
+                        prompt_version=version,
+                        run_at=at + timedelta(days=day),
+                        cost_usd=0.01,
+                        **common,
+                    )
+                )
+
+
+def test_stats_filters_apply_to_processed_and_cost(
+    client: TestClient, admin: User, imported: sessionmaker[Session]
+) -> None:
+    add_runs(imported)
+    login(client, admin)
+    everything = client.get("/api/admin/stats").json()
+    assert everything["operation"]["callsProcessed"] == 2
+    assert len(everything["cost"]) == 2
+    assert everything["filters"]["promptVersions"][:2] == ["2.10", "2.8"]
+    assert "m-a" in {m["id"] for m in everything["filters"]["models"]}
+
+    # La re-corrida de hace 10 días no cuenta como llamada nueva, pero sí aparece en Costo.
+    recent = client.get("/api/admin/stats", params={"period": "30d"}).json()
+    assert recent["operation"]["callsProcessed"] == 0
+    assert recent["operation"]["daily"] == []
+    assert [c["promptVersion"] for c in recent["cost"]] == ["2.10"]
+
+    # Dentro del prompt elegido, esa misma corrida sí es la primera.
+    by_prompt = client.get("/api/admin/stats", params={"period": "30d", "prompt": "2.10"}).json()
+    assert by_prompt["operation"]["callsProcessed"] == 2
+    assert len(by_prompt["operation"]["daily"]) == 30
+
+    none = client.get("/api/admin/stats", params={"model": "m-a", "prompt": "2.10"}).json()
+    assert none["cost"] == [] and none["filters"]["lastRunAt"] is None and none["filters"]["range"] is None
+    assert client.get("/api/admin/stats", params={"period": "90d"}).status_code == 422
 
 
 # --- Procesamiento (Cambio 14) -----------------------------------------------------------------------------------

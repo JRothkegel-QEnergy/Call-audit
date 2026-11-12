@@ -43,6 +43,12 @@ type AdminApi = Pick<
   | "estimatePromptTest"
   | "startPromptTest"
   | "stopPromptTest"
+  | "estimateCauseAnalysis"
+  | "startCauseAnalysis"
+  | "getSegmentCalls"
+  | "getCaseComparison"
+  | "saveVerification"
+  | "deleteVerification"
   | "activatePromptVersion"
   | "exportPromptVersion"
   | "getActivePrompt"
@@ -78,6 +84,54 @@ const metrics = (match: number, extra = 0): EvaluationMetrics => ({
     { criterionId: 13, failCount: 14 },
     { criterionId: 18, failCount: 9 - extra },
   ],
+  // Mosaico (sintético): cuadra con criterionScores de abajo.
+  agreement: {
+    byCall: {
+      n: 100,
+      agree: match,
+      undecided: 6 - extra,
+      promptFn: 9 + 4 * extra - (extra ? 2 : 0),
+      promptFp: 100 - match - (6 - extra) - (9 + 4 * extra) - (extra ? 1 : 0),
+      reviewer: extra ? 3 : 0,
+      reviewerFn: extra ? 2 : 0,
+      reviewerFp: extra ? 1 : 0,
+    },
+    byCallCriterion: {
+      n: 3300,
+      agree: 3300 - 70 - 12 - (extra ? 6 : 0),
+      undecided: 12,
+      promptFn: 38,
+      promptFp: 32,
+      reviewer: extra ? 6 : 0,
+      reviewerFn: extra ? 4 : 0,
+      reviewerFp: extra ? 2 : 0,
+    },
+    criteria: 33,
+    causeAnalysis: { status: extra ? "done" : "none", costUsd: extra ? 4.2 : null, finishedAt: extra ? "2026-11-11T18:00:00" : null, disagreements: 100 - match - (6 - extra), findingsStored: !!extra },
+  },
+  // Datos sintéticos de demo (no son de la corredora): 50 llamadas aprobadas y 50 rechazadas por la planilla.
+  criterionScores: {
+    n: 100,
+    callMatchRate: match / 100,
+    callFpRate: (21 - 9 * extra) / 50,
+    callFnRate: (9 + 4 * extra) / 50,
+    callUncertainRate: (6 - extra) / 100,
+    fpGoal: 0.05,
+    fnGoal: 0.2,
+    nCalls: 100,
+    nApproved: 50,
+    nRejected: 50,
+    fpCount: 21 - 9 * extra,
+    fnCount: 9 + 4 * extra,
+    uncertainCount: 6 - extra,
+    minSupport: 5,
+    byCriterion: [
+      { criterionId: 13, support: 12, tp: 8, fp: 6 - extra, fn: 4 },
+      { criterionId: 18, support: 14, tp: 5, fp: 4 - extra, fn: 9 + 2 * extra },
+      { criterionId: 25, support: 0, tp: 0, fp: 11 - 5 * extra, fn: 0 },
+      { criterionId: 28, support: 3, tp: 2, fp: 20 - extra * 3, fn: 1 },
+    ],
+  },
 });
 
 interface Record_ {
@@ -193,6 +247,7 @@ function followUpPreview(ids: string[], overrides: Record<number, string>): Foll
     });
   return {
     baseVersion: cur,
+    baseIsActive: true,
     version: next,
     model: active().meta.model,
     changelog: `Reglas del análisis de discrepancias: ${criteria.length === 1 ? "motivo" : "motivos"} ${criteria.map((c) => c.criterionId).join(", ")}.`,
@@ -379,6 +434,17 @@ export const adminMock: AdminApi = {
         diff: cur === p ? null : { kind: "text", base: cur.content, next: p.content },
         evaluation: evaluationOf(p),
         activeMetrics: cur.run?.metrics ?? null,
+        loop:
+          p.meta.version === cur.meta.version
+            ? null
+            : {
+                id: "loop-demo",
+                status: "running",
+                rounds: [
+                  { round: 0, version: cur.meta.version, parentVersion: null, agreement: cur.run?.metrics?.agreement ?? null },
+                  { round: 1, version: p.meta.version, parentVersion: cur.meta.version, agreement: p.run?.status === "done" ? (p.run.metrics?.agreement ?? null) : null },
+                ],
+              },
         history: p.history,
       };
     }),
@@ -442,6 +508,13 @@ export const adminMock: AdminApi = {
       p.history.push({ at: iso(), actor: currentUser()?.name ?? "?", action: "Inició la prueba (la versión queda inmutable)" });
       log("prompt_tested", `Prompt v${version}`, "100 llamadas");
     }),
+  estimateCauseAnalysis: () => wait(() => ({ model: "claude-sonnet-5-5", criteria: [12], totalUsd: 4.2 })),
+  startCauseAnalysis: () => wait(() => undefined),
+  // La verificación caso a caso necesita los resultados guardados de una prueba real: en la demo no está.
+  getSegmentCalls: () => Promise.reject(new ApiError("not_available")),
+  getCaseComparison: () => Promise.reject(new ApiError("not_available")),
+  saveVerification: () => Promise.reject(new ApiError("not_available")),
+  deleteVerification: () => Promise.reject(new ApiError("not_available")),
   stopPromptTest: (version) =>
     wait(() => {
       const p = find(version);
@@ -462,23 +535,33 @@ export const adminMock: AdminApi = {
     }),
   exportPromptVersion: (version) => wait(() => new Blob([find(version).content], { type: "text/plain" })),
   getActivePrompt: () => wait(() => ({ version: active().meta.version, since: active().meta.activatedAt, changedInApp: state.changedInApp })),
-  getAdminStats: () =>
-    wait((): AdminStats => ({
-      operation: {
-        callsProcessed: 8420,
-        minutesProcessed: 81_340,
-        medianHoursToResult: null,
-        batchesWithError: 2,
-        humanQueue: 142,
-        oldestQueueHours: 3,
-        reviewedPerDay: 181,
-        daily: [1180, 1240, 1205, 1190, 1260, 1170, 1175].map((calls, i) => ({ date: `2026-10-${String(15 + i).padStart(2, "0")}`, calls })),
-        failedBatches: [{ batchId: "v2.10 automático", at: "2026-10-20T05:55:00", stage: "modelo", calls: 1 }],
-      },
-      cost: [
-        { model: "gemini-demo", promptVersion: "2.10", calls: 6200, totalUsd: 25.4, perCallUsd: 0.0041, tokensIn: null, tokensOut: null, latencyMsAvg: 1750, latencyMsP95: 3280 },
-      ],
-    })),
+  getAdminStats: (f) =>
+    wait((): AdminStats => {
+      const matches = (!f?.model || f.model === "gemini-demo") && (!f?.prompt || f.prompt === "2.10");
+      return {
+        filters: {
+          models: [{ id: "gemini-demo", label: "Gemini demo" }],
+          promptVersions: ["2.10"],
+          range: matches ? { from: "2026-10-15", to: "2026-10-21" } : null,
+          lastRunAt: matches ? "2026-10-21T05:55:00" : null,
+        },
+        operation: {
+          callsProcessed: matches ? 8420 : 0,
+          minutesProcessed: matches ? 81_340 : 0,
+          medianHoursToResult: null,
+          batchesWithError: matches ? 2 : 0,
+          humanQueue: 142,
+          oldestQueueHours: 3,
+          reviewedPerDay: 181,
+          daily: matches ? [1180, 1240, 1205, 1190, 1260, 1170, 1175].map((calls, i) => ({ date: `2026-10-${String(15 + i).padStart(2, "0")}`, calls })) : [],
+          dailyBucket: "day",
+          failedBatches: matches ? [{ batchId: "v2.10 automático", at: "2026-10-20T05:55:00", stage: "modelo", calls: 1 }] : [],
+        },
+        cost: matches
+          ? [{ model: "gemini-demo", promptVersion: "2.10", calls: 6200, totalUsd: 25.4, perCallUsd: 0.0041, tokensIn: null, tokensOut: null, latencyMsAvg: 1750, latencyMsP95: 3280 }]
+          : [],
+      };
+    }),
   getAiQuality: () => wait(mockAiQuality),
   listActivity: () => wait(() => state.activity),
   getProcessingStatus: () =>

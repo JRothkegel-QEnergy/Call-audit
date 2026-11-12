@@ -147,8 +147,11 @@ def create_draft(
     model: str,
     changelog: str,
     rationale: str | None,
+    base: PromptVersion | None = None,
 ) -> PromptVersion:
-    base = ensure_bootstrap(session)
+    """`base`: contra qué versión se valida (history de lo que cambió). Por defecto la vigente; desde Seguimiento
+    con reglas del loop de mejora, la versión probada de la que salen las reglas."""
+    base = base or ensure_bootstrap(session)
     errors: list[str] = []
     if not changelog.strip():
         errors.append("Cuenta qué cambió en esta versión.")

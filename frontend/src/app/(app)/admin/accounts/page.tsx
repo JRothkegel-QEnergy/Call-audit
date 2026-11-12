@@ -318,7 +318,7 @@ function InviteDialog({ open, onOpenChange, onDone }: { open: boolean; onOpenCha
         </label>
         <fieldset className="m-0 rounded-md border border-border px-3 py-2">
           <legend className="px-1 text-[13px] font-medium">Rol</legend>
-          {(["auditor", "supervisor", "qubico_admin"] as Role[]).map((r) => (
+          {(["auditor", "supervisor", "qubico_admin", "qubico_viewer"] as Role[]).map((r) => (
             <label key={r} className="flex items-center gap-2">
               <input
                 type="radio"

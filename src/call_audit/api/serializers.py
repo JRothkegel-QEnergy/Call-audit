@@ -23,7 +23,7 @@ def iso(value: datetime | None) -> str | None:
 
 
 # Roles que ven el veredicto y el comentario del cliente y el panel del modelo (D-24, Cambio 12).
-SEES_CLIENT = ("supervisor", "qubico_admin")
+SEES_CLIENT = ("supervisor", "qubico_admin", "qubico_viewer")
 
 
 def user_out(user: User) -> dict:

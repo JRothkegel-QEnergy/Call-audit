@@ -17,14 +17,17 @@ export function useAsync<T>(fn: () => Promise<T>, deps: unknown[]) {
   useEffect(() => {
     fnRef.current = fn;
   });
+  // Solo vale la respuesta del último pedido: una lenta no puede pisar a una más nueva.
+  const latestRequest = useRef(0);
   const run = useCallback(async (opts?: { silent?: boolean }) => {
+    const request = ++latestRequest.current;
     if (!opts?.silent) setState((s) => ({ status: "loading", data: s.data, error: null }));
     try {
       const data = await fnRef.current();
-      setState({ status: "success", data, error: null });
+      if (request === latestRequest.current) setState({ status: "success", data, error: null });
       return data;
     } catch (e) {
-      setState((s) => ({ status: "error", data: s.data, error: e instanceof Error ? e : new Error(String(e)) }));
+      if (request === latestRequest.current) setState((s) => ({ status: "error", data: s.data, error: e instanceof Error ? e : new Error(String(e)) }));
       return undefined;
     }
   }, []);

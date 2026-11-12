@@ -104,6 +104,11 @@ class PromptEvaluation(Base):
     results: Mapped[list[Any]] = mapped_column(default=list)  # una entrada por llamada probada
     metrics: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     error: Mapped[str | None] = mapped_column(Text)
+    # "test" (o None en las anteriores): la prueba de la versión en validación, la que se muestra y la cambia de
+    # estado. "train": una pasada del loop de mejora sobre entrenamiento (docs/plan-loop-prompt.md), no la toca.
+    purpose: Mapped[str | None] = mapped_column(String(20))
+    split: Mapped[str | None] = mapped_column(String(10))
+    loop_id: Mapped[str | None] = mapped_column(String(32))
     created_at: Mapped[datetime] = mapped_column(default=now)
     started_at: Mapped[datetime | None] = mapped_column()
     finished_at: Mapped[datetime | None] = mapped_column()
@@ -132,6 +137,11 @@ class DiscrepancyAnalysis(Base):
     estimated_cost_usd: Mapped[float | None] = mapped_column(Float)
     cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
     error: Mapped[str | None] = mapped_column(Text)
+    # Con prueba de origen, analiza sus resultados en vez de la corrida vigente (loop de mejora). purpose "rules"
+    # (o None): sus propuestas van a la bandeja; "attribution": solo atribuye la causa de cada desacuerdo de
+    # validación, y sus propuestas nunca entran a la bandeja (R-11 de docs/ux/admin-prompt-metrics).
+    source_evaluation_id: Mapped[str | None] = mapped_column(ForeignKey("prompt_evaluations.id"))
+    purpose: Mapped[str | None] = mapped_column(String(20))
     created_by_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     stopped_by_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(default=now)
@@ -140,6 +150,29 @@ class DiscrepancyAnalysis(Base):
 
     created_by: Mapped[User] = relationship(foreign_keys=[created_by_id])
     stopped_by: Mapped[User | None] = relationship(foreign_keys=[stopped_by_id])
+
+
+class PromptLoop(Base):
+    """Loop de mejora del prompt (docs/plan-loop-prompt.md): vueltas de prueba en entrenamiento → análisis → reglas
+    aprobadas por el admin → versión nueva → prueba y atribución en validación. Lo avanza el worker."""
+
+    __tablename__ = "prompt_loops"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    # running | waiting_approval | done | stopped | failed
+    status: Mapped[str] = mapped_column(String(20), default="running")
+    base_version: Mapped[str] = mapped_column(String(20))
+    max_rounds: Mapped[int] = mapped_column(Integer, default=3)
+    analysis_model: Mapped[str] = mapped_column(String(100))
+    # Una entrada por vuelta: {"round", "version", "trainEvalId", "trainAnalysisId", "nextVersion", "valEvalId",
+    # "valAnalysisId"}.
+    rounds: Mapped[list[Any]] = mapped_column(default=list)
+    error: Mapped[str | None] = mapped_column(Text)
+    created_by_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(default=now)
+    finished_at: Mapped[datetime | None] = mapped_column()
+
+    created_by: Mapped[User] = relationship(foreign_keys=[created_by_id])
 
 
 class DiscrepancyPattern(Base):
@@ -280,6 +313,29 @@ class DiscrepancyClassification(Base):
     presentation: Mapped[str | None] = mapped_column(String(20))  # pending | presented
     updated_by_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     updated_at: Mapped[datetime] = mapped_column(default=now)
+
+
+class DisagreementVerification(Base):
+    """Verificación humana de un desacuerdo IA vs planilla (docs/ux/admin-prompt-metrics/04-verificacion-propuesta.md
+    §10). Guarda la respuesta correcta del motivo, no "quién ganó": sirve para todas las versiones (H-15)."""
+
+    __tablename__ = "disagreement_verifications"
+    __table_args__ = (UniqueConstraint("case_id", "criterion_id"),)
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    case_id: Mapped[str] = mapped_column(ForeignKey("cases.id"), index=True)
+    criterion_id: Mapped[int] = mapped_column(Integer)
+    outcome: Mapped[str] = mapped_column(String(20))  # ai_error | reviewer_error | ambiguous | missing_info
+    correct: Mapped[str | None] = mapped_column(String(20))  # compliant | non_compliant | None
+    reviewer_fail_at: Mapped[bool] = mapped_column(Boolean)  # la planilla al registrar (detecta reimportaciones)
+    ai_verdict_at: Mapped[str] = mapped_column(String(20))
+    version_at: Mapped[str] = mapped_column(String(20))
+    seen_first: Mapped[bool] = mapped_column(Boolean, default=False)
+    note: Mapped[str | None] = mapped_column(Text)
+    decided_by_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    decided_at: Mapped[datetime] = mapped_column(default=now)
+
+    decided_by: Mapped[User] = relationship()
 
 
 class Alert(Base):

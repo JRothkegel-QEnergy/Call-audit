@@ -6,18 +6,29 @@ Sin métricas por persona (L-06, L-22, L-31). Los errores que el front distingue
 """
 
 from collections import Counter, defaultdict
-from datetime import UTC, datetime, timedelta
+from collections.abc import Iterable
+from datetime import UTC, date, datetime, timedelta
 from statistics import mean
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, object_session
 
-from call_audit import accounts, discrepancy_runs, prompt_evaluation, prompt_followup, prompt_registry
+from call_audit import (
+    accounts,
+    agreement,
+    discrepancy_runs,
+    prompt_evaluation,
+    prompt_followup,
+    prompt_loop,
+    prompt_registry,
+    verification,
+)
 from call_audit.api import serializers as out
-from call_audit.api.deps import Admin, CurrentUser, DbSession, set_session
+from call_audit.api.deps import Admin, AdminReader, CurrentUser, DbSession, set_session
 from call_audit.config import Settings, get_settings
 from call_audit.persistence.models import (
     AccessLog,
@@ -37,8 +48,13 @@ from call_audit.rubric import load_rubric
 
 router = APIRouter(prefix="/api")
 SettingsDep = Annotated[Settings, Depends(get_settings)]
-Role = Literal["auditor", "supervisor", "qubico_admin"]
-PERMISSIONS = {"auditor": {"view_model_io"}, "supervisor": {"manage_catalog"}, "qubico_admin": set()}
+Role = Literal["auditor", "supervisor", "qubico_admin", "qubico_viewer"]
+PERMISSIONS = {
+    "auditor": {"view_model_io"},
+    "supervisor": {"manage_catalog"},
+    "qubico_admin": set(),
+    "qubico_viewer": set(),
+}
 OPEN_STATUSES = ("pending", "in_review", "reopened")
 
 
@@ -259,8 +275,28 @@ def evaluation_out(evaluation: PromptEvaluation | None) -> dict | None:
         "startedAt": iso(evaluation.started_at),
         "finishedAt": iso(evaluation.finished_at),
         "error": evaluation.error,
-        "metrics": evaluation.metrics,
+        "metrics": evaluation_metrics(evaluation),
     }
+
+
+def evaluation_metrics(evaluation: PromptEvaluation) -> dict | None:
+    """Métricas guardadas, con las de la planilla por motivo recalculadas desde los resultados (sin gastar), para
+    que las pruebas antiguas también muestren FP/FN con sus conteos."""
+    if not evaluation.metrics:
+        return evaluation.metrics
+    return {
+        **evaluation.metrics,
+        "criterionScores": prompt_evaluation.criterion_scores(evaluation.results or []),
+        "agreement": with_verification(object_session(evaluation), evaluation),
+    }
+
+
+def with_verification(session: Session, evaluation: PromptEvaluation) -> dict | None:
+    """El mosaico con la suma de lo verificado a mano en cada parte (04-verificacion-propuesta.md §6.1)."""
+    block = agreement.for_evaluation(session, evaluation)
+    if block is not None:
+        block["verification"] = verification.summaries(session, evaluation)
+    return block
 
 
 def get_prompt(session: Session, version: str) -> PromptVersion:
@@ -275,7 +311,7 @@ def bad_prompt(exc: PromptError) -> HTTPException:
 
 
 @router.get("/admin/models")
-def list_models(_: Admin):
+def list_models(_: AdminReader):
     return [{"name": m["name"], "provider": m["provider"]} for m in prompt_evaluation.models()]
 
 
@@ -288,7 +324,7 @@ def active_prompt(session: DbSession, _: CurrentUser):
 
 
 @router.get("/admin/prompts")
-def list_prompts(session: DbSession, _: Admin):
+def list_prompts(session: DbSession, _: AdminReader):
     prompt_registry.ensure_bootstrap(session)
     session.commit()
     rows = sorted(
@@ -394,7 +430,7 @@ def create_prompt_from_follow_up(body: FollowUpCreateIn, session: DbSession, use
 
 
 @router.get("/admin/prompts/{version}")
-def prompt_detail(version: str, session: DbSession, _: Admin):
+def prompt_detail(version: str, session: DbSession, _: AdminReader):
     row = get_prompt(session, version)
     current = prompt_registry.ensure_bootstrap(session)
     session.commit()
@@ -408,8 +444,82 @@ def prompt_detail(version: str, session: DbSession, _: Admin):
         "evaluation": evaluation_out(evaluation),
         # La vigente medida con sus corridas actuales sobre el mismo conjunto (sin gastar).
         "activeMetrics": prompt_evaluation.current_metrics(session),
+        "loop": prompt_loop.for_version(session, version),
         "history": row.history or [],
     }
+
+
+def tested(session: Session, version: str) -> PromptEvaluation:
+    get_prompt(session, version)
+    evaluation = prompt_evaluation.latest(session, version)
+    if evaluation is None or evaluation.status != "done":
+        raise HTTPException(409, "not_tested")
+    return evaluation
+
+
+@router.get("/admin/prompts/{version}/cause-analysis/estimate")
+def cause_analysis_estimate(version: str, session: DbSession, _: AdminReader):
+    """Costo estimado del análisis de causa de la prueba de la versión (mosaico, E1). No gasta."""
+    from call_audit.discrepancy_analysis import DEFAULT_MODEL
+
+    return agreement.cause_estimate(session, tested(session, version), DEFAULT_MODEL)
+
+
+@router.post("/admin/prompts/{version}/cause-analysis")
+def start_cause_analysis(version: str, session: DbSession, user: Admin):
+    """Lanza el análisis de causa (pagado). El worker lo corre; sus propuestas no van a la bandeja (R-11)."""
+    from call_audit.discrepancy_analysis import DEFAULT_MODEL
+
+    try:
+        run = agreement.start_cause(session, tested(session, version), user, DEFAULT_MODEL)
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    session.commit()
+    return {"id": run.id, "status": run.status, "estimatedCostUsd": run.estimated_cost_usd}
+
+
+Segment = Literal["promptFn", "promptFp", "reviewer", "undecided", "agree"]
+
+
+@router.get("/admin/prompts/{version}/agreement/calls")
+def agreement_calls(version: str, segment: Segment, session: DbSession, _: AdminReader):
+    """Llamadas de una parte del mosaico, en orden aleatorio fijo, con su verificación (§9.1)."""
+    return verification.segment_calls(session, tested(session, version), segment)
+
+
+@router.get("/admin/prompts/{version}/agreement/calls/{case_id}")
+def agreement_case(version: str, case_id: str, session: DbSession, _: AdminReader, segment: str = ""):
+    """Una llamada con lo que dijo la IA de esa versión frente a la planilla, motivo por motivo (§9.2)."""
+    try:
+        return verification.case_comparison(session, tested(session, version), segment, case_id)
+    except LookupError as exc:
+        raise HTTPException(404, str(exc)) from exc
+
+
+class VerificationIn(BaseModel):
+    outcome: Literal["ai_error", "reviewer_error", "ambiguous", "missing_info"]
+    note: str | None = None
+    version: str
+    seenFirst: bool = False  # noqa: N815
+
+
+@router.put("/admin/verifications/{case_id}/{criterion_id}")
+def put_verification(case_id: str, criterion_id: int, body: VerificationIn, session: DbSession, user: Admin):
+    """Registra quién tenía razón en un desacuerdo (§9.3). Solo el admin; la cuenta de lectura recibe 403."""
+    try:
+        row = verification.record(
+            session, tested(session, body.version), user, case_id, criterion_id, body.outcome, body.note, body.seenFirst
+        )
+    except LookupError as exc:
+        raise HTTPException(404, str(exc)) from exc
+    session.commit()
+    return verification.record_out(row, False)
+
+
+@router.delete("/admin/verifications/{case_id}/{criterion_id}", status_code=204)
+def delete_verification(case_id: str, criterion_id: int, session: DbSession, user: Admin) -> None:
+    verification.remove(session, user, case_id, criterion_id)
+    session.commit()
 
 
 class DraftIn(BaseModel):
@@ -450,7 +560,7 @@ def discard_prompt(version: str, session: DbSession, user: Admin) -> None:
 
 
 @router.get("/admin/prompts/{version}/estimate")
-def estimate_prompt(version: str, session: DbSession, _: Admin, model: str | None = None):
+def estimate_prompt(version: str, session: DbSession, _: AdminReader, model: str | None = None):
     row = get_prompt(session, version)
     return prompt_evaluation.estimate(session, model or row.model)
 
@@ -511,7 +621,7 @@ def activate_prompt(version: str, body: ActivateIn, session: DbSession, user: Ad
 
 
 @router.get("/admin/prompts/{version}/export")
-def export_prompt(version: str, session: DbSession, _: Admin) -> Response:
+def export_prompt(version: str, session: DbSession, _: AdminReader) -> Response:
     row = get_prompt(session, version)
     return Response(
         prompt_registry.export_zip(row),
@@ -523,36 +633,129 @@ def export_prompt(version: str, session: DbSession, _: Admin) -> Response:
 # --- Estadísticas del sistema (sin métricas por persona) ----------------------------------------------------------
 
 
+Period = Literal["7d", "30d"]
+PERIOD_DAYS: dict[str, int] = {"7d": 7, "30d": 30}
+MAX_DAILY_BARS = 31
+CHILE = ZoneInfo("America/Santiago")
+
+
 def p95(values: list[int]) -> int:
     ordered = sorted(values)
     return ordered[min(len(ordered) - 1, int(len(ordered) * 0.95))] if ordered else 0
 
 
+def chile_day(value: datetime) -> date:
+    return accounts.aware(value).astimezone(CHILE).date()
+
+
+def period_bounds(period: Period | None, today: date) -> tuple[date, date] | None:
+    """Días calendario de Chile que cubre el periodo, hoy incluido. None = todo el historial."""
+    return (today - timedelta(days=PERIOD_DAYS[period] - 1), today) if period else None
+
+
+def in_bounds(day: date, bounds: tuple[date, date] | None) -> bool:
+    return bounds is None or bounds[0] <= day <= bounds[1]
+
+
+def first_run_days(runs: Iterable[Any]) -> dict[str, date]:
+    """Día de la primera corrida sin error de cada llamada, entre las corridas recibidas."""
+    first: dict[str, date] = {}
+    for r in runs:
+        if not r.error:
+            day = chile_day(r.run_at)
+            first[r.case_id] = min(day, first.get(r.case_id, day))
+    return first
+
+
+def days_between(start: date, end: date) -> list[date]:
+    return [start + timedelta(days=i) for i in range((end - start).days + 1)]
+
+
+def processed_series(days: list[date], bounds: tuple[date, date] | None) -> tuple[list[dict[str, Any]], str]:
+    """Serie del gráfico, con 0 en los días sin procesamiento. Con periodo cubre el periodo completo; sin periodo va
+    de la primera a la última fecha con llamadas y, si pasa de MAX_DAILY_BARS, se agrupa por semana (desde el lunes)."""
+    if not days:
+        return [], "day"
+    start, end = bounds or (min(days), max(days))
+    if bounds is None and (end - start).days + 1 > MAX_DAILY_BARS:
+        weeks = Counter(d - timedelta(days=d.weekday()) for d in days)
+        mondays = days_between(start - timedelta(days=start.weekday()), end)[::7]
+        return [{"date": m.isoformat(), "calls": weeks[m]} for m in mondays], "week"
+    by_day = Counter(days)
+    return [{"date": d.isoformat(), "calls": by_day[d]} for d in days_between(start, end)], "day"
+
+
+def reviewed_per_day(days: list[date], bounds: tuple[date, date] | None, today: date) -> float:
+    """Revisiones del periodo por día. Sin periodo, desde la primera revisión hasta hoy."""
+    if bounds:
+        return round(sum(in_bounds(d, bounds) for d in days) / ((bounds[1] - bounds[0]).days + 1), 1)
+    return round(len(days) / ((today - min(days)).days + 1), 1) if days else 0.0
+
+
+def filter_options(session: Session) -> dict[str, Any]:
+    """Opciones de Modelo y Prompt: toda la historia, sin recortarse entre sí."""
+    pairs = session.execute(select(ModelRun.model, ModelRun.prompt_version).distinct()).all()
+    toml = prompt_evaluation.all_models()
+    order = {m["name"]: i for i, m in enumerate(toml)}
+    labels = {m["name"]: m.get("label", m["name"]) for m in toml}
+    models = sorted({p.model for p in pairs}, key=lambda m: (order.get(m, len(order)), m))
+    return {
+        "models": [{"id": m, "label": labels.get(m, m)} for m in models],
+        "promptVersions": sorted({p.prompt_version for p in pairs}, key=prompt_registry.version_key, reverse=True),
+    }
+
+
 @router.get("/admin/stats")
-def admin_stats(session: DbSession, _: Admin):
+def admin_stats(
+    session: DbSession,
+    _: AdminReader,
+    period: Period | None = None,
+    model: str | None = None,
+    prompt: str | None = None,
+):
     now = datetime.now(UTC)
-    cases = list(session.scalars(select(Case)))
-    runs = list(session.scalars(select(ModelRun)))
+    today = chile_day(now)
+    bounds = period_bounds(period, today)
+    cases = list(session.execute(select(Case.id, Case.duration_ms, Case.status, Case.queued_at)))
+    query = select(
+        ModelRun.case_id,
+        ModelRun.run_at,
+        ModelRun.error,
+        ModelRun.run_label,
+        ModelRun.model,
+        ModelRun.prompt_version,
+        ModelRun.cost_usd,
+        ModelRun.latency_ms,
+    )
+    if model:
+        query = query.where(ModelRun.model == model)
+    if prompt:
+        query = query.where(ModelRun.prompt_version == prompt)
+    all_runs = list(session.execute(query))
+    runs = [r for r in all_runs if in_bounds(chile_day(r.run_at), bounds)]
+    # La primera corrida se busca en toda la historia y después se recorta: una re-corrida del periodo no cuenta.
+    processed = {case: day for case, day in first_run_days(all_runs).items() if in_bounds(day, bounds)}
+    duration = {c.id: c.duration_ms for c in cases}
+    daily, daily_bucket = processed_series(list(processed.values()), bounds)
+    run_days = [chile_day(r.run_at) for r in runs]
+    review_days = [chile_day(at) for at in session.scalars(select(Review.submitted_at))]
     open_cases = [c for c in cases if c.status in OPEN_STATUSES]
     oldest = min((accounts.aware(c.queued_at) for c in open_cases), default=None)
-    week_ago = now - timedelta(days=7)
-    reviews = session.scalar(select(func.count()).select_from(Review).where(Review.submitted_at >= week_ago)) or 0
-    by_day = Counter(c.call_date for c in cases)
-    failed: dict[str, list[ModelRun]] = defaultdict(list)
+    failed: dict[str, list[Any]] = defaultdict(list)
     for r in runs:
         if r.error:
             failed[r.run_label].append(r)
 
-    groups: dict[tuple[str, str], list[ModelRun]] = defaultdict(list)
+    groups: dict[tuple[str, str], list[Any]] = defaultdict(list)
     for r in runs:
         groups[(r.prompt_version, r.model)].append(r)
     cost = []
-    for (version, model), items in sorted(groups.items(), key=lambda kv: prompt_registry.version_key(kv[0][0])):
+    for (version, run_model), items in sorted(groups.items(), key=lambda kv: prompt_registry.version_key(kv[0][0])):
         priced = [r for r in items if r.cost_usd]
         latencies = [r.latency_ms for r in items if r.latency_ms]
         cost.append(
             {
-                "model": model,
+                "model": run_model,
                 "promptVersion": version,
                 "calls": len(items),
                 "totalUsd": round(sum(r.cost_usd for r in items), 4),
@@ -563,16 +766,24 @@ def admin_stats(session: DbSession, _: Admin):
                 "latencyMsP95": p95(latencies),
             }
         )
+    span = bounds or ((min(run_days), max(run_days)) if run_days else None)
+    last_run = max((accounts.aware(r.run_at) for r in all_runs), default=None)
     return {
+        "filters": {
+            **filter_options(session),
+            "range": {"from": span[0].isoformat(), "to": span[1].isoformat()} if span else None,
+            "lastRunAt": iso(last_run),
+        },
         "operation": {
-            "callsProcessed": len(cases),
-            "minutesProcessed": round(sum(c.duration_ms for c in cases) / 60_000),
+            "callsProcessed": len(processed),
+            "minutesProcessed": round(sum(duration[case] for case in processed) / 60_000),
             "medianHoursToResult": None,
             "batchesWithError": len(failed),
             "humanQueue": len(open_cases),
             "oldestQueueHours": round((now - oldest).total_seconds() / 3600, 1) if oldest else 0,
-            "reviewedPerDay": round(reviews / 7, 1),
-            "daily": [{"date": d, "calls": by_day[d]} for d in sorted(by_day)[-14:]],
+            "reviewedPerDay": reviewed_per_day(review_days, bounds, today),
+            "daily": daily,
+            "dailyBucket": daily_bucket,
             "failedBatches": [
                 {
                     "batchId": label,
@@ -605,7 +816,7 @@ def quote_rate(runs: list[ModelRun]) -> float:
 
 
 @router.get("/admin/quality")
-def admin_quality(session: DbSession, _: Admin):
+def admin_quality(session: DbSession, _: AdminReader):
     """Corridas (modelo + `run_label`, más las pruebas del prompt terminadas) contra el veredicto y la marca por
     motivo del cliente. Datos por llamada: las métricas las calcula el front (H-99). Sin nombres de ejecutivos."""
     cases = list(session.scalars(select(Case).where(Case.external_verdict.is_not(None)).order_by(Case.call_id)))
@@ -654,7 +865,7 @@ def admin_quality(session: DbSession, _: Admin):
     for ev in session.scalars(select(PromptEvaluation).order_by(PromptEvaluation.created_at)):
         if ev.status in ("queued", "running"):
             running = {"version": ev.version, "done": ev.done, "total": len(ev.case_ids)}
-        if ev.status != "done":
+        if ev.status != "done" or not prompt_evaluation.is_test(ev):
             continue
         sid = f"test:{ev.id}"
         rows = [r for r in ev.results if r["caseId"] in ids]
@@ -762,7 +973,7 @@ def worker_state(beat: WorkerHeartbeat | None, current: PipelineRun | None, last
 
 
 @router.get("/admin/processing")
-def processing_status(session: DbSession, _: Admin):
+def processing_status(session: DbSession, _: AdminReader):
     beat = session.get(WorkerHeartbeat, 1)
     latest = select(PipelineRun).order_by(PipelineRun.id.desc()).limit(1)
     current = session.scalar(latest.where(PipelineRun.status == "running"))
@@ -805,13 +1016,13 @@ def processing_status(session: DbSession, _: Admin):
 
 
 @router.get("/admin/processing/runs")
-def pipeline_runs(session: DbSession, _: Admin, limit: int = 20):
+def pipeline_runs(session: DbSession, _: AdminReader, limit: int = 20):
     rows = session.scalars(select(PipelineRun).order_by(PipelineRun.id.desc()).limit(max(1, min(limit, 200))))
     return [run_out(run) for run in rows]
 
 
 @router.get("/admin/processing/asr-failures")
-def asr_failures(session: DbSession, _: Admin):
+def asr_failures(session: DbSession, _: AdminReader):
     rows = session.scalars(select(AsrFailure).order_by(AsrFailure.last_attempt_at.desc()))
     return [
         {
@@ -828,7 +1039,7 @@ def asr_failures(session: DbSession, _: Admin):
 
 
 @router.get("/admin/activity")
-def activity(session: DbSession, _: Admin, limit: int = 500):
+def activity(session: DbSession, _: AdminReader, limit: int = 500):
     rows = session.scalars(select(AccessLog).order_by(AccessLog.created_at.desc(), AccessLog.id.desc()).limit(limit))
     return [
         {

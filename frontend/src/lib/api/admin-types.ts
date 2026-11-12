@@ -37,6 +37,189 @@ export interface EvaluationMetrics {
   latencyMsP95: number;
   /** Cuántas llamadas marcó incumplidas cada motivo. */
   byCriterion: { criterionId: number; failCount: number }[];
+  /** Contra la planilla de la corredora por motivo (golden_split.summary). Tasas como fracción 0-1. null si no hay marca por motivo. */
+  criterionScores?: CriterionScores | null;
+  /** Mosaico IA vs revisor (docs/ux/admin-prompt-metrics/02-mosaico-propuesta.md §11). null sin planilla por motivo. */
+  agreement?: Agreement | null;
+}
+
+/** Conteos enteros; agree + undecided + promptFn + promptFp + reviewer = n. */
+export interface AgreementBreakdown {
+  n: number;
+  agree: number;
+  undecided: number;
+  /** Rojo: IA Sí / Revisor No, no atribuido al revisor. */
+  promptFn: number;
+  /** Amarillo: IA No / Revisor Sí, no atribuido al revisor. */
+  promptFp: number;
+  /** Azul = reviewerFn + reviewerFp. */
+  reviewer: number;
+  reviewerFn: number;
+  reviewerFp: number;
+}
+
+export interface CauseAnalysis {
+  status: "none" | "running" | "done" | "failed";
+  costUsd?: number | null;
+  estimatedCostUsd?: number | null;
+  finishedAt?: string | null;
+  error?: string | null;
+  /** Llamadas en desacuerdo con el revisor. */
+  disagreements: number;
+  /** false en pruebas anteriores al loop (no guardaron hallazgos) y en la vigente: no se puede analizar la causa. */
+  findingsStored: boolean;
+}
+
+export interface Agreement {
+  byCall: AgreementBreakdown;
+  byCallCriterion: AgreementBreakdown;
+  /** Motivos de la pauta (n de byCallCriterion = llamadas × criteria). */
+  criteria: number;
+  causeAnalysis: CauseAnalysis;
+  /** Suma de lo verificado a mano por parte del mosaico (04-verificacion-propuesta.md §6.1). */
+  verification?: Record<AgreementSegment, VerificationSummary>;
+}
+
+// --- Verificación caso a caso (docs/ux/admin-prompt-metrics/04-verificacion-propuesta.md §9) ---
+
+export type AgreementSegment = "promptFn" | "promptFp" | "reviewer" | "undecided" | "agree";
+export type VerificationOutcome = "ai_error" | "reviewer_error" | "ambiguous" | "missing_info";
+/** none: la llamada no tiene desacuerdos por motivo que verificar. */
+export type CallVerification = "pending" | "confirmed" | "ai_wrong" | "inconclusive" | "none";
+export type Verdict3 = "compliant" | "non_compliant" | "uncertain";
+
+export interface VerificationSummary {
+  /** Llamadas de la parte con algo que verificar. */
+  calls: number;
+  reviewed: number;
+  confirmed: number;
+  aiWrong: number;
+  inconclusive: number;
+  pending: number;
+  /** Wilson 95 % (proporción) de confirmed/reviewed (azul, verde) o aiWrong/reviewed (rojo, amarillo, gris). */
+  ci95: [number, number] | null;
+  /** Registros hechos con la explicación de la IA de análisis a la vista. */
+  seenFirst: number;
+}
+
+export interface SegmentDisagreement {
+  criterionId: number;
+  kind: "fn" | "fp" | "undecided";
+  blue: boolean;
+  outcome: VerificationOutcome | null;
+}
+
+export interface SegmentCall {
+  caseId: string;
+  callId: string;
+  callDate: string;
+  /** Posición en el orden aleatorio fijo (1 = primera). */
+  order: number;
+  aiVerdict: Verdict3;
+  reviewerVerdict: "compliant" | "non_compliant";
+  disagreements: SegmentDisagreement[];
+  verification: CallVerification;
+}
+
+export interface SegmentCalls {
+  version: string;
+  evaluationId: string;
+  /** Llamadas medibles de la prueba (el n del mosaico). */
+  n: number;
+  segment: AgreementSegment;
+  items: SegmentCall[];
+  summary: VerificationSummary;
+}
+
+export interface VerificationRecord {
+  outcome: VerificationOutcome;
+  correct: "compliant" | "non_compliant" | null;
+  note: string | null;
+  by: string;
+  at: string | null;
+  seenFirst: boolean;
+  versionAt: string;
+  /** La planilla cambió después de registrar: hay que verificar de nuevo. */
+  stale: boolean;
+}
+
+export interface CaseComparisonCriterion {
+  criterionId: number;
+  description: string;
+  block: string;
+  kind: "agree" | "fn" | "fp" | "undecided";
+  blue: boolean;
+  ai: {
+    verdict: Verdict3;
+    comment: string | null;
+    evidence: { quote: string; startMs: number | null; quoteValidated?: boolean }[];
+  };
+  reviewerFail: boolean;
+  analysis: { patternId: string; title: string; cause: string; explanation: string } | null;
+  verification: VerificationRecord | null;
+}
+
+export interface CaseComparison {
+  caseId: string;
+  callId: string;
+  callDate: string;
+  durationMs: number;
+  version: string;
+  model: string;
+  segment: AgreementSegment;
+  listSegment: AgreementSegment;
+  aiVerdict: Verdict3;
+  reviewer: { verdict: "compliant" | "non_compliant"; comment: string | null; evaluator: string | null };
+  findingsAvailable: boolean;
+  verification: CallVerification;
+  criteria: CaseComparisonCriterion[];
+  position: {
+    index: number | null;
+    total: number;
+    pending: number;
+    prevCaseId: string | null;
+    nextCaseId: string | null;
+    nextPendingCaseId: string | null;
+  };
+}
+
+export interface PromptLoopChain {
+  id: string;
+  status: string;
+  rounds: { round: number; version: string; parentVersion: string | null; agreement: Agreement | null }[];
+}
+
+export interface CauseEstimate {
+  model: string;
+  criteria: number[];
+  totalUsd: number | null;
+}
+
+export interface CriterionScore {
+  criterionId: number;
+  /** Llamadas en que la corredora marcó el motivo. */
+  support: number;
+  tp: number;
+  fp: number;
+  fn: number;
+}
+
+export interface CriterionScores {
+  n: number;
+  callMatchRate: number | null;
+  callFpRate: number | null;
+  callFnRate: number | null;
+  callUncertainRate: number | null;
+  fpGoal: number;
+  fnGoal: number;
+  nCalls?: number;
+  nApproved?: number;
+  nRejected?: number;
+  fpCount?: number;
+  fnCount?: number;
+  uncertainCount?: number;
+  minSupport: number;
+  byCriterion: CriterionScore[];
 }
 
 export interface PromptEvaluation {
@@ -89,6 +272,8 @@ export interface PromptVersionDetail {
   evaluation: PromptEvaluation | null;
   /** La vigente medida con sus corridas actuales sobre el mismo conjunto (sin gastar). */
   activeMetrics: EvaluationMetrics | null;
+  /** Cadena del loop de mejora al que pertenece la versión (E4); null si no es de un loop. */
+  loop?: PromptLoopChain | null;
   history: { at: string; actor: string; action: string }[];
 }
 
@@ -105,7 +290,22 @@ export interface ModelOption {
   provider: string;
 }
 
+export type StatsPeriod = "7d" | "30d";
+
+export interface AdminStatsFilters {
+  period?: StatsPeriod;
+  model?: string;
+  prompt?: string;
+}
+
 export interface AdminStats {
+  filters: {
+    models: { id: string; label: string }[];
+    promptVersions: string[];
+    /** Periodo elegido o, en todo el historial, primera y última corrida. Null si no hay corridas. */
+    range: { from: string; to: string } | null;
+    lastRunAt: string | null;
+  };
   operation: {
     callsProcessed: number;
     minutesProcessed: number;
@@ -115,6 +315,7 @@ export interface AdminStats {
     oldestQueueHours: number;
     reviewedPerDay: number;
     daily: { date: string; calls: number }[];
+    dailyBucket: "day" | "week";
     failedBatches: { batchId: string; at: string | null; stage: string; calls: number }[];
   };
   cost: {
@@ -497,6 +698,8 @@ export interface FollowUpCriterionChange {
 
 export interface FollowUpPromptPreview {
   baseVersion: string;
+  /** false cuando las reglas salen del loop de mejora y la base es la versión probada. */
+  baseIsActive: boolean;
   version: string;
   model: string;
   changelog: string;

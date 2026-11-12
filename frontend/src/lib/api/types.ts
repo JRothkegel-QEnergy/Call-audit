@@ -7,8 +7,14 @@
  * (.claude/rules/layer-contract.md).
  */
 
-/** `qubico_admin`: Administrador Qubico (Cambio 12). */
-export type Role = "auditor" | "supervisor" | "qubico_admin";
+/**
+ * `qubico_admin`: Administrador Qubico (Cambio 12). `qubico_viewer`: lectura Qubico, ve lo del admin pero no cambia
+ * nada (G13 de docs/ux/admin-prompt-metrics/03-orden-y-detalle-brief.md).
+ */
+export type Role = "auditor" | "supervisor" | "qubico_admin" | "qubico_viewer";
+
+/** Roles que entran a las pantallas del admin (el de lectura solo mira). */
+export const isAdminRole = (role: Role | undefined): boolean => role === "qubico_admin" || role === "qubico_viewer";
 
 /** Veredicto del contrato de capas. `not_applicable` se muestra como "Cumple" (D-20, H-48). */
 export type Verdict = "compliant" | "non_compliant" | "uncertain" | "not_applicable";
