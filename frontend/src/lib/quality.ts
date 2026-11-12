@@ -145,19 +145,16 @@ export function criterionRows(q: AiQuality, series: QualitySeries[]): CriterionR
     .filter((row) => row.clientCount > 0 || Object.values(row.cells).some((c) => c.aiOnlyOnCompliant + c.detected + c.extra > 0));
 }
 
-/** Corridas por defecto (H-93): la vigente y la más reciente de cada otro modelo, hasta 6. */
+/**
+ * Corrida por defecto (G9 de docs/ux/admin-prompt-metrics/03-orden-y-detalle-brief.md): solo la última prueba de
+ * versión terminada; la vigente y las demás se suman con «Agregar corrida». Sin pruebas, la vigente.
+ */
 export function defaultSeries(series: QualitySeries[]): string[] {
-  const current = series.find((s) => s.isCurrent);
-  const picked = current ? [current.id] : [];
-  const byModel = new Map<string, QualitySeries>();
-  for (const s of series) {
-    if (s.source !== "run" || s.model === current?.model) continue;
-    const prev = byModel.get(s.model);
-    if (!prev || (s.ranAt ?? "") > (prev.ranAt ?? "")) byModel.set(s.model, s);
-  }
-  picked.push(...[...byModel.values()].map((s) => s.id));
-  if (picked.length === 0 && series[0]) picked.push(series[0].id);
-  return picked.slice(0, MAX_SERIES);
+  const latestTest = series
+    .filter((s) => s.source === "prompt_test")
+    .reduce<QualitySeries | null>((best, s) => (!best || (s.ranAt ?? "") > (best.ranAt ?? "") ? s : best), null);
+  const pick = latestTest ?? series.find((s) => s.isCurrent) ?? series[0];
+  return pick ? [pick.id] : [];
 }
 
 export const MAX_SERIES = 6;
