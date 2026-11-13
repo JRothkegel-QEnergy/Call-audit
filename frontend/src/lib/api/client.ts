@@ -42,6 +42,7 @@ import type {
 import type {
   ActivityLogEntry,
   CallList,
+  QualityGrid,
   CaseComparison,
   SegmentCalls,
   VerificationOutcome,
@@ -226,6 +227,7 @@ export interface ApiClient {
   getAdminStats(filters?: AdminStatsFilters): Promise<AdminStats>;
   /** Calidad de la IA por corrida contra el cliente (Cambio 15). */
   getAiQuality(): Promise<AiQuality>;
+  getQualityGrid(seriesId: string): Promise<QualityGrid>;
   listActivity(): Promise<ActivityLogEntry[]>;
 
   // Procesamiento (Cambio 14)

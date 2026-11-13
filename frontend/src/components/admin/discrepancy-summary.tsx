@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { MetricHelp } from "@/components/ui/metric-help";
 import { api } from "@/lib/api";
 import type { Agreement, AgreementCriterion, DiscrepancyOverview } from "@/lib/api/admin-types";
-import { ANALYSIS_STATUS, usd } from "@/lib/discrepancy-labels";
+import { ANALYSIS_STATUS, analysisUniverse, usd } from "@/lib/discrepancy-labels";
 import type { SetParams } from "@/lib/discrepancy-url";
 import { int, shortDateTime } from "@/lib/format";
 
@@ -59,7 +59,14 @@ export function SummaryTab({
             Patrones: {data.readOnly ? "análisis" : "último análisis"} del {a.createdAt ? shortDateTime(a.createdAt) : "—"} · {a.model} · {a.doneCriteria.length} motivos ·{" "}
             {usd(a.costUsd)}
             {a.status !== "done" && ` · ${ANALYSIS_STATUS[a.status]}`}
-            <span className="help"> · sobre la corrida vigente en las llamadas de entrenamiento</span>
+            <span className="help">
+              {" "}
+              · {analysisUniverse(a).text}.
+              {analysisUniverse(a).separate &&
+                (q && !q.missing
+                  ? ` Las cifras de abajo son de ${q.isCurrent ? `la vigente (v${q.version})` : `la prueba v${q.version}`} en las llamadas de validación.`
+                  : "")}
+            </span>
           </p>
         ) : (
           !run && <p className="m-0">Todavía no hay análisis de patrones. Analizar busca patrones y propone soluciones; no cambia el prompt.</p>
@@ -101,9 +108,22 @@ export function SummaryTab({
         )}
       </section>
 
-      {q ? (
+      {q?.missing ? (
+        <p className="help m-0">
+          v{q.version} no tiene prueba en las llamadas de validación, así que este análisis no tiene cifras de calidad que mostrar.
+        </p>
+      ) : q ? (
         <>
-          <QualityHeader version={q.version} a={q.agreement} linkVersion={q.listVersion} />
+          <QualityHeader
+            version={q.version}
+            a={q.agreement}
+            linkVersion={q.listVersion}
+            note={
+              q.isCurrent ? (
+                <p className="help m-0">La vigente se mide con sus corridas de hoy, sin lista de llamadas ni análisis de causa.</p>
+              ) : undefined
+            }
+          />
           <AgreementMosaic version={q.version} a={q.agreement} linked={!!q.listVersion} />
           <Bridge a={q.agreement} version={q.listVersion} />
           <ByCriterion
@@ -172,7 +192,7 @@ function Bridge({ a, version }: { a: Agreement; version: string | null }) {
   const parts = [
     { key: "promptFn" as const, label: "Solo el revisor lo marca", value: items.promptFn },
     { key: "promptFp" as const, label: "Solo la IA lo marca", value: items.promptFp },
-    { key: "reviewer" as const, label: "Posible error de planilla", value: items.reviewer },
+    { key: "reviewer" as const, label: "Posible error del revisor", value: items.reviewer },
   ];
   return (
     <section className="card grid gap-3" aria-labelledby="bridge-h">
@@ -180,7 +200,7 @@ function Bridge({ a, version }: { a: Agreement; version: string | null }) {
         Desacuerdos por motivo
         <MetricHelp title="Desacuerdos por motivo">
           Un desacuerdo por motivo es un motivo de una llamada en que la IA y el revisor no marcan lo mismo. Rojo: el revisor marcó el motivo y la IA no.
-          Amarillo: la IA lo marcó y el revisor no. Azul: la IA de análisis cree que el error está en la planilla.
+          Amarillo: la IA lo marcó y el revisor no. Azul: la IA de análisis cree que se equivocó el revisor.
         </MetricHelp>
       </h3>
       <p className="m-0 text-sm">
@@ -280,7 +300,7 @@ function ByCriterion({
                 Solo la IA lo marca
               </th>
               <th scope="col" className="num">
-                Posible error de planilla
+                Posible error del revisor
               </th>
               <th scope="col" className="num">
                 Total

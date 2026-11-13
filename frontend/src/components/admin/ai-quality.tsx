@@ -4,8 +4,9 @@ import * as Popover from "@radix-ui/react-popover";
 import { ChevronDown, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { AgreementMosaic } from "@/components/admin/agreement-charts";
+import { CaseGrid } from "@/components/admin/case-grid";
 import { GoalBadge, QualityHeader, headerNumbers } from "@/components/admin/quality-header";
 import { listHref } from "@/components/admin/verification-labels";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,9 @@ export function AiQualityView({ data }: { data: AiQuality }) {
   const selectedIds = fromUrl.length ? fromUrl.slice(0, MAX_SERIES) : defaultSeries(data.series);
   const selected = selectedIds.map((id) => byId.get(id)!);
   const allMotives = params.get("motives") === "all";
+  // Versión activa (06-ajustes-feedback.md §5, F5): la que muestran cabecera, mosaico y análisis por caso.
+  const activeId = selectedIds.includes(params.get("ver") ?? "") ? params.get("ver")! : selectedIds[0];
+  const [announce, setAnnounce] = useState("");
 
   const update = (changes: Record<string, string | null>) => {
     const next = new URLSearchParams(params.toString());
@@ -54,12 +58,27 @@ export function AiQualityView({ data }: { data: AiQuality }) {
   if (selected.length === 0)
     return <EmptyState title="Aún no hay versiones medidas sobre las llamadas de validación." body="Prueba una versión desde Prompt para verla aquí." />;
 
-  const main = selected[0];
+  const main = byId.get(activeId)!;
   const current = data.series.find((s) => s.isCurrent);
+  const view = (id: string) => {
+    update({ ver: id === selectedIds[0] ? null : id });
+    setAnnounce(`Ahora ves ${seriesName(byId.get(id)!)}`);
+  };
+  const changeSeries = (ids: string[]) => {
+    const added = ids.find((id) => !selectedIds.includes(id));
+    // La versión recién agregada pasa a ser la activa: agregar siempre cambia algo arriba.
+    const ver = added ?? (ids.includes(activeId) ? activeId : ids[0]);
+    update({ series: ids.join(","), ver: ver === ids[0] ? null : ver });
+    if (added) setAnnounce(`Ahora ves ${seriesName(byId.get(added)!)}`);
+  };
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-4">
-      <SeriesBar data={data} selected={selected} onChange={(ids) => update({ series: ids.join(",") })} />
+      <p className="sr-only" aria-live="polite">
+        {announce}
+      </p>
+      <SeriesBar data={data} selected={selected} onChange={changeSeries} />
+      {selected.length > 1 && <ViewSwitch selected={selected} activeId={activeId} onView={view} />}
       <div className="help -mt-2 grid gap-0.5">
         <span>
           La duda de la IA se cuenta aparte, como en la pestaña Prueba; desde el 12-nov las cifras de esta pantalla pueden diferir de las que se veían
@@ -88,8 +107,9 @@ export function AiQualityView({ data }: { data: AiQuality }) {
         }
       />
       <AgreementMosaic version={main.promptVersion} a={main.agreement} linked={!!main.listVersion} />
+      <CaseGrid key={main.id} series={main} />
 
-      {selected.length > 1 && <Comparison selected={selected} goals={data.goals} />}
+      {selected.length > 1 && <Comparison selected={selected} goals={data.goals} activeId={activeId} onView={view} />}
 
       <ByCriterion data={data} selected={selected} all={allMotives} onAll={() => update({ motives: allMotives ? null : "all" })} />
 
@@ -97,8 +117,8 @@ export function AiQualityView({ data }: { data: AiQuality }) {
         <summary className="cursor-pointer font-semibold">Cómo leer esta pantalla</summary>
         <dl className="mt-3 grid gap-2 text-sm">
           <Term t="Llamadas de validación">
-            Las llamadas del golden set que se usan para medir. La IA de análisis aprende solo de otras (entrenamiento), así que la mejora medida aquí no
-            está inflada.
+            Las llamadas del golden set que se usan para medir. El loop aprende de otras (entrenamiento); si una versión usa reglas que salieron de
+            un análisis de causa de estas mismas llamadas, la cabecera lo avisa porque su mejora se ve más grande de lo que es.
           </Term>
           <Term t="Coincide con el revisor">Mismo veredicto final (Cumple o No cumple) que la planilla del revisor.</Term>
           <Term t="Falsas alarmas">
@@ -108,7 +128,7 @@ export function AiQualityView({ data }: { data: AiQuality }) {
             De las llamadas que el revisor rechazó, cuántas aprueba la IA. Meta ≤ {data.goals.falseNegativePct} %.
           </Term>
           <Term t="Sin decisión de la IA">La IA no se decide y la llamada pasa a un auditor. No cuenta como falsa alarma ni como rechazo no detectado.</Term>
-          <Term t="Posible error de planilla">
+          <Term t="Posible error del revisor">
             Desacuerdos que una IA de análisis atribuye al revisor, no al prompt. Sin confirmar hasta que se verifiquen a mano.
           </Term>
           <Term t="Desacuerdo por motivo">Un motivo de una llamada en que la IA y el revisor no marcan lo mismo. Una llamada puede tener varios.</Term>
@@ -185,9 +205,63 @@ function SeriesBar({ data, selected, onChange }: { data: AiQuality; selected: Qu
   );
 }
 
+function ViewSwitch({ selected, activeId, onView }: { selected: QualitySeries[]; activeId: string; onView: (id: string) => void }) {
+  const move = (delta: number) => {
+    const i = selected.findIndex((s) => s.id === activeId);
+    const next = selected[(i + delta + selected.length) % selected.length];
+    onView(next.id);
+    requestAnimationFrame(() => document.getElementById(`ver-${next.id}`)?.focus());
+  };
+  return (
+    <div className="-mt-1 flex flex-wrap items-center gap-2">
+      <span className="text-sm font-semibold" id="ver-label">
+        Ver:
+      </span>
+      <div
+        className="seg"
+        role="radiogroup"
+        aria-labelledby="ver-label"
+        onKeyDown={(e) => {
+          const delta = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
+          if (!delta) return;
+          e.preventDefault();
+          move(delta);
+        }}
+      >
+        {selected.map((s) => (
+          <button
+            key={s.id}
+            id={`ver-${s.id}`}
+            type="button"
+            role="radio"
+            aria-checked={s.id === activeId}
+            tabIndex={s.id === activeId ? 0 : -1}
+            onClick={() => onView(s.id)}
+          >
+            <span className="inline-flex items-center gap-1.5">
+              <Dot s={s} />
+              {s.isCurrent ? `v${s.promptVersion} vigente` : `v${s.promptVersion}`}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // --- Comparación entre versiones (§5.1-3) ------------------------------------------------------------------------
 
-function Comparison({ selected, goals }: { selected: QualitySeries[]; goals: AiQuality["goals"] }) {
+function Comparison({
+  selected,
+  goals,
+  activeId,
+  onView,
+}: {
+  selected: QualitySeries[];
+  goals: AiQuality["goals"];
+  activeId: string;
+  onView: (id: string) => void;
+}) {
   return (
     <section className="card" aria-labelledby="q-compare">
       <h2 id="q-compare" className="mb-3 mt-0 text-base font-semibold">
@@ -202,7 +276,7 @@ function Comparison({ selected, goals }: { selected: QualitySeries[]; goals: AiQ
                 Coincide
               </th>
               <th scope="col" className="num">
-                Posible error de planilla
+                Posible error del revisor
               </th>
               <th scope="col" className="num">
                 Falsas alarmas
@@ -235,12 +309,21 @@ function Comparison({ selected, goals }: { selected: QualitySeries[]; goals: AiQ
                 </td>
               );
               return (
-                <tr key={s.id}>
+                <tr key={s.id} className={cn(s.id === activeId && "bg-accent")}>
                   <th scope="row" className="font-normal">
                     <span className="inline-flex items-center gap-1.5">
                       <Dot s={s} />
                       {seriesName(s)}
                     </span>
+                    <div className="mt-1">
+                      {s.id === activeId ? (
+                        <span className="help font-semibold">Viendo</span>
+                      ) : (
+                        <Button size="sm" variant="ghost" onClick={() => onView(s.id)} aria-label={`Ver ${seriesName(s)}`}>
+                          Ver
+                        </Button>
+                      )}
+                    </div>
                   </th>
                   {cell(`${h.agreePct} %`, `${int(h.agree)} de ${int(h.n)}`, "agree")}
                   {analyzed ? cell(`${pct(h.reviewer, h.n)} %`, `${int(h.reviewer)} de ${int(h.n)}`, "reviewer") : <td className="num help">sin analizar</td>}

@@ -199,6 +199,7 @@ export const httpApi: ApiClient = {
   getActivePrompt: () => get("/api/prompts/active"),
   getAdminStats: (f) => get(`/api/admin/stats${query({ period: f?.period, model: f?.model, prompt: f?.prompt })}`),
   getAiQuality: () => get("/api/admin/quality"),
+  getQualityGrid: (seriesId) => get(`/api/admin/quality/grid${query({ series: seriesId })}`),
   listActivity: () => get("/api/admin/activity"),
   getProcessingStatus: () => get("/api/admin/processing"),
   listPipelineRuns: (limit = 20) => get(`/api/admin/processing/runs${query({ limit: String(limit) })}`),

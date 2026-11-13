@@ -447,3 +447,38 @@ def test_quality_series_on_validation(client: TestClient, admin: User, imported:
     assert len(body["criteria"]) == 33
     assert body["goals"] == {"falsePositivePct": 5, "falseNegativePct": 20}
     assert "Ejecutivo" not in json.dumps(body)
+
+
+def test_quality_grid(client: TestClient, admin: User, imported: sessionmaker[Session]) -> None:
+    """Análisis por caso (F1): por llamada, su parte del mosaico y solo los motivos que no coinciden."""
+    with imported() as session, session.begin():
+        cases = list(session.scalars(select(Case).order_by(Case.call_id)))
+        for c in cases:
+            c.external_item_fails, c.external_verdict = [], "compliant"
+        ev = PromptEvaluation(
+            version="9.9",
+            model=MODEL,
+            status="done",
+            requested_by_id=admin.id,
+            case_ids=[cases[0].id],
+            done=1,
+            results=[
+                {
+                    "caseId": cases[0].id,
+                    "verdict": "non_compliant",
+                    "external": "compliant",
+                    "externalFails": [],
+                    "failCriteria": [2],
+                    "uncertainCriteria": [],
+                    "findings": [],
+                }
+            ],
+        )
+        session.add(ev)
+        session.flush()
+        ev_id = ev.id
+    login(client, admin)
+    body = client.get(f"/api/admin/quality/grid?series=test:{ev_id}").json()
+    (call,) = body["calls"]
+    assert call["segment"] == "promptFp" and call["items"] == [[2, "fp", False]] and len(body["criteria"]) > 20
+    assert client.get("/api/admin/quality/grid?series=nada").status_code == 404

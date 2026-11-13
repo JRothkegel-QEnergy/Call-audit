@@ -54,6 +54,7 @@ type AdminApi = Pick<
   | "getActivePrompt"
   | "getAdminStats"
   | "getAiQuality"
+  | "getQualityGrid"
   | "listActivity"
   | "getProcessingStatus"
   | "listPipelineRuns"
@@ -563,6 +564,7 @@ export const adminMock: AdminApi = {
       };
     }),
   getAiQuality: () => wait(() => mockAiQuality),
+  getQualityGrid: () => Promise.reject(new ApiError("not_available")),
   listActivity: () => wait(() => state.activity),
   getProcessingStatus: () =>
     wait((): ProcessingStatus => {

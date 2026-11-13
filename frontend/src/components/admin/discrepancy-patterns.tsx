@@ -8,7 +8,7 @@ import { BulkDiscardDialog, DecisionDialog, type DecisionKind, ObservationRow, P
 import { Button } from "@/components/ui/button";
 import { clampPage, Pager } from "@/components/ui/pager";
 import type { ActionGroup, DiscrepancyCause, DiscrepancyOverview, DiscrepancyPattern, ProposalType, WhoIsRight } from "@/lib/api/admin-types";
-import { CAUSE, PROPOSAL, statusLabel } from "@/lib/discrepancy-labels";
+import { CAUSE, PROPOSAL, analysisUniverse, statusLabel } from "@/lib/discrepancy-labels";
 import { resolveMotive, type SetParams } from "@/lib/discrepancy-url";
 import { int } from "@/lib/format";
 import { usePreferences } from "@/lib/preferences";
@@ -296,8 +296,7 @@ function Review({
       {/* Lo que salió del Resumen (05-numeros-propuesta.md §4.2): cuánto explican los patrones y dónde se arregla. */}
       <section className="card grid gap-2" aria-label="Qué explican los patrones">
         <p className="m-0 text-sm">
-          La IA de análisis revisó {int(data.summary.analyzedCases)} desacuerdos por motivo y dudas de la IA de la corrida vigente, en las llamadas de
-          entrenamiento, y agrupó {int(data.summary.explainedCases)} ({data.summary.analyzedCases ? Math.round((100 * data.summary.explainedCases) / data.summary.analyzedCases) : 0} %) en{" "}
+          La IA de análisis revisó {int(data.summary.analyzedCases)} desacuerdos por motivo y dudas de la IA ({analysisUniverse(a).text}) y agrupó {int(data.summary.explainedCases)} ({data.summary.analyzedCases ? Math.round((100 * data.summary.explainedCases) / data.summary.analyzedCases) : 0} %) en{" "}
           {int(patterns.filter((p) => !p.isObservation).length)} patrones; {int(data.summary.byAction.unpatterned)} quedaron sin patrón.
         </p>
         <ActionBar
@@ -306,9 +305,16 @@ function Review({
           selected={action}
           onSelect={(k) => setParams({ action: k && k !== "unpatterned" && k !== "observation" ? k : null, status: "all", page: null })}
         />
-        <p className="help m-0">
-          Los patrones salen de llamadas de entrenamiento para no medir una versión nueva con las mismas llamadas de donde salieron sus reglas.
-        </p>
+        {a.purpose === "attribution" ? (
+          <p className="m-0 text-sm" role="note">
+            Estas propuestas salen de las llamadas de validación. Una versión hecha con ellas se medirá en las mismas llamadas y su mejora se verá más
+            grande de lo que es.
+          </p>
+        ) : (
+          analysisUniverse(a).separate && (
+            <p className="help m-0">Estos patrones salen de otro grupo de llamadas que las cifras de calidad del Resumen.</p>
+          )
+        )}
       </section>
 
       <div className="flex flex-wrap items-center gap-2">

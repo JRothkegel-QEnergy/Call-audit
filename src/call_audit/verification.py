@@ -431,15 +431,87 @@ def latest_quality(session: Session) -> dict[str, Any] | None:
         # Sin sets asignados (golden_split.default_split devuelve None) vale cualquier prueba.
         if not prompt_evaluation.is_test(ev) or (split is not None and ev.split != split):
             continue
-        block = with_summaries(session, ev)
-        if block is None:
-            continue
-        latest = prompt_evaluation.latest(session, ev.version)
-        return {
-            "version": ev.version,
-            "model": ev.model,
-            "finishedAt": ev.finished_at.isoformat() if ev.finished_at else None,
-            "listVersion": ev.version if latest is not None and latest.id == ev.id else None,
-            "agreement": block,
-        }
+        out = quality_out(session, ev)
+        if out is not None:
+            return out
     return None
+
+
+def same_call_rules(session: Session, version: str) -> int:
+    """Reglas incluidas en `version` que salen de un análisis de causa, es decir, de las mismas llamadas de validación
+    con que se mide (aviso N8 A, 06-ajustes-feedback.md §4.2)."""
+    from call_audit.persistence.models import DiscrepancyAnalysis, DiscrepancyPattern, ProposalDecision
+
+    return len(
+        session.scalars(
+            select(ProposalDecision.pattern_id)
+            .join(DiscrepancyPattern, DiscrepancyPattern.id == ProposalDecision.pattern_id)
+            .join(DiscrepancyAnalysis, DiscrepancyAnalysis.id == DiscrepancyPattern.analysis_id)
+            .where(ProposalDecision.included_in_version == version, DiscrepancyAnalysis.purpose == "attribution")
+        ).all()
+    )
+
+
+def quality_out(session: Session, ev: PromptEvaluation) -> dict[str, Any] | None:
+    from call_audit import prompt_evaluation
+
+    block = with_summaries(session, ev)
+    if block is None:
+        return None
+    block["sameCallRules"] = same_call_rules(session, ev.version)
+    latest = prompt_evaluation.latest(session, ev.version)
+    return {
+        "version": ev.version,
+        "model": ev.model,
+        "finishedAt": ev.finished_at.isoformat() if ev.finished_at else None,
+        "listVersion": ev.version if latest is not None and latest.id == ev.id else None,
+        "isCurrent": False,
+        "agreement": block,
+    }
+
+
+def validation_test(session: Session, version: str) -> PromptEvaluation | None:
+    """La última prueba terminada de `version` sobre validación."""
+    from call_audit import prompt_evaluation
+
+    split = prompt_evaluation.eval_split(session)
+    for ev in session.scalars(
+        select(PromptEvaluation)
+        .where(PromptEvaluation.version == version, PromptEvaluation.status == "done")
+        .order_by(PromptEvaluation.created_at.desc())
+    ):
+        if prompt_evaluation.is_test(ev) and (split is None or ev.split == split):
+            return ev
+    return None
+
+
+def quality_for_analysis(session: Session, run: Any) -> dict[str, Any] | None:
+    """Qué prueba muestra el Resumen de Discrepancias según el análisis elegido (06-ajustes-feedback.md §4.1):
+    - análisis de causa: su prueba de validación;
+    - del loop (prueba en entrenamiento): la prueba de validación de esa versión, o `missing` si no hay;
+    - antiguo, sobre la vigente: la vigente medida en validación, sin azul;
+    - sin análisis: la última prueba sobre validación."""
+    from call_audit import prompt_evaluation
+    from call_audit.persistence.models import PromptVersion
+
+    if run is None:
+        return latest_quality(session)
+    source = session.get(PromptEvaluation, run.source_evaluation_id) if run.source_evaluation_id else None
+    if source is not None:
+        split = prompt_evaluation.eval_split(session)
+        ev = source if (split is None or source.split == split) else validation_test(session, source.version)
+        if ev is None:
+            return {"version": source.version, "missing": True}
+        return quality_out(session, ev)
+    current = prompt_evaluation.current_metrics(session)
+    active = session.scalar(select(PromptVersion).where(PromptVersion.status == "active"))
+    if not current or not current.get("agreement") or active is None:
+        return None
+    return {
+        "version": active.version,
+        "model": active.model,
+        "finishedAt": None,
+        "listVersion": None,
+        "isCurrent": True,
+        "agreement": current["agreement"],
+    }

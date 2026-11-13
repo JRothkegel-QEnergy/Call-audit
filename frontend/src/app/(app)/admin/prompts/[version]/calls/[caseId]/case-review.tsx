@@ -340,7 +340,7 @@ function CriterionCard({
     >
       <h3 className="m-0 text-sm font-semibold">
         Motivo {c.criterionId}
-        {c.blue && <span className="help font-normal"> · posible error de planilla</span>}
+        {c.blue && <span className="help font-normal"> · posible error del revisor</span>}
       </h3>
       <p className="help m-0">Criterio: {c.description}</p>
       <p className="m-0">

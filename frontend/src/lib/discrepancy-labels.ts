@@ -1,3 +1,4 @@
+import type { DiscrepancyAnalysisRun } from "@/lib/api/admin-types";
 /** Textos del análisis de discrepancias (Cambio 16 §7.5). Causa, dirección y estado van siempre como texto. */
 import type {
   DiscrepancyAnalysisStatus,
@@ -74,4 +75,18 @@ export function followUpGroup(type: ProposalType | undefined): "prompt" | "clien
   if (type === "prompt_rule") return "prompt";
   if (type === "calibrate_auditor") return "calibrate";
   return "client";
+}
+
+/** Sobre qué llamadas corrió un análisis (06-ajustes-feedback.md §4.1). `separate`: sus patrones salen de otro grupo de
+ * llamadas que las cifras del Resumen. */
+export function analysisUniverse(a: DiscrepancyAnalysisRun): { text: string; separate: boolean } {
+  if (a.purpose === "attribution")
+    return { text: `análisis de causa de la prueba v${a.sourceVersion ?? "—"}, sobre sus llamadas de validación`, separate: false };
+  if (a.purpose === "rules")
+    return { text: `análisis del loop sobre la prueba v${a.sourceVersion ?? "—"}, en las llamadas de entrenamiento`, separate: true };
+  const s = a.layer2Series;
+  return {
+    text: `análisis de la corrida vigente${s ? ` (${s.model} · v${s.promptVersion})` : ""}, sobre todas las llamadas con planilla, antes de separar entrenamiento y validación`,
+    separate: true,
+  };
 }

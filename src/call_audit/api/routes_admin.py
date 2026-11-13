@@ -21,6 +21,7 @@ from call_audit import (
     accounts,
     agreement,
     discrepancy_runs,
+    golden_split,
     prompt_evaluation,
     prompt_followup,
     prompt_loop,
@@ -292,8 +293,12 @@ def evaluation_metrics(evaluation: PromptEvaluation) -> dict | None:
 
 
 def with_verification(session: Session, evaluation: PromptEvaluation) -> dict | None:
-    """El mosaico con la suma de lo verificado a mano en cada parte (04-verificacion-propuesta.md §6.1)."""
-    return verification.with_summaries(session, evaluation)
+    """El mosaico con la suma de lo verificado a mano en cada parte (04-verificacion-propuesta.md §6.1) y cuántas de sus
+    reglas salen de las mismas llamadas de validación (aviso N8 A)."""
+    block = verification.with_summaries(session, evaluation)
+    if block is not None:
+        block["sameCallRules"] = verification.same_call_rules(session, evaluation.version)
+    return block
 
 
 def get_prompt(session: Session, version: str) -> PromptVersion:
@@ -887,6 +892,48 @@ def admin_quality(session: DbSession, _: AdminReader):
         ],
         "goals": QUALITY_GOALS,
         "promptTestRunning": running,
+    }
+
+
+@router.get("/admin/quality/grid")
+def admin_quality_grid(series: str, session: DbSession, _: AdminReader):
+    """Análisis por caso de una versión de Calidad de la IA (06-ajustes-feedback.md §2, F1): por llamada, su parte del
+    mosaico y la clase de cada motivo en desacuerdo, sobre las mismas llamadas de validación. Sin IA."""
+    if series == "current":
+        results = prompt_evaluation.current_results(session)
+        ids = [r["caseId"] for r in results]
+        call_ids = dict(session.execute(select(Case.id, Case.call_id).where(Case.id.in_(ids))).all()) if ids else {}
+        rows = agreement.call_rows(results, call_ids, set(), golden_split.layer2_criteria())
+        version = None
+    elif series.startswith("test:"):
+        ev = session.get(PromptEvaluation, series.removeprefix("test:"))
+        if ev is None or ev.status != "done":
+            raise HTTPException(404, "not_found")
+        rows, _patterns = verification.evaluation_rows(session, ev)
+        latest = prompt_evaluation.latest(session, ev.version)
+        version = ev.version if latest is not None and latest.id == ev.id else None
+    else:
+        raise HTTPException(404, "not_found")
+    return {
+        "listVersion": version,
+        "criteria": golden_split.layer2_criteria(),
+        "calls": [
+            {
+                "caseId": r["caseId"],
+                "callId": r["callId"],
+                "segment": r["segment"],
+                "reviewerVerdict": r["result"]["external"],
+                "aiVerdict": r["result"]["verdict"],
+                # [motivo, clase, azul] de lo que no coincide, más "both" si ambos marcan No cumple (verde);
+                # lo que no aparece es que ninguno lo marca.
+                "items": [
+                    [i["criterionId"], i["kind"] if i["kind"] != "agree" else "both", i["blue"]]
+                    for i in r["items"]
+                    if i["kind"] != "agree" or i["criterionId"] in set(r["result"].get("failCriteria") or [])
+                ],
+            }
+            for r in sorted(rows, key=lambda r: r["callId"])
+        ],
     }
 
 

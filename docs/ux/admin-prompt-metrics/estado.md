@@ -1,6 +1,7 @@
 # Estado del proceso UX · Métricas de la prueba del prompt
 
 - **Estado:** aprobado e implementado el 2026-11-10 (falta desplegar a prod).
+- **Último pedido abierto (2026-11-13):** ajustes tras ver producción, `06-ajustes-feedback.md`, esperando F1-F5 (ver la sección al final).
 - **Tipo:** cambio menor sobre el diseño aprobado de call-audit (Cambios 12, 15 y 17). Revisión rápida, proceso comprimido a pedido de Johannes.
 - **Código afectado (después de aprobar):** `frontend/src/app/(app)/admin/prompts/[version]/prompt-version.tsx` (TestTab), nuevo `components/ui/metric-help.tsx`; según Q1, `components/admin/ai-quality.tsx` y `app/(app)/admin/prompts/page.tsx`; según Q2, `src/call_audit/golden_split.py` (`call_rates`).
 
@@ -65,3 +66,18 @@
 | 2026-11-12 | Segunda entrega, propuesta de números (`05-numeros-propuesta.md`): diagnóstico de 179/204/143 y 22/23 leído en el código (Discrepancias mide la vigente en **entrenamiento**, no todas las llamadas; 204 = 179 + dudas de la IA; 23 incluye motivos solo con dudas); reglas N-R1..N-R9; cabecera común de KPIs en Prueba, Calidad de la IA y Discrepancias; qué se quita de cada vista; Operación a Procesamiento. Supuestos H-20, H-21; riesgos R-A (medir en las mismas 220 de donde salen las reglas) y R-B. Esperando N1-N8 | Diseñador |
 | 2026-11-12 | **N1-N8 aprobadas** (Johannes: "Sí, todas (A)") | Johannes |
 | 2026-11-12 | Implementada la segunda entrega (números): bloque `agreement` con `approved`/`rejected`, `bridge`, `byCriterion` y `scope`; listas `fp`, `fn`, `disagree` y `?motivo=` en `/agreement/calls`; `GET /api/admin/quality` solo con la vigente y las pruebas sobre validación (sin datos por llamada ni corridas por etiqueta); `quality` en el resumen de Discrepancias. Front: `QualityHeader` en Prueba, Calidad de la IA y Discrepancias › Resumen; Calidad de la IA reducida a cabecera + mosaico + comparación + desacuerdos por motivo; Resumen con frase puente, barra y «¿En qué motivos?»; «¿Dónde se arregla?» y el % explicado pasan a Patrones; «caso» → «desacuerdo»; Operación eliminada (2 tarjetas en Procesamiento, `?tab=operation` redirige). Desvío: los patrones siguen saliendo del análisis en entrenamiento (G8 C de hecho), así que R-A no aplica y no se puso el aviso de N8. Revisado en el navegador con la copia local | Coordinador |
+
+---
+
+## Ajustes tras ver producción (pedido 2026-11-13)
+
+- **Estado:** propuesta en `06-ajustes-feedback.md`, esperando F1-F5. Sin código de UI aún.
+- **Origen:** feedback de Johannes sobre la segunda entrega desplegada (`73677ba`): volver al caso a caso en cuadritos; "error de planilla" → "error del revisor"; Discrepancias no cambia al elegir otro análisis; Calidad de la IA no cambia al agregar otra versión.
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-13 | Se trata como cambio sobre diseño aprobado (sin repetir fases). Diagnóstico confirmado en código: el Resumen de Discrepancias usa siempre `latest_quality` (última prueba en validación) y una línea de universo fija; `latest_finished` excluye `attribution`; `decide()` rechaza `attribution_only`; Calidad de la IA usa `selected[0]` | Diseñador (con diagnóstico del coordinador) |
+| 2026-11-13 | Propuesta: mapa por caso de vuelta con reglas N1-N8 (220, colores E3, duda aparte, clic al caso); "Posible error del revisor" / "Error del revisor" (verificado); Resumen sigue al análisis elegido con línea de universo real; habilitar decidir en `attribution` con aviso N8 A; versión activa en Calidad de la IA. Supuestos H-22, H-23; riesgos R-A (ahora vigente) y R-C. Esperando F1-F5 | Diseñador |
+| 2026-11-13 | **F1-F5 aprobadas** (Johannes: "Sí, todas (A)") | Johannes |
+| 2026-11-13 | Implementados F1-F5: `GET /api/admin/quality/grid?series=` y acordeón «Análisis por caso» (aprobadas / rechazadas por el revisor, colores E3, clic al caso y al motivo); «Posible error del revisor» / «Error del revisor» en toda la app y glosario §8.3; `latest_finished` incluye los análisis de causa y `decide()` ya no los bloquea; el Resumen y Patrones siguen al análisis elegido (`verification.quality_for_analysis`) con la línea de universo real; aviso N8 A en Patrones (análisis de causa) y en la cabecera (`sameCallRules`); control «Ver:» y botón «Ver» en la comparación de Calidad de la IA (URL `?series=…&ver=`). Desvíos: se mantuvo el parámetro `?analysis=` y `?series=` existentes en vez de `?analisis=` / `?v=`; la columna activa de «Desacuerdos por motivo» no se resalta. Revisado en el navegador con la copia local | Coordinador |

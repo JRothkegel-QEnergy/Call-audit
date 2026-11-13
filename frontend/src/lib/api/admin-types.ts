@@ -96,6 +96,22 @@ export interface Agreement {
   byCriterion?: AgreementCriterion[];
   /** Universo a la vista (N-R1): llamadas de la prueba, medidas y por qué quedaron fuera. */
   scope?: { total: number; measured: number; errors: number; noReference: number };
+  /** Reglas incluidas en esta versión que salen de un análisis de causa: de estas mismas llamadas (aviso N8 A). */
+  sameCallRules?: number;
+}
+
+/** Análisis por caso de una versión (06-ajustes-feedback.md §2): solo los motivos que no coinciden. */
+export interface QualityGrid {
+  listVersion: string | null;
+  criteria: number[];
+  calls: {
+    caseId: string;
+    callId: string;
+    segment: AgreementSegment;
+    reviewerVerdict: "compliant" | "non_compliant";
+    aiVerdict: Verdict3;
+    items: [number, "fn" | "fp" | "undecided" | "both", boolean][];
+  }[];
 }
 
 /** Lista de llamadas: una parte del mosaico, un lado (falsas alarmas / rechazos no detectados) o todo desacuerdo. */
@@ -565,6 +581,12 @@ export interface DiscrepancyAnalysisRun {
   patterns?: number;
   /** Solo en el overview. */
   capabilities?: DiscrepancyCapabilities;
+  sourceEvaluationId?: string | null;
+  /** null: antiguo (sobre la vigente); "rules": del loop; "attribution": análisis de causa de una prueba. */
+  purpose?: "rules" | "attribution" | null;
+  /** Versión y set de la prueba de donde salió (solo en el análisis que se muestra). */
+  sourceVersion?: string | null;
+  sourceSplit?: string | null;
 }
 
 export interface DiscrepancyQuote {
@@ -669,13 +691,20 @@ export interface DiscrepancyOverview {
   models: DiscrepancyModelOption[];
   defaultModel: string;
   /** Última prueba de versión sobre validación: cabecera, mosaico y desacuerdos por motivo del Resumen (§4). */
-  quality?: {
-    version: string;
-    model: string;
-    finishedAt: string | null;
-    listVersion: string | null;
-    agreement: Agreement;
-  } | null;
+  /** Cifras del Resumen según el análisis elegido (06-ajustes-feedback.md §4.1). `missing`: la versión del análisis
+   * no tiene prueba en validación. `isCurrent`: la vigente medida en validación (análisis antiguos). */
+  quality?:
+    | {
+        version: string;
+        model: string;
+        finishedAt: string | null;
+        listVersion: string | null;
+        isCurrent?: boolean;
+        agreement: Agreement;
+        missing?: undefined;
+      }
+    | { version: string; missing: true }
+    | null;
 }
 
 export interface DiscrepancyEstimate {

@@ -411,6 +411,17 @@ def criterion_scores(results: list[dict]) -> dict[str, Any] | None:
 
 def current_metrics(session: Session) -> dict[str, Any] | None:
     """Métricas de la versión vigente sobre el mismo conjunto, con las corridas que ya existen (sin gastar)."""
+    results = current_results(session)
+    if not results:
+        return None
+    from call_audit import agreement
+
+    # La vigente se mide con sus corridas de producción: sin análisis de causa (no es una prueba).
+    return {**metrics(results), "agreement": agreement.for_results(session, results, None, False)}
+
+
+def current_results(session: Session) -> list[dict[str, Any]]:
+    """Resultados de la vigente en el set de prueba, con la forma de los de una prueba de versión."""
     results = []
     for case, run in calibration_cases(session, eval_split(session)):
         review = session.scalar(select(Review).where(Review.case_id == case.id))
@@ -432,12 +443,7 @@ def current_metrics(session: Session) -> dict[str, Any] | None:
                 "unvalidatedQuotes": sum(1 for e in evidence if e.get("quoteValidated") is False),
             }
         )
-    if not results:
-        return None
-    from call_audit import agreement
-
-    # La vigente se mide con sus corridas de producción: sin análisis de causa (no es una prueba).
-    return {**metrics(results), "agreement": agreement.for_results(session, results, None, False)}
+    return results
 
 
 def count_calibration(session: Session) -> int:

@@ -594,10 +594,11 @@ def decisions_for(session: Session, pattern_ids: list[str]) -> dict[str, Proposa
 
 
 def latest_finished(session: Session) -> DiscrepancyAnalysis | None:
-    """El último análisis que dejó algo (terminado, detenido o fallido con motivos hechos)."""
+    """El último análisis que dejó algo (terminado, detenido o fallido con motivos hechos), de cualquier tipo: también
+    el análisis de causa de una prueba (06-ajustes-feedback.md §4.1, F3)."""
     for run in session.scalars(
         select(DiscrepancyAnalysis)
-        .where(DiscrepancyAnalysis.status.not_in(RUNNING), DiscrepancyAnalysis.purpose.is_distinct_from("attribution"))
+        .where(DiscrepancyAnalysis.status.not_in(RUNNING))
         .order_by(DiscrepancyAnalysis.created_at.desc())
     ):
         if run.done_criteria:
@@ -825,10 +826,8 @@ def decide(
     reason: str | None = None,
     note: str | None = None,
 ) -> ProposalDecision:
-    """Aceptar no toca el prompt: la propuesta pasa a seguimiento (D-64). Descartar exige motivo."""
-    source = session.get(DiscrepancyAnalysis, pattern.analysis_id)
-    if source is not None and source.purpose == "attribution":
-        raise ValueError("attribution_only")
+    """Aceptar no toca el prompt: la propuesta pasa a seguimiento (D-64). Descartar exige motivo. Las propuestas de un
+    análisis de causa también se deciden (F4); la versión que las use lleva el aviso de medir en las mismas llamadas."""
     if decision == "discarded" and not (reason or "").strip():
         raise ValueError("reason_required")
     row = session.get(ProposalDecision, pattern.id)

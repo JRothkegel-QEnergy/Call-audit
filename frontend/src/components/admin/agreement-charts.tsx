@@ -26,7 +26,7 @@ type Part = "promptFn" | "promptFp" | "reviewer" | "undecided" | "agree";
 export const PART_NAME: Record<Part, string> = {
   promptFn: "IA Sí / Revisor No",
   promptFp: "IA No / Revisor Sí",
-  reviewer: "Posible error de planilla",
+  reviewer: "Posible error del revisor",
   undecided: "Sin decisión de la IA",
   agree: "Coincide con el revisor",
 };
@@ -47,7 +47,7 @@ export const PARTS: Record<Part, { name: string; support: string; style: React.C
     ink: "var(--ink-900)",
   },
   reviewer: {
-    name: "Posible error de planilla (según la IA de análisis)",
+    name: "Posible error del revisor (según la IA de análisis)",
     support: "La IA de análisis cree que se equivocó el revisor al llenar la planilla. Sin confirmar.",
     style: {
       background:
@@ -128,13 +128,13 @@ export function VerificationLine({ version, a }: { version: string; a: Agreement
   if (v.pending === 0)
     return (
       <p className="m-0 text-[13px]">
-        <b>Verificación completa:</b> {int(v.confirmed)} de {int(v.calls)} llamadas confirmadas como error de planilla (
+        <b>Verificación completa:</b> {int(v.confirmed)} de {int(v.calls)} llamadas confirmadas como error del revisor (
         {pct0(v.confirmed / v.reviewed)} %). <Link href={href}>Ver llamadas ›</Link>
       </p>
     );
   return (
     <p className="m-0 text-[13px]">
-      <b>Verificación del posible error de planilla:</b> {int(v.confirmed)} confirmadas de {int(v.reviewed)} revisadas (
+      <b>Verificación del posible error del revisor:</b> {int(v.confirmed)} confirmadas de {int(v.reviewed)} revisadas (
       {pct0(v.confirmed / v.reviewed)} %{v.ci95 ? `, margen ${pct0(v.ci95[0])}-${pct0(v.ci95[1])} %` : ""}) ·{" "}
       <Link href={href}>Ver llamadas ›</Link>
     </p>
@@ -218,7 +218,7 @@ export function AgreementMosaic({ version, a, linked = false }: { version: strin
   const prompt = b.promptFn + b.promptFp;
   const cols: { key: string; value: number; label: string; parts: Part[] }[] = [
     { key: "prompt", value: prompt, label: "Prompt o criterio", parts: ["promptFn", "promptFp"] },
-    { key: "reviewer", value: b.reviewer, label: "Posible error de planilla", parts: ["reviewer"] },
+    { key: "reviewer", value: b.reviewer, label: "Posible error del revisor", parts: ["reviewer"] },
     { key: "undecided", value: b.undecided, label: "Sin decisión", parts: ["undecided"] },
     { key: "agree", value: b.agree, label: "Acuerdo", parts: ["agree"] },
   ];
@@ -232,7 +232,7 @@ export function AgreementMosaic({ version, a, linked = false }: { version: strin
             que corregir en el prompt o en el criterio; la meta es llevarlos cerca de cero.
             <br />
             <br />
-            Posible error de planilla (según la IA de análisis): una IA revisó cada desacuerdo y concluyó que se equivocó el revisor
+            Posible error del revisor (según la IA de análisis): una IA revisó cada desacuerdo y concluyó que se equivocó el revisor
             al llenar la planilla. Es su juicio y aún no está confirmado con el call center. Solo cuenta si todos sus motivos en
             desacuerdo apuntan a la planilla.
             <br />
@@ -352,13 +352,13 @@ export function DisagreementZoom({ a }: { a: Agreement }) {
             {DISAGREE.map((p) => (
               <span key={p} className="inline-flex items-center gap-1.5">
                 <Swatch part={p} />
-                {p === "reviewer" ? "Posible error de planilla" : PARTS[p].name} <span className="tabular">{fmtPct(share(b[p], b.n))} del total</span>
+                {p === "reviewer" ? "Posible error del revisor" : PARTS[p].name} <span className="tabular">{fmtPct(share(b[p], b.n))} del total</span>
               </span>
             ))}
           </p>
           {b.reviewer > 0 && (
             <p className="help m-0">
-              Posible error de planilla: una IA revisó estos desacuerdos y cree que se equivocó el revisor, no el prompt. Aún sin
+              Posible error del revisor: una IA revisó estos desacuerdos y cree que se equivocó el revisor, no el prompt. Aún sin
               confirmar.
             </p>
           )}
@@ -434,7 +434,7 @@ export function LoopEvolution({ loop, version }: { loop: PromptLoopChain | null 
                 IA No / Revisor Sí
               </th>
               <th scope="col" className="num">
-                Posible error de planilla
+                Posible error del revisor
               </th>
               <th scope="col" className="num">
                 Sin decisión
@@ -507,7 +507,7 @@ export function LoopEvolution({ loop, version }: { loop: PromptLoopChain | null 
           </tbody>
         </table>
       </div>
-      {pending && <p className="help m-0">* Rojo y amarillo incluyen lo que el análisis podría marcar como error de planilla.</p>}
+      {pending && <p className="help m-0">* Rojo y amarillo incluyen lo que el análisis podría marcar como error del revisor.</p>}
     </section>
   );
 }
@@ -530,7 +530,7 @@ export function CauseAnalysisNotice({ version, ca, onStarted }: { version: strin
     return (
       <div className="banner">
         Esta prueba no guardó los hallazgos de la IA, así que no se puede analizar la causa. Rojo y amarillo incluyen lo que podría
-        ser un error de planilla.
+        ser un error del revisor.
       </div>
     );
   const ask = async () => {
@@ -563,7 +563,7 @@ export function CauseAnalysisNotice({ version, ca, onStarted }: { version: strin
         <span>
           {failed
             ? "No se pudo analizar la causa. Rojo y amarillo incluyen todo el desacuerdo."
-            : "Aún no se analiza la causa de los desacuerdos. Rojo y amarillo incluyen lo que podría ser un error de planilla."}
+            : "Aún no se analiza la causa de los desacuerdos. Rojo y amarillo incluyen lo que podría ser un error del revisor."}
         </span>
         {canWrite && (
           <Button size="sm" variant="default" className="ml-auto" onClick={() => void ask()}>
@@ -577,7 +577,7 @@ export function CauseAnalysisNotice({ version, ca, onStarted }: { version: strin
         title={`¿Analizar la causa de ${int(ca.disagreements)} desacuerdos?`}
         description={
           <p className="m-0">
-            Una IA revisa cada desacuerdo de validación para separar los que parecen error de la planilla. Costo estimado:{" "}
+            Una IA revisa cada desacuerdo de validación para separar los que parecen error del revisor. Costo estimado:{" "}
             {est ? usd(est.totalUsd) : "calculando…"}. Sus propuestas de regla no se usan.
           </p>
         }

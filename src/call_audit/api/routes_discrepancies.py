@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from call_audit import accounts, discrepancy_runs, verification
 from call_audit.api.deps import Admin, AdminReader, DbSession
-from call_audit.persistence.models import DiscrepancyAnalysis, DiscrepancyPattern
+from call_audit.persistence.models import DiscrepancyAnalysis, DiscrepancyPattern, PromptEvaluation
 
 router = APIRouter(prefix="/api/admin/discrepancies")
 
@@ -25,8 +25,13 @@ def overview(session: DbSession, _: AdminReader, analysis: str | None = None):
         out = discrepancy_runs.overview(session, analysis)
     except LookupError as exc:
         raise HTTPException(404, "not_found") from exc
-    # Cifras del Resumen sobre las llamadas de validación de la última prueba (05-numeros-propuesta.md §4, N-R1).
-    return {**out, "quality": verification.latest_quality(session)}
+    # Cifras del Resumen según el análisis elegido (06-ajustes-feedback.md §4.1, F3).
+    shown = session.get(DiscrepancyAnalysis, out["analysis"]["id"]) if out["analysis"] else None
+    if out["analysis"] and shown is not None and shown.source_evaluation_id:
+        source = session.get(PromptEvaluation, shown.source_evaluation_id)
+        out["analysis"]["sourceVersion"] = source.version if source else None
+        out["analysis"]["sourceSplit"] = source.split if source else None
+    return {**out, "quality": verification.quality_for_analysis(session, shown)}
 
 
 class AnalysisIn(BaseModel):

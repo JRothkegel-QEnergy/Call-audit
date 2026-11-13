@@ -136,10 +136,10 @@ export function QualityHeader({
   const split = (prompt: number, reviewer: number) =>
     analyzed ? (
       <>
-        = {int(prompt)} a corregir + {int(reviewer)} posible error de planilla
+        = {int(prompt)} a corregir + {int(reviewer)} posible error del revisor
       </>
     ) : (
-      <>sin separar el posible error de planilla (causa sin analizar)</>
+      <>sin separar el posible error del revisor (causa sin analizar)</>
     );
 
   return (
@@ -152,6 +152,12 @@ export function QualityHeader({
         {action && <span className="ml-auto">{action}</span>}
       </div>
       {note}
+      {!!a.sameCallRules && (
+        <p className="m-0 text-[13px]" role="note">
+          Medido en las mismas llamadas de donde salieron {a.sameCallRules} {a.sameCallRules === 1 ? "regla" : "reglas"} de esta versión: la mejora
+          se ve más grande de lo que es.
+        </p>
+      )}
       <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
         <Card
           title="Coincide con el revisor"
@@ -170,13 +176,13 @@ export function QualityHeader({
           swatch={<Swatch part="agree" />}
         />
         <Card
-          title="Posible error de planilla"
+          title="Posible error del revisor"
           help="Llamadas en que una IA de análisis revisó cada motivo en desacuerdo y concluyó que se equivocó el revisor al llenar la planilla, no el prompt. Es su juicio: la verificación a mano dice cuánto se confirma."
           value={analyzed ? `${pct(h.reviewer, h.n)} %` : "—"}
           sub={analyzed ? llamadas(h.reviewer) : "Causa sin analizar"}
           extra={linkVersion && analyzed ? <VerificationLine version={linkVersion} a={a} /> : null}
           href={analyzed && h.reviewer > 0 ? href("reviewer") : null}
-          label={`Posible error de planilla: ${pct(h.reviewer, h.n)} %, ${llamadas(h.reviewer)}. Ver llamadas`}
+          label={`Posible error del revisor: ${pct(h.reviewer, h.n)} %, ${llamadas(h.reviewer)}. Ver llamadas`}
           swatch={<Swatch part="reviewer" />}
         />
         <Card

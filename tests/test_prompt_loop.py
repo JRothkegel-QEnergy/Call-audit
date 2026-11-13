@@ -153,12 +153,16 @@ def test_one_round(loop_db: sessionmaker[Session], admin: User) -> None:  # noqa
         assert out["spentUsd"] > 0
         val = prompt_evaluation.latest(session, new)
         assert val.loop_id == loop.id and session.get(PromptVersion, new).status == "tested"
-        # La atribución no entra a la bandeja: ni es el último análisis ni sus propuestas se pueden aceptar.
+        # El análisis de causa es el último análisis y sus propuestas se pueden decidir (F3, F4 de
+        # docs/ux/admin-prompt-metrics/06-ajustes-feedback.md); el Resumen muestra su prueba de validación.
         attribution = agreement.attribution_of(session, val)
-        assert discrepancy_runs.latest_finished(session).id == rules_run.id
+        assert discrepancy_runs.latest_finished(session).id == attribution.id
+        assert rules_run.id != attribution.id
         (blue,) = session.scalars(select(DiscrepancyPattern).where(DiscrepancyPattern.analysis_id == attribution.id))
-        with pytest.raises(ValueError, match="attribution_only"):
-            discrepancy_runs.decide(session, blue, session.get(User, admin.id), "accepted")
+        assert discrepancy_runs.decide(session, blue, session.get(User, admin.id), "accepted").status == "accepted"
+        from call_audit import verification
+
+        assert verification.quality_for_analysis(session, attribution)["version"] == new
 
         result = agreement.for_evaluation(session, val)
         assert result["causeAnalysis"]["status"] == "done"
