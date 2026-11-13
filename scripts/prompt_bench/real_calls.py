@@ -277,7 +277,8 @@ def build_call(
                     "insured_amount": clean(row.get("MONTO_ASEGURADO")),
                 }
             ],
-            "typification": [{"mus_a_neto": mus, "outcome": typified or "NO INFORMADA", "reason": clean(row["MOTIVO RENUNCIA"])}],
+            # assumed: el pipeline puso RETENCION porque el lote no traía la tipificación (09-info-llamada, T4 A).
+            "typification": [{"mus_a_neto": mus, "outcome": typified or "NO INFORMADA", "reason": clean(row["MOTIVO RENUNCIA"]), "assumed": bool(row.get("_TIPIFICACION_ASUMIDA"))}],
         },
         "transcript": [],
     }

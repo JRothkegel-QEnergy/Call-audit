@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { PARTS, Swatch } from "@/components/admin/agreement-charts";
 import { listHref } from "@/components/admin/verification-labels";
+import { typificationLabel } from "@/components/call/typification";
 import { AsyncView } from "@/components/ui/states";
 import { api } from "@/lib/api";
 import type { QualityGrid, QualitySeries } from "@/lib/api/admin-types";
@@ -127,7 +128,7 @@ function Grid({ g, series }: { g: QualityGrid; series: QualitySeries }) {
                   ))}
                 </>
               );
-              const label = `Llamada ${c.callId}: ${PARTS[c.segment].name}${c.items.length ? `, motivos ${c.items.map(([id]) => id).join(", ")}` : ""}`;
+              const label = `Llamada ${c.callId}: ${PARTS[c.segment].name}${c.items.length ? `, motivos ${c.items.map(([id]) => id).join(", ")}` : ""}. ${typificationLabel(c.typification)}`;
               return href ? (
                 <Link
                   key={c.caseId}

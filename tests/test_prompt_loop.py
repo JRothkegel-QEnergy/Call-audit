@@ -73,8 +73,9 @@ def test_one_round(loop_db: sessionmaker[Session], admin: User) -> None:  # noqa
         base = prompt_registry.ensure_bootstrap(session).version
         prompt_loop.start(session, session.get(User, admin.id), base, rounds=1)
 
-    # 1. Prueba en entrenamiento: solo 1002, la que la corrida vigente falló (la IA rechaza y el revisor aprobó).
-    assert prompt_loop.advance(loop_db) == "vuelta 1: esperando la prueba en entrenamiento (0/1)"
+    # 1. Prueba en entrenamiento: todas las llamadas de entrenamiento (1001 y 1002), no solo las que estaban en
+    # desacuerdo, para que se vean las regresiones.
+    assert prompt_loop.advance(loop_db) == "vuelta 1: esperando la prueba en entrenamiento (0/2)"
     prompt_evaluation.process_pending(loop_db, caller=layer2)
     with loop_db() as session:
         train = session.scalar(select(PromptEvaluation).where(PromptEvaluation.purpose == "train"))
@@ -163,6 +164,13 @@ def test_one_round(loop_db: sessionmaker[Session], admin: User) -> None:  # noqa
         from call_audit import verification
 
         assert verification.quality_for_analysis(session, attribution)["version"] == new
+        # Cuadre (R1 A): la barra del Resumen, las dos columnas y el total salen de la misma fuente.
+        from call_audit import discrepancy_insights
+
+        ins = discrepancy_insights.insights(session, val)
+        item = agreement.for_evaluation(session, val)["byCallCriterion"]
+        assert ins["promptSide"]["n"] + ins["reviewerSide"]["n"] == ins["disagreements"]
+        assert ins["disagreements"] == item["promptFn"] + item["promptFp"] + item["reviewer"]
 
         result = agreement.for_evaluation(session, val)
         assert result["causeAnalysis"]["status"] == "done"

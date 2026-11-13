@@ -194,6 +194,8 @@ def complete_row(stem: str, row: dict) -> None:
     (ESTADO_CALIDAD). El ID y la fecha se sacan del nombre del archivo (<n>_<AAAAMMDD>_<id>) si no vienen."""
     if not real_calls.clean(row.get("TIPIFICACION")):
         row["TIPIFICACION"] = DEFAULT_TYPIFICATION
+        # Se marca para mostrar «Retención (asumida)» (09-info-llamada-y-tipificacion.md, T4 A): solo lotes nuevos.
+        row["_TIPIFICACION_ASUMIDA"] = True
     parts = stem.split("_")
     if not real_calls.clean(row.get("ID")):
         row["ID"] = parts[-1]

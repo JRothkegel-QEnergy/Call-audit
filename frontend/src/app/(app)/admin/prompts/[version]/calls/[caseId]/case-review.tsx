@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, PanelRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -15,17 +15,21 @@ import {
   outcomeLabel,
 } from "@/components/admin/verification-labels";
 import { AudioPlayer } from "@/components/call/audio-player";
+import { TypificationLine } from "@/components/call/typification";
+import { CUSTOMER_CRITERIA, ProductSheetColumn, ProductSheetContent } from "@/components/call/product-sheet";
 import { Transcript } from "@/components/call/transcript";
 import { useAudio } from "@/components/call/use-audio";
 import { Button } from "@/components/ui/button";
+import { Sheet } from "@/components/ui/dialog";
 import { MetricHelp } from "@/components/ui/metric-help";
 import { AsyncView } from "@/components/ui/states";
 import { api, isRealMode } from "@/lib/api";
 import type { CallList, CaseComparison, CaseComparisonCriterion, VerificationOutcome } from "@/lib/api/admin-types";
-import type { CaseDetail, Evidence, Finding } from "@/lib/api/types";
+import type { CaseDetail, Evidence, Finding, Rubric } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { mmss, shortDate, shortDateTime } from "@/lib/format";
 import { useSession } from "@/lib/session";
+import { loadRubric } from "@/lib/rubric";
 import { useAsync } from "@/lib/use-async";
 
 /** Nivel 3 · Caso: lo que dijo la IA de la versión probada frente a la planilla, y el registro (§5.3). */
@@ -41,15 +45,22 @@ export function CaseReviewView({
   criterion: number | null;
 }) {
   const state = useAsync(async () => {
-    const [cmp, call] = await Promise.all([api.getCaseComparison(version, caseId, segment ?? undefined, criterion), api.getCase(caseId)]);
-    return { cmp, call };
+    const [cmp, call, rubric] = await Promise.all([
+      api.getCaseComparison(version, caseId, segment ?? undefined, criterion),
+      api.getCase(caseId),
+      loadRubric(),
+    ]);
+    return { cmp, call, rubric };
   }, [version, caseId, segment, criterion]);
   return (
     <AsyncView state={state} what="la llamada">
-      {({ cmp, call }) => <CaseReview key={caseId} version={version} initial={cmp} call={call} />}
+      {({ cmp, call, rubric }) => <CaseReview key={caseId} version={version} initial={cmp} call={call} rubric={rubric} />}
     </AsyncView>
   );
 }
+
+/** Ficha abierta o plegada (07-ficha-en-caso.md, C2): se mantiene al pasar de caso, no al recargar la página. */
+let sheetOpenMemory = true;
 
 const TO_VERIFY = new Set(["fn", "fp", "undecided"]);
 const isTyping = (t: EventTarget | null) => {
@@ -57,7 +68,7 @@ const isTyping = (t: EventTarget | null) => {
   return !!el && (["input", "textarea", "select"].includes(el.tagName.toLowerCase()) || el.isContentEditable);
 };
 
-function CaseReview({ version, initial, call }: { version: string; initial: CaseComparison; call: CaseDetail }) {
+function CaseReview({ version, initial, call, rubric }: { version: string; initial: CaseComparison; call: CaseDetail; rubric: Rubric }) {
   const router = useRouter();
   const { user } = useSession();
   const canWrite = user?.role === "qubico_admin";
@@ -73,6 +84,12 @@ function CaseReview({ version, initial, call }: { version: string; initial: Case
   const agreeing = cmp.criteria.filter((c) => !TO_VERIFY.has(c.kind));
   const [focus, setFocus] = useState(() => Math.max(0, toVerify.findIndex((c) => !c.verification || c.verification.stale)));
   const [revealed, setRevealed] = useState<Set<number>>(new Set());
+  const [sheetOpen, setSheetOpenState] = useState(sheetOpenMemory);
+  const setSheetOpen = (open: boolean) => {
+    sheetOpenMemory = open;
+    setSheetOpenState(open);
+  };
+  const [sheetDrawer, setSheetDrawer] = useState(false);
   const [shortcuts, setShortcuts] = useState(true);
   const [busy, setBusy] = useState<number | null>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
@@ -191,6 +208,10 @@ function CaseReview({ version, initial, call }: { version: string; initial: Case
   });
 
   const p = cmp.position;
+  // La sección de la ficha que importa sigue al motivo en foco (C3), como en la vista del auditor.
+  const focusId = toVerify[focus]?.criterionId ?? null;
+  const relevantSection =
+    focusId == null ? undefined : CUSTOMER_CRITERIA.has(focusId) ? "customer" : rubric.criteria[focusId]?.productSheetSection;
   return (
     <>
       <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -200,6 +221,10 @@ function CaseReview({ version, initial, call }: { version: string; initial: Case
         <h1 ref={headRef} tabIndex={-1} className="m-0 flex-1 text-base font-semibold outline-none">
           {listTitle(segment, motivo)} · llamada {p.index ?? "—"} de {p.total} <span className="help font-normal">(pendientes: {p.pending})</span>
         </h1>
+        <Button size="sm" variant="ghost" className="2xl:hidden" onClick={() => setSheetDrawer(true)}>
+          <PanelRight size={14} aria-hidden />
+          Ficha del seguro
+        </Button>
         <Button size="sm" variant="default" disabled={!p.prevCaseId} onClick={() => p.prevCaseId && router.push(caseHref(p.prevCaseId))}>
           <ChevronLeft size={14} aria-hidden /> Anterior
         </Button>
@@ -210,9 +235,11 @@ function CaseReview({ version, initial, call }: { version: string; initial: Case
 
       <section className="card mb-2.5 grid gap-1 text-sm">
         <p className="m-0">
-          <b>Llamada {cmp.callId}</b> · {cmp.callDate ? shortDate(cmp.callDate) : "—"} · {mmss(cmp.durationMs)} min · v{cmp.version} (prueba de
-          validación)
+          <b>Llamada {cmp.callId}</b> · {call.callDate ? shortDateTime(call.callDate) : cmp.callDate ? shortDate(cmp.callDate) : "—"} · Ejecutivo{" "}
+          {call.agent.name} · {call.products.join(", ") || "sin seguro"} · {mmss(cmp.durationMs)} min
         </p>
+        <TypificationLine t={call.typification} className="m-0 block" />
+        <p className="help m-0">v{cmp.version} (prueba de validación)</p>
         <p className="m-0 flex flex-wrap items-center gap-x-4 gap-y-1">
           <span>
             IA v{cmp.version}: <span className={VERDICT_CLASS[cmp.aiVerdict]}>{VERDICT[cmp.aiVerdict]}</span>
@@ -253,7 +280,13 @@ function CaseReview({ version, initial, call }: { version: string; initial: Case
         }}
       />
 
-      <div className="grid items-start gap-3 lg:grid-cols-[4fr_3.5fr]">
+      {/* Ficha del seguro como en la vista del auditor (07-ficha-en-caso.md, C1): tercera columna desde 1536 px: a 1280 las tarjetas por verificar no caben (H-24). */}
+      <div
+        className={cn(
+          "grid items-start gap-3 lg:grid-cols-[4fr_3.5fr]",
+          sheetOpen ? "2xl:grid-cols-[4fr_3.5fr_2.5fr]" : "2xl:grid-cols-[4fr_3.5fr_44px]",
+        )}
+      >
         <Transcript turns={call.transcript} currentMs={currentMs} evidence={evidence} badTurns={[]} readOnly onSeek={setCurrentMs} onMarkBad={() => {}} />
         <div className="grid gap-2.5">
           <section className="card grid gap-3" aria-labelledby="verify-h">
@@ -297,7 +330,25 @@ function CaseReview({ version, initial, call }: { version: string; initial: Case
             </details>
           )}
         </div>
+        <div className="hidden 2xl:block">
+          {sheetOpen ? (
+            <ProductSheetColumn
+              sheets={call.productSheets}
+              customer={call.customer}
+              relevant={relevantSection}
+              criterionId={focusId}
+              onCollapse={() => setSheetOpen(false)}
+            />
+          ) : (
+            <button type="button" className="col btn w-full justify-center [writing-mode:vertical-rl]" onClick={() => setSheetOpen(true)}>
+              Ficha del seguro
+            </button>
+          )}
+        </div>
       </div>
+      <Sheet open={sheetDrawer} onOpenChange={setSheetDrawer} title="Ficha del seguro">
+        <ProductSheetContent sheets={call.productSheets} customer={call.customer} relevant={relevantSection} criterionId={focusId} />
+      </Sheet>
     </>
   );
 }

@@ -480,14 +480,25 @@ def start_cause_analysis(version: str, session: DbSession, user: Admin):
     return {"id": run.id, "status": run.status, "estimatedCostUsd": run.estimated_cost_usd}
 
 
-Segment = Literal["promptFn", "promptFp", "reviewer", "undecided", "agree", "fp", "fn", "disagree"]
+Segment = Literal["promptFn", "promptFp", "reviewer", "undecided", "agree", "fp", "fn", "disagree", "changed"]
 
 
 @router.get("/admin/prompts/{version}/agreement/calls")
-def agreement_calls(version: str, segment: Segment, session: DbSession, _: AdminReader, criterion: int | None = None):
+def agreement_calls(
+    version: str,
+    segment: Segment,
+    session: DbSession,
+    _: AdminReader,
+    criterion: int | None = None,
+    vs: str | None = None,
+    sample: int | None = None,
+):
     """Llamadas de una parte del mosaico (o de un lado, o de un motivo), en orden aleatorio fijo, con su verificación
     (04-verificacion-propuesta.md §9.1, 05-numeros-propuesta.md §7)."""
-    return verification.segment_calls(session, tested(session, version), segment, criterion)
+    try:
+        return verification.segment_calls(session, tested(session, version), segment, criterion, vs, sample)
+    except LookupError as exc:
+        raise HTTPException(404, str(exc)) from exc
 
 
 @router.get("/admin/prompts/{version}/agreement/calls/{case_id}")
@@ -914,6 +925,7 @@ def admin_quality_grid(series: str, session: DbSession, _: AdminReader):
         version = ev.version if latest is not None and latest.id == ev.id else None
     else:
         raise HTTPException(404, "not_found")
+    cases = {c.id: c for c in session.scalars(select(Case).where(Case.id.in_([r["caseId"] for r in rows])))}
     return {
         "listVersion": version,
         "criteria": golden_split.layer2_criteria(),
@@ -921,6 +933,7 @@ def admin_quality_grid(series: str, session: DbSession, _: AdminReader):
             {
                 "caseId": r["caseId"],
                 "callId": r["callId"],
+                "typification": out.typification_out(cases[r["caseId"]]) if r["caseId"] in cases else None,
                 "segment": r["segment"],
                 "reviewerVerdict": r["result"]["external"],
                 "aiVerdict": r["result"]["verdict"],

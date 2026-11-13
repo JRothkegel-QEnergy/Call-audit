@@ -1,7 +1,7 @@
 /**
  * Tipos del Administrador Qubico (Cambio 12). Misma forma que las respuestas de src/call_audit/api/routes_admin.py.
  */
-import type { AccountStatus, Permission, Role } from "./types";
+import type { AccountStatus, Permission, Role, Typification } from "./types";
 
 export interface UserAccount {
   id: string;
@@ -107,6 +107,7 @@ export interface QualityGrid {
   calls: {
     caseId: string;
     callId: string;
+    typification?: Typification | null;
     segment: AgreementSegment;
     reviewerVerdict: "compliant" | "non_compliant";
     aiVerdict: Verdict3;
@@ -115,7 +116,37 @@ export interface QualityGrid {
 }
 
 /** Lista de llamadas: una parte del mosaico, un lado (falsas alarmas / rechazos no detectados) o todo desacuerdo. */
-export type CallList = AgreementSegment | "fp" | "fn" | "disagree";
+export type CallList = AgreementSegment | "fp" | "fn" | "disagree" | "changed";
+
+/** Cifras del Resumen de Discrepancias (10-resumen-mas-informacion.md), de la misma fuente que el mosaico. */
+export interface Concentration {
+  total: number;
+  criteria: number;
+  to50: number | null;
+  to80: number | null;
+  top: { criterionId: number; n: number }[];
+}
+
+export interface DiscrepancyInsights {
+  disagreements: number;
+  promptSide: {
+    n: number;
+    fn: number;
+    fp: number;
+    concentration: Concentration;
+    /** Desacuerdos rojo + amarillo por destino de su patrón: prompt_rule, observation, unpatterned, calibrate_auditor… */
+    coverage: Record<string, number>;
+    pendingRules: number;
+    ceiling: { calls: number; agree: number; n: number };
+  };
+  reviewerSide: { n: number; concentration: Concentration; withCalibration: number; pendingCalibration: number };
+  byAction: Record<string, number>;
+  chronic: { n: number; of: number; versions: string[]; new: number } | null;
+  chronicByCriterion: Record<string, number>;
+  evolution: { version: string; calls: number; toAgree: number; fromAgree: number; p: number } | null;
+  stability: { repeated: number; changed: number; versions: string[] } | null;
+  sample: { size: number; reviewed: number; confirmed: number };
+}
 
 // --- Verificación caso a caso (docs/ux/admin-prompt-metrics/04-verificacion-propuesta.md §9) ---
 
@@ -156,6 +187,9 @@ export interface SegmentCall {
   reviewerVerdict: "compliant" | "non_compliant";
   disagreements: SegmentDisagreement[];
   verification: CallVerification;
+  typification?: Typification | null;
+  /** Lista «changed»: pasa a coincidir o deja de coincidir frente a `vs`. */
+  group?: "toAgree" | "fromAgree";
 }
 
 export interface SegmentCalls {
@@ -165,6 +199,10 @@ export interface SegmentCalls {
   n: number;
   segment: CallList;
   criterion: number | null;
+  /** Lista «changed»: la versión contra la que se compara. */
+  vs?: string | null;
+  /** Muestra fija: las primeras N en el orden aleatorio. */
+  sample?: number | null;
   items: SegmentCall[];
   summary: VerificationSummary;
 }
@@ -549,6 +587,9 @@ export interface DiscrepancySummary {
   pendingProposals: number;
   pendingCases: number;
   staleCases: number;
+  /** Fuente única con el Resumen (R1 A): desacuerdos del motivo 1 (capa 1) que quedan fuera de las cifras. */
+  layer1Cases?: number;
+  sameSource?: boolean;
 }
 
 export interface DiscrepancyEvaluatorRow {
@@ -700,7 +741,9 @@ export interface DiscrepancyOverview {
         finishedAt: string | null;
         listVersion: string | null;
         isCurrent?: boolean;
+        evaluationId?: string;
         agreement: Agreement;
+        insights?: DiscrepancyInsights | null;
         missing?: undefined;
       }
     | { version: string; missing: true }

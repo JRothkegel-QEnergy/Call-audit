@@ -3,7 +3,7 @@
 import type { AgreementSegment, CallList, CallVerification, Verdict3, VerificationOutcome, VerificationSummary } from "@/lib/api/admin-types";
 
 export const SEGMENTS: AgreementSegment[] = ["promptFn", "promptFp", "reviewer", "undecided", "agree"];
-export const LISTS: CallList[] = [...SEGMENTS, "fp", "fn", "disagree"];
+export const LISTS: CallList[] = [...SEGMENTS, "fp", "fn", "disagree", "changed"];
 
 /** Nombre de cada lista (05-numeros-propuesta.md §3): las partes del mosaico y los lados de las metas. */
 export const LIST_NAME: Record<CallList, string> = {
@@ -15,6 +15,7 @@ export const LIST_NAME: Record<CallList, string> = {
   fp: "Falsas alarmas",
   fn: "Rechazos no detectados",
   disagree: "Desacuerdos por motivo",
+  changed: "Llamadas que cambian",
 };
 
 /** Color de la lista para su muestra; los lados usan el de la IA (rojo o amarillo). */
@@ -27,17 +28,22 @@ export const LIST_SWATCH: Record<CallList, AgreementSegment | null> = {
   fp: "promptFp",
   fn: "promptFn",
   disagree: null,
+  changed: null,
 };
 
 /** Con un motivo, la lista es por motivo (05-numeros-propuesta.md §2): «Solo el revisor lo marca · motivo 18». */
-export function listTitle(list: CallList, criterion: number | null): string {
+export function listTitle(list: CallList, criterion: number | null, extra: { vs?: string | null; sample?: number | null } = {}): string {
+  if (list === "changed") return `Llamadas que cambian frente a v${extra.vs ?? "—"}`;
+  if (extra.sample) return `${LIST_NAME[list]} · muestra de ${extra.sample}`;
   if (criterion == null) return LIST_NAME[list];
   const side = list === "fn" ? "Solo el revisor lo marca" : list === "fp" ? "Solo la IA lo marca" : "Desacuerdos";
   return `${side} · motivo ${criterion}`;
 }
 
-export const listHref = (version: string, list: CallList, criterion?: number | null) =>
-  `/admin/prompts/${encodeURIComponent(version)}/calls?segment=${list}${criterion != null ? `&motivo=${criterion}` : ""}`;
+export const listHref = (version: string, list: CallList, criterion?: number | null, extra: { vs?: string; sample?: number } = {}) =>
+  `/admin/prompts/${encodeURIComponent(version)}/calls?segment=${list}${criterion != null ? `&motivo=${criterion}` : ""}${
+    extra.vs ? `&vs=${encodeURIComponent(extra.vs)}` : ""
+  }${extra.sample ? `&muestra=${extra.sample}` : ""}`;
 
 /** Línea de apoyo de cada parte bajo el título de la lista. */
 export const SEGMENT_SUPPORT: Record<CallList, string> = {
@@ -49,6 +55,7 @@ export const SEGMENT_SUPPORT: Record<CallList, string> = {
   fp: "la IA rechaza y el revisor aprueba: a corregir o posible error del revisor",
   fn: "la IA aprueba y el revisor rechaza: a corregir o posible error del revisor",
   disagree: "llamadas con al menos un motivo en que la IA y el revisor no marcan lo mismo",
+  changed: "pasan a coincidir o dejan de coincidir con el revisor frente a la versión anterior",
 };
 
 export const CALL_STATUS: Record<CallVerification, string> = {

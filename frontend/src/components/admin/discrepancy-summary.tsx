@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AgreementMosaic, PARTS, Swatch } from "@/components/admin/agreement-charts";
+import { BlueTrust, EvolutionLine, FixColumns } from "@/components/admin/discrepancy-insights";
 import { AnalyzeDialog } from "@/components/admin/discrepancy-parts";
 import { QualityHeader } from "@/components/admin/quality-header";
 import { listHref } from "@/components/admin/verification-labels";
@@ -43,6 +44,7 @@ export function SummaryTab({
   const run = data.running;
   const q = data.quality;
   const allMotives = params.get("motives") === "all";
+  const view: View = params.get("vista") === "reviewer" ? "reviewer" : params.get("vista") === "all" ? "all" : "prompt";
   const pending = a ? a.criteria.filter((c) => !a.doneCriteria.includes(c)) : [];
   const patternsOf = new Map(data.criteria.map((c) => [c.criterionId, c.patterns]));
   const names = new Map(data.criteria.map((c) => [c.criterionId, c.name]));
@@ -124,8 +126,20 @@ export function SummaryTab({
               ) : undefined
             }
           />
+          {q.insights && <EvolutionLine ins={q.insights} version={q.version} listVersion={q.listVersion} />}
+          {q.insights && <BlueTrust ins={q.insights} a={q.agreement} listVersion={q.listVersion} />}
           <AgreementMosaic version={q.version} a={q.agreement} linked={!!q.listVersion} />
           <Bridge a={q.agreement} version={q.listVersion} />
+          {q.insights && (
+            <FixColumns
+              ins={q.insights}
+              listVersion={q.listVersion}
+              onPatterns={(action) => {
+                onOpenPatterns();
+                setParams({ tab: "patterns", motivo: "all", action, status: "all", page: null });
+              }}
+            />
+          )}
           <ByCriterion
             a={q.agreement}
             version={q.listVersion}
@@ -134,6 +148,9 @@ export function SummaryTab({
             all={allMotives}
             onAll={() => setParams({ motives: allMotives ? null : "all" })}
             onPatterns={openPatterns}
+            view={view}
+            onView={(v) => setParams({ vista: v === "prompt" ? null : v })}
+            chronic={q.insights?.chronic ? q.insights.chronicByCriterion : null}
           />
         </>
       ) : (
@@ -254,7 +271,19 @@ function Bridge({ a, version }: { a: Agreement; version: string | null }) {
   );
 }
 
-/** ¿En qué motivos? (§4.1-5): las barras suman el total de desacuerdos; la duda va en su columna. */
+type View = "prompt" | "reviewer" | "all";
+const VIEW_LABEL: [View, string][] = [
+  ["prompt", "A corregir en el prompt"],
+  ["reviewer", "A calibrar con el revisor"],
+  ["all", "Todo"],
+];
+const viewValue = (c: AgreementCriterion, view: View) => {
+  const s = sides(c);
+  return view === "prompt" ? s.fn + s.fp : view === "reviewer" ? s.reviewer : s.total;
+};
+
+/** ¿En qué motivos? (§4.1-5, B6 de 10-resumen-mas-informacion.md): selector a corregir / a calibrar / todo, ordenado por
+ * la columna elegida; «Ya estaba» cuenta los crónicos del motivo. La duda va en su columna. */
 function ByCriterion({
   a,
   version,
@@ -263,6 +292,9 @@ function ByCriterion({
   all,
   onAll,
   onPatterns,
+  view,
+  onView,
+  chronic,
 }: {
   a: Agreement;
   version: string | null;
@@ -271,10 +303,16 @@ function ByCriterion({
   all: boolean;
   onAll: () => void;
   onPatterns: (criterionId: number) => void;
+  view: View;
+  onView: (v: View) => void;
+  chronic: Record<string, number> | null;
 }) {
-  const rows = (a.byCriterion ?? []).filter((c) => sides(c).total > 0).sort((x, y) => sides(y).total - sides(x).total || x.criterionId - y.criterionId);
-  const total = rows.reduce((t, c) => t + sides(c).total, 0);
+  const rows = (a.byCriterion ?? [])
+    .filter((c) => viewValue(c, view) > 0)
+    .sort((x, y) => viewValue(y, view) - viewValue(x, view) || x.criterionId - y.criterionId);
+  const total = rows.reduce((t, c) => t + viewValue(c, view), 0);
   const scale = Math.max(1, ...rows.map((c) => sides(c).total));
+  const showChronic = view === "prompt" && chronic != null;
   const shown = all ? rows : rows.slice(0, TOP_MOTIVES);
   if (rows.length === 0) return null;
   return (
@@ -282,8 +320,16 @@ function ByCriterion({
       <h2 id="by-crit-h" className="m-0 text-lg font-semibold">
         ¿En qué motivos?
       </h2>
+      <div className="seg" role="radiogroup" aria-label="Qué desacuerdos">
+        {VIEW_LABEL.map(([k, label]) => (
+          <button key={k} type="button" role="radio" aria-checked={view === k} onClick={() => onView(k)}>
+            {label}
+          </button>
+        ))}
+      </div>
       <p className="help m-0">
-        Desacuerdos por motivo · suman {int(total)} en {int(rows.length)} motivos{version ? " · Clic en un motivo para ver sus llamadas" : ""}
+        {view === "prompt" ? "Rojo + amarillo" : view === "reviewer" ? "Posible error del revisor" : "Desacuerdos por motivo"} · suman {int(total)} en{" "}
+        {int(rows.length)} motivos{version ? " · Clic en un motivo para ver sus llamadas" : ""}
       </p>
       <div className="overflow-x-auto">
         <table className="tbl">
@@ -308,6 +354,11 @@ function ByCriterion({
               <th scope="col" className="num">
                 Sin decisión
               </th>
+              {showChronic && (
+                <th scope="col" className="num">
+                  Ya estaba
+                </th>
+              )}
               <th scope="col">
                 <span className="sr-only">Patrones</span>
               </th>
@@ -349,6 +400,7 @@ function ByCriterion({
                   <td className="num">{int(s.reviewer)}</td>
                   <td className="num font-semibold">{int(s.total)}</td>
                   <td className="num help">{int(c.undecided)}</td>
+                  {showChronic && <td className="num">{int(chronic?.[String(c.criterionId)] ?? 0)}</td>}
                   <td>
                     {patterns ? (
                       <button type="button" className="btn btn-ghost btn-sm whitespace-nowrap" onClick={() => onPatterns(c.criterionId)}>

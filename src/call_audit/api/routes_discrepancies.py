@@ -5,7 +5,7 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from call_audit import accounts, discrepancy_runs, verification
+from call_audit import accounts, discrepancy_insights, discrepancy_runs, verification
 from call_audit.api.deps import Admin, AdminReader, DbSession
 from call_audit.persistence.models import DiscrepancyAnalysis, DiscrepancyPattern, PromptEvaluation
 
@@ -31,7 +31,26 @@ def overview(session: DbSession, _: AdminReader, analysis: str | None = None):
         source = session.get(PromptEvaluation, shown.source_evaluation_id)
         out["analysis"]["sourceVersion"] = source.version if source else None
         out["analysis"]["sourceSplit"] = source.split if source else None
-    return {**out, "quality": verification.quality_for_analysis(session, shown)}
+    quality = verification.quality_for_analysis(session, shown)
+    if quality and quality.get("evaluationId"):
+        ev = session.get(PromptEvaluation, quality["evaluationId"])
+        quality["insights"] = discrepancy_insights.insights(session, ev) if ev is not None else None
+        # Fuente única (10-resumen-mas-informacion.md §3, R1 A): si el análisis es de esta misma prueba, Patrones cuenta
+        # los mismos desacuerdos que el Resumen (sin el motivo 1 de capa 1 ni la duda de la IA).
+        ins = quality["insights"]
+        if ins and shown is not None and shown.source_evaluation_id == ev.id:
+            by_action = {k: ins["byAction"].get(k, 0) for k in out["summary"]["byAction"]}
+            unexplained = by_action.get("unpatterned", 0) + by_action.get("observation", 0)
+            out["summary"] = {
+                **out["summary"],
+                "disagreements": ins["disagreements"],
+                "analyzedCases": ins["disagreements"],
+                "explainedCases": ins["disagreements"] - unexplained,
+                "byAction": by_action,
+                "layer1Cases": sum(c["fp"] + c["fn"] for c in out["criteria"] if c["criterionId"] == 1),
+                "sameSource": True,
+            }
+    return {**out, "quality": quality}
 
 
 class AnalysisIn(BaseModel):

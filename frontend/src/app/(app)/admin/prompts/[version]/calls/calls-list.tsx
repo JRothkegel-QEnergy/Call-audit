@@ -16,6 +16,7 @@ import {
   listHref,
   summaryLine,
 } from "@/components/admin/verification-labels";
+import { typificationLabel } from "@/components/call/typification";
 import { Button } from "@/components/ui/button";
 import { MetricHelp } from "@/components/ui/metric-help";
 import { AsyncView } from "@/components/ui/states";
@@ -32,7 +33,9 @@ export function CallsListView({ version }: { version: string }) {
   const raw = params.get("segment") as CallList | null;
   const segment: CallList = raw && LISTS.includes(raw) ? raw : "reviewer";
   const motivo = params.get("motivo") ? Number(params.get("motivo")) : null;
-  const state = useAsync(() => api.getSegmentCalls(version, segment, motivo), [version, segment, motivo]);
+  const vs = params.get("vs");
+  const sample = params.get("muestra") ? Number(params.get("muestra")) : null;
+  const state = useAsync(() => api.getSegmentCalls(version, segment, motivo, { vs, sample }), [version, segment, motivo, vs, sample]);
   return (
     <AsyncView state={state} what="las llamadas">
       {(data) => <CallsList version={version} data={data} />}
@@ -83,7 +86,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
         <ChevronLeft size={14} aria-hidden /> Volver a v{version}
       </Link>
       <AdminHeader
-        title={`${listTitle(segment, motivo)} · v${version}`}
+        title={`${listTitle(segment, motivo, { vs: data.vs, sample: data.sample })} · v${version}`}
         description={`${items.length} llamadas de ${data.n} de validación · ${
           motivo != null ? `con desacuerdo en el motivo ${motivo}` : SEGMENT_SUPPORT[segment]
         }`}
@@ -187,6 +190,8 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
                 <th scope="col">Fecha</th>
                 <th scope="col">IA</th>
                 <th scope="col">Planilla</th>
+                <th scope="col">Tipificó</th>
+                {segment === "changed" && <th scope="col">Cambio</th>}
                 <th scope="col">Motivos en desacuerdo</th>
                 <th scope="col">Verificación</th>
               </tr>
@@ -207,6 +212,12 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
                   <td>
                     <span className={VERDICT_CLASS[i.reviewerVerdict]}>{VERDICT[i.reviewerVerdict]}</span>
                   </td>
+                  <td className="max-w-[14rem] truncate" title={typificationLabel(i.typification)}>
+                    <span className={!i.typification?.outcome || i.typification.assumed ? "text-muted-foreground" : undefined}>
+                      {typificationLabel(i.typification, { short: true })}
+                    </span>
+                  </td>
+                  {segment === "changed" && <td>{i.group === "toAgree" ? "Pasa a coincidir" : "Deja de coincidir"}</td>}
                   <td>
                     <span className="flex flex-wrap gap-1">
                       {i.disagreements.length === 0 && <span className="help">—</span>}

@@ -47,6 +47,8 @@ def matches(row: dict, segment: str, criterion: int | None = None) -> bool:
         return row["segment"] == side or (row["segment"] == "reviewer" and row["result"]["external"] == reviewer_side)
     if segment == "disagree":
         return any(i["kind"] in SIDES for i in row["items"])
+    if segment == "all":
+        return True
     return row["segment"] == segment
 
 
@@ -198,23 +200,64 @@ def summaries(session: Session, evaluation: PromptEvaluation) -> dict[str, Any]:
     return {s: summarize(s, segment_items(rows, records, s), records) for s in SEGMENTS}
 
 
+def changed_rows(session: Session, rows: list[dict], vs: str) -> tuple[list[dict], dict[str, str]]:
+    """Llamadas que cambian de coincidir a no coincidir (o al revés) frente a la prueba en validación de `vs`
+    (10-resumen-mas-informacion.md, B2). Devuelve las filas y, por llamada, «toAgree» o «fromAgree»."""
+    other = validation_test(session, vs)
+    if other is None:
+        raise LookupError("not_tested")
+    before = {r["callId"]: r["segment"] == "agree" for r in evaluation_rows(session, other)[0]}
+    groups = {}
+    for r in rows:
+        if r["callId"] in before and before[r["callId"]] != (r["segment"] == "agree"):
+            groups[r["caseId"]] = "toAgree" if r["segment"] == "agree" else "fromAgree"
+    return [r for r in rows if r["caseId"] in groups], groups
+
+
 def segment_calls(
-    session: Session, evaluation: PromptEvaluation, segment: str, criterion: int | None = None
+    session: Session,
+    evaluation: PromptEvaluation,
+    segment: str,
+    criterion: int | None = None,
+    vs: str | None = None,
+    sample: int | None = None,
 ) -> dict[str, Any]:
     rows, _ = evaluation_rows(session, evaluation)
-    records = records_for(session, [r["caseId"] for r in rows if matches(r, segment, criterion)])
-    items = segment_items(rows, records, segment, criterion)
-    dates = dict(
-        session.execute(select(Case.id, Case.call_date).where(Case.id.in_([i["caseId"] for i in items]))).all()
-    )
+    groups: dict[str, str] = {}
+    if segment == "changed":
+        if not vs:
+            raise LookupError("vs_required")
+        rows, groups = changed_rows(session, rows, vs)
+        segment_for_items = "all"
+    else:
+        segment_for_items = segment
+    selected = [r for r in rows if segment_for_items == "all" or matches(r, segment_for_items, criterion)]
+    if sample:
+        # Muestra fija: las primeras `sample` en el orden aleatorio de la lista (mismo orden para todos).
+        selected = selected[:sample]
+    records = records_for(session, [r["caseId"] for r in selected])
+    if segment == "changed" or sample:
+        items = segment_items(selected, records, "all", None)
+    else:
+        items = segment_items(rows, records, segment, criterion)
     for it in items:
-        it["callDate"] = dates.get(it["caseId"], "")
+        if it["caseId"] in groups:
+            it["group"] = groups[it["caseId"]]
+    from call_audit.api.serializers import typification_out
+
+    cases = {c.id: c for c in session.scalars(select(Case).where(Case.id.in_([i["caseId"] for i in items])))}
+    for it in items:
+        case = cases.get(it["caseId"])
+        it["callDate"] = case.call_date if case else ""
+        it["typification"] = typification_out(case) if case else None
     return {
         "version": evaluation.version,
         "evaluationId": evaluation.id,
         "n": len(rows),
         "segment": segment,
         "criterion": criterion,
+        "vs": vs,
+        "sample": sample,
         "items": items,
         "summary": summarize(segment, items, records),
     }
@@ -462,6 +505,7 @@ def quality_out(session: Session, ev: PromptEvaluation) -> dict[str, Any] | None
     latest = prompt_evaluation.latest(session, ev.version)
     return {
         "version": ev.version,
+        "evaluationId": ev.id,
         "model": ev.model,
         "finishedAt": ev.finished_at.isoformat() if ev.finished_at else None,
         "listVersion": ev.version if latest is not None and latest.id == ev.id else None,

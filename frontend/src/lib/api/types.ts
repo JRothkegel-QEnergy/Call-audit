@@ -252,6 +252,15 @@ export interface CaseSummary {
   externalQualityVerdict: ExternalVerdict | null;
 }
 
+/** Qué tipificó el ejecutivo (09-info-llamada-y-tipificacion.md). outcome null: el lote no la trae. */
+export interface Typification {
+  outcome: string | null;
+  reason: string | null;
+  /** El sistema asumió Retención porque el lote no traía la tipificación (solo lotes desde el 13-nov). */
+  assumed: boolean;
+  musANeto?: string | null;
+}
+
 export interface CaseDetail extends CaseSummary {
   audioUrl: string | null;
   transcript: TranscriptTurn[];
@@ -259,6 +268,7 @@ export interface CaseDetail extends CaseSummary {
   productSheets: ProductSheet[];
   /** null: la llamada no trae datos del cliente en la metadata (o se importó antes del Cambio 13). */
   customer?: Customer | null;
+  typification?: Typification | null;
   /** Corridas del modelo; la primera es la vigente. Comparar modelos (más de una) queda para después. */
   modelRuns: ModelRun[];
   rubricId: string;

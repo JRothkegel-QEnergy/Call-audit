@@ -37,6 +37,7 @@ import { usePreferences } from "@/lib/preferences";
 import { loadRubric } from "@/lib/rubric";
 import { useSession } from "@/lib/session";
 import { AnalysisBanner } from "@/components/admin/quality-banner";
+import { TypificationLine } from "@/components/call/typification";
 import { useAsync } from "@/lib/use-async";
 import { caseStatusLabel } from "@/lib/verdicts";
 
@@ -370,6 +371,7 @@ function CallWorkspace({
         <span className="text-[13px] text-muted-foreground">
           {shortDateTime(data.callDate)} · Ejecutivo {data.agent.name} · {data.products.join(", ")}
         </span>
+        <TypificationLine t={data.typification} className="text-[13px]" />
         <span className="text-[13px] text-muted-foreground">Decisión del motor</span>
         <CallVerdictBadge verdict={data.engineVerdict} />
         <StatusBadge tone={mode === "supervisor" ? "teal" : "neutral"} locked={mode === "readonly" && data.status === "in_review"}>

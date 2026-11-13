@@ -10,8 +10,9 @@
 - **Split 60/20/20 se mantiene:** entrenamiento 655, validación 219, prueba final 219 (`golden_split`).
 - **Pausa en cada vuelta:** Johannes aprueba las reglas propuestas antes de que se prueben. Nada se publica solo.
 - **Tope: 5 vueltas.**
-- **Entrenamiento, solo desacuerdos:** cada vuelta re-corre en entrenamiento solo las llamadas que la versión
-  anterior falló (≈ 260). Si la versión nueva rompe algo que estaba bien, lo detecta validación.
+- **Entrenamiento completo (cambio del 2026-11-13):** cada vuelta corre la versión nueva sobre las 660 llamadas de
+  entrenamiento. Hasta v2.14 solo se re-corrían las que seguían en desacuerdo (270 → 191 → 166): las regresiones en
+  entrenamiento no se veían y el análisis aprendía de un pedazo, sin las llamadas con veredicto bien y motivos mal.
 - **Análisis también en validación (D1):** sirve solo para atribuir la causa de cada desacuerdo (azul). Sus
   propuestas de regla se descartan, para no contaminar validación.
 - **Color de cada desacuerdo (D2):** azul solo si todos los patrones que lo incluyen tienen la causa `auditor`. Lo
@@ -21,7 +22,7 @@
 
 | # | Paso | Quién | Costo aprox. |
 |---|---|---|---|
-| 1 | Probar la versión actual sobre los desacuerdos de entrenamiento | worker | ≈ US$7,6 |
+| 1 | Probar la versión actual sobre las 660 llamadas de entrenamiento | worker | ≈ US$20 |
 | 2 | Analizar esos desacuerdos (patrones, causa, propuesta) | worker | ≈ US$3–5 |
 | 3 | **Aprobar las reglas propuestas** (vista de propuestas que ya existe) | Johannes | — |
 | 4 | Armar la versión nueva con las reglas aceptadas (`prompt_followup.create`) | worker | — |

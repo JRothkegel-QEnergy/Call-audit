@@ -105,7 +105,9 @@ function Review({
     const mine = items.filter((p) => p.criterionId === id);
     return {
       id,
-      name: data.criteria.find((c) => c.criterionId === id)?.name ?? `Motivo ${id}`,
+      name:
+        (data.criteria.find((c) => c.criterionId === id)?.name ?? `Motivo ${id}`) +
+        (id === 1 ? " · capa 1, no entra en las cifras del Resumen" : ""),
       pendingPatterns: mine.filter((p) => !p.isObservation && isPending(p)).length,
       pendingObservations: mine.filter((p) => p.isObservation && isPending(p)).length,
     };
@@ -296,8 +298,15 @@ function Review({
       {/* Lo que salió del Resumen (05-numeros-propuesta.md §4.2): cuánto explican los patrones y dónde se arregla. */}
       <section className="card grid gap-2" aria-label="Qué explican los patrones">
         <p className="m-0 text-sm">
-          La IA de análisis revisó {int(data.summary.analyzedCases)} desacuerdos por motivo y dudas de la IA ({analysisUniverse(a).text}) y agrupó {int(data.summary.explainedCases)} ({data.summary.analyzedCases ? Math.round((100 * data.summary.explainedCases) / data.summary.analyzedCases) : 0} %) en{" "}
+          La IA de análisis revisó {int(data.summary.analyzedCases)} desacuerdos por motivo
+          {data.summary.sameSource ? "" : " y dudas de la IA"} ({analysisUniverse(a).text}) y agrupó {int(data.summary.explainedCases)} ({data.summary.analyzedCases ? Math.round((100 * data.summary.explainedCases) / data.summary.analyzedCases) : 0} %) en{" "}
           {int(patterns.filter((p) => !p.isObservation).length)} patrones; {int(data.summary.byAction.unpatterned)} quedaron sin patrón.
+          {data.summary.sameSource && !!data.summary.layer1Cases && (
+            <span className="help">
+              {" "}
+              Son las mismas cifras del Resumen; aparte, {int(data.summary.layer1Cases)} del motivo 1 (capa 1, lo calcula el código) no entran.
+            </span>
+          )}
         </p>
         <ActionBar
           s={data.summary}

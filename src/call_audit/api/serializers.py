@@ -192,6 +192,22 @@ def customer_out(case: Case) -> dict | None:
     return {api: data.get(key) for key, api in keys.items()} | {"flow": data.get("flow")}
 
 
+def typification_out(case: Case) -> dict[str, Any] | None:
+    """Qué tipificó el ejecutivo (09-info-llamada-y-tipificacion.md): gestión, motivo de renuncia y si el sistema la
+    asumió porque el lote no la traía. None si la llamada no trae tipificación."""
+    items = (case.call_metadata or {}).get("typification") or []
+    if not items:
+        return None
+    t = items[0]
+    outcome = (t.get("outcome") or "").strip()
+    return {
+        "outcome": None if outcome in ("", "NO INFORMADA") else outcome,
+        "reason": (t.get("reason") or "").strip() or None,
+        "assumed": bool(t.get("assumed")),
+        "musANeto": t.get("mus_a_neto"),
+    }
+
+
 def case_detail(
     case: Case,
     rubric: Rubric,
@@ -218,6 +234,7 @@ def case_detail(
         "findings": run.findings if run else [],
         "productSheets": product_sheets_out(case),
         "customer": customer_out(case),
+        "typification": typification_out(case),
         "modelRuns": runs,
         "rubricId": rubric.id,
         "rubricVersion": rubric.version,

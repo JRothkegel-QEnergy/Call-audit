@@ -66,6 +66,24 @@ export function GoalBadge({ ok, goal }: { ok: boolean; goal: number }) {
   );
 }
 
+/** Sublínea de una meta sin el posible error del revisor (R3 A, 10-resumen-mas-informacion.md B1). Va en condicional
+ * («Cumpliría») y con cuánto del azul está verificado, para que no se lea como meta cumplida. */
+function WithoutBlue({ k, n, goal, href, a }: { k: number; n: number; goal: number; href: string | null; a: Agreement }) {
+  const value = pct(k, n);
+  const ok = value <= goal;
+  const v = a.verification?.reviewer;
+  const text = `Sin el posible error del revisor: ${value} % · ${int(k)} de ${int(n)}`;
+  return (
+    <span className="mt-1 block text-[12px]">
+      {href ? <Link href={href}>{text}</Link> : text}{" "}
+      <span className={cn("vt", ok ? "vt-pass" : "vt-fail")}>{ok ? "Cumpliría" : "No cumpliría"}</span>
+      <span className="help block">
+        Depende del azul: {int(v?.reviewed ?? 0)} de {int(a.byCall.reviewer)} llamadas verificadas.
+      </span>
+    </span>
+  );
+}
+
 function Card({
   title,
   help,
@@ -194,7 +212,20 @@ export function QualityHeader({
               {int(h.fp)} de {llamadas(h.approved)} que el revisor aprobó <GoalBadge ok={fpOk} goal={goals.falsePositivePct} />
             </>
           }
-          extra={<span className="help">{split(b.promptFp, b.reviewerFp)}</span>}
+          extra={
+            <>
+              <span className="help">{split(b.promptFp, b.reviewerFp)}</span>
+              {analyzed && (
+                <WithoutBlue
+                  k={b.promptFp}
+                  n={h.approved}
+                  goal={goals.falsePositivePct}
+                  href={linkVersion ? listHref(linkVersion, "promptFp") : null}
+                  a={a}
+                />
+              )}
+            </>
+          }
           href={h.fp > 0 ? href("fp") : null}
           label={`Falsas alarmas: ${h.fpPct} %, ${int(h.fp)} de ${llamadas(h.approved)} que el revisor aprobó, ${fpOk ? "cumple" : "no cumple"} la meta de ${goals.falsePositivePct} %. Ver llamadas`}
           swatch={<Swatch part="promptFp" />}
@@ -208,7 +239,20 @@ export function QualityHeader({
               {int(h.fn)} de {llamadas(h.rejected)} que el revisor rechazó <GoalBadge ok={fnOk} goal={goals.falseNegativePct} />
             </>
           }
-          extra={<span className="help">{split(b.promptFn, b.reviewerFn)}</span>}
+          extra={
+            <>
+              <span className="help">{split(b.promptFn, b.reviewerFn)}</span>
+              {analyzed && (
+                <WithoutBlue
+                  k={b.promptFn}
+                  n={h.rejected}
+                  goal={goals.falseNegativePct}
+                  href={linkVersion ? listHref(linkVersion, "promptFn") : null}
+                  a={a}
+                />
+              )}
+            </>
+          }
           href={h.fn > 0 ? href("fn") : null}
           label={`Rechazos no detectados: ${h.fnPct} %, ${int(h.fn)} de ${llamadas(h.rejected)} que el revisor rechazó, ${fnOk ? "cumple" : "no cumple"} la meta de ${goals.falseNegativePct} %. Ver llamadas`}
           swatch={<Swatch part="promptFn" />}

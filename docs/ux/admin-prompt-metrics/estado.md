@@ -1,7 +1,7 @@
 # Estado del proceso UX · Métricas de la prueba del prompt
 
 - **Estado:** aprobado e implementado el 2026-11-10 (falta desplegar a prod).
-- **Último pedido abierto (2026-11-13):** ajustes tras ver producción, `06-ajustes-feedback.md`, esperando F1-F5 (ver la sección al final).
+- **Último pedido abierto (2026-11-13):** Resumen de Discrepancias con más información, `10-resumen-mas-informacion.md`, esperando R1-R5 (ver la sección al final).
 - **Tipo:** cambio menor sobre el diseño aprobado de call-audit (Cambios 12, 15 y 17). Revisión rápida, proceso comprimido a pedido de Johannes.
 - **Código afectado (después de aprobar):** `frontend/src/app/(app)/admin/prompts/[version]/prompt-version.tsx` (TestTab), nuevo `components/ui/metric-help.tsx`; según Q1, `components/admin/ai-quality.tsx` y `app/(app)/admin/prompts/page.tsx`; según Q2, `src/call_audit/golden_split.py` (`call_rates`).
 
@@ -81,3 +81,47 @@
 | 2026-11-13 | Propuesta: mapa por caso de vuelta con reglas N1-N8 (220, colores E3, duda aparte, clic al caso); "Posible error del revisor" / "Error del revisor" (verificado); Resumen sigue al análisis elegido con línea de universo real; habilitar decidir en `attribution` con aviso N8 A; versión activa en Calidad de la IA. Supuestos H-22, H-23; riesgos R-A (ahora vigente) y R-C. Esperando F1-F5 | Diseñador |
 | 2026-11-13 | **F1-F5 aprobadas** (Johannes: "Sí, todas (A)") | Johannes |
 | 2026-11-13 | Implementados F1-F5: `GET /api/admin/quality/grid?series=` y acordeón «Análisis por caso» (aprobadas / rechazadas por el revisor, colores E3, clic al caso y al motivo); «Posible error del revisor» / «Error del revisor» en toda la app y glosario §8.3; `latest_finished` incluye los análisis de causa y `decide()` ya no los bloquea; el Resumen y Patrones siguen al análisis elegido (`verification.quality_for_analysis`) con la línea de universo real; aviso N8 A en Patrones (análisis de causa) y en la cabecera (`sameCallRules`); control «Ver:» y botón «Ver» en la comparación de Calidad de la IA (URL `?series=…&ver=`). Desvíos: se mantuvo el parámetro `?analysis=` y `?series=` existentes en vez de `?analisis=` / `?v=`; la columna activa de «Desacuerdos por motivo» no se resalta. Revisado en el navegador con la copia local | Coordinador |
+
+---
+
+## Ficha del seguro en la revisión caso a caso (pedido 2026-11-13)
+
+- **Estado:** propuesta en `07-ficha-en-caso.md`, esperando C1-C4. Sin código de UI aún.
+- **Origen:** Johannes: "Aquí deberíamos tener también la información del caso y de la persona a la derecha. Igual que en la vista del auditor."
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-13 | Se trata como cambio menor sobre la pantalla aprobada en `04-verificacion-propuesta.md` (un gate). Sin backend nuevo: `getCase` ya trae `customer` y `productSheets`; el resaltado requiere cargar la pauta (`loadRubric()`) | Diseñador |
+| 2026-11-13 | Propuesta: tres columnas desde `xl` + botón y panel lateral bajo `xl`; abierta al entrar y plegado que se mantiene entre casos; reutilizar `ProductSheetColumn`/`ProductSheetContent` con resaltado según el motivo en foco; visible para `qubico_viewer`. Supuestos H-24, H-25. Esperando C1-C4 | Diseñador |
+| 2026-11-13 | **C1-C4 aprobadas** (Johannes: "Sí, todas (A)") | Johannes |
+| 2026-11-13 | Implementada la Ficha del seguro en la revisión caso a caso (`case-review.tsx`): `ProductSheetColumn` / `ProductSheetContent` con resaltado según el motivo en foco, abierta por defecto y recordada al pasar de caso. **Desvío por H-24:** a 1280 px las tarjetas «Por verificar» quedaban en ~337 px y los botones 2x2 se partían, así que la tercera columna va desde `2xl` (1536 px), como preveía C1 B; bajo eso, botón «Ficha del seguro» con panel lateral. Revisado en el navegador a 1600 y 1280 px | Coordinador |
+
+---
+
+## Datos de la llamada y tipificación del ejecutivo (pedido 2026-11-13)
+
+- **Estado:** propuesta en `09-info-llamada-y-tipificacion.md`, esperando T1-T4. Sin código de UI aún.
+- **Origen:** Johannes: "Me molesta que en la revisión no tenga la información de la llamada. Aparte que debería poder ver en todos lados qué motivo tipificó el ejecutivo."
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-13 | Se trata como cambio menor sobre pantallas aprobadas (un gate). Diagnóstico: la revisión ya pide `getCase` (ejecutivo, seguros, fecha, duración disponibles sin backend); la tipificación vive en `call_metadata["typification"]` y no llega al front salvo en el panel «Modelo»; el pipeline rellena `RETENCION` sin dejar marca. La Ficha (C1-C4) está en local, sin desplegar | Diseñador |
+| 2026-11-13 | Propuesta: encabezado de la revisión alineado con el del auditor (sin «Decisión del motor»); rótulo «Tipificó: {gestión} · Motivo de renuncia: {motivo}» con «(asumida)» / «no informado»; en revisión, detalle de llamada, columna en la lista por segmento y tooltip del mosaico; no en la cola; Discrepancias después (lo toca 08). Backend: marca `assumed` en `complete_row` y bloque `typification` en `case_detail`, `segment_calls` y `quality/grid`. Supuestos H-T1, H-T2; riesgo R-T1. Esperando T1-T4 | Diseñador |
+
+---
+
+## Resumen de Discrepancias con más información (pedido 2026-11-13)
+
+- **Estado:** propuesta en `10-resumen-mas-informacion.md`, esperando R1-R5. Sin código de UI aún.
+- **Origen:** Johannes: "Siento que ahora el Resumen de la página de Análisis de discrepancias tiene muy poca información." Pidió proponerlo junto al analista de datos; insumo en `08-resumen-insumo-analista.md` (P1-P6, valores reales de v2.15).
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-13 | Se trata como cambio sobre diseño aprobado (N-R1..N-R9, F1-F5), un gate. No se agregan gráficos: se mantienen mosaico y barra; lo nuevo son frases con cifra, base y enlace | Diseñador |
+| 2026-11-13 | Propuesta: Resumen ordenado por las preguntas del analista (B1 metas en dos lecturas, B2 franja de evolución pareada, B3 confianza del azul, B5 dos columnas "Corregir en el prompt" / "Calibrar con el revisor" con concentración, crónicos, cobertura y techo, B6 tabla con selector A corregir / A calibrar / Todo). Fuente única `agreement` para cerrar el cuadre 187 vs. 203. No vuelven las tarjetas de avance, «¿Quién tiene más razón?», % explicado ni el azul por revisor. Supuestos H-R1, H-R2; riesgos R-R1 a R-R3. Esperando R1-R5 | Diseñador (con insumo del analista) |
+| 2026-11-13 | **T1-T4 y R1-R5 aprobadas** (Johannes: "Sí, todas (A)") | Johannes |
+| 2026-11-13 | Implementado T1-T4: `typification_out` (serializers) en el detalle de llamada, la lista por segmento y el análisis por caso; `TypificationLine` / `typificationLabel` (components/call/typification.tsx); encabezado de la revisión como el del auditor (fecha y hora, ejecutivo, seguros, duración, tipificación); `pipeline.complete_row` marca la tipificación asumida desde ahora (T4 A). | Coordinador |
+| 2026-11-13 | Implementado R1-R5: `call_audit/discrepancy_insights.py` (fuente única sobre las filas del mosaico: dos columnas, cobertura por patrón, techo, crónicos, evolución con McNemar, estabilidad del azul, muestra de 30) y prueba de cuadre; Patrones usa las mismas cifras cuando el análisis es de la misma prueba y avisa los del motivo 1 aparte; metas en dos lecturas en `QualityHeader`; franja de evolución, confianza del azul, columnas «Corregir en el prompt» / «Calibrar con el revisor» y selector en «¿En qué motivos?» con «Ya estaba»; listas `changed` (`?vs=`) y muestra (`?muestra=30`). Desvíos: la muestra de 30 son las primeras 30 del orden aleatorio fijo, sin estratificar por motivo; desde una lista «changed» o la muestra, la revisión navega por la parte completa. Revisado en el navegador con la copia local (una sola prueba: sin evolución ni crónicos) | Coordinador |

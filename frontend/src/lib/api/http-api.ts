@@ -178,9 +178,14 @@ export const httpApi: ApiClient = {
   stopPromptTest: (version) => post(`/api/admin/prompts/${encodeURIComponent(version)}/evaluation/stop`),
   estimateCauseAnalysis: (version) => get(`/api/admin/prompts/${encodeURIComponent(version)}/cause-analysis/estimate`),
   startCauseAnalysis: (version) => post(`/api/admin/prompts/${encodeURIComponent(version)}/cause-analysis`),
-  getSegmentCalls: (version, segment, criterion) =>
+  getSegmentCalls: (version, segment, criterion, opts) =>
     get(
-      `/api/admin/prompts/${encodeURIComponent(version)}/agreement/calls${query({ segment, criterion: criterion != null ? String(criterion) : undefined })}`,
+      `/api/admin/prompts/${encodeURIComponent(version)}/agreement/calls${query({
+        segment,
+        criterion: criterion != null ? String(criterion) : undefined,
+        vs: opts?.vs ?? undefined,
+        sample: opts?.sample != null ? String(opts.sample) : undefined,
+      })}`,
     ),
   getCaseComparison: (version, caseId, segment, criterion) =>
     get(

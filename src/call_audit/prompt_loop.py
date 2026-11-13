@@ -82,18 +82,11 @@ def stop(session: Session, loop: PromptLoop) -> None:
 # --- Pasos -------------------------------------------------------------------------------------------------------
 
 
-def train_disagreements(session: Session, loop: PromptLoop) -> list[str]:
-    """Llamadas de entrenamiento cuya última versión conocida no coincide con el revisor (o quedó dudosa)."""
-    known: dict[str, tuple[str | None, str | None]] = {
-        case.id: (run.verdict if not run.error else "uncertain", case.external_verdict)
-        for case, run in prompt_evaluation.calibration_cases(session, "train")
-    }
-    for r in loop.rounds:
-        evaluation = session.get(PromptEvaluation, r["trainEvalId"]) if r.get("trainEvalId") else None
-        for res in evaluation.results if evaluation is not None else []:
-            if res["caseId"] in known:
-                known[res["caseId"]] = (res["verdict"], res.get("external"))
-    return [cid for cid, (ai, ref) in known.items() if ref and ai != ref]
+def train_cases(session: Session) -> list[str]:
+    """Todas las llamadas de entrenamiento con planilla: cada vuelta corre la versión nueva sobre las 660 completas.
+    Antes solo se corrían las que seguían en desacuerdo con el revisor, así que las regresiones en las que ya estaban
+    bien no se veían y el análisis aprendía de un pedazo, con veredictos de versiones distintas (2026-11-13)."""
+    return [case.id for case, _run in prompt_evaluation.calibration_cases(session, "train")]
 
 
 def included_version(session: Session, analysis_id: str) -> str | None:
@@ -171,7 +164,7 @@ def step(session: Session, loop: PromptLoop) -> str:
 
     if not current.get("trainEvalId"):
         version = session.get(PromptVersion, current["version"])
-        cases = train_disagreements(session, loop)
+        cases = train_cases(session)
         evaluation = prompt_evaluation.start_train(session, version, actor, cases, loop.id)
         current["trainEvalId"] = evaluation.id
         save(loop, current)
