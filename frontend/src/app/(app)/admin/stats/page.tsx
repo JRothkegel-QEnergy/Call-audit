@@ -5,23 +5,20 @@ import { Suspense, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { AiQualityView } from "@/components/admin/ai-quality";
-import { ProcessedChart } from "@/components/admin/processed-chart";
 import { Button } from "@/components/ui/button";
-import { KpiCard } from "@/components/ui/page-header";
 import { AsyncView, EmptyState, LoadingState } from "@/components/ui/states";
 import { api } from "@/lib/api";
 import type { AdminStats, StatsPeriod } from "@/lib/api/admin-types";
-import { int, shortDate, shortDateTime } from "@/lib/format";
+import { int, shortDate } from "@/lib/format";
 import { useAsync } from "@/lib/use-async";
 
-type Tab = "operation" | "quality" | "cost";
+type Tab = "quality" | "cost";
 
 const PERIODS: { value: StatsPeriod; label: string }[] = [
   { value: "7d", label: "Últimos 7 días" },
   { value: "30d", label: "Últimos 30 días" },
 ];
 const TABS = [
-  ["operation", "Operación"],
   ["quality", "Calidad de la IA"],
   ["cost", "Costo"],
 ] as const;
@@ -55,24 +52,23 @@ function rangeText(stats: AdminStats | undefined, period: StatsPeriod | undefine
 }
 
 function resultAnnouncement(stats: AdminStats, tab: Tab, range: string): string {
-  const result = tab === "cost" ? `${int(stats.cost.length)} combinaciones de modelo y prompt` : `${int(stats.operation.callsProcessed)} llamadas procesadas`;
+  const result = tab === "cost" ? `${int(stats.cost.length)} combinaciones de modelo y prompt` : "";
   return range ? `${result}, ${range}` : result;
-}
-
-function LastRun({ at }: { at: string | null }) {
-  return at ? <> Última corrida: {shortDate(at)}.</> : null;
 }
 
 function StatsScreen() {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
-  const tab: Tab = (["quality", "cost"] as const).find((t) => t === params.get("tab")) ?? "operation";
+  // Operación se eliminó (05-numeros-propuesta.md §6, G12): sus dos cifras útiles están en Procesamiento.
+  const tab: Tab = params.get("tab") === "cost" ? "cost" : "quality";
+  useEffect(() => {
+    if (params.get("tab") === "operation") router.replace("/admin/processing");
+  }, [params, router]);
   const period = PERIODS.find((p) => p.value === params.get("period"))?.value;
   const model = params.get("model") ?? undefined;
   const prompt = params.get("prompt") ?? undefined;
   const hasFilters = Boolean(period || model || prompt);
-  const narrowsRuns = Boolean(model || prompt);
   const periodSelect = useRef<HTMLSelectElement>(null);
 
   const stats = useAsync(() => api.getAdminStats({ period, model, prompt }), [period, model, prompt]);
@@ -116,16 +112,6 @@ function StatsScreen() {
   const promptOptions = data?.filters.promptVersions ?? (prompt ? [prompt] : []);
   const range = rangeText(data, period);
 
-  const chartEmpty = (s: AdminStats) => {
-    if (s.filters.models.length === 0) return "Aún no hay corridas registradas.";
-    return (
-      <>
-        {narrowsRuns ? "Sin llamadas procesadas con estos filtros." : "Sin llamadas procesadas en este periodo."}
-        <LastRun at={s.filters.lastRunAt} />
-      </>
-    );
-  };
-
   return (
     <>
       <AdminHeader
@@ -135,7 +121,7 @@ function StatsScreen() {
       />
       <div className="tabs" role="tablist">
         {TABS.map(([k, label]) => (
-          <button key={k} id={`stats-tab-${k}`} type="button" role="tab" className="tab" aria-selected={tab === k} aria-controls="stats-panel" onClick={() => updateParams({ tab: k === "operation" ? undefined : k })}>
+          <button key={k} id={`stats-tab-${k}`} type="button" role="tab" className="tab" aria-selected={tab === k} aria-controls="stats-panel" onClick={() => updateParams({ tab: k === "quality" ? undefined : k })}>
             {label}
           </button>
         ))}
@@ -179,55 +165,6 @@ function StatsScreen() {
               <AsyncView state={stats} what="las estadísticas">
                 {(s) => (
                   <>
-                    {tab === "operation" && (
-                      <>
-                        <div className="mb-4 grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-3">
-                          <KpiCard value={int(s.operation.callsProcessed)} label={`Llamadas procesadas · ${int(s.operation.minutesProcessed)} min`} />
-                          <KpiCard
-                            value={s.operation.medianHoursToResult == null ? "—" : `${String(s.operation.medianHoursToResult).replace(".", ",")} h`}
-                            label="Mediana hasta el resultado · meta < 24 h"
-                            hint={s.operation.medianHoursToResult == null ? "Se mide cuando el pipeline registre la llegada de cada lote." : undefined}
-                          />
-                          <KpiCard value={s.operation.batchesWithError} label="Lotes con error" />
-                          <KpiCard value={s.operation.humanQueue} label={`En cola de revisión · la más antigua, ${s.operation.oldestQueueHours} h`} hint="Ahora. No cambia con los filtros." />
-                          <KpiCard value={s.operation.reviewedPerDay} label="Casos revisados por día (todo el equipo)" hint="Usa el periodo. No depende de modelo ni prompt." />
-                        </div>
-                        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-                          <ProcessedChart points={s.operation.daily} bucket={s.operation.dailyBucket} range={rangeText(s, period)} filtered={narrowsRuns} emptyMessage={chartEmpty(s)} />
-                          <div className="card">
-                            <b>Lotes con error</b>
-                            <table className="tbl flat mt-2.5">
-                              <thead>
-                                <tr>
-                                  <th>Lote</th>
-                                  <th>Fecha</th>
-                                  <th>Etapa</th>
-                                  <th>Llamadas</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {s.operation.failedBatches.length === 0 && (
-                                  <tr>
-                                    <td colSpan={4} className="help">
-                                      {hasFilters ? "Sin lotes con error con estos filtros." : "Sin lotes con error."}
-                                    </td>
-                                  </tr>
-                                )}
-                                {s.operation.failedBatches.map((b) => (
-                                  <tr key={b.batchId}>
-                                    <td className="tabular">{b.batchId}</td>
-                                    <td className="tabular">{b.at ? shortDateTime(b.at) : "—"}</td>
-                                    <td>{b.stage}</td>
-                                    <td className="num">{b.calls}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </>
-                    )}
-
                     {tab === "cost" && s.cost.length === 0 && (
                       <EmptyState
                         title={s.filters.models.length === 0 ? "Aún no hay corridas registradas." : "Sin corridas con estos filtros."}

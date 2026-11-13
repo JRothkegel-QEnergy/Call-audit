@@ -46,7 +46,7 @@ export const DISCARD_REASONS = [
   "No es un problema del prompt",
   "Ya está resuelto en otra versión",
   "La evidencia no alcanza",
-  "Los casos no son del mismo tipo",
+  "Los desacuerdos no son del mismo tipo",
 ] as const;
 
 export function statusLabel(p: Pick<DiscrepancyPattern, "status" | "decision">): string {

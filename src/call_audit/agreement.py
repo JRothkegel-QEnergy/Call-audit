@@ -95,15 +95,47 @@ SEGMENT_KIND = {"agree": "agree", "undecided": "undecided", "promptFn": "fn", "p
 
 
 def compute_rows(rows: list[dict[str, Any]], criteria_count: int) -> dict[str, Any]:
+    """Además de los dos bloques, lo que pide la cabecera común (05-numeros-propuesta.md §3-§4): las bases de FP y FN
+    (aprobadas y rechazadas por el revisor), en qué llamadas caen los desacuerdos por motivo (`bridge`) y el desglose
+    por motivo (`byCriterion`). Todo sale de las mismas filas, así que suma a la vista."""
     by_call, by_item = empty(), empty()
+    by_call["approved"] = by_call["rejected"] = 0
+    bridge = {"calls": 0, **dict.fromkeys(SEGMENT_KIND | {"reviewer": ""}, 0)}
+    per_crit: dict[int, dict[str, int]] = {}
     for row in rows:
+        wrong = False
         for item in row["items"]:
             add(by_item, item["kind"], item["blue"])
+            if item["kind"] == "agree":
+                continue
+            c = per_crit.setdefault(
+                item["criterionId"], {"fn": 0, "fp": 0, "reviewerFn": 0, "reviewerFp": 0, "undecided": 0}
+            )
+            if item["kind"] == "undecided":
+                c["undecided"] += 1
+                continue
+            wrong = True
+            key = item["kind"]
+            c[("reviewer" + key.capitalize()) if item["blue"] else key] += 1
+        if wrong:
+            bridge["calls"] += 1
+            bridge[row["segment"]] += 1
+        by_call["approved" if row["result"]["external"] == PASS else "rejected"] += 1
         if row["segment"] == "reviewer":
             add(by_call, "fn" if row["result"]["external"] == FAIL else "fp", True)
         else:
             add(by_call, SEGMENT_KIND[row["segment"]], False)
-    return {"byCall": by_call, "byCallCriterion": by_item, "criteria": criteria_count}
+    by_criterion = [
+        {"criterionId": cid, **c}
+        for cid, c in sorted(per_crit.items(), key=lambda kv: -sum(kv[1].values()) + kv[1]["undecided"])
+    ]
+    return {
+        "byCall": by_call,
+        "byCallCriterion": by_item,
+        "criteria": criteria_count,
+        "bridge": bridge,
+        "byCriterion": by_criterion,
+    }
 
 
 def compute(
@@ -149,6 +181,15 @@ def for_results(
     out = compute(results, call_ids, blue_cases(patterns), golden_split.layer2_criteria())
     if not out["byCall"]["n"]:
         return None
+    # Universo a la vista (N-R1): cuántas llamadas tenía la prueba y por qué quedaron fuera.
+    out["scope"] = {
+        "total": len(results),
+        "measured": out["byCall"]["n"],
+        "errors": sum(1 for r in results if r.get("error")),
+        "noReference": sum(
+            1 for r in results if not r.get("error") and (r.get("externalFails") is None or not r.get("external"))
+        ),
+    }
     out["causeAnalysis"] = {
         "status": status,
         "costUsd": run.cost_usd if run is not None else None,

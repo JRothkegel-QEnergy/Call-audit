@@ -28,7 +28,7 @@ function PatternSynthesis({ p }: { p: DiscrepancyPatternDetail }) {
   const noAi = p.whoIsRight == null && p.expectedFix == null && !p.sideEffects && !p.concentration;
   return (
     <section className="card mb-4 grid gap-1.5" aria-label="Síntesis del patrón">
-      <CaseMix k={p.kindCounts} label={`Casos (${p.cases.length})`} />
+      <CaseMix k={p.kindCounts} label={`Desacuerdos (${p.cases.length})`} />
       <p className="m-0 flex flex-wrap items-center gap-2 text-sm">
         <span className="text-muted-foreground">Revisión manual:</span>
         <span aria-hidden className="flex h-3 w-40 overflow-hidden rounded-[2px] shadow-[inset_0_0_0_1px_var(--neutral-400,#a3a3a3)]">
@@ -45,7 +45,7 @@ function PatternSynthesis({ p }: { p: DiscrepancyPatternDetail }) {
         <span className="text-muted-foreground">Antes de aceptar:</span>
         {noAi ? (
           <span className="help">
-            Sin dato en este análisis: quién tiene más razón, casos que corregiría, posibles efectos y concentración. Aparecen al correr un
+            Sin dato en este análisis: quién tiene más razón, desacuerdos que corregiría, posibles efectos y concentración. Aparecen al correr un
             análisis nuevo.
           </span>
         ) : (
@@ -111,8 +111,8 @@ function PatternDetail({ initial }: { initial: DiscrepancyPatternDetail }) {
       <PatternSynthesis p={p} />
 
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <h2 className="m-0 flex-1 text-lg font-semibold">Casos ({p.cases.length})</h2>
-        <div className="seg" role="group" aria-label="Filtro de casos">
+        <h2 className="m-0 flex-1 text-lg font-semibold">Desacuerdos ({p.cases.length})</h2>
+        <div className="seg" role="group" aria-label="Filtro de desacuerdos">
           {(
             [
               ["all", "Todos"],
@@ -147,7 +147,7 @@ function PatternDetail({ initial }: { initial: DiscrepancyPatternDetail }) {
             {cases.length === 0 && (
               <tr>
                 <td colSpan={hasFix ? 8 : 7} className="help">
-                  Ningún caso con este filtro.
+                  Ningún desacuerdo con este filtro.
                 </td>
               </tr>
             )}

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { LoadingState } from "@/components/ui/states";
-import type { AgreementSegment } from "@/lib/api/admin-types";
+import type { CallList } from "@/lib/api/admin-types";
 import { CaseReviewView } from "./case-review";
 
 export default function PromptCasePage({
@@ -8,15 +8,16 @@ export default function PromptCasePage({
   searchParams,
 }: {
   params: Promise<{ version: string; caseId: string }>;
-  searchParams: Promise<{ segment?: string }>;
+  searchParams: Promise<{ segment?: string; motivo?: string }>;
 }) {
   return (
     <Suspense fallback={<LoadingState />}>
-      {Promise.all([params, searchParams]).then(([{ version, caseId }, { segment }]) => (
+      {Promise.all([params, searchParams]).then(([{ version, caseId }, { segment, motivo }]) => (
         <CaseReviewView
           version={decodeURIComponent(version)}
           caseId={decodeURIComponent(caseId)}
-          segment={(segment as AgreementSegment | undefined) ?? null}
+          segment={(segment as CallList | undefined) ?? null}
+          criterion={motivo ? Number(motivo) : null}
         />
       ))}
     </Suspense>

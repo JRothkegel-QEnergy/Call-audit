@@ -178,11 +178,13 @@ export const httpApi: ApiClient = {
   stopPromptTest: (version) => post(`/api/admin/prompts/${encodeURIComponent(version)}/evaluation/stop`),
   estimateCauseAnalysis: (version) => get(`/api/admin/prompts/${encodeURIComponent(version)}/cause-analysis/estimate`),
   startCauseAnalysis: (version) => post(`/api/admin/prompts/${encodeURIComponent(version)}/cause-analysis`),
-  getSegmentCalls: (version, segment) =>
-    get(`/api/admin/prompts/${encodeURIComponent(version)}/agreement/calls${query({ segment })}`),
-  getCaseComparison: (version, caseId, segment) =>
+  getSegmentCalls: (version, segment, criterion) =>
     get(
-      `/api/admin/prompts/${encodeURIComponent(version)}/agreement/calls/${encodeURIComponent(caseId)}${query({ segment })}`,
+      `/api/admin/prompts/${encodeURIComponent(version)}/agreement/calls${query({ segment, criterion: criterion != null ? String(criterion) : undefined })}`,
+    ),
+  getCaseComparison: (version, caseId, segment, criterion) =>
+    get(
+      `/api/admin/prompts/${encodeURIComponent(version)}/agreement/calls/${encodeURIComponent(caseId)}${query({ segment, criterion: criterion != null ? String(criterion) : undefined })}`,
     ),
   saveVerification: (caseId, criterionId, input) =>
     request("PUT", `/api/admin/verifications/${encodeURIComponent(caseId)}/${criterionId}`, input),

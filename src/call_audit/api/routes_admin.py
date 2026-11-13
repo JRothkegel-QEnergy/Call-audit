@@ -293,10 +293,7 @@ def evaluation_metrics(evaluation: PromptEvaluation) -> dict | None:
 
 def with_verification(session: Session, evaluation: PromptEvaluation) -> dict | None:
     """El mosaico con la suma de lo verificado a mano en cada parte (04-verificacion-propuesta.md §6.1)."""
-    block = agreement.for_evaluation(session, evaluation)
-    if block is not None:
-        block["verification"] = verification.summaries(session, evaluation)
-    return block
+    return verification.with_summaries(session, evaluation)
 
 
 def get_prompt(session: Session, version: str) -> PromptVersion:
@@ -478,20 +475,23 @@ def start_cause_analysis(version: str, session: DbSession, user: Admin):
     return {"id": run.id, "status": run.status, "estimatedCostUsd": run.estimated_cost_usd}
 
 
-Segment = Literal["promptFn", "promptFp", "reviewer", "undecided", "agree"]
+Segment = Literal["promptFn", "promptFp", "reviewer", "undecided", "agree", "fp", "fn", "disagree"]
 
 
 @router.get("/admin/prompts/{version}/agreement/calls")
-def agreement_calls(version: str, segment: Segment, session: DbSession, _: AdminReader):
-    """Llamadas de una parte del mosaico, en orden aleatorio fijo, con su verificación (§9.1)."""
-    return verification.segment_calls(session, tested(session, version), segment)
+def agreement_calls(version: str, segment: Segment, session: DbSession, _: AdminReader, criterion: int | None = None):
+    """Llamadas de una parte del mosaico (o de un lado, o de un motivo), en orden aleatorio fijo, con su verificación
+    (04-verificacion-propuesta.md §9.1, 05-numeros-propuesta.md §7)."""
+    return verification.segment_calls(session, tested(session, version), segment, criterion)
 
 
 @router.get("/admin/prompts/{version}/agreement/calls/{case_id}")
-def agreement_case(version: str, case_id: str, session: DbSession, _: AdminReader, segment: str = ""):
+def agreement_case(
+    version: str, case_id: str, session: DbSession, _: AdminReader, segment: str = "", criterion: int | None = None
+):
     """Una llamada con lo que dijo la IA de esa versión frente a la planilla, motivo por motivo (§9.2)."""
     try:
-        return verification.case_comparison(session, tested(session, version), segment, case_id)
+        return verification.case_comparison(session, tested(session, version), segment, case_id, criterion)
     except LookupError as exc:
         raise HTTPException(404, str(exc)) from exc
 
@@ -817,115 +817,76 @@ def quote_rate(runs: list[ModelRun]) -> float:
 
 @router.get("/admin/quality")
 def admin_quality(session: DbSession, _: AdminReader):
-    """Corridas (modelo + `run_label`, más las pruebas del prompt terminadas) contra el veredicto y la marca por
-    motivo del cliente. Datos por llamada: las métricas las calcula el front (H-99). Sin nombres de ejecutivos."""
-    cases = list(session.scalars(select(Case).where(Case.external_verdict.is_not(None)).order_by(Case.call_id)))
-    ids = {c.id for c in cases}
+    """Versiones medidas sobre las llamadas de validación (05-numeros-propuesta.md §5, N5): la vigente con sus
+    corridas de hoy y cada prueba de versión terminada en ese set. Cada una trae el bloque `agreement` (el mismo del
+    mosaico), así que las cifras son las de la pestaña Prueba: la duda de la IA va aparte (N4). Sin IA."""
     toml = prompt_evaluation.all_models()
     order = {m["name"]: i for i, m in enumerate(toml)}
     labels = {m["name"]: m.get("label", m["name"]) for m in toml}
-
-    groups: dict[tuple[str, str], list[ModelRun]] = defaultdict(list)
-    current: list[ModelRun] = []
-    for r in session.scalars(select(ModelRun).where(ModelRun.case_id.in_(ids))):
-        groups[(r.model, r.run_label)].append(r)
-        if r.is_current:
-            current.append(r)
-    # La vigente de cada llamada puede venir de corridas distintas (la manual de 100 y la automática del worker):
-    # la serie "Vigente" las junta y es la que se elige por defecto. Las corridas por etiqueta quedan como antes.
-    run_groups: list[tuple[str, str, list[ModelRun], bool]] = [
-        (f"run:{model}:{label}", label, items, False) for (model, label), items in groups.items()
-    ]
-    if current:
-        models_in_current = Counter(r.model for r in current)
-        run_groups.insert(0, ("current", "Vigente", current, True))
+    split = prompt_evaluation.eval_split(session)
     series: list[dict] = []
-    results: dict[str, dict[str, dict | None]] = defaultdict(dict)
-    for sid, label, items, is_current in run_groups:
-        priced = [r.cost_usd for r in items if r.cost_usd]
-        versions = Counter(r.prompt_version for r in items)
+
+    current = prompt_evaluation.current_metrics(session)
+    active = session.scalar(select(PromptVersion).where(PromptVersion.status == "active"))
+    if current and current.get("agreement") and active is not None:
+        runs = discrepancy_runs.current_series(session) or {}
         series.append(
             {
-                "id": sid,
-                "model": models_in_current.most_common(1)[0][0] if is_current else items[0].model,
-                "promptVersion": versions.most_common(1)[0][0],
-                "runLabel": label,
+                "id": "current",
+                "model": runs.get("model") or active.model or "",
+                "promptVersion": active.version,
+                "runLabel": "Vigente",
                 "source": "run",
-                "isCurrent": is_current,
-                "ranAt": iso(max(accounts.aware(r.run_at) for r in items)),
-                "calls": len(items),
-                "costPerCallUsd": round(mean(priced), 6) if priced else None,
-                "unvalidatedQuoteRate": quote_rate(items),
+                "isCurrent": True,
+                "ranAt": None,
+                "costPerCallUsd": current.get("costPerCallUsd"),
+                "listVersion": None,
+                "agreement": current["agreement"],
             }
         )
-        for r in items:
-            results[r.case_id][sid] = None if r.error else {"verdict": r.verdict, "failCriteria": fail_criteria(r)}
 
     running = None
     for ev in session.scalars(select(PromptEvaluation).order_by(PromptEvaluation.created_at)):
         if ev.status in ("queued", "running"):
             running = {"version": ev.version, "done": ev.done, "total": len(ev.case_ids)}
-        if ev.status != "done" or not prompt_evaluation.is_test(ev):
+        if ev.status != "done" or not prompt_evaluation.is_test(ev) or (split is not None and ev.split != split):
             continue
-        sid = f"test:{ev.id}"
-        rows = [r for r in ev.results if r["caseId"] in ids]
-        quotes = sum(r.get("quotes", 0) for r in rows)
+        block = with_verification(session, ev)
+        if block is None:
+            continue
+        latest = prompt_evaluation.latest(session, ev.version)
         series.append(
             {
-                "id": sid,
+                "id": f"test:{ev.id}",
                 "model": ev.model,
                 "promptVersion": ev.version,
                 "runLabel": f"Prueba v{ev.version}",
                 "source": "prompt_test",
                 "isCurrent": False,
                 "ranAt": iso(accounts.aware(ev.finished_at or ev.created_at)),
-                "calls": len(rows),
                 "costPerCallUsd": (ev.metrics or {}).get("costPerCallUsd"),
-                "unvalidatedQuoteRate": round(100 * sum(r.get("unvalidatedQuotes", 0) for r in rows) / quotes, 1)
-                if quotes
-                else 0.0,
+                # La lista de llamadas (/admin/prompts/[v]/calls) lee la última prueba de la versión.
+                "listVersion": ev.version if latest is not None and latest.id == ev.id else None,
+                "agreement": block,
             }
         )
-        for r in rows:
-            results[r["caseId"]][sid] = (
-                None if r.get("error") else {"verdict": r["verdict"], "failCriteria": sorted(r.get("failCriteria", []))}
-            )
 
     # Color fijo por modelo, en el orden de models.toml (H-100); los modelos que no están ahí van al final.
     models = sorted({s["model"] for s in series}, key=lambda m: (order.get(m, len(order)), m))
     for s in series:
         s["modelLabel"] = labels.get(s["model"], s["model"])
         s["colorIndex"] = models.index(s["model"]) % 6
-    series.sort(key=lambda s: (models.index(s["model"]), prompt_registry.version_key(s["promptVersion"]), s["ranAt"]))
+    series.sort(key=lambda s: (prompt_registry.version_key(s["promptVersion"]), s["ranAt"] or ""))
 
     rubric = load_rubric(get_settings().rubric_path)
     return {
         "series": series,
-        "calls": [
-            {
-                "caseId": c.id,
-                "callId": c.call_id,
-                "callDate": c.call_date,
-                "clientVerdict": c.external_verdict,
-                "clientFails": c.external_item_fails,
-                "results": results.get(c.id, {}),
-            }
-            for c in cases
-        ],
         "criteria": [
-            {
-                "id": cid,
-                "name": crit.description,
-                "minor": cid in rubric.minor,
-                "byCode": "layer1" in crit.layers,
-                "partial": cid in UNEVALUABLE_WITHOUT_TYPIFICATION,
-            }
+            {"id": cid, "name": crit.description, "minor": cid in rubric.minor}
             for cid, crit in sorted(rubric.criteria.items())
         ],
         "goals": QUALITY_GOALS,
         "promptTestRunning": running,
-        # "Ver por qué" en los motivos de la corrida vigente con patrones (Cambio 16, D-62).
-        "currentSeriesPatternCounts": discrepancy_runs.pattern_counts(session),
     }
 
 

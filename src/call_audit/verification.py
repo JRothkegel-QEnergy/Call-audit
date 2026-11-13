@@ -29,6 +29,27 @@ from call_audit.rubric import load_rubric
 OUTCOMES = ("ai_error", "reviewer_error", "ambiguous", "missing_info")
 SEGMENTS = ("promptFn", "promptFp", "reviewer", "undecided", "agree")
 TO_VERIFY = ("fn", "fp", "undecided")
+# Listas que no son una parte del mosaico (05-numeros-propuesta.md §3, §7): el lado de la falsa alarma o del rechazo no
+# detectado (amarillo o rojo + el azul de ese lado), o todos los desacuerdos de un motivo.
+SIDES = ("fp", "fn")
+LISTS = (*SEGMENTS, *SIDES, "disagree")
+
+
+def matches(row: dict, segment: str, criterion: int | None = None) -> bool:
+    """¿La llamada entra en la lista? Con `criterion`, solo las que tienen un desacuerdo en ese motivo (del lado
+    `fp`/`fn` si se pide); sin él, la parte del mosaico o el lado de la llamada."""
+    if criterion is not None:
+        kinds = (segment,) if segment in SIDES else SIDES
+        return any(i["criterionId"] == criterion and i["kind"] in kinds for i in row["items"])
+    if segment in SIDES:
+        side = "promptFp" if segment == "fp" else "promptFn"
+        reviewer_side = PASS if segment == "fp" else FAIL
+        return row["segment"] == side or (row["segment"] == "reviewer" and row["result"]["external"] == reviewer_side)
+    if segment == "disagree":
+        return any(i["kind"] in SIDES for i in row["items"])
+    return row["segment"] == segment
+
+
 FAIL, PASS = agreement.FAIL, agreement.PASS
 
 
@@ -148,9 +169,9 @@ def summarize(segment: str, items: list[dict], records: dict) -> dict[str, Any]:
     }
 
 
-def segment_items(rows: list[dict], records: dict, segment: str) -> list[dict]:
+def segment_items(rows: list[dict], records: dict, segment: str, criterion: int | None = None) -> list[dict]:
     items = []
-    for i, row in enumerate(r for r in rows if r["segment"] == segment):
+    for i, row in enumerate(r for r in rows if matches(r, segment, criterion)):
         found = disagreements(row, records)
         items.append(
             {
@@ -164,6 +185,7 @@ def segment_items(rows: list[dict], records: dict, segment: str) -> list[dict]:
                     for d in found
                 ],
                 "verification": call_status([d["outcome"] for d in found]),
+                "segment": row["segment"],
             }
         )
     return items
@@ -176,10 +198,12 @@ def summaries(session: Session, evaluation: PromptEvaluation) -> dict[str, Any]:
     return {s: summarize(s, segment_items(rows, records, s), records) for s in SEGMENTS}
 
 
-def segment_calls(session: Session, evaluation: PromptEvaluation, segment: str) -> dict[str, Any]:
+def segment_calls(
+    session: Session, evaluation: PromptEvaluation, segment: str, criterion: int | None = None
+) -> dict[str, Any]:
     rows, _ = evaluation_rows(session, evaluation)
-    records = records_for(session, [r["caseId"] for r in rows if r["segment"] == segment])
-    items = segment_items(rows, records, segment)
+    records = records_for(session, [r["caseId"] for r in rows if matches(r, segment, criterion)])
+    items = segment_items(rows, records, segment, criterion)
     dates = dict(
         session.execute(select(Case.id, Case.call_date).where(Case.id.in_([i["caseId"] for i in items]))).all()
     )
@@ -190,6 +214,7 @@ def segment_calls(session: Session, evaluation: PromptEvaluation, segment: str) 
         "evaluationId": evaluation.id,
         "n": len(rows),
         "segment": segment,
+        "criterion": criterion,
         "items": items,
         "summary": summarize(segment, items, records),
     }
@@ -222,13 +247,16 @@ def record_out(record: DisagreementVerification, stale: bool) -> dict[str, Any]:
     }
 
 
-def case_comparison(session: Session, evaluation: PromptEvaluation, segment: str, case_id: str) -> dict[str, Any]:
+def case_comparison(
+    session: Session, evaluation: PromptEvaluation, segment: str, case_id: str, criterion: int | None = None
+) -> dict[str, Any]:
     rows, patterns = evaluation_rows(session, evaluation)
     row = next((r for r in rows if r["caseId"] == case_id), None)
     case = session.get(Case, case_id)
     if row is None or case is None:
         raise LookupError("not_in_test")
-    same = [r for r in rows if r["segment"] == segment] if segment in SEGMENTS else [row]
+    listed = segment in LISTS or criterion is not None
+    same = [r for r in rows if matches(r, segment, criterion)] if listed else [row]
     records = records_for(session, [r["caseId"] for r in same] + [case_id])
     statuses = [call_status([d["outcome"] for d in disagreements(r, records)]) for r in same]
     ids = [r["caseId"] for r in same]
@@ -279,7 +307,8 @@ def case_comparison(session: Session, evaluation: PromptEvaluation, segment: str
         "version": evaluation.version,
         "model": evaluation.model,
         "segment": row["segment"],
-        "listSegment": segment if segment in SEGMENTS else row["segment"],
+        "listSegment": segment if segment in LISTS else row["segment"],
+        "listCriterion": criterion,
         "aiVerdict": result["verdict"],
         "reviewer": {
             "verdict": result["external"],
@@ -374,3 +403,43 @@ def remove(session: Session, actor: User, case_id: str, criterion_id: int) -> No
     )
     session.delete(row)
     session.flush()
+
+
+# --- Cabecera común en Discrepancias (05-numeros-propuesta.md §4) --------------------------------------------------
+
+
+def with_summaries(session: Session, evaluation: PromptEvaluation) -> dict[str, Any] | None:
+    """El bloque `agreement` de la prueba con la suma de lo verificado a mano en cada parte (§6.1 de 04)."""
+    block = agreement.for_evaluation(session, evaluation)
+    if block is not None:
+        block["verification"] = summaries(session, evaluation)
+    return block
+
+
+def latest_quality(session: Session) -> dict[str, Any] | None:
+    """La última prueba de versión terminada sobre validación, para la cabecera de Discrepancias › Resumen: las mismas
+    cifras que su pestaña Prueba. None si no hay ninguna."""
+    from call_audit import prompt_evaluation
+
+    split = prompt_evaluation.eval_split(session)
+    tests = session.scalars(
+        select(PromptEvaluation)
+        .where(PromptEvaluation.status == "done")
+        .order_by(PromptEvaluation.finished_at.desc().nulls_last(), PromptEvaluation.created_at.desc())
+    )
+    for ev in tests:
+        # Sin sets asignados (golden_split.default_split devuelve None) vale cualquier prueba.
+        if not prompt_evaluation.is_test(ev) or (split is not None and ev.split != split):
+            continue
+        block = with_summaries(session, ev)
+        if block is None:
+            continue
+        latest = prompt_evaluation.latest(session, ev.version)
+        return {
+            "version": ev.version,
+            "model": ev.model,
+            "finishedAt": ev.finished_at.isoformat() if ev.finished_at else None,
+            "listVersion": ev.version if latest is not None and latest.id == ev.id else None,
+            "agreement": block,
+        }
+    return None

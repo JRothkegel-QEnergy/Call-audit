@@ -113,8 +113,6 @@ def test_analysis_flow(client: TestClient, admin: User, imported: sessionmaker[S
 
     detail = client.get(f"/api/admin/discrepancies/patterns/{pattern['id']}").json()
     assert {c["callId"]: c["kind"] for c in detail["cases"]} == {"1001": "fn", "1002": "fp", "1003": "fn"}
-    quality = client.get("/api/admin/quality").json()
-    assert quality["currentSeriesPatternCounts"] == {"30": 1}
 
     url = f"/api/admin/discrepancies/patterns/{pattern['id']}/decision"
     assert client.post(url, json={"decision": "discarded"}).status_code == 422

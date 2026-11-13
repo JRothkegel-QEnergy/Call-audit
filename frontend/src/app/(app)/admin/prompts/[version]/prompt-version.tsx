@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { AgreementMosaic, CauseAnalysisNotice, DisagreementZoom, LoopEvolution } from "@/components/admin/agreement-charts";
+import { QualityHeader } from "@/components/admin/quality-header";
 import { PromptDiff } from "@/components/admin/prompt-diff";
 import { PromptForm } from "@/components/admin/prompt-form";
 import { PromptStatusBadge } from "@/components/admin/prompt-status";
@@ -332,6 +333,12 @@ function TestTab({ detail, onReload }: { detail: PromptVersionDetail; onReload: 
       {shown.agreement ? (
         <>
           <CauseAnalysisNotice version={detail.meta.version} ca={shown.agreement.causeAnalysis} onStarted={onReload} />
+          <QualityHeader
+            version={detail.meta.version}
+            a={shown.agreement}
+            linkVersion={same ? null : detail.meta.version}
+            compare={!same && base?.agreement ? { label: `v${detail.activeVersion} (vigente)`, a: base.agreement } : null}
+          />
           <AgreementMosaic version={detail.meta.version} a={shown.agreement} linked={!same} />
           <DisagreementZoom a={shown.agreement} />
           <LoopEvolution loop={detail.loop} version={detail.meta.version} />

@@ -112,7 +112,7 @@ function Workspace({ analysisId, params, setParams }: { analysisId: string | und
     if (data.calls === 0) return <EmptyState title="Aún no hay llamadas con corrida vigente y marca por motivo en la planilla para comparar." />;
     if (data.cases === 0) return <EmptyState title="La corrida vigente coincide con la planilla en todos los motivos. No hay nada que analizar." />;
     return (
-      <div className="grid gap-4">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4">
         {data.readOnly && data.analysis && (
           <div className="banner" role="note">
             <span>

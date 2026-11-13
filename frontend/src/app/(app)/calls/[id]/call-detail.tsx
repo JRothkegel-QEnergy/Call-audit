@@ -36,7 +36,7 @@ import { durationText, shortDateTime } from "@/lib/format";
 import { usePreferences } from "@/lib/preferences";
 import { loadRubric } from "@/lib/rubric";
 import { useSession } from "@/lib/session";
-import { AnalysisBanner, QualityBanner } from "@/components/admin/quality-banner";
+import { AnalysisBanner } from "@/components/admin/quality-banner";
 import { useAsync } from "@/lib/use-async";
 import { caseStatusLabel } from "@/lib/verdicts";
 
@@ -80,7 +80,6 @@ export function CallDetail({ id }: { id: string }) {
       from={params.get("from") ?? undefined}
       startAtMs={params.get("t") ? Number(params.get("t")) : undefined}
       qualitySeries={params.get("serie")}
-      qualityCall={params.get("llamada")}
       analysisPattern={params.get("pattern")}
       analysisMotive={params.get("motivo") ? Number(params.get("motivo")) : null}
     />
@@ -93,7 +92,6 @@ function CallWorkspace({
   from,
   startAtMs,
   qualitySeries,
-  qualityCall,
   analysisPattern,
   analysisMotive,
 }: {
@@ -103,7 +101,6 @@ function CallWorkspace({
   startAtMs?: number;
   /** Abierta desde «Calidad de la IA» (Cambio 15): la corrida que se estaba mirando. */
   qualitySeries?: string | null;
-  qualityCall?: string | null;
   /** Abierta desde un patrón del «Análisis de discrepancias» (Cambio 16, D-65): el patrón y su motivo. */
   analysisPattern?: string | null;
   analysisMotive?: number | null;
@@ -390,7 +387,6 @@ function CallWorkspace({
         )}
       </div>
 
-      {fromQuality && <QualityBanner caseId={data.id} seriesId={qualitySeries!} callId={qualityCall ?? null} />}
       {fromAnalysis && <AnalysisBanner caseId={data.id} patternId={analysisPattern!} />}
 
       {/* Veredicto del cliente: solo llega al supervisor (D-24) y solo si vino en la metadata (D-25). */}

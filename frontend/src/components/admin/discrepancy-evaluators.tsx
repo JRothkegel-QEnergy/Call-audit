@@ -33,8 +33,8 @@ const COLUMNS: { key: Exclude<SortKey, "name">; label: string; full: string; uni
   { key: "verdict", label: "Veredicto No cumple", full: "Veredicto No cumple", unit: "% de llamadas" },
   { key: "match", label: "Calce de llamada", full: "Calce de llamada", unit: "% de llamadas" },
   { key: "motives", label: "No cumple marcados", full: "Motivos No cumple marcados", unit: "prom. por llamada" },
-  { key: "fp", label: "Solo la IA detectó", full: "Solo la IA detectó", unit: "casos" },
-  { key: "fn", label: "Omitidos por la IA", full: "Omitidos por la IA", unit: "casos" },
+  { key: "fp", label: "Solo la IA lo marca", full: "Solo la IA lo marca", unit: "desacuerdos" },
+  { key: "fn", label: "Solo el revisor lo marca", full: "Solo el revisor lo marca", unit: "desacuerdos" },
 ];
 
 const HELP: [string, string][] = [
@@ -178,7 +178,7 @@ export function EvaluatorsTab({ data, params, setParams }: { data: DiscrepancyOv
       </div>
       <Pager label="Evaluadores" page={page} size={PAGE_SIZE} total={sorted.length} onChange={(p) => setParams({ evalPage: p === 1 ? null : String(p) })} />
       {missing && <p className="m-0 text-sm">{int(missing.calls)} llamadas no traen evaluador en la planilla y no entran en Todos los evaluadores.</p>}
-      <p className="m-0 text-sm">Un caso es un motivo de una llamada. Una llamada puede aportar varios casos, por eso estas columnas pueden superar a Llamadas evaluadas.</p>
+      <p className="m-0 text-sm">Un desacuerdo es un motivo de una llamada en que la IA y el revisor no marcan lo mismo. Una llamada puede aportar varios, por eso estas columnas pueden superar a Llamadas evaluadas.</p>
       <dl className="m-0 grid gap-x-4 gap-y-1 text-sm md:grid-cols-[minmax(12rem,auto)_1fr]">
         {HELP.map(([term, text]) => (
           <div key={term} className="contents">

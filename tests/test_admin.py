@@ -393,12 +393,17 @@ def test_quality_is_admin_only(client: TestClient, users: dict[str, User]) -> No
     assert client.get("/api/admin/quality").status_code == 403
 
 
-def test_quality_series_and_calls(client: TestClient, admin: User, imported: sessionmaker[Session]) -> None:
+def test_quality_series_on_validation(client: TestClient, admin: User, imported: sessionmaker[Session]) -> None:
+    """Calidad de la IA: cada versión trae el bloque `agreement` del mosaico; la duda de la IA va aparte (N4) y ya no
+    vienen los datos por llamada ni las corridas por etiqueta (N5, N6)."""
     with imported() as session, session.begin():
         cases = list(session.scalars(select(Case).order_by(Case.call_id)))
+        for c in cases:
+            c.external_item_fails = []
+            c.external_verdict = "compliant"
         cases[0].external_item_fails = [14]
-        # La vigente repartida en dos corridas, como en producción (la manual y la automática del worker).
-        cases[1].runs[0].run_label = "v9.9 automático"
+        cases[0].external_verdict = "non_compliant"
+        row = {"externalFails": [], "external": "compliant", "uncertainCriteria": [], "findings": []}
         session.add(
             PromptEvaluation(
                 version="9.9",
@@ -406,23 +411,39 @@ def test_quality_series_and_calls(client: TestClient, admin: User, imported: ses
                 status="done",
                 requested_by_id=admin.id,
                 case_ids=[c.id for c in cases],
-                done=1,
-                results=[{"caseId": cases[0].id, "verdict": "non_compliant", "failCriteria": [14, 2]}],
+                done=3,
+                results=[
+                    {
+                        **row,
+                        "caseId": cases[0].id,
+                        "verdict": "compliant",
+                        "external": "non_compliant",
+                        "externalFails": [14],
+                        "failCriteria": [],
+                    },
+                    {**row, "caseId": cases[1].id, "verdict": "non_compliant", "failCriteria": [2]},
+                    {
+                        **row,
+                        "caseId": cases[2].id,
+                        "verdict": "uncertain",
+                        "failCriteria": [],
+                        "uncertainCriteria": [5],
+                    },
+                ],
                 metrics={"costPerCallUsd": 0.01},
             )
         )
     login(client, admin)
     body = client.get("/api/admin/quality").json()
-    run = next(s for s in body["series"] if s["source"] == "run" and s["isCurrent"])
     test = next(s for s in body["series"] if s["source"] == "prompt_test")
-    assert run["id"] == "current" and run["runLabel"] == "Vigente" and run["calls"] == 3
-    by_label = {s["id"]: s for s in body["series"] if s["source"] == "run" and not s["isCurrent"]}
-    assert {k: s["calls"] for k, s in by_label.items()} == {"run:modelo-a:v9.9": 2, "run:modelo-a:v9.9 automático": 1}
-    assert test["runLabel"] == "Prueba v9.9" and test["calls"] == 1 and test["costPerCallUsd"] == 0.01
-    first = next(c for c in body["calls"] if c["caseId"] == cases[0].id)
-    assert first["clientFails"] == [14]
-    assert first["results"][test["id"]] == {"verdict": "non_compliant", "failCriteria": [2, 14]}
-    assert run["id"] in first["results"]
-    assert len(body["criteria"]) == 33 and body["criteria"][0]["byCode"] and body["criteria"][18]["partial"]
+    assert test["runLabel"] == "Prueba v9.9" and test["costPerCallUsd"] == 0.01 and test["listVersion"] == "9.9"
+    by_call = test["agreement"]["byCall"]
+    assert (by_call["n"], by_call["promptFn"], by_call["promptFp"], by_call["undecided"]) == (3, 1, 1, 1)
+    assert (by_call["approved"], by_call["rejected"]) == (2, 1)
+    assert test["agreement"]["bridge"]["calls"] == 2
+    crit = {c["criterionId"]: c for c in test["agreement"]["byCriterion"]}
+    assert crit[14]["fn"] == 1 and crit[2]["fp"] == 1 and crit[5]["undecided"] == 1
+    assert "calls" not in body and not any(s["id"].startswith("run:") for s in body["series"])
+    assert len(body["criteria"]) == 33
     assert body["goals"] == {"falsePositivePct": 5, "falseNegativePct": 20}
     assert "Ejecutivo" not in json.dumps(body)

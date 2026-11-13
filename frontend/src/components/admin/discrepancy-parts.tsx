@@ -29,7 +29,7 @@ export function PatternTags({ p }: { p: DiscrepancyPattern }) {
       {p.direction && <StatusBadge>{DIRECTION[p.direction]}</StatusBadge>}
       {p.cause && <StatusBadge tone="ink">{CAUSE[p.cause]}</StatusBadge>}
       {confidence && <StatusBadge>{confidence}</StatusBadge>}
-      <StatusBadge>{p.caseCount} casos</StatusBadge>
+      <StatusBadge>{p.caseCount} desacuerdos</StatusBadge>
       {(!p.isObservation || p.status !== "pending") && <StatusBadge tone={p.status === "pending" ? "doubt" : "teal"}>{statusLabel(p)}</StatusBadge>}
     </div>
   );
@@ -64,7 +64,7 @@ export function PatternBody({ p }: { p: DiscrepancyPattern }) {
       )}
       {p.reviewerDisagreements > 0 && (
         <p className="help m-0">
-          {p.reviewerDisagreements} {p.reviewerDisagreements === 1 ? "caso" : "casos"} con desacuerdo entre revisores: van a calibración.
+          {p.reviewerDisagreements} {p.reviewerDisagreements === 1 ? "desacuerdo" : "desacuerdos"} en que los revisores no coinciden entre sí: van a calibración.
         </p>
       )}
       {p.decision?.reason && <p className="help m-0">Motivo del descarte: {p.decision.reason}</p>}
@@ -144,7 +144,7 @@ export function PatternActions({
       )}
       {showCases && (
         <Link className={size === "sm" ? "btn btn-sm" : "btn"} href={`/admin/discrepancies/patterns/${p.id}`}>
-          Ver casos ({p.caseCount})
+          Ver los {p.caseCount} desacuerdos
         </Link>
       )}
       {dialog && <DecisionDialog p={p} kind={dialog} onClose={() => setDialog(null)} onDone={onChange} />}
@@ -201,7 +201,7 @@ export function ObservationRow({
           {p.title || p.observationText}
         </span>
         <StatusBadge>
-          {p.caseCount} {p.caseCount === 1 ? "caso" : "casos"}
+          {p.caseCount} {p.caseCount === 1 ? "desacuerdo" : "desacuerdos"}
         </StatusBadge>
         {p.status !== "pending" && <StatusBadge tone="teal">{statusLabel(p)}</StatusBadge>}
       </div>
@@ -613,7 +613,7 @@ export function AnalyzeDialog({
       ) : e ? (
         <div className="grid gap-1">
           <p className="m-0">
-            <b>{cost ? `Costo estimado: ${cost}` : "No hay costo registrado para este modelo; no podemos estimarlo."}</b> ({e.criteria.length} motivos · {e.cases} casos)
+            <b>{cost ? `Costo estimado: ${cost}` : "No hay costo registrado para este modelo; no podemos estimarlo."}</b> ({e.criteria.length} motivos · {e.cases} desacuerdos)
             {e.minutes != null && ` · Tiempo estimado: ${String(e.minutes).replace(".", ",")} min`}
           </p>
           {e.discardedProposals > 0 && (

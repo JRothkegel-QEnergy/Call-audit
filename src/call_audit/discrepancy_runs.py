@@ -903,18 +903,3 @@ def release_version(session: Session, version: str) -> None:
     """Si la versión se descarta sin activarse, sus propuestas vuelven a «Aceptada» (D-68)."""
     for row in session.scalars(select(ProposalDecision).where(ProposalDecision.included_in_version == version)):
         row.status, row.included_in_version = "accepted", None
-
-
-def pattern_counts(session: Session) -> dict[int, int] | None:
-    """Patrones por motivo del último análisis, si analizó la corrida vigente (para «Ver por qué» en C15)."""
-    run = latest_finished(session)
-    if run is None or (run.layer2_series and run.layer2_series != current_series(session)):
-        return None
-    counts = Counter(
-        session.scalars(
-            select(DiscrepancyPattern.criterion_id).where(
-                DiscrepancyPattern.analysis_id == run.id, DiscrepancyPattern.is_observation.is_(False)
-            )
-        )
-    )
-    return dict(counts)

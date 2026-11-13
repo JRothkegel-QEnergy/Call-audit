@@ -1,7 +1,7 @@
 /**
  * Tipos del Administrador Qubico (Cambio 12). Misma forma que las respuestas de src/call_audit/api/routes_admin.py.
  */
-import type { AccountStatus, CallVerdict, Permission, Role } from "./types";
+import type { AccountStatus, Permission, Role } from "./types";
 
 export interface UserAccount {
   id: string;
@@ -56,6 +56,19 @@ export interface AgreementBreakdown {
   reviewer: number;
   reviewerFn: number;
   reviewerFp: number;
+  /** Solo en byCall: llamadas que el revisor aprobó / rechazó (bases de FP y FN, 05-numeros-propuesta.md §3). */
+  approved?: number;
+  rejected?: number;
+}
+
+/** Desacuerdos por motivo de un motivo (05-numeros-propuesta.md §4.1-5). fn/fp sin el azul; el azul aparte. */
+export interface AgreementCriterion {
+  criterionId: number;
+  fn: number;
+  fp: number;
+  reviewerFn: number;
+  reviewerFp: number;
+  undecided: number;
 }
 
 export interface CauseAnalysis {
@@ -78,7 +91,15 @@ export interface Agreement {
   causeAnalysis: CauseAnalysis;
   /** Suma de lo verificado a mano por parte del mosaico (04-verificacion-propuesta.md §6.1). */
   verification?: Record<AgreementSegment, VerificationSummary>;
+  /** Llamadas con al menos un desacuerdo por motivo, en total y por parte del mosaico (frase puente, §4.1-3). */
+  bridge?: { calls: number } & Record<AgreementSegment, number>;
+  byCriterion?: AgreementCriterion[];
+  /** Universo a la vista (N-R1): llamadas de la prueba, medidas y por qué quedaron fuera. */
+  scope?: { total: number; measured: number; errors: number; noReference: number };
 }
+
+/** Lista de llamadas: una parte del mosaico, un lado (falsas alarmas / rechazos no detectados) o todo desacuerdo. */
+export type CallList = AgreementSegment | "fp" | "fn" | "disagree";
 
 // --- Verificación caso a caso (docs/ux/admin-prompt-metrics/04-verificacion-propuesta.md §9) ---
 
@@ -126,7 +147,8 @@ export interface SegmentCalls {
   evaluationId: string;
   /** Llamadas medibles de la prueba (el n del mosaico). */
   n: number;
-  segment: AgreementSegment;
+  segment: CallList;
+  criterion: number | null;
   items: SegmentCall[];
   summary: VerificationSummary;
 }
@@ -167,7 +189,8 @@ export interface CaseComparison {
   version: string;
   model: string;
   segment: AgreementSegment;
-  listSegment: AgreementSegment;
+  listSegment: CallList;
+  listCriterion: number | null;
   aiVerdict: Verdict3;
   reviewer: { verdict: "compliant" | "non_compliant"; comment: string | null; evaluator: string | null };
   findingsAvailable: boolean;
@@ -343,30 +366,18 @@ export interface QualitySeries {
   source: "run" | "prompt_test";
   isCurrent: boolean;
   ranAt: string | null;
-  calls: number;
   costPerCallUsd: number | null;
-  unvalidatedQuoteRate: number;
-}
-
-export interface QualityCall {
-  caseId: string;
-  callId: string;
-  callDate: string;
-  clientVerdict: CallVerdict;
-  /** Motivos que el cliente marcó NO CUMPLE; null si el Excel no los trae (D-55). */
-  clientFails: number[] | null;
-  /** Por id de serie; null = la corrida no tiene resultado para esta llamada. Sin la clave = no la corrió. */
-  results: Record<string, { verdict: CallVerdict; failCriteria: number[] } | null>;
+  /** Versión cuya lista de llamadas (/admin/prompts/[v]/calls) es esta prueba; null si no hay lista. */
+  listVersion: string | null;
+  /** Medida sobre las llamadas de validación, con las mismas cifras del mosaico (05-numeros-propuesta.md §5). */
+  agreement: Agreement;
 }
 
 export interface AiQuality {
   series: QualitySeries[];
-  calls: QualityCall[];
-  criteria: { id: number; name: string; minor: boolean; byCode: boolean; partial: boolean }[];
+  criteria: { id: number; name: string; minor: boolean }[];
   goals: { falsePositivePct: number; falseNegativePct: number };
   promptTestRunning: { version: string; done: number; total: number } | null;
-  /** Patrones por motivo del último análisis de discrepancias de la corrida vigente (Cambio 16, D-62). */
-  currentSeriesPatternCounts?: Record<string, number> | null;
 }
 
 export interface ActivityLogEntry {
@@ -657,6 +668,14 @@ export interface DiscrepancyOverview {
   patterns: DiscrepancyPattern[];
   models: DiscrepancyModelOption[];
   defaultModel: string;
+  /** Última prueba de versión sobre validación: cabecera, mosaico y desacuerdos por motivo del Resumen (§4). */
+  quality?: {
+    version: string;
+    model: string;
+    finishedAt: string | null;
+    listVersion: string | null;
+    agreement: Agreement;
+  } | null;
 }
 
 export interface DiscrepancyEstimate {

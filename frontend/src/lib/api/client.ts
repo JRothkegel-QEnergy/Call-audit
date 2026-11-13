@@ -41,7 +41,7 @@ import type {
 } from "./catalog-types";
 import type {
   ActivityLogEntry,
-  AgreementSegment,
+  CallList,
   CaseComparison,
   SegmentCalls,
   VerificationOutcome,
@@ -211,8 +211,8 @@ export interface ApiClient {
   estimateCauseAnalysis(version: string): Promise<CauseEstimate>;
   startCauseAnalysis(version: string): Promise<void>;
   /** Verificación caso a caso (04-verificacion-propuesta.md §9). */
-  getSegmentCalls(version: string, segment: AgreementSegment): Promise<SegmentCalls>;
-  getCaseComparison(version: string, caseId: string, segment?: AgreementSegment): Promise<CaseComparison>;
+  getSegmentCalls(version: string, segment: CallList, criterion?: number | null): Promise<SegmentCalls>;
+  getCaseComparison(version: string, caseId: string, segment?: CallList, criterion?: number | null): Promise<CaseComparison>;
   saveVerification(
     caseId: string,
     criterionId: number,

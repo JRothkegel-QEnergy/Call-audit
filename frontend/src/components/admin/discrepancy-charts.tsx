@@ -8,7 +8,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import type {
   ActionGroup,
-  DiscrepancyCriterionRow,
   DiscrepancyPattern,
   DiscrepancySummary,
   KindCounts,
@@ -163,89 +162,6 @@ export function NoData({ version, what }: { version: string; what?: string }) {
 
 // --- Resumen ------------------------------------------------------------------------------------------------------
 
-function Tile({ value, label, sub, onClick }: { value: string; label: string; sub?: ReactNode; onClick?: () => void }) {
-  const body = (
-    <>
-      <span className="text-2xl font-semibold tabular">{value}</span>
-      <span className="font-medium">{label}</span>
-      {sub && <span className="help">{sub}</span>}
-    </>
-  );
-  return onClick ? (
-    <button type="button" className="card grid content-start gap-0.5 text-left hover:border-[var(--ink-500,#555)]" onClick={onClick}>
-      {body}
-    </button>
-  ) : (
-    <div className="card grid content-start gap-0.5">{body}</div>
-  );
-}
-
-export function SummaryTiles({
-  s,
-  hasAnalysis,
-  followUp,
-  stale,
-  onFollowUp,
-}: {
-  s: DiscrepancySummary;
-  hasAnalysis: boolean;
-  followUp: { accepted: number; resolved: number; discarded: number };
-  stale: boolean;
-  onFollowUp: () => void;
-}) {
-  const waiting = followUp.accepted - followUp.resolved;
-  return (
-    <section className="grid gap-2" aria-labelledby="summary-title">
-      <h2 id="summary-title" className="m-0 flex items-center gap-2 text-lg font-semibold">
-        Resumen
-        {stale && <span className="help font-normal text-[var(--amber-700,#9a6700)]">· Desactualizado</span>}
-      </h2>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
-        <Tile
-          value={int(s.disagreements)}
-          label="casos en desacuerdo"
-          sub={
-            <>
-              en {s.criteriaWithDisagreements} motivos
-              {s.criteriaNotAnalyzed ? ` · ${s.criteriaNotAnalyzed} sin analizar` : ""}
-            </>
-          }
-        />
-        {hasAnalysis && (
-          <>
-            <Tile
-              value={`${pct(s.explainedCases, s.analyzedCases)} %`}
-              label="explicado por patrones"
-              sub={
-                <>
-                  {int(s.explainedCases)} de {int(s.analyzedCases)} casos analizados
-                  {s.staleCases > 0 && (
-                    <>
-                      <br />
-                      {int(s.staleCases)} casos del análisis ya no están en desacuerdo
-                    </>
-                  )}
-                </>
-              }
-            />
-            <Tile
-              value={`${s.pendingProposals} ${s.pendingProposals === 1 ? "propuesta" : "propuestas"}`}
-              label="por decidir"
-              sub={`${int(s.pendingCases)} casos`}
-            />
-            <Tile
-              value={`${followUp.resolved} de ${followUp.accepted}`}
-              label="aceptadas ya resueltas"
-              sub={waiting > 0 ? `${waiting} ${waiting === 1 ? "espera" : "esperan"} versión, pregunta o calibración` : "Ninguna esperando"}
-              onClick={onFollowUp}
-            />
-          </>
-        )}
-      </div>
-    </section>
-  );
-}
-
 // --- ¿Dónde se arregla? / ¿Quién tiene más razón? -----------------------------------------------------------------
 
 export function ActionBar({
@@ -263,7 +179,7 @@ export function ActionBar({
   return (
     <StackedBar
       title="¿Dónde se arregla?"
-      caption={`casos de los ${criteria} motivos analizados, según la propuesta de cada patrón`}
+      caption={`desacuerdos por motivo de los ${criteria} motivos analizados, según la propuesta de cada patrón`}
       segments={keys.map((k) => ({
         key: k,
         label: ACTION_LABEL[k],
@@ -273,162 +189,6 @@ export function ActionBar({
       selected={selected}
       onSelect={onSelect}
     />
-  );
-}
-
-export function WhoIsRightBar({
-  s,
-  version,
-  selected,
-  onSelect,
-}: {
-  s: DiscrepancySummary;
-  version: string;
-  selected: string | null;
-  onSelect: (key: WhoIsRight | null) => void;
-}) {
-  if (!s.byWhoIsRight) {
-    return (
-      <div className="grid gap-0.5">
-        <span className="font-semibold">¿Quién tiene más razón?</span>
-        <NoData version={version} />
-      </div>
-    );
-  }
-  const keys = Object.keys(WHO_LABEL) as (WhoIsRight | "unpatterned")[];
-  return (
-    <StackedBar
-      title="¿Quién tiene más razón?"
-      caption="según el análisis, no es una medición"
-      segments={keys.map((k) => ({
-        key: k,
-        label: WHO_LABEL[k],
-        value: s.byWhoIsRight![k],
-        fill: WHO_FILL[k],
-      }))}
-      selected={selected}
-      onSelect={(k) => onSelect(k === "unpatterned" ? null : k)}
-    />
-  );
-}
-
-// --- ¿Dónde están los desacuerdos? (barras divergentes) -------------------------------------------------------------
-
-function Half({
-  total,
-  inPattern,
-  scale,
-  color,
-  side,
-}: {
-  total: number;
-  inPattern: number | null;
-  scale: number;
-  color: string;
-  side: "left" | "right";
-}) {
-  const explained = inPattern == null ? total : Math.min(inPattern, total);
-  const rest = total - explained;
-  const parts = [
-    { w: explained, fill: solid(color) },
-    { w: rest, fill: striped(color) },
-  ];
-  if (side === "left") parts.reverse();
-  return (
-    <div className={`flex h-4 ${side === "left" ? "justify-end" : "justify-start"}`}>
-      {parts.map((p, i) =>
-        p.w > 0 ? (
-          <div
-            key={i}
-            className="h-full"
-            style={{
-              ...p.fill,
-              width: `${(100 * p.w) / scale}%`,
-              opacity: inPattern == null ? 0.55 : 1,
-            }}
-          />
-        ) : null,
-      )}
-    </div>
-  );
-}
-
-export function CriteriaChart({
-  rows,
-  selected,
-  onSelect,
-  limit,
-}: {
-  rows: DiscrepancyCriterionRow[];
-  selected: number | null;
-  onSelect: (criterionId: number) => void;
-  /** Cambio 20 §6: solo los primeros motivos. La escala sigue saliendo de todos, para que no cambie al expandir. */
-  limit?: number;
-}) {
-  const all = rows.filter((r) => r.fp + r.fn > 0);
-  const withDisagreements = limit ? all.slice(0, limit) : all;
-  const quiet = limit ? [] : rows.filter((r) => r.fp + r.fn === 0);
-  const scale = Math.max(1, ...rows.map((r) => Math.max(r.fp, r.fn)));
-  const row = (r: DiscrepancyCriterionRow) => {
-    const analyzed = r.explained != null;
-    const ex = r.explained;
-    const label = analyzed
-      ? `Motivo ${r.criterionId}: ${r.fp} solo la IA detectó, ${r.fn} omitidos por la IA, ${(ex?.fp ?? 0) + (ex?.fn ?? 0)} en un patrón, ${r.fp + r.fn - (ex?.fp ?? 0) - (ex?.fn ?? 0)} sin patrón. Ver sus patrones`
-      : `Motivo ${r.criterionId}: ${r.fp} solo la IA detectó, ${r.fn} omitidos por la IA, sin analizar`;
-    return (
-      <li key={r.criterionId}>
-        <button
-          type="button"
-          aria-label={label}
-          aria-pressed={selected === r.criterionId}
-          disabled={!analyzed}
-          onClick={() => onSelect(r.criterionId)}
-          className={`grid w-full grid-cols-1 items-center gap-x-2 gap-y-0.5 rounded px-1 py-1 text-left text-sm enabled:hover:bg-[var(--neutral-100,#f4f4f4)] xl:grid-cols-[minmax(14rem,20rem)_1fr_minmax(9rem,auto)] ${
-            selected === r.criterionId ? "bg-[var(--neutral-100,#f4f4f4)]" : ""
-          }`}
-        >
-          <span className="truncate">
-            {r.criterionId} · {r.name}
-          </span>
-          <span aria-hidden className="grid grid-cols-[2.5rem_1fr_2px_1fr_2.5rem] items-center gap-1">
-            <span className="text-right tabular">{r.fp}</span>
-            <Half total={r.fp} inPattern={ex ? ex.fp : null} scale={scale} color={FP} side="left" />
-            <span className="h-5 bg-[var(--neutral-400,#a3a3a3)]" />
-            <Half total={r.fn} inPattern={ex ? ex.fn : null} scale={scale} color={FN} side="right" />
-            <span className="tabular">{r.fn}</span>
-          </span>
-          <span aria-hidden className="help">
-            {analyzed ? `${r.aiUncertain} dudosas · ${r.patterns} ${r.patterns === 1 ? "patrón" : "patrones"}` : "sin analizar"}
-          </span>
-        </button>
-      </li>
-    );
-  };
-  return (
-    <figure className="m-0 grid gap-1">
-      <figcaption className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-        <span className="inline-flex items-center gap-1.5">
-          <Swatch fill={solid(FP)} /> Solo la IA detectó (izquierda)
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <Swatch fill={solid(FN)} /> Omitidos por la IA (derecha)
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <Swatch fill={solid(NEUTRAL)} /> en un patrón
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <Swatch fill={striped(NEUTRAL)} /> sin patrón
-        </span>
-      </figcaption>
-      <ul className="m-0 grid list-none gap-0 p-0">{withDisagreements.map(row)}</ul>
-      {quiet.length > 0 && (
-        <details>
-          <summary className="cursor-pointer text-sm">Mostrar {quiet.length} motivos sin desacuerdos</summary>
-          <ul className="m-0 grid list-none gap-0 p-0">{quiet.map(row)}</ul>
-        </details>
-      )}
-      <p className="help m-0">Clic en un motivo: abre sus patrones. Los motivos sin analizar se ven más claros y sin división.</p>
-    </figure>
   );
 }
 
@@ -443,10 +203,10 @@ export function quadrantOf(p: DiscrepancyPattern): Quadrant {
   return many ? (high ? "start" : "check") : high ? "quick" : "later";
 }
 export const QUADRANT_LABEL: Record<Quadrant, [string, string]> = {
-  start: ["Empezar aquí", "confianza alta · 10 o más casos"],
-  check: ["Revisar casos primero", "confianza media o baja · 10 o más casos"],
-  quick: ["Rápidos", "confianza alta · menos de 10 casos"],
-  later: ["Dejar para después", "confianza media o baja · menos de 10 casos"],
+  start: ["Empezar aquí", "confianza alta · 10 o más desacuerdos"],
+  check: ["Revisar desacuerdos primero", "confianza media o baja · 10 o más desacuerdos"],
+  quick: ["Rápidos", "confianza alta · menos de 10 desacuerdos"],
+  later: ["Dejar para después", "confianza media o baja · menos de 10 desacuerdos"],
 };
 
 export function PriorityMap({
@@ -499,7 +259,7 @@ export function PriorityMap({
                       type="button"
                       className="chip min-h-6 cursor-pointer pr-3"
                       title={p.title}
-                      aria-label={`Motivo ${p.criterionId}, ${p.caseCount} casos: ${p.title}`}
+                      aria-label={`Motivo ${p.criterionId}, ${p.caseCount} desacuerdos: ${p.title}`}
                       onClick={() => onPick(p)}
                     >
                       M{p.criterionId} · {p.caseCount}
@@ -520,7 +280,7 @@ export function PriorityMap({
 // --- En la tarjeta y el detalle del patrón ----------------------------------------------------------------------------
 
 /** Mini barra de casos del patrón: solo la IA · omitidos · dudosas (§7.3). */
-export function CaseMix({ k, label = "Casos" }: { k: KindCounts; label?: string }) {
+export function CaseMix({ k, label = "Desacuerdos" }: { k: KindCounts; label?: string }) {
   const total = k.fp + k.fn + k.uncertain;
   return (
     <p className="m-0 flex flex-wrap items-center gap-2 text-sm">
@@ -543,7 +303,7 @@ export function FixBar({ fixed, total }: { fixed: number; total: number }) {
   return (
     <span className="inline-flex items-center gap-2">
       <span>
-        corregiría {fixed} de {total} casos
+        corregiría {fixed} de {total} desacuerdos
       </span>
       <span aria-hidden className="flex h-3 w-32 overflow-hidden rounded-[2px]" style={empty(NEUTRAL)}>
         <span

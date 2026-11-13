@@ -4,22 +4,35 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AdminHeader } from "@/components/admin/admin-header";
-import { PART_NAME, Swatch } from "@/components/admin/agreement-charts";
-import { CALL_STATUS, SEGMENTS, SEGMENT_SUPPORT, VERDICT, VERDICT_CLASS, summaryLine } from "@/components/admin/verification-labels";
+import { Swatch } from "@/components/admin/agreement-charts";
+import {
+  CALL_STATUS,
+  LISTS,
+  listTitle,
+  LIST_SWATCH,
+  SEGMENT_SUPPORT,
+  VERDICT,
+  VERDICT_CLASS,
+  listHref,
+  summaryLine,
+} from "@/components/admin/verification-labels";
 import { Button } from "@/components/ui/button";
 import { MetricHelp } from "@/components/ui/metric-help";
 import { AsyncView } from "@/components/ui/states";
 import { api } from "@/lib/api";
-import type { AgreementSegment, CallVerification, SegmentCalls } from "@/lib/api/admin-types";
+import type { CallList, CallVerification, SegmentCalls } from "@/lib/api/admin-types";
 import { shortDate } from "@/lib/format";
 import { useAsync } from "@/lib/use-async";
 
-/** Nivel 2 · Lista de las llamadas de una parte del mosaico, con el avance de la verificación (§5.2). */
+/** Nivel 2 · Lista de las llamadas de una parte del mosaico (o de un lado, o de un motivo), con el avance de la
+ * verificación (04-verificacion-propuesta.md §5.2, 05-numeros-propuesta.md §3). El motivo filtra en el servidor: la
+ * suma de la verificación es la de la lista que se ve. */
 export function CallsListView({ version }: { version: string }) {
   const params = useSearchParams();
-  const raw = params.get("segment") as AgreementSegment | null;
-  const segment: AgreementSegment = raw && SEGMENTS.includes(raw) ? raw : "reviewer";
-  const state = useAsync(() => api.getSegmentCalls(version, segment), [version, segment]);
+  const raw = params.get("segment") as CallList | null;
+  const segment: CallList = raw && LISTS.includes(raw) ? raw : "reviewer";
+  const motivo = params.get("motivo") ? Number(params.get("motivo")) : null;
+  const state = useAsync(() => api.getSegmentCalls(version, segment, motivo), [version, segment, motivo]);
   return (
     <AsyncView state={state} what="las llamadas">
       {(data) => <CallsList version={version} data={data} />}
@@ -41,7 +54,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
   const pathname = usePathname();
   const params = useSearchParams();
   const status = (params.get("estado") as StatusFilter | null) ?? "all";
-  const motivo = params.get("motivo") ? Number(params.get("motivo")) : null;
+  const motivo = data.criterion;
   const byCall = params.get("orden") === "llamada";
   const set = (key: string, value: string | null) => {
     const next = new URLSearchParams(params.toString());
@@ -52,13 +65,16 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
 
   const { segment, summary: s, items } = data;
   const count = (f: StatusFilter) => (f === "all" ? items.length : items.filter((i) => i.verification === f).length);
-  const criteria = [...new Set(items.flatMap((i) => i.disagreements.map((d) => d.criterionId)))].sort((a, b) => a - b);
+  const criteria = [
+    ...new Set([...items.flatMap((i) => i.disagreements.map((d) => d.criterionId)), ...(motivo != null ? [motivo] : [])]),
+  ].sort((a, b) => a - b);
   const shown = items
     .filter((i) => status === "all" || i.verification === status)
-    .filter((i) => motivo == null || i.disagreements.some((d) => d.criterionId === motivo))
     .sort((a, b) => (byCall ? a.callId.localeCompare(b.callId) : a.order - b.order));
   const firstPending = items.find((i) => i.verification === "pending");
-  const caseHref = (caseId: string) => `/admin/prompts/${encodeURIComponent(version)}/calls/${encodeURIComponent(caseId)}?segment=${segment}`;
+  const caseHref = (caseId: string) =>
+    `/admin/prompts/${encodeURIComponent(version)}/calls/${encodeURIComponent(caseId)}?segment=${segment}${motivo != null ? `&motivo=${motivo}` : ""}`;
+  const swatch = LIST_SWATCH[segment];
   const line = summaryLine(segment, s);
 
   return (
@@ -67,13 +83,15 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
         <ChevronLeft size={14} aria-hidden /> Volver a v{version}
       </Link>
       <AdminHeader
-        title={`${PART_NAME[segment]} · v${version}`}
-        description={`${items.length} llamadas de ${data.n} de validación · ${SEGMENT_SUPPORT[segment]}`}
+        title={`${listTitle(segment, motivo)} · v${version}`}
+        description={`${items.length} llamadas de ${data.n} de validación · ${
+          motivo != null ? `con desacuerdo en el motivo ${motivo}` : SEGMENT_SUPPORT[segment]
+        }`}
       />
 
       <section className="card mb-4 grid gap-2" aria-labelledby="verif-h">
         <h2 id="verif-h" className="m-0 flex items-center gap-2 text-sm font-semibold">
-          <Swatch part={segment} /> Verificación
+          {swatch && <Swatch part={swatch} />} Verificación
           <MetricHelp title="Cómo se verifica">
             Las llamadas aparecen en un orden al azar, el mismo para todos, para que una revisión a medias no quede cargada hacia un tipo
             de llamada. El margen dice entre qué valores estaría la tasa si se revisaran muchas llamadas como estas, con 95 % de
@@ -153,7 +171,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
       ) : shown.length === 0 ? (
         <p className="empty-state">
           No hay llamadas con este filtro.{" "}
-          <button type="button" className="underline" onClick={() => router.replace(`${pathname}?segment=${segment}`, { scroll: false })}>
+          <button type="button" className="underline" onClick={() => router.replace(listHref(version, segment), { scroll: false })}>
             Quitar filtro
           </button>
         </p>

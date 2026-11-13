@@ -3,13 +3,14 @@
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ACTION_LABEL, PriorityMap, QUADRANT_LABEL, quadrantOf, WHO_LABEL, type Quadrant } from "@/components/admin/discrepancy-charts";
+import { ACTION_LABEL, ActionBar, PriorityMap, QUADRANT_LABEL, quadrantOf, WHO_LABEL, type Quadrant } from "@/components/admin/discrepancy-charts";
 import { BulkDiscardDialog, DecisionDialog, type DecisionKind, ObservationRow, PatternCard } from "@/components/admin/discrepancy-parts";
 import { Button } from "@/components/ui/button";
 import { clampPage, Pager } from "@/components/ui/pager";
 import type { ActionGroup, DiscrepancyCause, DiscrepancyOverview, DiscrepancyPattern, ProposalType, WhoIsRight } from "@/lib/api/admin-types";
 import { CAUSE, PROPOSAL, statusLabel } from "@/lib/discrepancy-labels";
 import { resolveMotive, type SetParams } from "@/lib/discrepancy-url";
+import { int } from "@/lib/format";
 import { usePreferences } from "@/lib/preferences";
 
 const CARDS_PER_PAGE = 10;
@@ -249,7 +250,7 @@ function Review({
   const types = (Object.entries(PROPOSAL) as [ProposalType, string][]).filter(([k]) => patterns.some((p) => !p.isObservation && p.proposal?.type === k));
   const caps = a.capabilities;
   const lacking = caps
-    ? [!caps.whoIsRight && "quién tiene más razón", !caps.expectedFix && "casos que corregiría", !caps.sideEffects && "posibles efectos", !caps.concentration && "concentración"].filter(
+    ? [!caps.whoIsRight && "quién tiene más razón", !caps.expectedFix && "desacuerdos que corregiría", !caps.sideEffects && "posibles efectos", !caps.concentration && "concentración"].filter(
         (x): x is string => !!x,
       )
     : [];
@@ -292,6 +293,24 @@ function Review({
         </p>
       )}
 
+      {/* Lo que salió del Resumen (05-numeros-propuesta.md §4.2): cuánto explican los patrones y dónde se arregla. */}
+      <section className="card grid gap-2" aria-label="Qué explican los patrones">
+        <p className="m-0 text-sm">
+          La IA de análisis revisó {int(data.summary.analyzedCases)} desacuerdos por motivo y dudas de la IA de la corrida vigente, en las llamadas de
+          entrenamiento, y agrupó {int(data.summary.explainedCases)} ({data.summary.analyzedCases ? Math.round((100 * data.summary.explainedCases) / data.summary.analyzedCases) : 0} %) en{" "}
+          {int(patterns.filter((p) => !p.isObservation).length)} patrones; {int(data.summary.byAction.unpatterned)} quedaron sin patrón.
+        </p>
+        <ActionBar
+          s={data.summary}
+          criteria={a.doneCriteria.length}
+          selected={action}
+          onSelect={(k) => setParams({ action: k && k !== "unpatterned" && k !== "observation" ? k : null, status: "all", page: null })}
+        />
+        <p className="help m-0">
+          Los patrones salen de llamadas de entrenamiento para no medir una versión nueva con las mismas llamadas de donde salieron sus reglas.
+        </p>
+      </section>
+
       <div className="flex flex-wrap items-center gap-2">
         <FilterSelect label="Causa" allLabel="Todas" value={cause} options={causes} onChange={(v) => setParams({ cause: v, page: null })} />
         <FilterSelect label="Tipo" allLabel="Todos" value={type} options={types} onChange={(v) => setParams({ type: v, page: null })} />
@@ -327,7 +346,7 @@ function Review({
               {criterion && (
                 <p className="help m-0">
                   {criterion.fp} solo la IA detectó · {criterion.fn} omitidos por la IA
-                  {noPatternCases != null ? ` · ${plural(noPatternCases, "caso", "casos")} sin patrón` : ""} · <Link href="/admin/stats?tab=quality">Ver en Calidad de la IA →</Link>
+                  {noPatternCases != null ? ` · ${plural(noPatternCases, "desacuerdo", "desacuerdos")} sin patrón` : ""} · <Link href="/admin/stats?tab=quality">Ver en Calidad de la IA →</Link>
                 </p>
               )}
               {criterion?.summary && <p className="m-0 text-sm">{criterion.summary}</p>}
@@ -368,7 +387,7 @@ function Review({
                 </p>
               ) : list.length === 0 ? (
                 <p className="help m-0">
-                  {pool.length ? `Ningún ${listKind === "obs" ? "elemento" : "patrón"} con estos filtros.` : "La IA no encontró patrones: los desacuerdos parecen casos aislados."}
+                  {pool.length ? `Ningún ${listKind === "obs" ? "elemento" : "patrón"} con estos filtros.` : "La IA no encontró patrones: los desacuerdos parecen aislados."}
                   {filtered && (
                     <>
                       {" "}
@@ -400,7 +419,7 @@ function Review({
             </>
           ) : motive == null ? (
             <p className="help m-0">
-              {narrowed ? "Ningún patrón con estos filtros." : "La IA no encontró patrones: los desacuerdos parecen casos aislados."}
+              {narrowed ? "Ningún patrón con estos filtros." : "La IA no encontró patrones: los desacuerdos parecen aislados."}
               {narrowed && (
                 <>
                   {" "}
@@ -428,7 +447,7 @@ function Review({
                 )}
               </div>
             ) : (
-              <p className="help m-0">La IA no encontró un patrón: los desacuerdos parecen casos aislados.</p>
+              <p className="help m-0">La IA no encontró un patrón: los desacuerdos parecen aislados.</p>
             )
           ) : (
             <>
@@ -471,7 +490,7 @@ function Review({
                       </Button>
                     )}
                   </div>
-                  <p className="help m-0">Menos de 3 casos: alcanzan para calibrar con el auditor, no para cambiar el prompt.</p>
+                  <p className="help m-0">Menos de 3 desacuerdos: alcanzan para calibrar con el auditor, no para cambiar el prompt.</p>
                   <div className="card grid gap-1">
                     <Paged key={`o-${motive}`} items={observations} label="Observaciones">
                       {(page_) => page_.map((p) => <ObservationRow key={p.id} {...itemProps(p)} />)}

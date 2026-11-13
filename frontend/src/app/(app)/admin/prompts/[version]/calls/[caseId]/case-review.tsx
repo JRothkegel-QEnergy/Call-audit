@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { PART_NAME } from "@/components/admin/agreement-charts";
 import {
   CALL_STATUS_LONG,
   CAUSE,
+  listTitle,
   OUTCOMES,
   VERDICT,
   VERDICT_CLASS,
@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { MetricHelp } from "@/components/ui/metric-help";
 import { AsyncView } from "@/components/ui/states";
 import { api, isRealMode } from "@/lib/api";
-import type { AgreementSegment, CaseComparison, CaseComparisonCriterion, VerificationOutcome } from "@/lib/api/admin-types";
+import type { CallList, CaseComparison, CaseComparisonCriterion, VerificationOutcome } from "@/lib/api/admin-types";
 import type { CaseDetail, Evidence, Finding } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { mmss, shortDate, shortDateTime } from "@/lib/format";
@@ -29,11 +29,21 @@ import { useSession } from "@/lib/session";
 import { useAsync } from "@/lib/use-async";
 
 /** Nivel 3 · Caso: lo que dijo la IA de la versión probada frente a la planilla, y el registro (§5.3). */
-export function CaseReviewView({ version, caseId, segment }: { version: string; caseId: string; segment: AgreementSegment | null }) {
+export function CaseReviewView({
+  version,
+  caseId,
+  segment,
+  criterion,
+}: {
+  version: string;
+  caseId: string;
+  segment: CallList | null;
+  criterion: number | null;
+}) {
   const state = useAsync(async () => {
-    const [cmp, call] = await Promise.all([api.getCaseComparison(version, caseId, segment ?? undefined), api.getCase(caseId)]);
+    const [cmp, call] = await Promise.all([api.getCaseComparison(version, caseId, segment ?? undefined, criterion), api.getCase(caseId)]);
     return { cmp, call };
-  }, [version, caseId, segment]);
+  }, [version, caseId, segment, criterion]);
   return (
     <AsyncView state={state} what="la llamada">
       {({ cmp, call }) => <CaseReview key={caseId} version={version} initial={cmp} call={call} />}
@@ -54,8 +64,10 @@ function CaseReview({ version, initial, call }: { version: string; initial: Case
   const [cmp, setCmp] = useState(initial);
   const segment = cmp.listSegment;
   const base = `/admin/prompts/${encodeURIComponent(version)}/calls`;
-  const listHref = `${base}?segment=${segment}`;
-  const caseHref = (id: string) => `${base}/${encodeURIComponent(id)}?segment=${segment}`;
+  const motivo = cmp.listCriterion;
+  const tail = `?segment=${segment}${motivo != null ? `&motivo=${motivo}` : ""}`;
+  const listHref = `${base}${tail}`;
+  const caseHref = (id: string) => `${base}/${encodeURIComponent(id)}${tail}`;
 
   const toVerify = cmp.criteria.filter((c) => TO_VERIFY.has(c.kind));
   const agreeing = cmp.criteria.filter((c) => !TO_VERIFY.has(c.kind));
@@ -106,7 +118,7 @@ function CaseReview({ version, initial, call }: { version: string; initial: Case
 
   useEffect(() => headRef.current?.focus(), []);
 
-  const reload = async () => setCmp(await api.getCaseComparison(version, cmp.caseId, segment));
+  const reload = async () => setCmp(await api.getCaseComparison(version, cmp.caseId, segment, motivo));
 
   const save = async (c: CaseComparisonCriterion, outcome: VerificationOutcome, note: string | null) => {
     if (!canWrite) return;
@@ -119,7 +131,7 @@ function CaseReview({ version, initial, call }: { version: string; initial: Case
         version,
         seenFirst: revealed.has(c.criterionId),
       });
-      const next = await api.getCaseComparison(version, cmp.caseId, segment);
+      const next = await api.getCaseComparison(version, cmp.caseId, segment, motivo);
       setCmp(next);
       const label = outcomeLabel(outcome, c.kind === "undecided");
       toast(`Guardado: ${label} en el motivo ${c.criterionId}.`, {
@@ -186,7 +198,7 @@ function CaseReview({ version, initial, call }: { version: string; initial: Case
           <ChevronLeft size={14} aria-hidden /> Volver a la lista
         </Link>
         <h1 ref={headRef} tabIndex={-1} className="m-0 flex-1 text-base font-semibold outline-none">
-          {PART_NAME[segment]} · llamada {p.index ?? "—"} de {p.total} <span className="help font-normal">(pendientes: {p.pending})</span>
+          {listTitle(segment, motivo)} · llamada {p.index ?? "—"} de {p.total} <span className="help font-normal">(pendientes: {p.pending})</span>
         </h1>
         <Button size="sm" variant="default" disabled={!p.prevCaseId} onClick={() => p.prevCaseId && router.push(caseHref(p.prevCaseId))}>
           <ChevronLeft size={14} aria-hidden /> Anterior

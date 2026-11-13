@@ -163,7 +163,7 @@ def test_one_round(loop_db: sessionmaker[Session], admin: User) -> None:  # noqa
         result = agreement.for_evaluation(session, val)
         assert result["causeAnalysis"]["status"] == "done"
         # 1003: el revisor rechazó y la IA también (por el 12) → acuerdo por llamada. Por motivo, el 30 es azul.
-        assert result["byCall"] == {**agreement.empty(), "n": 1, "agree": 1}
+        assert result["byCall"] == {**agreement.empty(), "n": 1, "agree": 1, "approved": 0, "rejected": 1}
         item = result["byCallCriterion"]
         assert (item["reviewer"], item["reviewerFn"], item["promptFn"], item["promptFp"]) == (1, 1, 0, 0)
         assert item["n"] == result["criteria"] == item["agree"] + item["reviewer"]

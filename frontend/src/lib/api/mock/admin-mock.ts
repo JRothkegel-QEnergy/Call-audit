@@ -562,7 +562,7 @@ export const adminMock: AdminApi = {
           : [],
       };
     }),
-  getAiQuality: () => wait(mockAiQuality),
+  getAiQuality: () => wait(() => mockAiQuality),
   listActivity: () => wait(() => state.activity),
   getProcessingStatus: () =>
     wait((): ProcessingStatus => {

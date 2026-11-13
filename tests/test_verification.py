@@ -216,3 +216,28 @@ def test_viewer_reads_but_does_not_write(
     put = client.put(f"/api/admin/verifications/{ids[0]}/14", json={"outcome": "ai_error", "version": "9.8"})
     assert put.status_code == 403
     assert client.post("/api/admin/prompts/9.8/activate", json={"reason": "x"}).status_code == 403
+
+
+def test_list_sides_and_criterion() -> None:
+    """Listas de la cabecera común (05-numeros-propuesta.md §3, §7): el lado fp/fn incluye el azul de ese lado, y con
+    un motivo entran solo las llamadas con desacuerdo en él."""
+    from call_audit.verification import matches
+
+    def row(segment: str, external: str, items: list[tuple[int, str]]) -> dict:
+        return {
+            "segment": segment,
+            "result": {"external": external},
+            "items": [{"criterionId": c, "kind": k, "blue": False} for c, k in items],
+        }
+
+    fp_yellow = row("promptFp", "compliant", [(2, "fp")])
+    fp_blue = row("reviewer", "compliant", [(2, "fp")])
+    fn_blue = row("reviewer", "non_compliant", [(14, "fn")])
+    agree_item = row("agree", "non_compliant", [(14, "fp"), (5, "undecided")])
+    rows = [fp_yellow, fp_blue, fn_blue, agree_item]
+    assert [r for r in rows if matches(r, "fp")] == [fp_yellow, fp_blue]
+    assert [r for r in rows if matches(r, "fn")] == [fn_blue]
+    assert [r for r in rows if matches(r, "disagree")] == rows
+    assert [r for r in rows if matches(r, "disagree", 14)] == [fn_blue, agree_item]
+    assert [r for r in rows if matches(r, "fp", 14)] == [agree_item]
+    assert not any(matches(r, "disagree", 5) for r in rows)

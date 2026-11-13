@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { StatusBadge } from "@/components/ui/badges";
+import { KpiCard } from "@/components/ui/page-header";
 import { AsyncView, EmptyState } from "@/components/ui/states";
 import { api } from "@/lib/api";
 import type { PipelineRun, PipelineStage, ProcessingStatus, WorkerState } from "@/lib/api/admin-types";
@@ -90,6 +91,7 @@ export default function ProcessingPage() {
   return (
     <>
       <AdminHeader title="Procesamiento" description="Estado del worker que transcribe y valida las llamadas." />
+      <VolumeCards />
       {status.status === "error" && status.data && (
         <p className="help mb-3 mt-0 flex items-center gap-1.5" role="status">
           <AlertTriangle size={14} aria-hidden /> No pudimos actualizar el estado. Reintentaremos en unos segundos.
@@ -525,5 +527,22 @@ function RunsTable({ runs, complete }: { runs: PipelineRun[]; complete: boolean 
       </table>
       {rows.some((r) => r.kind === "group") && <p className="help mb-0 mt-2">Las pasadas iguales y seguidas se agrupan en una fila.</p>}
     </>
+  );
+}
+
+/** Las dos cifras de la antigua Estadísticas › Operación (05-numeros-propuesta.md §6): volumen de los últimos 30 días
+ * y la cola de revisión de ahora. */
+function VolumeCards() {
+  const stats = useAsync(() => api.getAdminStats({ period: "30d" }), []);
+  const o = stats.data?.operation;
+  if (!o) return null;
+  return (
+    <div className="mb-4 grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
+      <KpiCard value={int(o.callsProcessed)} label={`Llamadas procesadas · ${int(o.minutesProcessed)} min · últimos 30 días`} />
+      <KpiCard
+        value={int(o.humanQueue)}
+        label={`En cola de revisión${o.humanQueue ? ` · la más antigua, ${String(o.oldestQueueHours).replace(".", ",")} h` : ""}`}
+      />
+    </div>
   );
 }

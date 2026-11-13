@@ -5,7 +5,7 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from call_audit import accounts, discrepancy_runs
+from call_audit import accounts, discrepancy_runs, verification
 from call_audit.api.deps import Admin, AdminReader, DbSession
 from call_audit.persistence.models import DiscrepancyAnalysis, DiscrepancyPattern
 
@@ -22,9 +22,11 @@ def get_pattern(session: DbSession, pattern_id: str) -> DiscrepancyPattern:
 @router.get("")
 def overview(session: DbSession, _: AdminReader, analysis: str | None = None):
     try:
-        return discrepancy_runs.overview(session, analysis)
+        out = discrepancy_runs.overview(session, analysis)
     except LookupError as exc:
         raise HTTPException(404, "not_found") from exc
+    # Cifras del Resumen sobre las llamadas de validación de la última prueba (05-numeros-propuesta.md §4, N-R1).
+    return {**out, "quality": verification.latest_quality(session)}
 
 
 class AnalysisIn(BaseModel):

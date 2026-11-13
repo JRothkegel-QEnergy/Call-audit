@@ -151,7 +151,7 @@ export function FollowUpTab({ rows, onChange }: { rows: DiscrepancyPattern[]; on
               </Button>
             )}
             <Link className="btn btn-sm" href={`/admin/discrepancies/patterns/${p.id}`}>
-              Ver casos
+              Ver desacuerdos
             </Link>
           </>
         )}
