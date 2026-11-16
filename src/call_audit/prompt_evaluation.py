@@ -13,7 +13,7 @@ import sys
 import tomllib
 from collections import Counter
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from datetime import UTC, datetime
 from statistics import mean
 from typing import Any
@@ -32,7 +32,6 @@ logger = logging.getLogger(__name__)
 sys.path.insert(0, str(ROOT / "scripts" / "prompt_bench"))
 
 MODELS_TOML = ROOT / "scripts" / "prompt_bench" / "models.toml"
-WORKERS = 4
 VERDICTS = {"APROBADA": "compliant", "RECHAZADA": "non_compliant", "DUDOSA": "uncertain", "ERROR": "uncertain"}
 
 # (model, system, user) -> (texto de la respuesta, costo USD, latencia ms). Los tests pasan un doble.
@@ -82,7 +81,7 @@ def estimate(session: Session, model: str) -> dict[str, Any]:
         "model": model,
         "perCallUsd": per_call,
         "totalUsd": round(per_call * n, 4) if per_call is not None else None,
-        "minutes": round(n * latency / WORKERS / 60_000, 1) if latency else None,
+        "minutes": round(n * latency / max(1, get_settings().prompt_eval_workers) / 60_000, 1) if latency else None,
     }
 
 
@@ -366,62 +365,91 @@ def run_evaluation(factory: sessionmaker[Session], evaluation_id: str, caller: M
         )
 
     todo = [cid for cid in case_ids if cid not in done_ids]
-    for start_at in range(0, len(todo), WORKERS):
-        with factory() as session:
-            if session.get(PromptEvaluation, evaluation_id).status == "stopped":
-                return
-            chunk = []
-            for cid in todo[start_at : start_at + WORKERS]:
-                case = session.get(Case, cid)
-                run = next((r for r in case.runs if r.is_current), None)
-                if run is not None:
-                    review = session.scalar(select(Review).where(Review.case_id == cid))
-                    chunk.append((case, run, review.final_verdict if review else None))
+    workers = max(1, get_settings().prompt_eval_workers)
 
-        def job(item):
-            case, run, app = item
-            try:
-                text, cost, latency = caller(model, system, run.user_prompt)
-                scored = score(case, run, text)
-            except Exception as exc:  # noqa: BLE001 - una llamada con error no frena la prueba
-                return {
-                    "caseId": case.id,
-                    "verdict": "uncertain",
-                    "error": str(exc)[:200],
-                    "cost": 0.0,
-                    "latencyMs": 0,
-                    "external": case.external_verdict,
-                    "externalFails": case.external_item_fails,
-                    "split": golden_split.split_of(case),
-                    "app": app,
-                    "failCriteria": [],
-                    "uncertainCriteria": [],
-                    "quotes": 0,
-                    "unvalidatedQuotes": 0,
-                }
+    def load(cid: str) -> tuple[Case, ModelRun, str | None] | None:
+        with factory() as session:
+            case = session.get(Case, cid)
+            run = next((r for r in case.runs if r.is_current), None)
+            if run is None:
+                return None
+            review = session.scalar(select(Review).where(Review.case_id == cid))
+            return case, run, review.final_verdict if review else None
+
+    def job(cid: str) -> dict | None:
+        item = load(cid)
+        if item is None:
+            return None
+        case, run, app = item
+        try:
+            text, cost, latency = caller(model, system, run.user_prompt)
+            scored = score(case, run, text)
+        except Exception as exc:  # noqa: BLE001 - una llamada con error no frena la prueba
             return {
                 "caseId": case.id,
+                "verdict": "uncertain",
+                "error": str(exc)[:200],
+                "cost": 0.0,
+                "latencyMs": 0,
                 "external": case.external_verdict,
                 "externalFails": case.external_item_fails,
                 "split": golden_split.split_of(case),
                 "app": app,
-                "cost": cost,
-                "latencyMs": latency,
-                **scored,
+                "failCriteria": [],
+                "uncertainCriteria": [],
+                "quotes": 0,
+                "unvalidatedQuotes": 0,
             }
+        return {
+            "caseId": case.id,
+            "external": case.external_verdict,
+            "externalFails": case.external_item_fails,
+            "split": golden_split.split_of(case),
+            "app": app,
+            "cost": cost,
+            "latencyMs": latency,
+            **scored,
+        }
 
-        with ThreadPoolExecutor(max_workers=WORKERS) as pool:
-            results = list(pool.map(job, chunk))
+    def save(results: list[dict]) -> bool:
+        """Guarda un lote de resultados. False si el admin detuvo la prueba."""
         with factory() as session, session.begin():
             evaluation = session.get(PromptEvaluation, evaluation_id)
             if evaluation.status == "stopped":
-                return
-            evaluation.results = [*evaluation.results, *results]
-            evaluation.done = len(evaluation.results)
-            evaluation.cost_usd = round(sum(r["cost"] for r in evaluation.results), 6)
+                return False
+            if results:
+                evaluation.results = [*evaluation.results, *results]
+                evaluation.done = len(evaluation.results)
+                evaluation.cost_usd = round(sum(r["cost"] for r in evaluation.results), 6)
         if out_of_credits(results):
             # process_pending la marca fallida; `retry_errors` después reencola solo lo que falta.
             raise RuntimeError("El proveedor del modelo rechazó las llamadas por falta de saldo (402)")
+        return True
+
+    # Ventana deslizante: apenas termina una llamada entra la siguiente, sin esperar a la más lenta de un lote. Los
+    # resultados se guardan cada `workers` llamadas terminadas (un reinicio del worker retoma desde lo guardado).
+    queue = iter(todo)
+    pool = ThreadPoolExecutor(max_workers=workers)
+    running: set[Future] = set()
+    pending: list[dict] = []
+    try:
+        if not save([]):
+            return
+        while True:
+            while len(running) < workers and (cid := next(queue, None)) is not None:
+                running.add(pool.submit(job, cid))
+            if not running:
+                break
+            finished, running = wait(running, return_when=FIRST_COMPLETED)
+            pending += [r for f in finished if (r := f.result()) is not None]
+            if len(pending) >= workers or not running:
+                batch, pending = pending, []
+                if not save(batch):
+                    return
+        if pending and not save(pending):
+            return
+    finally:
+        pool.shutdown(wait=True, cancel_futures=True)
 
     with factory() as session, session.begin():
         evaluation = session.get(PromptEvaluation, evaluation_id)

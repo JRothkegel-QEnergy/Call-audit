@@ -63,6 +63,8 @@ class Settings(BaseSettings):
     pipeline_asr_workers: int = 16
     pipeline_llm_workers: int = 8
     pipeline_batch_size: int = 0
+    # Llamadas a la vez en las pruebas de versiones del prompt (prompt_evaluation). Cada hilo toma otra al terminar.
+    prompt_eval_workers: int = 16
 
 
 @lru_cache
