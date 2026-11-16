@@ -304,6 +304,58 @@ def export_zip(row: PromptVersion) -> bytes:
     return buffer.getvalue()
 
 
+def reader(row: PromptVersion) -> dict[str, Any] | None:
+    """La pestaña «Leer»: el prompt.yaml ordenado por sección y regla, con el origen ya rotulado.
+
+    None si la versión no tiene yaml (se subió como texto) o si el yaml no se puede leer: el front cae al texto.
+    """
+    try:
+        spec = _spec_of(row)
+        if not isinstance(spec, dict):
+            return None
+        labels = {k: v.get("label", k) for k, v in (spec.get("origins") or {}).items()}
+        sections = []
+        for section in spec["sections"]:
+            heading = section.get("heading") or ""
+            level = len(heading) - len(heading.lstrip("#"))
+            items = []
+            for item in section["items"]:
+                items.append(
+                    {
+                        "id": item["id"],
+                        "number": item.get("number"),
+                        "text": item.get("text"),
+                        "official": item.get("official"),
+                        "criterion": item.get("criterion"),
+                        "pending": item.get("pending"),
+                        "history": [
+                            {
+                                "version": str(e["version"]),
+                                "origin": labels.get(e.get("origin"), e.get("origin")),
+                                "note": e.get("note"),
+                            }
+                            for e in item.get("history") or []
+                        ],
+                    }
+                )
+            sections.append(
+                {
+                    "id": section["id"],
+                    "heading": heading.lstrip("#").strip() or None,
+                    "level": 3 if level >= 3 else 2,
+                    "items": items,
+                }
+            )
+        return {
+            "version": str(spec["version"]),
+            "date": str(spec["date"]) if spec.get("date") else None,
+            "sections": sections,
+            "jsonOutputInstruction": spec.get("json_output_instruction"),
+        }
+    except (yaml.YAMLError, KeyError, TypeError, AttributeError):
+        return None
+
+
 def content_of(row: PromptVersion) -> str:
     """Lo que se edita en el borrador: el yaml o el texto del system prompt sin la instrucción de salida."""
     if row.spec_yaml:

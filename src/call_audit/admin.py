@@ -2,7 +2,7 @@
 
 Uso:
     uv run python -m call_audit.admin create-user --email E --name N --role ROLE [--model-io]
-    (ROLE: auditor, supervisor, qubico_admin o qubico_viewer, la cuenta de solo lectura)
+    (ROLE: auditor, supervisor, qubico_admin, qubico_viewer (solo lectura) o qubico_verifier (verificador))
     uv run python -m call_audit.admin set-password --email E
     uv run python -m call_audit.admin grant --email E --permission view_model_io|manage_catalog [--revoke]
 
@@ -24,10 +24,16 @@ hasher = PasswordHasher()
 PERMISSIONS = ["view_model_io", "manage_catalog"]
 
 
+ROLES = ["auditor", "supervisor", "qubico_admin", "qubico_viewer", "qubico_verifier"]
+
+
 def permissions(args) -> list[str]:
     if args.manage_catalog and args.role != "supervisor":
         raise SystemExit("manage_catalog es solo para supervisores.")
     return [p for p, on in (("view_model_io", args.model_io), ("manage_catalog", args.manage_catalog)) if on]
+
+
+ROLES = ["auditor", "supervisor", "qubico_admin", "qubico_viewer", "qubico_verifier"]
 
 
 def ask_password() -> str:
@@ -39,13 +45,16 @@ def ask_password() -> str:
     return password
 
 
+ROLES = ["auditor", "supervisor", "qubico_admin", "qubico_viewer", "qubico_verifier"]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
     create = sub.add_parser("create-user")
     create.add_argument("--email", required=True)
     create.add_argument("--name", required=True)
-    create.add_argument("--role", choices=["auditor", "supervisor", "qubico_admin", "qubico_viewer"], required=True)
+    create.add_argument("--role", choices=ROLES, required=True)
     create.add_argument("--model-io", action="store_true", help="permiso view_model_io")
     create.add_argument("--manage-catalog", action="store_true", help="permiso manage_catalog (solo supervisor)")
     reset = sub.add_parser("set-password")

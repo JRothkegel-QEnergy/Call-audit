@@ -32,7 +32,8 @@ TO_VERIFY = ("fn", "fp", "undecided")
 # Listas que no son una parte del mosaico (05-numeros-propuesta.md §3, §7): el lado de la falsa alarma o del rechazo no
 # detectado (amarillo o rojo + el azul de ese lado), o todos los desacuerdos de un motivo.
 SIDES = ("fp", "fn")
-LISTS = (*SEGMENTS, *SIDES, "disagree")
+# "all": todas las llamadas, para la lista de cada verificador (13-rol-verificador).
+LISTS = (*SEGMENTS, *SIDES, "disagree", "all")
 
 
 def matches(row: dict, segment: str, criterion: int | None = None) -> bool:
@@ -335,7 +336,13 @@ def case_comparison(
                 "block": crit.block if crit else "",
                 "kind": item["kind"],
                 "blue": item["blue"],
-                "ai": {"verdict": ai, "comment": finding.get("comment") or None, "evidence": evidence},
+                "ai": {
+                    "verdict": ai,
+                    "comment": finding.get("comment") or None,
+                    "evidence": evidence,
+                    # Motivo 18: motivos de renuncia que sugiere la IA (prompt v2.8+), como en la vista del auditor.
+                    "suggestedReasons": finding.get("suggestedReasons") or [],
+                },
                 "reviewerFail": reviewer == FAIL,
                 "analysis": analysis_for(patterns, cid, row["callId"]) if item["kind"] in TO_VERIFY else None,
                 "verification": record_out(record, stale) if record is not None else None,

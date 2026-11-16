@@ -18,6 +18,7 @@ import { cn } from "@/lib/cn";
 import { mmss } from "@/lib/format";
 import { ITEM_VERDICT } from "@/lib/verdicts";
 import { NoteEditor, NoteList } from "./notes";
+import { QuoteWarning, SuggestedReasons } from "./suggested-reasons";
 import { type AddedFinding, type DetailMode, type ItemWork, evidenceList, finalVerdictOf, findingFor, isActionable } from "./work";
 
 interface Props {
@@ -121,15 +122,6 @@ export function RubricChecklist(props: Props) {
 
       {mode === "auditor" && <AddFinding rubric={rubric} currentMs={props.currentMs} onAdd={props.onAdd} />}
     </section>
-  );
-}
-
-function QuoteWarning() {
-  return (
-    <div className="my-1.5 flex items-start gap-1.5 rounded-sm border border-[var(--red-200)] bg-[var(--red-100)] px-2 py-1.5 text-xs text-[var(--red-800)]">
-      <AlertTriangle size={14} aria-hidden className="mt-px flex-none" />
-      Esta cita no aparece tal cual en la transcripción. Verifícala en el audio.
-    </div>
   );
 }
 
@@ -267,20 +259,7 @@ function FindingItem(props: Props & { criterionId: number }) {
       ))}
     </>
   ) : null;
-  const suggested = f.suggestedReasons?.length ? (
-    <div className="mt-1.5">
-      <div className="text-xs font-semibold text-muted-foreground">Motivos de renuncia que sugiere la IA</div>
-      <ol className="m-0 mt-1 grid list-decimal gap-1 pl-5 text-[13px]">
-        {f.suggestedReasons.map((s) => (
-          <li key={s.reason}>
-            <b className="font-medium">{s.reason}</b>
-            {s.quote && <div className="quote">“{s.quote}”</div>}
-            {s.quote && !s.quoteValidated && <QuoteWarning />}
-          </li>
-        ))}
-      </ol>
-    </div>
-  ) : null;
+  const suggested = <SuggestedReasons reasons={f.suggestedReasons} />;
   const comment =
     f.verdict === "uncertain" ? (
       <details>

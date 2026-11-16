@@ -21,9 +21,13 @@ import { Button } from "@/components/ui/button";
 import { MetricHelp } from "@/components/ui/metric-help";
 import { AsyncView } from "@/components/ui/states";
 import { api } from "@/lib/api";
-import type { CallList, CallVerification, SegmentCalls } from "@/lib/api/admin-types";
+import type { CallList, CallVerification, SegmentCall, SegmentCalls } from "@/lib/api/admin-types";
 import { shortDate } from "@/lib/format";
 import { useAsync } from "@/lib/use-async";
+import { scopeFromParams, scopeQuery, verificationHref } from "@/lib/verification-scope";
+
+const scopeLabel = (assignee: string | null) =>
+  assignee === "me" ? "asignadas a ti" : assignee === "unassigned" ? "sin asignar" : assignee && assignee !== "all" ? "de esta persona" : "de la corrida completa";
 
 /** Nivel 2 · Lista de las llamadas de una parte del mosaico (o de un lado, o de un motivo), con el avance de la
  * verificación (04-verificacion-propuesta.md §5.2, 05-numeros-propuesta.md §3). El motivo filtra en el servidor: la
@@ -35,7 +39,11 @@ export function CallsListView({ version }: { version: string }) {
   const motivo = params.get("motivo") ? Number(params.get("motivo")) : null;
   const vs = params.get("vs");
   const sample = params.get("muestra") ? Number(params.get("muestra")) : null;
-  const state = useAsync(() => api.getSegmentCalls(version, segment, motivo, { vs, sample }), [version, segment, motivo, vs, sample]);
+  const scope = scopeFromParams(params);
+  const state = useAsync(
+    () => api.getSegmentCalls(version, segment, motivo, { vs, sample, scope }),
+    [version, segment, motivo, vs, sample, scope.source, scope.assignee],
+  );
   return (
     <AsyncView state={state} what="las llamadas">
       {(data) => <CallsList version={version} data={data} />}
@@ -57,6 +65,8 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
   const pathname = usePathname();
   const params = useSearchParams();
   const status = (params.get("estado") as StatusFilter | null) ?? "all";
+  const scope = scopeFromParams(params);
+  const full = scope.source === "full";
   const motivo = data.criterion;
   const byCall = params.get("orden") === "llamada";
   const set = (key: string, value: string | null) => {
@@ -67,27 +77,35 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
   };
 
   const { segment, summary: s, items } = data;
-  const count = (f: StatusFilter) => (f === "all" ? items.length : items.filter((i) => i.verification === f).length);
+  // En la corrida completa, una llamada sin desacuerdos queda pendiente hasta marcarla «Sin observaciones» (13, V1 B).
+  const statusOf = (i: SegmentCall): CallVerification =>
+    full && i.verification === "none" && !i.reviewedAt ? "pending" : i.verification;
+  const count = (f: StatusFilter) => (f === "all" ? items.length : items.filter((i) => statusOf(i) === f).length);
   const criteria = [
     ...new Set([...items.flatMap((i) => i.disagreements.map((d) => d.criterionId)), ...(motivo != null ? [motivo] : [])]),
   ].sort((a, b) => a - b);
   const shown = items
-    .filter((i) => status === "all" || i.verification === status)
+    .filter((i) => status === "all" || statusOf(i) === status)
     .sort((a, b) => (byCall ? a.callId.localeCompare(b.callId) : a.order - b.order));
-  const firstPending = items.find((i) => i.verification === "pending");
+  const firstPending = items.find((i) => statusOf(i) === "pending");
   const caseHref = (caseId: string) =>
-    `/admin/prompts/${encodeURIComponent(version)}/calls/${encodeURIComponent(caseId)}?segment=${segment}${motivo != null ? `&motivo=${motivo}` : ""}`;
+    `/admin/prompts/${encodeURIComponent(version)}/calls/${encodeURIComponent(caseId)}?segment=${segment}${
+      motivo != null ? `&motivo=${motivo}` : ""
+    }${scopeQuery(scope)}`;
   const swatch = LIST_SWATCH[segment];
   const line = summaryLine(segment, s);
 
   return (
     <>
-      <Link href={`/admin/prompts/${encodeURIComponent(version)}?tab=test`} className="btn btn-ghost btn-sm mb-2">
-        <ChevronLeft size={14} aria-hidden /> Volver a v{version}
+      <Link
+        href={full ? verificationHref(version, scope.assignee) : `/admin/prompts/${encodeURIComponent(version)}?tab=test`}
+        className="btn btn-ghost btn-sm mb-2"
+      >
+        <ChevronLeft size={14} aria-hidden /> {full ? "Volver a Verificación" : `Volver a v${version}`}
       </Link>
       <AdminHeader
         title={`${listTitle(segment, motivo, { vs: data.vs, sample: data.sample })} · v${version}`}
-        description={`${items.length} llamadas de ${data.n} de validación · ${
+        description={`${items.length} llamadas de ${data.n} ${full ? scopeLabel(scope.assignee) : "de validación"} · ${
           motivo != null ? `con desacuerdo en el motivo ${motivo}` : SEGMENT_SUPPORT[segment]
         }`}
       />
@@ -101,7 +119,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
             confianza.
           </MetricHelp>
         </h2>
-        {s.calls === 0 ? (
+        {s.calls === 0 && !(full && firstPending) ? (
           <p className="help m-0">Ninguna llamada de esta parte tiene motivos en desacuerdo que verificar.</p>
         ) : (
           <>
@@ -174,7 +192,11 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
       ) : shown.length === 0 ? (
         <p className="empty-state">
           No hay llamadas con este filtro.{" "}
-          <button type="button" className="underline" onClick={() => router.replace(listHref(version, segment), { scroll: false })}>
+          <button
+            type="button"
+            className="underline"
+            onClick={() => router.replace(`${listHref(version, segment)}${scopeQuery(scope)}`, { scroll: false })}
+          >
             Quitar filtro
           </button>
         </p>
@@ -193,6 +215,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
                 <th scope="col">Tipificó</th>
                 {segment === "changed" && <th scope="col">Cambio</th>}
                 <th scope="col">Motivos en desacuerdo</th>
+                {full && <th scope="col">Asignada a</th>}
                 <th scope="col">Verificación</th>
               </tr>
             </thead>
@@ -234,7 +257,10 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
                       ))}
                     </span>
                   </td>
-                  <td>{CALL_STATUS[i.verification]}</td>
+                  {full && <td>{i.assigneeName ?? <span className="help">Sin asignar</span>}</td>}
+                  <td>
+                    {full && i.verification === "none" ? (i.reviewedAt ? "Sin observaciones" : "Por revisar") : CALL_STATUS[i.verification]}
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, Check, ChevronLeft, Download, FlaskConical, Square, X } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -9,6 +10,7 @@ import { AgreementMosaic, CauseAnalysisNotice, DisagreementZoom, LoopEvolution }
 import { QualityHeader } from "@/components/admin/quality-header";
 import { PromptDiff } from "@/components/admin/prompt-diff";
 import { PromptForm } from "@/components/admin/prompt-form";
+import { PromptReader } from "@/components/admin/prompt-reader";
 import { PromptStatusBadge } from "@/components/admin/prompt-status";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -22,7 +24,7 @@ import { pct, shortDateTime } from "@/lib/format";
 import { useRubric } from "@/lib/rubric";
 import { useAsync } from "@/lib/use-async";
 
-type Tab = "diff" | "test" | "history" | "edit";
+type Tab = "read" | "diff" | "test" | "history" | "edit";
 const usd = (n: number, d = 4) => `${n.toFixed(d).replace(".", ",")} USD`;
 
 export function PromptVersionView({ version }: { version: string }) {
@@ -32,8 +34,10 @@ export function PromptVersionView({ version }: { version: string }) {
     return { detail, all };
   }, [version]);
   const search = useSearchParams();
-  // «Volver a vX» desde la lista de llamadas del mosaico llega con ?tab=test.
-  const [tab, setTab] = useState<Tab>(search.get("tab") === "test" ? "test" : "diff");
+  // «Volver a vX» desde la lista de llamadas del mosaico llega con ?tab=test; ?tab=read abre «Leer».
+  // Sin tab elegida: «Leer» en la vigente (no tiene diferencias que mostrar) y «Diferencias» en las demás.
+  const asked = search.get("tab");
+  const [tab, setTab] = useState<Tab | null>(asked === "test" || asked === "read" ? asked : null);
   // «Crear borrador y probar» (Cambio 18) llega con ?test=1 y abre el diálogo de costo de la prueba.
   const [testOpen, setTestOpen] = useState(search.get("test") === "1");
   const [activateOpen, setActivateOpen] = useState(false);
@@ -62,6 +66,7 @@ export function PromptVersionView({ version }: { version: string }) {
           const previous = isActive ? all.find((v) => v.status === "retired") : undefined;
           const canActivate = meta.status === "tested" || meta.status === "retired";
           const canTest = meta.status === "draft" || meta.status === "test_failed";
+          const shown: Tab = tab ?? (meta.version === detail.activeVersion ? "read" : "diff");
           return (
             <>
               <div className="mt-2">
@@ -135,28 +140,37 @@ export function PromptVersionView({ version }: { version: string }) {
               <div className="tabs" role="tablist">
                 {(
                   [
+                    ["read", "Leer"],
                     ["diff", "Diferencias"],
                     ["test", "Prueba"],
                     ["history", "Historial"],
                     ...(meta.status === "draft" ? ([["edit", "Editar borrador"]] as const) : []),
                   ] as [Tab, string][]
                 ).map(([k, label]) => (
-                  <button key={k} type="button" role="tab" className="tab" aria-selected={tab === k} onClick={() => setTab(k)}>
+                  <button key={k} type="button" role="tab" className="tab" aria-selected={shown === k} onClick={() => setTab(k)}>
                     {label}
                   </button>
                 ))}
+                {/* La corrida completa y los verificadores viven en su propia pantalla (13-rol-verificador). */}
+                <Link href={`/admin/prompts/${encodeURIComponent(meta.version)}/verification`} className="tab no-underline">
+                  Verificación
+                </Link>
               </div>
 
-              {tab === "diff" &&
+              {shown === "read" && (
+                <PromptReader spec={detail.spec} systemText={detail.systemText} version={meta.version} isYaml={meta.source !== "text"} />
+              )}
+
+              {shown === "diff" &&
                 (detail.diff ? (
                   <PromptDiff diff={detail.diff} baseLabel={`v${detail.activeVersion} (vigente)`} nextLabel={`v${meta.version}`} />
                 ) : (
                   <p className="help">Esta es la versión vigente. Abre otra versión para compararla contra esta.</p>
                 ))}
 
-              {tab === "test" && <TestTab detail={detail} onReload={() => void reload({ silent: true })} />}
+              {shown === "test" && <TestTab detail={detail} onReload={() => void reload({ silent: true })} />}
 
-              {tab === "history" && (
+              {shown === "history" && (
                 <table className="tbl">
                   <thead>
                     <tr>
@@ -191,7 +205,7 @@ export function PromptVersionView({ version }: { version: string }) {
                 </table>
               )}
 
-              {tab === "edit" && meta.status === "draft" && (
+              {shown === "edit" && meta.status === "draft" && (
                 <PromptForm
                   editing
                   activeVersion={detail.activeVersion}

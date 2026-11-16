@@ -58,6 +58,9 @@ def seed_tested_version(imported: sessionmaker[Session], admin: User, version: s
                                 "verdict": "non_compliant",
                                 "comment": "No explica la cobertura.",
                                 "evidence": {"quote": "eso no lo sé", "startMs": 1000, "quoteValidated": True},
+                                "suggestedReasons": [
+                                    {"reason": "Problemas Económicos", "quote": "no me alcanza", "quoteValidated": True}
+                                ],
                             }
                         ],
                     },
@@ -133,6 +136,11 @@ def test_case_shows_the_tested_version_and_hides_nothing(
     two = next(c for c in case["criteria"] if c["criterionId"] == 2)
     assert two["kind"] == "fp" and two["ai"]["verdict"] == "non_compliant" and two["reviewerFail"] is False
     assert two["ai"]["comment"] == "No explica la cobertura." and two["ai"]["evidence"][0]["startMs"] == 1000
+    # Los motivos sugeridos (motivo 18) pasan tal cual; los demás motivos los traen vacíos.
+    assert two["ai"]["suggestedReasons"] == [
+        {"reason": "Problemas Económicos", "quote": "no me alcanza", "quoteValidated": True}
+    ]
+    assert all(c["ai"]["suggestedReasons"] == [] for c in case["criteria"] if c["criterionId"] != 2)
     assert case["position"] == {
         "index": 1,
         "total": 1,

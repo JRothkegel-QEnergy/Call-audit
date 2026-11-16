@@ -5,13 +5,17 @@ Las reglas de visibilidad del diseño se aplican aquí, en el backend, y no en e
 - D-22: el prompt y la respuesta del modelo solo van a cuentas con el permiso view_model_io.
 """
 
+import json
 import logging
 from datetime import datetime
+from functools import cache
 from typing import Any
 
-from sqlalchemy.orm import object_session
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session, object_session
 
-from call_audit.config import get_settings
+from call_audit.catalog.detail import sheet_detail
+from call_audit.config import ROOT, get_settings
 from call_audit.persistence.models import Agent, Case, ModelRun, Note, Product, PromptVersion, Review, User
 from call_audit.rubric import Rubric
 
@@ -23,7 +27,7 @@ def iso(value: datetime | None) -> str | None:
 
 
 # Roles que ven el veredicto y el comentario del cliente y el panel del modelo (D-24, Cambio 12).
-SEES_CLIENT = ("supervisor", "qubico_admin", "qubico_viewer")
+SEES_CLIENT = ("supervisor", "qubico_admin", "qubico_viewer", "qubico_verifier")
 
 
 def user_out(user: User) -> dict:
@@ -170,8 +174,34 @@ def presigned_audio(recording: str) -> str | None:
         return None
 
 
+@cache
+def legacy_catalog() -> dict[str, dict]:
+    """products.json por id: el catálogo que usa el pipeline cuando la base no tiene catálogo (pipeline.use_catalog)."""
+    path = ROOT / "data" / "catalog" / "products.json"
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {p["id"]: p for p in data.get("products", []) if p.get("id")}
+
+
+def sheet_detail_data(session: Session | None, sheet: dict) -> dict | None:
+    """Ficha completa del catálogo que vio la IA (11-ficha-completa.md, K6). Con versión registrada, esa versión; en
+    casos anteriores al registro de versiones, la vigente del mismo producto; sin catálogo en la base, products.json."""
+    catalog_id = sheet.get("catalogId") or sheet.get("productId")
+    if session and catalog_id:
+        product = session.get(Product, catalog_id)
+        if product:
+            version = sheet.get("version") or product.current_version
+            found = next((v for v in product.versions if v.version == version), None)
+            return found.data if found else None
+        if session.scalar(select(func.count()).select_from(Product)):
+            return None
+    return legacy_catalog().get(sheet.get("productId") or "")
+
+
 def product_sheets_out(case: Case) -> list[dict]:
-    """Fichas del caso con la versión usada en la validación y la vigente hoy (Cambio 11, R-11.1)."""
+    """Fichas del caso con la versión usada en la validación y la vigente hoy (Cambio 11, R-11.1), y la ficha completa
+    del catálogo en `detail`."""
     session = object_session(case)
     out = []
     for sheet in case.product_sheets or []:
@@ -179,6 +209,8 @@ def product_sheets_out(case: Case) -> list[dict]:
         product = session.get(Product, sheet["catalogId"]) if session and sheet.get("catalogId") else None
         sheet.setdefault("version", None)
         sheet["latestVersion"] = product.current_version if product else None
+        data = sheet_detail_data(session, sheet)
+        sheet["detail"] = sheet_detail(data) if data else sheet.get("detail") or []
         out.append(sheet)
     return out
 

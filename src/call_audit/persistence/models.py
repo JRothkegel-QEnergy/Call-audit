@@ -30,7 +30,9 @@ class User(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
     email: Mapped[str] = mapped_column(String(254), unique=True)
     name: Mapped[str] = mapped_column(String(200))
-    role: Mapped[str] = mapped_column(String(20))  # auditor | supervisor | qubico_admin (Cambio 12)
+    role: Mapped[str] = mapped_column(
+        String(20)
+    )  # auditor | supervisor | qubico_admin | qubico_viewer | qubico_verifier
     permissions: Mapped[list[Any]] = mapped_column(default=list)
     password_hash: Mapped[str | None] = mapped_column(String(200))
     status: Mapped[str] = mapped_column(String(20), default="active")  # invited | active | deactivated
@@ -336,6 +338,25 @@ class DisagreementVerification(Base):
     decided_at: Mapped[datetime] = mapped_column(default=now)
 
     decided_by: Mapped[User] = relationship()
+
+
+class VerificationAssignment(Base):
+    """Llamada asignada a un verificador (docs/ux/admin-prompt-metrics/13-rol-verificador-asignacion.md). Una por
+    llamada, sin versión: el registro de cada motivo sigue en DisagreementVerification. `reviewed_*` es la marca «Sin
+    observaciones» de una llamada en que la IA y la planilla coinciden en todos los motivos."""
+
+    __tablename__ = "verification_assignments"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    case_id: Mapped[str] = mapped_column(ForeignKey("cases.id"), unique=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    assigned_by_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    assigned_at: Mapped[datetime] = mapped_column(default=now)
+    reviewed_by_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    reviewed_at: Mapped[datetime | None] = mapped_column()
+
+    user: Mapped[User] = relationship(foreign_keys=[user_id])
+    reviewed_by: Mapped[User | None] = relationship(foreign_keys=[reviewed_by_id])
 
 
 class Alert(Base):

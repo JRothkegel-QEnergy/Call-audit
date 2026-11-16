@@ -142,6 +142,85 @@ def start_train(
     return evaluation
 
 
+def full_plan(session: Session, version: str, model: str | None = None) -> dict[str, Any]:
+    """Corrida completa de una versión para la verificación con verificadores (docs/ux/admin-prompt-metrics/13): todas
+    las llamadas con planilla, sin importar el set. Reusa lo que la versión ya corrió con el mismo modelo en sus
+    pruebas y pasadas del loop, así que solo se paga lo que falta. No gasta."""
+    row = session.get(PromptVersion, version)
+    if row is None:
+        raise LookupError("not_found")
+    test = latest(session, version)
+    model = model or (test.model if test is not None else None) or row.model
+    reused: dict[str, dict] = {}
+    for ev in session.scalars(
+        select(PromptEvaluation)
+        .where(PromptEvaluation.version == version, PromptEvaluation.model == model)
+        .order_by(PromptEvaluation.created_at)
+    ):
+        for r in ev.results or []:
+            if not r.get("error") and "findings" in r:
+                reused[r["caseId"]] = {**r, "cost": 0.0, "reusedFrom": ev.id}
+    cases = calibration_cases(session)
+    ids = [c.id for c, _ in cases]
+    missing = [cid for cid in ids if cid not in reused]
+    est = estimate(session, model)
+    per_call = est["perCallUsd"]
+    return {
+        "version": version,
+        "model": model,
+        "calls": len(ids),
+        "reused": len(ids) - len(missing),
+        "missing": len(missing),
+        "perCallUsd": per_call,
+        "totalUsd": round(per_call * len(missing), 4) if per_call is not None else None,
+        "minutes": round(len(missing) * (est["minutes"] or 0) / max(est["calls"], 1), 1) if est["minutes"] else None,
+        "_ids": ids,
+        "_reused": [reused[cid] for cid in ids if cid in reused],
+    }
+
+
+def start_full(session: Session, version: str, actor: User, model: str | None = None) -> PromptEvaluation:
+    """Encola la corrida completa (purpose "full"). No cambia el estado de la versión ni su prueba."""
+    plan = full_plan(session, version, model)
+    if not plan["_ids"]:
+        raise ValueError("no_calibration")
+    if session.scalar(
+        select(PromptEvaluation.id).where(
+            PromptEvaluation.version == version,
+            PromptEvaluation.purpose == "full",
+            PromptEvaluation.status.in_(("queued", "running")),
+        )
+    ):
+        raise ValueError("already_running")
+    evaluation = PromptEvaluation(
+        version=version,
+        model=plan["model"],
+        requested_by_id=actor.id,
+        case_ids=plan["_ids"],
+        estimated_cost_usd=plan["totalUsd"],
+        results=plan["_reused"],
+        done=len(plan["_reused"]),
+        purpose="full",
+        split=None,
+    )
+    session.add(evaluation)
+    add_history(
+        session.get(PromptVersion, version),
+        actor.name,
+        f"Inició la corrida completa para verificación · {plan['calls']} llamadas, {plan['missing']} nuevas",
+    )
+    session.flush()
+    return evaluation
+
+
+def latest_full(session: Session, version: str | None = None) -> PromptEvaluation | None:
+    """La última corrida completa terminada (de la versión, o de cualquiera): la que ven los verificadores."""
+    query = select(PromptEvaluation).where(PromptEvaluation.purpose == "full", PromptEvaluation.status == "done")
+    if version is not None:
+        query = query.where(PromptEvaluation.version == version)
+    return session.scalar(query.order_by(PromptEvaluation.finished_at.desc()))
+
+
 def is_test(evaluation: PromptEvaluation) -> bool:
     """La prueba de la versión (las anteriores al loop no tienen purpose)."""
     return evaluation.purpose in (None, "test")
@@ -150,7 +229,10 @@ def is_test(evaluation: PromptEvaluation) -> bool:
 def latest(session: Session, version: str) -> PromptEvaluation | None:
     return session.scalar(
         select(PromptEvaluation)
-        .where(PromptEvaluation.version == version, PromptEvaluation.purpose.is_distinct_from("train"))
+        .where(
+            PromptEvaluation.version == version,
+            PromptEvaluation.purpose.is_(None) | (PromptEvaluation.purpose == "test"),
+        )
         .order_by(PromptEvaluation.created_at.desc())
     )
 

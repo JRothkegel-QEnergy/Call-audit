@@ -15,6 +15,7 @@ import {
   outcomeLabel,
 } from "@/components/admin/verification-labels";
 import { AudioPlayer } from "@/components/call/audio-player";
+import { SuggestedReasons } from "@/components/call/suggested-reasons";
 import { TypificationLine } from "@/components/call/typification";
 import { CUSTOMER_CRITERIA, ProductSheetColumn, ProductSheetContent } from "@/components/call/product-sheet";
 import { Transcript } from "@/components/call/transcript";
@@ -24,13 +25,20 @@ import { Sheet } from "@/components/ui/dialog";
 import { MetricHelp } from "@/components/ui/metric-help";
 import { AsyncView } from "@/components/ui/states";
 import { api, isRealMode } from "@/lib/api";
-import type { CallList, CaseComparison, CaseComparisonCriterion, VerificationOutcome } from "@/lib/api/admin-types";
+import type {
+  CallList,
+  CaseComparison,
+  CaseComparisonCriterion,
+  VerificationOutcome,
+  VerificationScope,
+} from "@/lib/api/admin-types";
 import type { CaseDetail, Evidence, Finding, Rubric } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { mmss, shortDate, shortDateTime } from "@/lib/format";
 import { useSession } from "@/lib/session";
 import { loadRubric } from "@/lib/rubric";
 import { useAsync } from "@/lib/use-async";
+import { scopeQuery } from "@/lib/verification-scope";
 
 /** Nivel 3 · Caso: lo que dijo la IA de la versión probada frente a la planilla, y el registro (§5.3). */
 export function CaseReviewView({
@@ -38,23 +46,27 @@ export function CaseReviewView({
   caseId,
   segment,
   criterion,
+  scope,
 }: {
   version: string;
   caseId: string;
   segment: CallList | null;
   criterion: number | null;
+  scope: VerificationScope;
 }) {
   const state = useAsync(async () => {
     const [cmp, call, rubric] = await Promise.all([
-      api.getCaseComparison(version, caseId, segment ?? undefined, criterion),
+      api.getCaseComparison(version, caseId, segment ?? undefined, criterion, scope),
       api.getCase(caseId),
       loadRubric(),
     ]);
     return { cmp, call, rubric };
-  }, [version, caseId, segment, criterion]);
+  }, [version, caseId, segment, criterion, scope.source, scope.assignee]);
   return (
     <AsyncView state={state} what="la llamada">
-      {({ cmp, call, rubric }) => <CaseReview key={caseId} version={version} initial={cmp} call={call} rubric={rubric} />}
+      {({ cmp, call, rubric }) => (
+        <CaseReview key={caseId} version={version} initial={cmp} call={call} rubric={rubric} scope={scope} />
+      )}
     </AsyncView>
   );
 }
@@ -68,15 +80,32 @@ const isTyping = (t: EventTarget | null) => {
   return !!el && (["input", "textarea", "select"].includes(el.tagName.toLowerCase()) || el.isContentEditable);
 };
 
-function CaseReview({ version, initial, call, rubric }: { version: string; initial: CaseComparison; call: CaseDetail; rubric: Rubric }) {
+function CaseReview({
+  version,
+  initial,
+  call,
+  rubric,
+  scope,
+}: {
+  version: string;
+  initial: CaseComparison;
+  call: CaseDetail;
+  rubric: Rubric;
+  scope: VerificationScope;
+}) {
   const router = useRouter();
   const { user } = useSession();
-  const canWrite = user?.role === "qubico_admin";
   const [cmp, setCmp] = useState(initial);
+  const full = cmp.source === "full";
+  const fullScope: VerificationScope = full ? { ...scope, source: "full" } : scope;
+  // En la corrida completa decide el backend: el verificador registra solo en sus llamadas (13, V4 A).
+  const canWrite = cmp.canRecord ?? user?.role === "qubico_admin";
+  const isAdmin = user?.role === "qubico_admin";
+  const isVerifier = user?.role === "qubico_verifier";
   const segment = cmp.listSegment;
   const base = `/admin/prompts/${encodeURIComponent(version)}/calls`;
   const motivo = cmp.listCriterion;
-  const tail = `?segment=${segment}${motivo != null ? `&motivo=${motivo}` : ""}`;
+  const tail = `?segment=${segment}${motivo != null ? `&motivo=${motivo}` : ""}${scopeQuery(fullScope)}`;
   const listHref = `${base}${tail}`;
   const caseHref = (id: string) => `${base}/${encodeURIComponent(id)}${tail}`;
 
@@ -135,7 +164,31 @@ function CaseReview({ version, initial, call, rubric }: { version: string; initi
 
   useEffect(() => headRef.current?.focus(), []);
 
-  const reload = async () => setCmp(await api.getCaseComparison(version, cmp.caseId, segment, motivo));
+  const fetchCmp = () => api.getCaseComparison(version, cmp.caseId, segment, motivo, fullScope);
+  const reload = async () => setCmp(await fetchCmp());
+  const source = full ? ("full" as const) : undefined;
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const markReviewed = async (reviewed: boolean) => {
+    setReviewBusy(true);
+    try {
+      await api.setReviewed(cmp.caseId, reviewed);
+      await reload();
+      if (reviewed) nextRef.current?.focus();
+    } catch {
+      toast.error("No pudimos guardar. Revisa tu conexión e intenta de nuevo.");
+    } finally {
+      setReviewBusy(false);
+    }
+  };
+  const reassign = async (userId: string | null) => {
+    try {
+      await api.setAssignee(cmp.caseId, userId);
+      await reload();
+      toast(userId ? "Llamada reasignada." : "Llamada sin asignar.");
+    } catch {
+      toast.error("No se pudo reasignar la llamada.");
+    }
+  };
 
   const save = async (c: CaseComparisonCriterion, outcome: VerificationOutcome, note: string | null) => {
     if (!canWrite) return;
@@ -147,8 +200,9 @@ function CaseReview({ version, initial, call, rubric }: { version: string; initi
         note,
         version,
         seenFirst: revealed.has(c.criterionId),
+        source,
       });
-      const next = await api.getCaseComparison(version, cmp.caseId, segment, motivo);
+      const next = await fetchCmp();
       setCmp(next);
       const label = outcomeLabel(outcome, c.kind === "undecided");
       toast(`Guardado: ${label} en el motivo ${c.criterionId}.`, {
@@ -162,6 +216,7 @@ function CaseReview({ version, initial, call, rubric }: { version: string; initi
                   note: before.note,
                   version,
                   seenFirst: before.seenFirst,
+                  source,
                 });
               else await api.deleteVerification(cmp.caseId, c.criterionId);
               await reload();
@@ -179,10 +234,11 @@ function CaseReview({ version, initial, call, rubric }: { version: string; initi
   };
 
   const goNext = () => {
-    const id = cmp.position.nextPendingCaseId ?? cmp.position.nextCaseId;
+    // El verificador salta solo a sus pendientes (V3 A); sin más, vuelve a la lista.
+    const id = cmp.position.nextPendingCaseId ?? (isVerifier ? null : cmp.position.nextCaseId);
     if (id) router.push(caseHref(id));
     else {
-      toast("Revisaste todas las llamadas de esta parte.");
+      toast(isVerifier ? "No te quedan llamadas pendientes en esta lista." : "Revisaste todas las llamadas de esta parte.");
       router.push(listHref);
     }
   };
@@ -192,7 +248,7 @@ function CaseReview({ version, initial, call, rubric }: { version: string; initi
       if (!shortcuts || isTyping(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
       if (document.querySelector("[role=dialog]")) return;
       const c = toVerify[focus];
-      if (canWrite && c && ["1", "2", "3", "4"].includes(e.key)) {
+      if (canWrite && c && c.verification?.canChange !== false && ["1", "2", "3", "4"].includes(e.key)) {
         e.preventDefault();
         void save(c, OUTCOMES[Number(e.key) - 1], c.verification?.note ?? null);
       } else if (e.key === "j" || e.key === "J") setFocus((f) => Math.min(toVerify.length - 1, f + 1));
@@ -239,7 +295,26 @@ function CaseReview({ version, initial, call, rubric }: { version: string; initi
           {call.agent.name} · {call.products.join(", ") || "sin seguro"} · {mmss(cmp.durationMs)} min
         </p>
         <TypificationLine t={call.typification} className="m-0 block" />
-        <p className="help m-0">v{cmp.version} (prueba de validación)</p>
+        <p className="help m-0">v{cmp.version} ({full ? "corrida completa" : "prueba de validación"})</p>
+        {full && cmp.assignment && (
+          <p className="m-0 flex flex-wrap items-center gap-2">
+            {isAdmin && cmp.verifiers ? (
+              <label className="flex items-center gap-1.5">
+                Asignada a:
+                <select className="control" value={cmp.assignment.assigneeId ?? ""} onChange={(e) => void reassign(e.target.value || null)}>
+                  <option value="">Sin asignar</option>
+                  {cmp.verifiers.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : (
+              <span>Asignada a: {cmp.assignment.mine ? "ti" : (cmp.assignment.assigneeName ?? "nadie")}</span>
+            )}
+          </p>
+        )}
         <p className="m-0 flex flex-wrap items-center gap-x-4 gap-y-1">
           <span>
             IA v{cmp.version}: <span className={VERDICT_CLASS[cmp.aiVerdict]}>{VERDICT[cmp.aiVerdict]}</span>
@@ -256,6 +331,14 @@ function CaseReview({ version, initial, call, rubric }: { version: string; initi
           Estado de la llamada: <b>{CALL_STATUS_LONG[cmp.verification]}</b>
         </p>
       </section>
+
+      {full && !canWrite && isVerifier && (
+        <div className="banner mb-2.5" role="status">
+          {cmp.assignment?.assigneeName
+            ? `Esta llamada está asignada a ${cmp.assignment.assigneeName}. Puedes verla, pero no registrar.`
+            : "Esta llamada no está asignada a ti."}
+        </div>
+      )}
 
       {!cmp.findingsAvailable && (
         <div className="banner mb-2.5">Esta prueba no guardó los comentarios ni las citas de la IA. Se muestran solo los veredictos por motivo.</div>
@@ -299,14 +382,39 @@ function CaseReview({ version, initial, call, rubric }: { version: string; initi
                 Atajos (1-4, J/K, N)
               </label>
             </div>
-            {toVerify.length === 0 && <p className="help m-0">Esta llamada no tiene motivos en desacuerdo con la planilla.</p>}
+            {toVerify.length === 0 &&
+              (full && cmp.assignment?.assigneeId ? (
+                cmp.assignment.reviewedAt ? (
+                  <p className="m-0 flex flex-wrap items-center gap-2">
+                    <span>
+                      Revisada sin observaciones por {cmp.assignment.reviewedBy ?? "—"} el {shortDateTime(cmp.assignment.reviewedAt)}.
+                    </span>
+                    {canWrite && (isAdmin || cmp.assignment.mine) && (
+                      <Button size="sm" variant="ghost" disabled={reviewBusy} onClick={() => void markReviewed(false)}>
+                        Deshacer
+                      </Button>
+                    )}
+                  </p>
+                ) : (
+                  <>
+                    <p className="help m-0">La IA y la planilla coinciden en todos los motivos. Si estás de acuerdo, márcala sin observaciones.</p>
+                    {canWrite && (
+                      <Button variant="primary" className="justify-self-start" disabled={reviewBusy} onClick={() => void markReviewed(true)}>
+                        Sin observaciones
+                      </Button>
+                    )}
+                  </>
+                )
+              ) : (
+                <p className="help m-0">Esta llamada no tiene motivos en desacuerdo con la planilla.</p>
+              ))}
             {toVerify.map((c, i) => (
               <CriterionCard
                 key={c.criterionId}
                 c={c}
                 version={cmp.version}
                 focused={i === focus}
-                canWrite={canWrite}
+                canWrite={canWrite && c.verification?.canChange !== false}
                 busy={busy === c.criterionId}
                 revealed={revealed.has(c.criterionId)}
                 onFocus={() => setFocus(i)}
@@ -411,6 +519,7 @@ function CriterionCard({
           </p>
         ))
       )}
+      <SuggestedReasons reasons={c.ai.suggestedReasons} plainQuotes />
       {c.ai.comment && <p className="m-0">Comentario de la IA: «{c.ai.comment}»</p>}
       <p className="m-0">
         Planilla: <span className={c.reviewerFail ? "vt vt-fail" : "vt vt-pass"}>{c.reviewerFail ? "No cumple" : "Cumple"}</span>

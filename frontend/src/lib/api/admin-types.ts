@@ -1,7 +1,7 @@
 /**
  * Tipos del Administrador Qubico (Cambio 12). Misma forma que las respuestas de src/call_audit/api/routes_admin.py.
  */
-import type { AccountStatus, Permission, Role, Typification } from "./types";
+import type { AccountStatus, Permission, Role, SuggestedReason, Typification } from "./types";
 
 export interface UserAccount {
   id: string;
@@ -116,7 +116,7 @@ export interface QualityGrid {
 }
 
 /** Lista de llamadas: una parte del mosaico, un lado (falsas alarmas / rechazos no detectados) o todo desacuerdo. */
-export type CallList = AgreementSegment | "fp" | "fn" | "disagree" | "changed";
+export type CallList = AgreementSegment | "fp" | "fn" | "disagree" | "changed" | "all";
 
 /** Cifras del Resumen de Discrepancias (10-resumen-mas-informacion.md), de la misma fuente que el mosaico. */
 export interface Concentration {
@@ -190,6 +190,9 @@ export interface SegmentCall {
   typification?: Typification | null;
   /** Lista «changed»: pasa a coincidir o deja de coincidir frente a `vs`. */
   group?: "toAgree" | "fromAgree";
+  /** Corrida completa (13-rol-verificador): a quién está asignada y si se marcó «Sin observaciones». */
+  assigneeName?: string | null;
+  reviewedAt?: string | null;
 }
 
 export interface SegmentCalls {
@@ -229,10 +232,12 @@ export interface CaseComparisonCriterion {
     verdict: Verdict3;
     comment: string | null;
     evidence: { quote: string; startMs: number | null; quoteValidated?: boolean }[];
+    /** Motivo 18: motivos de renuncia que sugiere la IA (prompt v2.8+). Vacío en los demás. */
+    suggestedReasons?: SuggestedReason[];
   };
   reviewerFail: boolean;
   analysis: { patternId: string; title: string; cause: string; explanation: string } | null;
-  verification: VerificationRecord | null;
+  verification: (VerificationRecord & { canChange?: boolean }) | null;
 }
 
 export interface CaseComparison {
@@ -257,6 +262,91 @@ export interface CaseComparison {
     prevCaseId: string | null;
     nextCaseId: string | null;
     nextPendingCaseId: string | null;
+  };
+  /** Corrida completa (13-rol-verificador): asignación de la llamada y si quien mira puede registrar. */
+  assignment?: CaseAssignment;
+  canRecord?: boolean;
+  source?: VerificationSource;
+  /** Solo para el admin en la corrida completa: a quién se puede reasignar. */
+  verifiers?: { id: string; name: string }[];
+}
+
+/** «test»: la prueba de la versión (validación). «full»: la corrida completa para los verificadores. */
+export type VerificationSource = "test" | "full";
+
+/** Filtro «Asignadas a» (V3): "me", "all", "unassigned" o el id de un verificador. */
+export interface VerificationScope {
+  source: VerificationSource;
+  assignee: string | null;
+}
+
+export interface CaseAssignment {
+  assigneeId: string | null;
+  assigneeName: string | null;
+  mine: boolean;
+  reviewedAt: string | null;
+  reviewedBy: string | null;
+}
+
+export interface VerificationOverview {
+  version: string;
+  evaluationId: string;
+  model: string;
+  assignee: string;
+  n: number;
+  agreement: Agreement | null;
+  me: { assigned: number; pending: number; nextCaseId: string | null } | null;
+  verifiers: { id: string; name: string }[];
+}
+
+export interface ProgressCell {
+  assigned: number;
+  reviewed: number;
+  pending: number;
+}
+
+export interface ProgressBlock extends ProgressCell {
+  bySegment: Record<string, ProgressCell>;
+  bySplit: Record<string, ProgressCell>;
+}
+
+export interface VerificationProgress {
+  version: string;
+  evaluationId: string;
+  people: (ProgressBlock & { id: string; name: string; active: boolean; lastActivityAt: string | null })[];
+  unassigned: ProgressBlock;
+  total: ProgressBlock;
+}
+
+export interface DistributionPlan {
+  calls: number;
+  people: { id: string; name: string; calls: number; bySegment: Record<string, number> }[];
+}
+
+export interface FullRun {
+  id: string;
+  status: "queued" | "running" | "done" | "failed" | "stopped";
+  model: string;
+  done: number;
+  n: number;
+  estimatedCostUsd: number | null;
+  costUsd: number;
+  errors: number;
+  createdAt: string | null;
+  finishedAt: string | null;
+}
+
+export interface FullRunStatus {
+  run: FullRun | null;
+  estimate: {
+    version: string;
+    model: string;
+    calls: number;
+    reused: number;
+    missing: number;
+    perCallUsd: number | null;
+    totalUsd: number | null;
+    minutes: number | null;
   };
 }
 
@@ -339,11 +429,34 @@ export type PromptDiff =
       rules: { id: string; title: string; before: string | null; after: string | null; origin: string | null; note: string | null }[];
     };
 
+export interface PromptReaderItem {
+  id: string;
+  /** Solo los motivos de la pauta: traen number, official y (opcional) criterion en vez de text. */
+  number: number | null;
+  text: string | null;
+  official: string | null;
+  criterion: string | null;
+  /** Pregunta abierta con la corredora; no va en el prompt. */
+  pending: string | null;
+  /** origin ya viene con su label («Texto oficial», «Script del cliente», ...). */
+  history: { version: string; origin: string; note: string | null }[];
+}
+
+export interface PromptReaderSpec {
+  version: string;
+  date: string | null;
+  /** heading sin los «#»; null en la intro. level 2 o 3 según «##» / «###». */
+  sections: { id: string; heading: string | null; level: 2 | 3; items: PromptReaderItem[] }[];
+  jsonOutputInstruction: string | null;
+}
+
 export interface PromptVersionDetail {
   meta: PromptVersion;
   /** Lo editable: el prompt.yaml o el texto del system prompt sin la instrucción de salida. */
   content: string;
   systemText: string;
+  /** El prompt.yaml ordenado para la pestaña «Leer»; null si se subió como texto o el yaml no se pudo leer. */
+  spec: PromptReaderSpec | null;
   activeVersion: string;
   diff: PromptDiff | null;
   evaluation: PromptEvaluation | null;

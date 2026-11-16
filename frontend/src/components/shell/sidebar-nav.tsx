@@ -20,6 +20,7 @@ import {
   PanelLeft,
   ScanSearch,
   Settings,
+  ListChecks,
   ShieldCheck,
   SquareCheckBig,
   Users,
@@ -66,7 +67,9 @@ export function SidebarNav({
   const [demoOpen, setDemoOpen] = useState(false);
 
   const items: Item[] =
-    user.role === "qubico_viewer"
+    user.role === "qubico_verifier"
+      ? [{ label: "Verificación", href: "/verification", icon: ListChecks, match: ["/admin/prompts/"] }]
+      : user.role === "qubico_viewer"
       ? [
           { label: "Estadísticas", href: "/admin/stats", icon: LineChart },
           { label: "Análisis de discrepancias", href: "/admin/discrepancies", icon: ScanSearch },

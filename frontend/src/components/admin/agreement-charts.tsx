@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { MetricHelp } from "@/components/ui/metric-help";
 import { api } from "@/lib/api";
-import type { Agreement, AgreementBreakdown, CauseAnalysis, CauseEstimate, PromptLoopChain } from "@/lib/api/admin-types";
+import type { Agreement, AgreementBreakdown, CauseAnalysis, CauseEstimate, PromptLoopChain, VerificationScope, VerificationSource } from "@/lib/api/admin-types";
 import { ApiError } from "@/lib/api/admin-types";
 import { cn } from "@/lib/cn";
 import { shortDateTime } from "@/lib/format";
+import { scopeQuery } from "@/lib/verification-scope";
 import { useSession } from "@/lib/session";
 
 /**
@@ -31,7 +32,8 @@ export const PART_NAME: Record<Part, string> = {
   agree: "Coincide con el revisor",
 };
 
-export const partHref = (version: string, part: Part) => `/admin/prompts/${encodeURIComponent(version)}/calls?segment=${part}`;
+export const partHref = (version: string, part: Part, scope?: VerificationScope | null) =>
+  `/admin/prompts/${encodeURIComponent(version)}/calls?segment=${part}${scopeQuery(scope)}`;
 
 export const PARTS: Record<Part, { name: string; support: string; style: React.CSSProperties; ink: string }> = {
   promptFn: {
@@ -85,7 +87,17 @@ export function Swatch({ part }: { part: Part }) {
 }
 
 /** Leyenda compartida de A y B: color + nombre + "x % · a de n". */
-export function AgreementLegend({ b, parts = ORDER, version }: { b: AgreementBreakdown; parts?: Part[]; version?: string }) {
+export function AgreementLegend({
+  b,
+  parts = ORDER,
+  version,
+  scope,
+}: {
+  b: AgreementBreakdown;
+  parts?: Part[];
+  version?: string;
+  scope?: VerificationScope | null;
+}) {
   return (
     <ul className="m-0 grid list-none gap-1.5 p-0 text-[13px] sm:grid-cols-2">
       {parts.map((k) => (
@@ -99,7 +111,7 @@ export function AgreementLegend({ b, parts = ORDER, version }: { b: AgreementBre
             {version && b[k] > 0 && (
               <>
                 {" · "}
-                <Link href={partHref(version, k)} aria-label={`Ver las ${int(b[k])} llamadas: ${PART_NAME[k]}`}>
+                <Link href={partHref(version, k, scope)} aria-label={`Ver las ${int(b[k])} llamadas: ${PART_NAME[k]}`}>
                   Ver llamadas ›
                 </Link>
               </>
@@ -115,10 +127,10 @@ export function AgreementLegend({ b, parts = ORDER, version }: { b: AgreementBre
 const pct0 = (x: number) => `${Math.round(x * 100)}`;
 
 /** Línea de verificación bajo el mosaico (§6.1): cuánto del azul se confirmó a mano. */
-export function VerificationLine({ version, a }: { version: string; a: Agreement }) {
+export function VerificationLine({ version, a, scope }: { version: string; a: Agreement; scope?: VerificationScope | null }) {
   const v = a.verification?.reviewer;
   if (!v || a.byCall.reviewer === 0) return null;
-  const href = partHref(version, "reviewer");
+  const href = partHref(version, "reviewer", scope);
   if (v.reviewed === 0)
     return (
       <p className="m-0 text-[13px]">
@@ -212,7 +224,19 @@ function Block({
 }
 
 /** A · Marimekko por llamada (§3.1): el ancho de cada columna es su %; rojo sobre amarillo dentro de "Prompt o criterio". */
-export function AgreementMosaic({ version, a, linked = false }: { version: string; a: Agreement; linked?: boolean }) {
+export function AgreementMosaic({
+  version,
+  a,
+  linked = false,
+  scope,
+  title,
+}: {
+  version: string;
+  a: Agreement;
+  linked?: boolean;
+  scope?: VerificationScope | null;
+  title?: string;
+}) {
   const [table, setTable] = useState(false);
   const b = a.byCall;
   const prompt = b.promptFn + b.promptFp;
@@ -226,7 +250,7 @@ export function AgreementMosaic({ version, a, linked = false }: { version: strin
     <section className="card grid gap-3" aria-labelledby="mosaic-a">
       <div>
         <h3 id="mosaic-a" className="m-0 text-sm font-semibold">
-          Acuerdo con el revisor · v{version}
+          {title ?? `Acuerdo con el revisor · v${version}`}
           <MetricHelp title="Acuerdo con el revisor">
             Cada llamada cae en una sola parte. El ancho de cada bloque es su porcentaje del total. Rojo y amarillo son lo que hay
             que corregir en el prompt o en el criterio; la meta es llevarlos cerca de cero.
@@ -262,7 +286,7 @@ export function AgreementMosaic({ version, a, linked = false }: { version: strin
                       n={b.n}
                       vertical={b[p]}
                       showLabel={wide && share(b[p], c.value) >= 30}
-                      href={linked ? partHref(version, p) : undefined}
+                      href={linked ? partHref(version, p, scope) : undefined}
                     />
                   ))}
               </div>
@@ -276,8 +300,8 @@ export function AgreementMosaic({ version, a, linked = false }: { version: strin
           </span>
         ))}
       </p>
-      {linked && <VerificationLine version={version} a={a} />}
-      <AgreementLegend b={b} version={linked ? version : undefined} />
+      {linked && <VerificationLine version={version} a={a} scope={scope} />}
+      <AgreementLegend b={b} version={linked ? version : undefined} scope={scope} />
       <div>
         <Button size="sm" variant="ghost" aria-expanded={table} onClick={() => setTable((t) => !t)}>
           {table ? "Ocultar tabla" : "Ver como tabla"}
@@ -513,7 +537,17 @@ export function LoopEvolution({ loop, version }: { loop: PromptLoopChain | null 
 }
 
 /** Aviso según el estado del análisis de causa + «Analizar causa» con confirmación de costo (E1). */
-export function CauseAnalysisNotice({ version, ca, onStarted }: { version: string; ca: CauseAnalysis; onStarted: () => void }) {
+export function CauseAnalysisNotice({
+  version,
+  ca,
+  onStarted,
+  source,
+}: {
+  version: string;
+  ca: CauseAnalysis;
+  onStarted: () => void;
+  source?: VerificationSource;
+}) {
   const canWrite = useSession().user?.role === "qubico_admin";
   const [open, setOpen] = useState(false);
   const [est, setEst] = useState<CauseEstimate | null>(null);
@@ -537,7 +571,7 @@ export function CauseAnalysisNotice({ version, ca, onStarted }: { version: strin
     setOpen(true);
     setEst(null);
     try {
-      setEst(await api.estimateCauseAnalysis(version));
+      setEst(await api.estimateCauseAnalysis(version, source));
     } catch {
       toast.error("No pudimos calcular el costo. Intenta de nuevo.");
       setOpen(false);
@@ -546,7 +580,7 @@ export function CauseAnalysisNotice({ version, ca, onStarted }: { version: strin
   const start = async () => {
     setBusy(true);
     try {
-      await api.startCauseAnalysis(version);
+      await api.startCauseAnalysis(version, source);
       setOpen(false);
       onStarted();
     } catch (e) {

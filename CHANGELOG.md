@@ -7,6 +7,22 @@ Cada componente tiene además su propio historial detallado:
 - Prompt de verificación de afirmaciones: historial al final de `docs/layer2-claims-prompt.md`.
 - Diseño del front: `docs/ux/call-audit/estado.md` (fases y cambios aprobados).
 
+## 2026-11-13
+
+- **Rol Verificador y reparto de llamadas** (`docs/ux/admin-prompt-metrics/13-rol-verificador-asignacion.md`, V1-V9; Johannes: 5 personas revisando caso a caso, cada una con su set):
+  - rol nuevo `qubico_verifier` («Verificador»). Solo entra a «Verificación»: el mosaico, las listas y la revisión del caso, con la planilla a la vista. Registra solo en sus llamadas y solo corrige sus propios registros. No ve cuentas, prompts, catálogo ni estadísticas. Se crea desde Cuentas o con `python -m call_audit.admin create-user --role qubico_verifier`;
+  - **corrida completa** de una versión (`PromptEvaluation.purpose = "full"`): todas las llamadas con planilla, no solo validación. Reusa lo que la versión ya corrió con el mismo modelo (prueba y pasadas del loop) y solo paga lo que falta. No cambia la prueba ni el estado de la versión. Se lanza desde la pestaña Verificación con el costo estimado;
+  - pestaña **Verificación** (`/admin/prompts/{v}/verification`): filtro «Asignadas a», tarjeta «Te quedan {d} de {n}» con `Seguir revisando`, sección «Verificadores» con avance por persona (por parte del mosaico o por set), `Repartir llamadas` (estratificado por parte × set, determinístico, no mueve lo asignado) y `Pasar pendientes a…`. En la revisión del caso, el admin reasigna con «Asignada a»;
+  - se reparten las ~1.100 llamadas (V1 B). Una llamada sin desacuerdos se cierra con `Sin observaciones`, que se puede deshacer;
+  - migración `0009` (tabla `verification_assignments`). Sin corridas de IA. La doble asignación (V7) queda para después.
+
+- **Motivos de renuncia sugeridos en la revisión caso a caso** (`docs/ux/admin-prompt-metrics/12-motivos-sugeridos-en-revision.md`, S1-S4; Johannes: con el motivo 18 ya no veía las opciones de motivo de renuncia). La IA las seguía generando (prompt v2.8+), pero `case_comparison` no las pasaba a la revisión del admin. Ahora la tarjeta del motivo 18 las muestra, con citas sin caja para no confundirlas con la evidencia. Sin migración ni corridas de IA.
+
+- **Ficha completa del seguro** (`docs/ux/admin-prompt-metrics/11-ficha-completa.md`, K1-K6; Johannes: no encontraba en la ficha el examen preventivo que citaba la IA). La IA veía la ficha completa del catálogo y el revisor solo un resumen:
+  - la API suma `detail` a cada ficha (`call_audit/catalog/detail.py`), armado desde la misma versión del catálogo que usó la validación. Sin migración ni corridas de IA;
+  - en la columna, «Asistencias» reemplaza la sección vacía y se abre y resalta con los motivos 2, 4 y 6;
+  - botón «Ver ficha completa» (al final de la columna y en su encabezado): modal con índice y todas las secciones (resumen, coberturas, asistencias, exclusiones, primas, siniestros, crédito, notas, identificación), que abre en la sección relevante para el motivo en foco. Aplica al detalle del auditor y a la revisión caso a caso del admin.
+
 ## 2026-11-09
 
 - **Análisis de discrepancias en pestañas y por motivo** (Cambio 20, `docs/ux/call-audit/20-analisis-pestanas-por-motivo.md`, D-92 a D-97):

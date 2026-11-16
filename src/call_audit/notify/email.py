@@ -65,6 +65,7 @@ ROLE_LABEL = {
     "supervisor": "Supervisor",
     "qubico_admin": "Administrador Qubico",
     "qubico_viewer": "Lectura Qubico",
+    "qubico_verifier": "Verificador",
 }
 
 

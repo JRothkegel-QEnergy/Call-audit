@@ -1,5 +1,6 @@
 import { ApiError } from "./admin-types";
 import type { ApiClient } from "./client";
+import type { VerificationScope } from "./admin-types";
 import type { QueueFilters, User } from "./types";
 
 /**
@@ -55,6 +56,10 @@ function query(params: Record<string, string | undefined>): string {
   const entries = Object.entries(params).filter((e): e is [string, string] => Boolean(e[1]));
   return entries.length ? `?${new URLSearchParams(entries)}` : "";
 }
+
+/** Corrida completa y filtro «Asignadas a» (13-rol-verificador). La prueba no manda nada: es lo de siempre. */
+const scopeParams = (scope?: VerificationScope) =>
+  scope?.source === "full" ? { source: "full", assignee: scope.assignee ?? undefined } : {};
 
 const filterQuery = (f?: QueueFilters) =>
   query({ agentId: f?.agentId, engineVerdict: f?.engineVerdict, blockId: f?.blockId, callId: f?.callId });
@@ -176,8 +181,9 @@ export const httpApi: ApiClient = {
   startPromptTest: (version, model) =>
     post(`/api/admin/prompts/${encodeURIComponent(version)}/evaluation`, { model, confirm: true }),
   stopPromptTest: (version) => post(`/api/admin/prompts/${encodeURIComponent(version)}/evaluation/stop`),
-  estimateCauseAnalysis: (version) => get(`/api/admin/prompts/${encodeURIComponent(version)}/cause-analysis/estimate`),
-  startCauseAnalysis: (version) => post(`/api/admin/prompts/${encodeURIComponent(version)}/cause-analysis`),
+  estimateCauseAnalysis: (version, source) =>
+    get(`/api/admin/prompts/${encodeURIComponent(version)}/cause-analysis/estimate${query({ source })}`),
+  startCauseAnalysis: (version, source) => post(`/api/admin/prompts/${encodeURIComponent(version)}/cause-analysis${query({ source })}`),
   getSegmentCalls: (version, segment, criterion, opts) =>
     get(
       `/api/admin/prompts/${encodeURIComponent(version)}/agreement/calls${query({
@@ -185,16 +191,34 @@ export const httpApi: ApiClient = {
         criterion: criterion != null ? String(criterion) : undefined,
         vs: opts?.vs ?? undefined,
         sample: opts?.sample != null ? String(opts.sample) : undefined,
+        ...scopeParams(opts?.scope),
       })}`,
     ),
-  getCaseComparison: (version, caseId, segment, criterion) =>
+  getCaseComparison: (version, caseId, segment, criterion, scope) =>
     get(
-      `/api/admin/prompts/${encodeURIComponent(version)}/agreement/calls/${encodeURIComponent(caseId)}${query({ segment, criterion: criterion != null ? String(criterion) : undefined })}`,
+      `/api/admin/prompts/${encodeURIComponent(version)}/agreement/calls/${encodeURIComponent(caseId)}${query({
+        segment,
+        criterion: criterion != null ? String(criterion) : undefined,
+        ...scopeParams(scope),
+      })}`,
     ),
   saveVerification: (caseId, criterionId, input) =>
     request("PUT", `/api/admin/verifications/${encodeURIComponent(caseId)}/${criterionId}`, input),
   deleteVerification: (caseId, criterionId) =>
     request("DELETE", `/api/admin/verifications/${encodeURIComponent(caseId)}/${criterionId}`),
+  getVerificationHome: () => get("/api/verification"),
+  getVerificationOverview: (version, assignee) =>
+    get(`/api/admin/prompts/${encodeURIComponent(version)}/verification${query({ assignee: assignee ?? undefined })}`),
+  getVerificationProgress: (version) => get(`/api/admin/prompts/${encodeURIComponent(version)}/verification/progress`),
+  previewDistribution: (version, userIds) =>
+    post(`/api/admin/prompts/${encodeURIComponent(version)}/verification/distribute/preview`, { userIds }),
+  distribute: (version, userIds) => post(`/api/admin/prompts/${encodeURIComponent(version)}/verification/distribute`, { userIds }),
+  movePending: (version, fromUserId, toUserIds) =>
+    post(`/api/admin/prompts/${encodeURIComponent(version)}/verification/move`, { fromUserId, toUserIds }),
+  setAssignee: (caseId, userId) => request("PUT", `/api/admin/assignments/${encodeURIComponent(caseId)}`, { userId }),
+  setReviewed: (caseId, reviewed) => request("PUT", `/api/admin/assignments/${encodeURIComponent(caseId)}/reviewed`, { reviewed }),
+  getFullRun: (version) => get(`/api/admin/prompts/${encodeURIComponent(version)}/full-run`),
+  startFullRun: (version) => post(`/api/admin/prompts/${encodeURIComponent(version)}/full-run`),
   activatePromptVersion: (version, reason) => post(`/api/admin/prompts/${encodeURIComponent(version)}/activate`, { reason }),
   exportPromptVersion: async (version) => {
     const response = await fetch(`/api/admin/prompts/${encodeURIComponent(version)}/export`, { credentials: "same-origin" });

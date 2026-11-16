@@ -1,7 +1,8 @@
 "use client";
 
-import { AlertTriangle, PanelRight } from "lucide-react";
+import { AlertTriangle, Maximize2, PanelRight } from "lucide-react";
 import { useState } from "react";
+import { ProductSheetFullDialog } from "@/components/call/product-sheet-full";
 import { Button } from "@/components/ui/button";
 import type { Customer, ProductSheet as Sheet, ProductSheetSectionKey } from "@/lib/api/types";
 import type { ProductCategory } from "@/lib/api/catalog-types";
@@ -137,26 +138,46 @@ export function ProductSheetContent({
   customer,
   relevant,
   criterionId,
+  header,
 }: {
   sheets: Sheet[];
   customer?: Customer | null;
   relevant: ProductSheetSectionKey | undefined;
   criterionId: number | null;
+  /** Encabezado de la columna; recibe cómo abrir la ficha completa (null si el seguro no tiene ficha). */
+  header?: (openFull: (() => void) | null) => React.ReactNode;
 }) {
   const [tab, setTab] = useState(0);
+  const [fullOpen, setFullOpen] = useState(false);
+  const [opens, setOpens] = useState(0);
+  const [opener, setOpener] = useState<HTMLElement | null>(null);
   const hl = (k: ProductSheetSectionKey) => relevant === k;
   const customerBlock = <CustomerBlock customer={customer} highlighted={hl("customer")} criterionId={criterionId} />;
   if (!sheets.length)
     return (
       <>
+        {header?.(null)}
         {customerBlock}
         <p className="help border-t border-[var(--neutral-100)] p-3">Esta llamada no tiene un seguro identificado en el catálogo.</p>
       </>
     );
   const s = sheets[Math.min(tab, sheets.length - 1)];
   const categoryLabel = CATEGORY_LABEL[s.category as ProductCategory] ?? s.category;
+  const hasDetail = sheets.some((sh) => sh.detail?.length);
+  const openFull = () => {
+    setOpener(document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    setOpens((n) => n + 1);
+    setFullOpen(true);
+  };
+  // Al cerrar, el foco vuelve al botón que abrió la ficha completa (Esc o «Cerrar»).
+  const onFullOpenChange = (open: boolean) => {
+    setFullOpen(open);
+    if (!open) window.setTimeout(() => opener?.focus(), 0);
+  };
+  const assistances = s.detail?.find((x) => x.key === "assistances")?.tables?.[0];
   return (
     <>
+      {header?.(hasDetail ? openFull : null)}
       {customerBlock}
       <div className="tabs m-0 px-2" role="tablist">
         {sheets.map((sh, i) => (
@@ -210,14 +231,45 @@ export function ProductSheetContent({
           </dl>
         </details>
       </div>
-      <div className="border-t border-[var(--neutral-100)] px-3 py-2.5">
-        <details>
-          <summary className="cursor-pointer">
-            <b className="text-[13px]">Asistencias · Primas · Siniestros · Observaciones</b>
-          </summary>
-          <p className="help">Detalle del catálogo.</p>
-        </details>
-      </div>
+      {assistances && (
+        <div className={cn("border-t border-[var(--neutral-100)] px-3 py-2.5", hl("coverages") && "m-1.5 rounded-md border-2 border-primary bg-accent")}>
+          <details open={hl("coverages")} key={String(hl("coverages"))}>
+            <summary className="cursor-pointer">
+              <b className="text-[13px]">Asistencias</b>
+              {hl("coverages") && <Badge criterionId={criterionId} />}
+            </summary>
+            <dl className="m-0 mt-1.5">
+              {assistances.rows.map((a, i) => (
+                <div key={`${a.name}-${i}`}>
+                  <dt className="text-xs text-muted-foreground">{a.name}</dt>
+                  <dd className="m-0 font-medium">{a.detail || "—"}</dd>
+                  {(a.events || a.cap) && (
+                    <dd className="m-0 mb-1.5 text-xs text-muted-foreground">{[a.events, a.cap && `Tope ${a.cap}`].filter(Boolean).join(" · ")}</dd>
+                  )}
+                </div>
+              ))}
+            </dl>
+          </details>
+        </div>
+      )}
+      {hasDetail && (
+        <div className="border-t border-[var(--neutral-100)] px-3 py-2.5">
+          <Button className="w-full justify-center" onClick={openFull}>
+            <Maximize2 size={14} aria-hidden />
+            Ver ficha completa
+          </Button>
+        </div>
+      )}
+      {/* La key cambia en cada apertura: parte en la pestaña activa. Queda montado al cerrar para devolver el foco. */}
+      <ProductSheetFullDialog
+        key={opens}
+        open={fullOpen}
+        onOpenChange={onFullOpenChange}
+        sheets={sheets}
+        initialTab={Math.min(tab, sheets.length - 1)}
+        relevant={relevant}
+        criterionId={criterionId}
+      />
     </>
   );
 }
@@ -231,13 +283,27 @@ export function ProductSheetColumn(props: {
 }) {
   return (
     <section className="col" aria-label="Ficha del seguro">
-      <div className="col-h">
-        <b className="text-sm font-semibold">Ficha del seguro</b>
-        <Button variant="ghost" size="sm" className="ml-auto" onClick={props.onCollapse} aria-label="Plegar ficha">
-          <PanelRight size={14} aria-hidden />
-        </Button>
-      </div>
-      <ProductSheetContent sheets={props.sheets} customer={props.customer} relevant={props.relevant} criterionId={props.criterionId} />
+      <ProductSheetContent
+        sheets={props.sheets}
+        customer={props.customer}
+        relevant={props.relevant}
+        criterionId={props.criterionId}
+        header={(openFull) => (
+          <div className="col-h">
+            <b className="text-sm font-semibold">Ficha del seguro</b>
+            <span className="ml-auto flex">
+              {openFull && (
+                <Button variant="ghost" size="sm" onClick={openFull} aria-label="Ver ficha completa" title="Ver ficha completa">
+                  <Maximize2 size={14} aria-hidden />
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" onClick={props.onCollapse} aria-label="Plegar ficha">
+                <PanelRight size={14} aria-hidden />
+              </Button>
+            </span>
+          </div>
+        )}
+      />
     </section>
   );
 }

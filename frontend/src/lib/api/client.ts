@@ -47,6 +47,14 @@ import type {
   SegmentCalls,
   VerificationOutcome,
   VerificationRecord,
+  CaseAssignment,
+  DistributionPlan,
+  FullRun,
+  FullRunStatus,
+  VerificationOverview,
+  VerificationProgress,
+  VerificationScope,
+  VerificationSource,
   AdminStats,
   AdminStatsFilters,
   AiQuality,
@@ -209,22 +217,39 @@ export interface ApiClient {
   startPromptTest(version: string, model?: string): Promise<void>;
   stopPromptTest(version: string): Promise<void>;
   /** Mosaico (E1): costo estimado y lanzamiento del análisis de causa de la prueba de la versión. */
-  estimateCauseAnalysis(version: string): Promise<CauseEstimate>;
-  startCauseAnalysis(version: string): Promise<void>;
+  estimateCauseAnalysis(version: string, source?: VerificationSource): Promise<CauseEstimate>;
+  startCauseAnalysis(version: string, source?: VerificationSource): Promise<void>;
   /** Verificación caso a caso (04-verificacion-propuesta.md §9). */
   getSegmentCalls(
     version: string,
     segment: CallList,
     criterion?: number | null,
-    opts?: { vs?: string | null; sample?: number | null },
+    opts?: { vs?: string | null; sample?: number | null; scope?: VerificationScope },
   ): Promise<SegmentCalls>;
-  getCaseComparison(version: string, caseId: string, segment?: CallList, criterion?: number | null): Promise<CaseComparison>;
+  getCaseComparison(
+    version: string,
+    caseId: string,
+    segment?: CallList,
+    criterion?: number | null,
+    scope?: VerificationScope,
+  ): Promise<CaseComparison>;
   saveVerification(
     caseId: string,
     criterionId: number,
-    input: { outcome: VerificationOutcome; note?: string | null; version: string; seenFirst: boolean },
+    input: { outcome: VerificationOutcome; note?: string | null; version: string; seenFirst: boolean; source?: VerificationSource },
   ): Promise<VerificationRecord>;
   deleteVerification(caseId: string, criterionId: number): Promise<void>;
+  /** Verificación con verificadores (docs/ux/admin-prompt-metrics/13-rol-verificador-asignacion.md). */
+  getVerificationHome(): Promise<{ version: string | null }>;
+  getVerificationOverview(version: string, assignee?: string | null): Promise<VerificationOverview>;
+  getVerificationProgress(version: string): Promise<VerificationProgress>;
+  previewDistribution(version: string, userIds: string[]): Promise<DistributionPlan>;
+  distribute(version: string, userIds: string[]): Promise<DistributionPlan>;
+  movePending(version: string, fromUserId: string, toUserIds: string[]): Promise<{ moved: number }>;
+  setAssignee(caseId: string, userId: string | null): Promise<void>;
+  setReviewed(caseId: string, reviewed: boolean): Promise<CaseAssignment>;
+  getFullRun(version: string): Promise<FullRunStatus>;
+  startFullRun(version: string): Promise<FullRun>;
   activatePromptVersion(version: string, reason: string): Promise<void>;
   /** «Descargar para el repo»: el zip con prompt.yaml, system.txt, lock y la entrada del CHANGELOG. */
   exportPromptVersion(version: string): Promise<Blob>;

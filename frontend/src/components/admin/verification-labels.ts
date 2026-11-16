@@ -3,7 +3,7 @@
 import type { AgreementSegment, CallList, CallVerification, Verdict3, VerificationOutcome, VerificationSummary } from "@/lib/api/admin-types";
 
 export const SEGMENTS: AgreementSegment[] = ["promptFn", "promptFp", "reviewer", "undecided", "agree"];
-export const LISTS: CallList[] = [...SEGMENTS, "fp", "fn", "disagree", "changed"];
+export const LISTS: CallList[] = [...SEGMENTS, "fp", "fn", "disagree", "changed", "all"];
 
 /** Nombre de cada lista (05-numeros-propuesta.md §3): las partes del mosaico y los lados de las metas. */
 export const LIST_NAME: Record<CallList, string> = {
@@ -16,6 +16,7 @@ export const LIST_NAME: Record<CallList, string> = {
   fn: "Rechazos no detectados",
   disagree: "Desacuerdos por motivo",
   changed: "Llamadas que cambian",
+  all: "Todas las llamadas",
 };
 
 /** Color de la lista para su muestra; los lados usan el de la IA (rojo o amarillo). */
@@ -29,6 +30,7 @@ export const LIST_SWATCH: Record<CallList, AgreementSegment | null> = {
   fn: "promptFn",
   disagree: null,
   changed: null,
+  all: null,
 };
 
 /** Con un motivo, la lista es por motivo (05-numeros-propuesta.md §2): «Solo el revisor lo marca · motivo 18». */
@@ -56,6 +58,7 @@ export const SEGMENT_SUPPORT: Record<CallList, string> = {
   fn: "la IA aprueba y el revisor rechaza: a corregir o posible error del revisor",
   disagree: "llamadas con al menos un motivo en que la IA y el revisor no marcan lo mismo",
   changed: "pasan a coincidir o dejan de coincidir con el revisor frente a la versión anterior",
+  all: "todas las llamadas de la corrida, en el orden aleatorio fijo",
 };
 
 export const CALL_STATUS: Record<CallVerification, string> = {

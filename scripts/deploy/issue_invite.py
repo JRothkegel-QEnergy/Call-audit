@@ -17,7 +17,7 @@ from call_audit.config import get_settings
 from call_audit.persistence.db import get_sessionmaker
 from call_audit.persistence.models import User
 
-ROLES = ("auditor", "supervisor", "qubico_admin")
+ROLES = ("auditor", "supervisor", "qubico_admin", "qubico_viewer", "qubico_verifier")
 
 
 def main(email: str, name: str, role: str = "qubico_admin") -> None:

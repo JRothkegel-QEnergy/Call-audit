@@ -19,7 +19,12 @@ const ALLOWED: Record<Role, string[]> = {
   supervisor: ["/dashboard", "/alerts", "/reviews", "/agents", "/auditors", "/discrepancies", "/queue", "/catalog", ...COMMON],
   qubico_admin: ["/admin", "/discrepancies", "/catalog", ...COMMON],
   qubico_viewer: ["/admin", ...COMMON],
+  // Verificador (13-rol-verificador): solo la verificación; las rutas de la versión se filtran abajo.
+  qubico_verifier: ["/verification", "/settings"],
 };
+
+/** El verificador entra a la pestaña Verificación de una versión, a sus listas y a la revisión del caso, nada más. */
+const VERIFIER_PATH = /^\/admin\/prompts\/[^/]+\/(verification|calls)(\/|$)/;
 
 function matchesPrefix(pathname: string, prefix: string) {
   const base = prefix.replace(/\/$/, "");
@@ -28,6 +33,7 @@ function matchesPrefix(pathname: string, prefix: string) {
 
 export function homeFor(role: Role) {
   if (role === "qubico_admin" || role === "qubico_viewer") return "/admin/stats";
+  if (role === "qubico_verifier") return "/verification";
   return role === "supervisor" ? "/dashboard" : "/queue";
 }
 
@@ -36,6 +42,7 @@ export const ROLE_LABEL: Record<Role, string> = {
   supervisor: "Supervisor",
   qubico_admin: "Administrador Qubico",
   qubico_viewer: "Lectura Qubico",
+  qubico_verifier: "Verificador",
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -45,7 +52,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
-  const forbidden = !!user && !ALLOWED[user.role].some((p) => matchesPrefix(pathname, p));
+  const forbidden =
+    !!user &&
+    !ALLOWED[user.role].some((p) => matchesPrefix(pathname, p)) &&
+    !(user.role === "qubico_verifier" && VERIFIER_PATH.test(pathname));
 
   useEffect(() => {
     if (!ready) return;

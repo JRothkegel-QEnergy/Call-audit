@@ -86,6 +86,13 @@ def admin_reader(user: Annotated[User, Depends(current_user)]) -> User:
     return user
 
 
+def verification_reader(user: Annotated[User, Depends(current_user)]) -> User:
+    """Verificación caso a caso: el admin, la cuenta de lectura y el verificador (13-rol-verificador-asignacion.md)."""
+    if user.role not in ("qubico_admin", "qubico_viewer", "qubico_verifier"):
+        raise HTTPException(403, "Solo para la verificación")
+    return user
+
+
 def supervisor_or_admin(user: Annotated[User, Depends(current_user)]) -> User:
     """Discrepancias y catálogo: el admin los comparte con el supervisor (Cambio 12). No ve dashboards de ejecutivos."""
     if user.role not in ("supervisor", "qubico_admin"):
@@ -97,4 +104,5 @@ CurrentUser = Annotated[User, Depends(current_user)]
 Supervisor = Annotated[User, Depends(supervisor)]
 Admin = Annotated[User, Depends(qubico_admin)]
 AdminReader = Annotated[User, Depends(admin_reader)]
+VerificationReader = Annotated[User, Depends(verification_reader)]
 SupervisorOrAdmin = Annotated[User, Depends(supervisor_or_admin)]

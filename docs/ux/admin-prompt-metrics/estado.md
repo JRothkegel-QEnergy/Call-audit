@@ -1,7 +1,7 @@
 # Estado del proceso UX · Métricas de la prueba del prompt
 
 - **Estado:** aprobado e implementado el 2026-11-10 (falta desplegar a prod).
-- **Último pedido abierto (2026-11-13):** Resumen de Discrepancias con más información, `10-resumen-mas-informacion.md`, esperando R1-R5 (ver la sección al final).
+- **Último pedido abierto (2026-11-13):** Motivos de renuncia sugeridos en la revisión, `12-motivos-sugeridos-en-revision.md`, esperando S1-S4 (ver la sección al final).
 - **Tipo:** cambio menor sobre el diseño aprobado de call-audit (Cambios 12, 15 y 17). Revisión rápida, proceso comprimido a pedido de Johannes.
 - **Código afectado (después de aprobar):** `frontend/src/app/(app)/admin/prompts/[version]/prompt-version.tsx` (TestTab), nuevo `components/ui/metric-help.tsx`; según Q1, `components/admin/ai-quality.tsx` y `app/(app)/admin/prompts/page.tsx`; según Q2, `src/call_audit/golden_split.py` (`call_rates`).
 
@@ -125,3 +125,48 @@
 | 2026-11-13 | **T1-T4 y R1-R5 aprobadas** (Johannes: "Sí, todas (A)") | Johannes |
 | 2026-11-13 | Implementado T1-T4: `typification_out` (serializers) en el detalle de llamada, la lista por segmento y el análisis por caso; `TypificationLine` / `typificationLabel` (components/call/typification.tsx); encabezado de la revisión como el del auditor (fecha y hora, ejecutivo, seguros, duración, tipificación); `pipeline.complete_row` marca la tipificación asumida desde ahora (T4 A). | Coordinador |
 | 2026-11-13 | Implementado R1-R5: `call_audit/discrepancy_insights.py` (fuente única sobre las filas del mosaico: dos columnas, cobertura por patrón, techo, crónicos, evolución con McNemar, estabilidad del azul, muestra de 30) y prueba de cuadre; Patrones usa las mismas cifras cuando el análisis es de la misma prueba y avisa los del motivo 1 aparte; metas en dos lecturas en `QualityHeader`; franja de evolución, confianza del azul, columnas «Corregir en el prompt» / «Calibrar con el revisor» y selector en «¿En qué motivos?» con «Ya estaba»; listas `changed` (`?vs=`) y muestra (`?muestra=30`). Desvíos: la muestra de 30 son las primeras 30 del orden aleatorio fijo, sin estratificar por motivo; desde una lista «changed» o la muestra, la revisión navega por la parte completa. Revisado en el navegador con la copia local (una sola prueba: sin evolución ni crónicos) | Coordinador |
+
+---
+
+## Ficha completa del seguro (pedido 2026-11-13)
+
+- **Estado:** K1-K6 aprobadas (todas A) e implementadas.
+- **Origen:** Johannes, en un caso SONAP con motivo 6: no encuentra en la ficha el examen preventivo que cita la IA («sangre oculta en deposiciones»); pide un botón «ver más» con un modal con el detalle total.
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-13 | Se trata como cambio menor sobre la Ficha aprobada en `07-ficha-en-caso.md` (un gate); afecta también el detalle de llamada del auditor. Diagnóstico: el catálogo tiene el dato (asistencias, primas, siniestros, exclusiones, notas…), pero `product_sheet()` (`import_bench.py:155`) solo pasa nombre, categoría, prima, devolución, retracto y coberturas; la sección «Asistencias · Primas · Siniestros · Observaciones» del front es un placeholder | Diseñador (con diagnóstico del coordinador) |
+| 2026-11-13 | Propuesta: bloque `detail` genérico en `product_sheet()` rotulado con `LABELS`; «Asistencias» en la columna (resaltada con motivos 2, 4, 6) en lugar del placeholder; botón «Ver ficha completa» al final y en el encabezado de la columna; `Dialog` de 880 px con índice, 9 secciones desplegadas, tablas para asistencias, primas y siniestros, y apertura en la sección relevante para el motivo en foco; sin buscador propio (Ctrl+F). Supuestos H-K1 a H-K3. Esperando K1-K6 | Diseñador |
+| 2026-11-13 | Johannes aprueba K1-K6 (todas A) | Johannes |
+| 2026-11-13 | Implementado: `catalog/detail.py` (`sheet_detail`, secciones rotuladas; un campo nuevo cae en «Otros datos»); `product_sheets_out` arma `detail` desde la versión del catálogo registrada en la validación (si no hay versión, la vigente del producto; sin catálogo en la base, products.json); `ProductSheetFullDialog` (components/call/product-sheet-full.tsx); «Asistencias» en la columna y botón «Ver ficha completa» al final y en el encabezado. H-K1 confirmado: las asistencias van al prompt (`render.py`); exclusiones, tasas y edades por plazo no (`NOT_IN_PROMPT`), pero se muestran igual. Desvío: en la tabla de asistencias se omite la columna «Fono» cuando repite el fono de asistencias general. Revisado en el navegador (escritorio 1600 px y teléfono 375 px) con una copia de la base local | Coordinador |
+
+---
+
+## Motivos de renuncia sugeridos en la revisión caso a caso (pedido 2026-11-13)
+
+- **Estado:** S1-S4 aprobadas (todas A) e implementadas.
+- **Origen:** Johannes: "Tengo una duda, porque cuando se tipifica con motivo 18, ya no me da las opciones de motivo de renuncia q podrían ser?" y luego "Sí, agrégalas".
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-13 | Se trata como cambio menor sobre la revisión caso a caso (un gate), reutilizando el bloque aprobado del auditor (`rubric-checklist.tsx:270`). Diagnóstico: los hallazgos del motivo 18 traen `suggestedReasons` (v2.8+); `case_comparison` ya los envía en `ai.suggestedReasons` (árbol de trabajo), pero falta el tipo en el front y `CriterionCard` no los pinta | Diseñador (con diagnóstico del coordinador) |
+| 2026-11-13 | Propuesta: componente compartido `SuggestedReasons`; en la tarjeta, después de las citas y antes de «Comentario de la IA»; en «Por verificar» y «Coinciden con la planilla»; citas de sugerencias sin caja ámbar (gris cursiva) para no confundirlas con la evidencia; sin «Escuchar» (no hay timestamp); comillas «». Supuesto H-S1. Esperando S1-S4 | Diseñador |
+| 2026-11-13 | Johannes aprueba S1-S4 (todas A) | Johannes |
+| 2026-11-13 | Implementado: `case_comparison` (verification.py) envía `ai.suggestedReasons`; componente `SuggestedReasons` + `QuoteWarning` en `components/call/suggested-reasons.tsx`, usado en `rubric-checklist.tsx` (sin cambios visibles) y en `CriterionCard` de `case-review.tsx` con `plainQuotes`. Test en `test_verification.py`. Revisado en el navegador con una prueba sintética en una copia de la base local (llamada real con motivo 18 y 3 sugerencias). H-S1 queda por validar con Johannes en casos reales | Coordinador |
+
+---
+
+## Rol verificador y asignación de casos (pedido 2026-11-13)
+
+- **Estado:** propuesta en `13-rol-verificador-asignacion.md`, esperando V1-V9. Sin código de UI aún.
+- **Origen:** Johannes quiere 5 personas verificando en paralelo las ~1.100 llamadas de la corrida v2.15, cada una con su set asignado y con los filtros por segmento del admin.
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-13 | Ya decidido: rol `qubico_verifier` («Verificador») con la vista del admin sobre la versión, mosaico, listas y revisión del caso (planilla visible), registra solo en sus llamadas; asignación por llamada en tabla nueva, estratificada por segmento; el admin ve avance y asigna/reasigna. Se trata como cambio sobre `04`/`05` (un gate) | Johannes (vía coordinador) |
+| 2026-11-13 | Propuesta: repartir solo llamadas con motivos en desacuerdo sin registro, después de la corrida (V1); menú «Verificación» con filtro «Asignadas a: Mí · Todas» y tarjeta «Te quedan…» (V2-V3); no asignadas en solo lectura con aviso (V4); `Repartir llamadas` estratificado por segmento × split y `Pasar pendientes a…` (V5); tabla de avance por verificador (V6); 10 % doble, a ciegas, con lista «Desacuerdo entre verificadores» (V7, requiere un registro por verificador); split oculto al verificador (V8); cada uno corrige lo suyo (V9). Supuestos H-V1 a H-V3; riesgos R-V1 a R-V4. Esperando V1-V9 | Diseñador |
+| 2026-11-13 | **Aprobado:** V1 B (se reparten las ~1.100, incluidas las de acuerdo total); V2, V3, V4, V5, V6, V8, V9 A; V7 fuera de alcance («eso veámoslo después»): sin dobles, sin % doble en `Repartir llamadas`, sin «Acuerdo en dobles», modelo de registros sin cambios | Johannes |
+| 2026-11-13 | Ajuste por V1 B: llamada sin motivos en desacuerdo se cierra con `Sin observaciones` (un clic, deshacible), guardado en la tabla de asignación; «revisada» = todos los desacuerdos registrados o `Sin observaciones`. Abierto O-V1 (IA y planilla ambas equivocadas en un motivo coincidente: sin registro en esta entrega) y R-V5 | Diseñador |

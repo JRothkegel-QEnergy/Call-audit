@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session, object_session
 from call_audit import (
     accounts,
     agreement,
+    assignments,
     discrepancy_runs,
     golden_split,
     prompt_evaluation,
@@ -29,7 +30,7 @@ from call_audit import (
     verification,
 )
 from call_audit.api import serializers as out
-from call_audit.api.deps import Admin, AdminReader, CurrentUser, DbSession, set_session
+from call_audit.api.deps import Admin, AdminReader, CurrentUser, DbSession, VerificationReader, set_session
 from call_audit.config import Settings, get_settings
 from call_audit.persistence.models import (
     AccessLog,
@@ -49,12 +50,13 @@ from call_audit.rubric import load_rubric
 
 router = APIRouter(prefix="/api")
 SettingsDep = Annotated[Settings, Depends(get_settings)]
-Role = Literal["auditor", "supervisor", "qubico_admin", "qubico_viewer"]
+Role = Literal["auditor", "supervisor", "qubico_admin", "qubico_viewer", "qubico_verifier"]
 PERMISSIONS = {
     "auditor": {"view_model_io"},
     "supervisor": {"manage_catalog"},
     "qubico_admin": set(),
     "qubico_viewer": set(),
+    "qubico_verifier": set(),
 }
 OPEN_STATUSES = ("pending", "in_review", "reopened")
 
@@ -441,6 +443,7 @@ def prompt_detail(version: str, session: DbSession, _: AdminReader):
         "meta": prompt_out(row),
         "content": prompt_registry.content_of(row),
         "systemText": row.system_text,
+        "spec": prompt_registry.reader(row),
         "activeVersion": current.version,
         "diff": None if current.version == row.version else prompt_registry.diff(current, row),
         "evaluation": evaluation_out(evaluation),
@@ -460,27 +463,40 @@ def tested(session: Session, version: str) -> PromptEvaluation:
 
 
 @router.get("/admin/prompts/{version}/cause-analysis/estimate")
-def cause_analysis_estimate(version: str, session: DbSession, _: AdminReader):
-    """Costo estimado del análisis de causa de la prueba de la versión (mosaico, E1). No gasta."""
+def cause_analysis_estimate(version: str, session: DbSession, user: AdminReader, source: str = "test"):
+    """Costo estimado del análisis de causa de la prueba (mosaico, E1) o de la corrida completa. No gasta."""
     from call_audit.discrepancy_analysis import DEFAULT_MODEL
 
-    return agreement.cause_estimate(session, tested(session, version), DEFAULT_MODEL)
+    return agreement.cause_estimate(session, verification_target(session, version, source, user), DEFAULT_MODEL)
 
 
 @router.post("/admin/prompts/{version}/cause-analysis")
-def start_cause_analysis(version: str, session: DbSession, user: Admin):
+def start_cause_analysis(version: str, session: DbSession, user: Admin, source: str = "test"):
     """Lanza el análisis de causa (pagado). El worker lo corre; sus propuestas no van a la bandeja (R-11)."""
     from call_audit.discrepancy_analysis import DEFAULT_MODEL
 
     try:
-        run = agreement.start_cause(session, tested(session, version), user, DEFAULT_MODEL)
+        run = agreement.start_cause(session, verification_target(session, version, source, user), user, DEFAULT_MODEL)
     except ValueError as exc:
         raise HTTPException(409, str(exc)) from exc
     session.commit()
     return {"id": run.id, "status": run.status, "estimatedCostUsd": run.estimated_cost_usd}
 
 
-Segment = Literal["promptFn", "promptFp", "reviewer", "undecided", "agree", "fp", "fn", "disagree", "changed"]
+Segment = Literal["promptFn", "promptFp", "reviewer", "undecided", "agree", "fp", "fn", "disagree", "changed", "all"]
+Source = Literal["test", "full"]
+
+
+def verification_target(session: Session, version: str, source: str, user: User) -> PromptEvaluation:
+    """La prueba de la versión (pestaña Prueba) o su corrida completa (pestaña Verificación, 13-rol-verificador).
+    El verificador solo ve la corrida completa."""
+    if source == "full" or user.role == assignments.VERIFIER:
+        get_prompt(session, version)
+        evaluation = prompt_evaluation.latest_full(session, version)
+        if evaluation is None:
+            raise HTTPException(409, "no_full_run")
+        return evaluation
+    return tested(session, version)
 
 
 @router.get("/admin/prompts/{version}/agreement/calls")
@@ -488,28 +504,87 @@ def agreement_calls(
     version: str,
     segment: Segment,
     session: DbSession,
-    _: AdminReader,
+    user: VerificationReader,
     criterion: int | None = None,
     vs: str | None = None,
     sample: int | None = None,
+    source: Source = "test",
+    assignee: str | None = None,
 ):
     """Llamadas de una parte del mosaico (o de un lado, o de un motivo), en orden aleatorio fijo, con su verificación
-    (04-verificacion-propuesta.md §9.1, 05-numeros-propuesta.md §7)."""
+    (04-verificacion-propuesta.md §9.1, 05-numeros-propuesta.md §7). Con `assignee`, solo las asignadas (13, V3)."""
+    evaluation = verification_target(session, version, source, user)
+    ids = (
+        assignments.scope_ids(session, evaluation, user, assignee)
+        if source == "full" or user.role == assignments.VERIFIER
+        else None
+    )
     try:
-        return verification.segment_calls(session, tested(session, version), segment, criterion, vs, sample)
+        data = verification.segment_calls(session, assignments.scoped(evaluation, ids), segment, criterion, vs, sample)
     except LookupError as exc:
         raise HTTPException(404, str(exc)) from exc
+    found = assignments.assignment_map(session, [i["caseId"] for i in data["items"]])
+    for it in data["items"]:
+        a = found.get(it["caseId"])
+        it["assigneeName"] = a.user.name if a and a.user else None
+        it["reviewedAt"] = a.reviewed_at.isoformat() if a and a.reviewed_at else None
+    return data
 
 
 @router.get("/admin/prompts/{version}/agreement/calls/{case_id}")
 def agreement_case(
-    version: str, case_id: str, session: DbSession, _: AdminReader, segment: str = "", criterion: int | None = None
+    version: str,
+    case_id: str,
+    session: DbSession,
+    user: VerificationReader,
+    segment: str = "",
+    criterion: int | None = None,
+    source: Source = "test",
+    assignee: str | None = None,
 ):
-    """Una llamada con lo que dijo la IA de esa versión frente a la planilla, motivo por motivo (§9.2)."""
+    """Una llamada con lo que dijo la IA de esa versión frente a la planilla, motivo por motivo (§9.2), con a quién
+    está asignada y si quien la mira puede registrar (13, V4)."""
+    evaluation = verification_target(session, version, source, user)
+    full = source == "full" or user.role == assignments.VERIFIER
+    ids = assignments.scope_ids(session, evaluation, user, assignee) if full else None
+    scoped = assignments.scoped(evaluation, ids)
     try:
-        return verification.case_comparison(session, tested(session, version), segment, case_id, criterion)
-    except LookupError as exc:
-        raise HTTPException(404, str(exc)) from exc
+        data = verification.case_comparison(session, scoped, segment, case_id, criterion)
+    except LookupError:
+        try:  # La llamada no está en el filtro (p. ej. es de otra persona): se ve igual, sin lista alrededor.
+            data = verification.case_comparison(session, evaluation, "", case_id, None)
+        except LookupError as exc:
+            raise HTTPException(404, str(exc)) from exc
+    row = assignments.assignment_map(session, [case_id]).get(case_id)
+    data["assignment"] = assignments.assignment_out(row, user)
+    data["canRecord"] = assignments.can_record(session, user, case_id) if full else user.role == "qubico_admin"
+    data["source"] = "full" if full else "test"
+    data["verifiers"] = (
+        [{"id": u.id, "name": u.name} for u in assignments.verifiers(session)]
+        if full and user.role == "qubico_admin"
+        else []
+    )
+    if full:
+        # En la corrida completa, pendiente incluye las llamadas sin desacuerdos aún sin «Sin observaciones» (V1 B).
+        listed = verification.segment_calls(
+            session, scoped, segment if segment in verification.LISTS else "all", criterion
+        )
+        found = assignments.assignment_map(session, [i["caseId"] for i in listed["items"]])
+        data["position"]["pending"] = sum(
+            1 for i in listed["items"] if not assignments.is_reviewed(i, found.get(i["caseId"]))
+        )
+        if user.role == assignments.VERIFIER:
+            data["position"]["nextPendingCaseId"] = assignments.next_pending(
+                session, evaluation, user, [i["caseId"] for i in listed["items"]], case_id
+            )
+    for c in data["criteria"]:
+        v = c.get("verification")
+        if v is not None:
+            rec = verification.records_for(session, [case_id]).get((case_id, c["criterionId"]))
+            v["canChange"] = data["canRecord"] and assignments.can_change_record(
+                user, rec.decided_by_id if rec else None
+            )
+    return data
 
 
 class VerificationIn(BaseModel):
@@ -517,14 +592,37 @@ class VerificationIn(BaseModel):
     note: str | None = None
     version: str
     seenFirst: bool = False  # noqa: N815
+    source: Source = "test"
+
+
+def check_can_record(session: Session, user: User, case_id: str, criterion_id: int, full: bool) -> None:
+    if user.role == "qubico_admin":
+        return
+    if not full or not assignments.can_record(session, user, case_id):
+        raise HTTPException(403, "not_assigned")
+    rec = verification.records_for(session, [case_id]).get((case_id, criterion_id))
+    if rec is not None and not assignments.can_change_record(user, rec.decided_by_id):
+        raise HTTPException(403, "not_owner")
 
 
 @router.put("/admin/verifications/{case_id}/{criterion_id}")
-def put_verification(case_id: str, criterion_id: int, body: VerificationIn, session: DbSession, user: Admin):
-    """Registra quién tenía razón en un desacuerdo (§9.3). Solo el admin; la cuenta de lectura recibe 403."""
+def put_verification(
+    case_id: str, criterion_id: int, body: VerificationIn, session: DbSession, user: VerificationReader
+):
+    """Registra quién tenía razón en un desacuerdo (§9.3). El admin en cualquier llamada; el verificador solo en las
+    suyas y sin pisar registros de otros (13, V4 y V9). La cuenta de lectura recibe 403."""
+    full = body.source == "full" or user.role == assignments.VERIFIER
+    check_can_record(session, user, case_id, criterion_id, full)
     try:
         row = verification.record(
-            session, tested(session, body.version), user, case_id, criterion_id, body.outcome, body.note, body.seenFirst
+            session,
+            verification_target(session, body.version, body.source, user),
+            user,
+            case_id,
+            criterion_id,
+            body.outcome,
+            body.note,
+            body.seenFirst,
         )
     except LookupError as exc:
         raise HTTPException(404, str(exc)) from exc
@@ -533,7 +631,8 @@ def put_verification(case_id: str, criterion_id: int, body: VerificationIn, sess
 
 
 @router.delete("/admin/verifications/{case_id}/{criterion_id}", status_code=204)
-def delete_verification(case_id: str, criterion_id: int, session: DbSession, user: Admin) -> None:
+def delete_verification(case_id: str, criterion_id: int, session: DbSession, user: VerificationReader) -> None:
+    check_can_record(session, user, case_id, criterion_id, True)
     verification.remove(session, user, case_id, criterion_id)
     session.commit()
 

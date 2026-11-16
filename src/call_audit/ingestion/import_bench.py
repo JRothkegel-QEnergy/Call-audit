@@ -35,6 +35,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from call_audit.catalog.detail import sheet_detail
 from call_audit.config import ROOT, get_settings
 from call_audit.ingestion import customer
 from call_audit.persistence.db import get_sessionmaker
@@ -184,6 +185,8 @@ def product_sheet(product: dict | None, policy: dict) -> dict:
             {"name": c.get("name", ""), "detail": " · ".join(x for x in (c.get("amount"), c.get("detail")) if x)}
             for c in product.get("coverages") or []
         ],
+        # Ficha completa (11-ficha-completa.md). La API la rearma desde la versión del catálogo cuando la hay.
+        "detail": sheet_detail(product),
     }
 
 

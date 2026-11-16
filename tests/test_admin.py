@@ -188,6 +188,26 @@ def test_prompt_version_flow_with_evaluation_and_rollback(
     assert {"prompt_published", "prompt_tested", "prompt_activated", "prompt_rolled_back"} <= set(actions)
 
 
+def test_prompt_detail_includes_spec_for_reading(client: TestClient, admin: User) -> None:
+    login(client, admin)
+    active = next(v for v in client.get("/api/admin/prompts").json() if v["status"] == "active")
+    spec = client.get(f"/api/admin/prompts/{active['version']}").json()["spec"]
+    assert spec["version"] == active["version"]
+    intro = spec["sections"][0]
+    assert intro["heading"] is None and intro["items"][0]["text"]
+    sections = {s["id"]: s for s in spec["sections"]}
+    assert sections["rules"]["heading"] == "Reglas de evaluación" and sections["rules"]["level"] == 2
+    assert sections["rubric_a"]["level"] == 3
+    m31 = next(i for i in sections["rubric_a"]["items"] if i["id"] == "m31")
+    assert m31["number"] == 31 and m31["official"] and m31["criterion"]
+    assert m31["history"][0]["origin"] == "Texto oficial"
+
+    major, minor = active["version"].split(".")
+    new = f"{major}.{int(minor) + 1}"
+    text_draft(client, new)
+    assert client.get(f"/api/admin/prompts/{new}").json()["spec"] is None
+
+
 def test_evaluation_can_be_stopped(client: TestClient, admin: User, imported: sessionmaker[Session]) -> None:
     login(client, admin)
     active = next(v for v in client.get("/api/admin/prompts").json() if v["status"] == "active")

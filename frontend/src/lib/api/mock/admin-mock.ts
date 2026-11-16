@@ -49,6 +49,16 @@ type AdminApi = Pick<
   | "getCaseComparison"
   | "saveVerification"
   | "deleteVerification"
+  | "getVerificationHome"
+  | "getVerificationOverview"
+  | "getVerificationProgress"
+  | "previewDistribution"
+  | "distribute"
+  | "movePending"
+  | "setAssignee"
+  | "setReviewed"
+  | "getFullRun"
+  | "startFullRun"
   | "activatePromptVersion"
   | "exportPromptVersion"
   | "getActivePrompt"
@@ -431,6 +441,7 @@ export const adminMock: AdminApi = {
         meta: p.meta,
         content: p.content,
         systemText: p.content,
+        spec: null,
         activeVersion: cur.meta.version,
         diff: cur === p ? null : { kind: "text", base: cur.content, next: p.content },
         evaluation: evaluationOf(p),
@@ -516,6 +527,17 @@ export const adminMock: AdminApi = {
   getCaseComparison: () => Promise.reject(new ApiError("not_available")),
   saveVerification: () => Promise.reject(new ApiError("not_available")),
   deleteVerification: () => Promise.reject(new ApiError("not_available")),
+  // Verificadores (13-rol-verificador): igual que la verificación, solo con datos reales.
+  getVerificationHome: () => wait(() => ({ version: null })),
+  getVerificationOverview: () => Promise.reject(new ApiError("not_available")),
+  getVerificationProgress: () => Promise.reject(new ApiError("not_available")),
+  previewDistribution: () => Promise.reject(new ApiError("not_available")),
+  distribute: () => Promise.reject(new ApiError("not_available")),
+  movePending: () => Promise.reject(new ApiError("not_available")),
+  setAssignee: () => Promise.reject(new ApiError("not_available")),
+  setReviewed: () => Promise.reject(new ApiError("not_available")),
+  getFullRun: () => Promise.reject(new ApiError("not_available")),
+  startFullRun: () => Promise.reject(new ApiError("not_available")),
   stopPromptTest: (version) =>
     wait(() => {
       const p = find(version);

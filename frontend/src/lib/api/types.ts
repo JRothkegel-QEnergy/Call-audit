@@ -11,7 +11,7 @@
  * `qubico_admin`: Administrador Qubico (Cambio 12). `qubico_viewer`: lectura Qubico, ve lo del admin pero no cambia
  * nada (G13 de docs/ux/admin-prompt-metrics/03-orden-y-detalle-brief.md).
  */
-export type Role = "auditor" | "supervisor" | "qubico_admin" | "qubico_viewer";
+export type Role = "auditor" | "supervisor" | "qubico_admin" | "qubico_viewer" | "qubico_verifier";
 
 /** Roles que entran a las pantallas del admin (el de lectura solo mira). */
 export const isAdminRole = (role: Role | undefined): boolean => role === "qubico_admin" || role === "qubico_viewer";
@@ -229,6 +229,22 @@ export interface ProductSheet {
   catalogId?: string | null;
   version?: number | null;
   latestVersion?: number | null;
+  /** Ficha completa del catálogo (11-ficha-completa.md): secciones ya rotuladas por el backend. */
+  detail?: SheetDetailSection[];
+}
+
+export interface SheetDetailTable {
+  title: string;
+  columns: { key: string; label: string }[];
+  rows: Record<string, string>[];
+}
+
+export interface SheetDetailSection {
+  key: string;
+  title: string;
+  rows?: { label: string; value: string }[];
+  tables?: SheetDetailTable[];
+  texts?: { title: string; text: string }[];
 }
 
 export interface CaseSummary {
