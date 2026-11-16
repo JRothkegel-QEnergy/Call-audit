@@ -8,7 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { MetricHelp } from "@/components/ui/metric-help";
 import { api } from "@/lib/api";
-import type { Agreement, AgreementBreakdown, CauseAnalysis, CauseEstimate, PromptLoopChain, VerificationScope, VerificationSource } from "@/lib/api/admin-types";
+import type {
+  AgreeList,
+  Agreement,
+  AgreementBreakdown,
+  CauseAnalysis,
+  CauseEstimate,
+  PromptLoopChain,
+  ReasonMatch,
+  VerificationScope,
+  VerificationSource,
+} from "@/lib/api/admin-types";
 import { ApiError } from "@/lib/api/admin-types";
 import { cn } from "@/lib/cn";
 import { shortDateTime } from "@/lib/format";
@@ -82,9 +92,31 @@ export function fmtPct(v: number): string {
 const int = (n: number) => n.toLocaleString("es-CL");
 const usd = (n: number | null | undefined) => (n == null ? "—" : `US$ ${n.toFixed(2).replace(".", ",")}`);
 
-export function Swatch({ part }: { part: Part }) {
-  return <span aria-hidden className="inline-block h-3 w-3 flex-none rounded-sm" style={PARTS[part].style} />;
+export function Swatch({ part }: { part: Part | ReasonMatch }) {
+  const style = part in PARTS ? PARTS[part as Part].style : REASON_PARTS[part as ReasonMatch].style;
+  return <span aria-hidden className="inline-block h-3 w-3 flex-none rounded-sm" style={style} />;
 }
+
+/** Tramos de «¿Coinciden también en los motivos?» (15-acuerdo-en-motivos-brief.md §9-§10): zoom del verde, sin rayado. */
+export const REASON_PARTS: Record<ReasonMatch, { name: string; list: AgreeList; style: React.CSSProperties; ink: string }> = {
+  bothPass: {
+    name: "Ambos aprueban",
+    list: "agreePass",
+    style: { background: "var(--reason-pass-bg)", boxShadow: "inset 0 0 0 1px var(--reason-pass-border)" },
+    ink: "var(--ink-900)",
+  },
+  same: { name: "Mismos motivos", list: "agreeSame", style: { background: "var(--reason-same-bg)" }, ink: "#fff" },
+  partial: {
+    name: "Desacuerdo parcial",
+    list: "agreePartial",
+    style: { background: "var(--reason-partial-bg)", boxShadow: "inset 0 0 0 1px var(--reason-partial-border)" },
+    ink: "var(--ink-900)",
+  },
+  none: { name: "Desacuerdo total", list: "agreeNone", style: { background: "var(--reason-none-bg)" }, ink: "#fff" },
+};
+const REASON_ORDER: ReasonMatch[] = ["bothPass", "same", "partial", "none"];
+const reasonHref = (version: string, part: ReasonMatch, scope?: VerificationScope | null) =>
+  `/admin/prompts/${encodeURIComponent(version)}/calls?segment=${REASON_PARTS[part].list}${scopeQuery(scope)}`;
 
 /** Leyenda compartida de A y B: color + nombre + "x % · a de n". */
 export function AgreementLegend({
@@ -313,6 +345,167 @@ export function AgreementMosaic({
           Causa analizada{a.causeAnalysis.finishedAt ? ` el ${shortDateTime(a.causeAnalysis.finishedAt)}` : ""} · {usd(a.causeAnalysis.costUsd)}
         </p>
       )}
+    </section>
+  );
+}
+
+/** Zoom del verde (15-acuerdo-en-motivos-brief.md): las llamadas que coinciden con el revisor, según sus motivos. */
+export function ReasonMatchBar({
+  version,
+  a,
+  linked = false,
+  scope,
+}: {
+  version: string;
+  a: Agreement;
+  linked?: boolean;
+  scope?: VerificationScope | null;
+}) {
+  const [table, setTable] = useState(false);
+  const r = a.reasonMatch;
+  if (!r) return null;
+  const total = a.byCall.n;
+  const n = r.n;
+  const rejected = r.same + r.partial + r.none;
+  const full = r.bothPass + r.same;
+  const split = r.partial + r.none;
+  const parts = REASON_ORDER.filter((p) => r[p] > 0);
+  const title = (
+    <h3 id="reason-match" className="m-0 text-sm font-semibold">
+      ¿Coinciden también en los motivos?
+      <MetricHelp title="¿Coinciden también en los motivos?">
+        Una llamada coincide con el revisor si ambos dan el mismo veredicto, aunque rechacen por motivos distintos. Este gráfico
+        separa esas llamadas según sus motivos de rechazo. Un motivo que la IA dejó dudoso no cuenta como rechazo de la IA.
+      </MetricHelp>
+    </h3>
+  );
+  if (n === 0)
+    return (
+      <section className="card grid gap-3" aria-labelledby="reason-match">
+        {title}
+        <p className="help m-0">Ninguna llamada coincide con el revisor en esta prueba.</p>
+      </section>
+    );
+  return (
+    <section className="card grid gap-3" aria-labelledby="reason-match">
+      <div>
+        {title}
+        <p className="help m-0">
+          Dentro de «Coincide con el revisor» · <b>{int(n)} llamadas, vistas al 100 %</b>
+          {linked ? " · Clic en un tramo para ver sus llamadas" : ""}
+        </p>
+      </div>
+      <div
+        role="img"
+        aria-label={`De ${int(n)} llamadas que coinciden con el revisor: ${int(r.bothPass)} ambos aprueban, ${int(r.same)} con los mismos motivos, ${int(r.partial)} con desacuerdo parcial y ${int(r.none)} con desacuerdo total en los motivos de rechazo.`}
+        className="flex h-8 w-full gap-[2px]"
+        style={{
+          // Zigzag a la derecha, como «Detalle por motivo»: es un zoom, no la escala del total.
+          clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 25%, calc(100% - 6px) 50%, 100% 75%, calc(100% - 6px) 100%, 0 100%)",
+        }}
+      >
+        {parts.map((p) => {
+          const className = "flex min-w-[4px] items-center justify-center overflow-hidden text-[13px] font-semibold";
+          const style = { ...REASON_PARTS[p].style, color: REASON_PARTS[p].ink, flexGrow: r[p], flexBasis: 0 };
+          // En pantallas chicas las cifras quedan en la leyenda, como en el mosaico.
+          const label = share(r[p], n) >= 12 && <span className="hidden whitespace-nowrap px-1 sm:block">{fmtPct(share(r[p], n))}</span>;
+          return linked ? (
+            <Link
+              key={p}
+              href={reasonHref(version, p, scope)}
+              className={cn(className, "no-underline outline-offset-2 hover:brightness-110 focus-visible:outline focus-visible:outline-2")}
+              style={style}
+              aria-label={`Ver las ${int(r[p])} llamadas: ${REASON_PARTS[p].name}`}
+            >
+              {label}
+            </Link>
+          ) : (
+            <div key={p} className={className} style={style}>
+              {label}
+            </div>
+          );
+        })}
+      </div>
+      <p className="m-0 flex flex-wrap gap-x-4 gap-y-1 text-[13px]">
+        <span>
+          <b>Coinciden en todo</b> · <span className="tabular">{fmtPct(share(full, n))} ({int(full)})</span>
+        </span>
+        <span>
+          <b>Desacuerdo en motivo de rechazo</b> · <span className="tabular">{fmtPct(share(split, n))} ({int(split)})</span>
+        </span>
+      </p>
+      <p className="m-0 text-[13px]">
+        {rejected > 0 ? (
+          <>
+            De los <b>{int(rejected)}</b> rechazos en que coinciden,{" "}
+            <b>
+              {int(r.same)} ({fmtPct(share(r.same, rejected))})
+            </b>{" "}
+            marcan los mismos motivos.
+          </>
+        ) : (
+          "No hay rechazos en común con el revisor."
+        )}
+      </p>
+      <ul className="m-0 grid list-none gap-1.5 p-0 text-[13px] sm:grid-cols-2">
+        {REASON_ORDER.map((p) => (
+          <li key={p} className="flex items-start gap-2">
+            <span className="mt-1">
+              <Swatch part={p} />
+            </span>
+            <span>
+              <b>{REASON_PARTS[p].name}</b>
+              <span className="tabular">
+                {" "}
+                · {fmtPct(share(r[p], n))} · {int(r[p])} de {int(n)} · {fmtPct(share(r[p], total))} del total
+              </span>
+              {linked && r[p] > 0 && (
+                <>
+                  {" · "}
+                  <Link href={reasonHref(version, p, scope)} aria-label={`Ver las ${int(r[p])} llamadas: ${REASON_PARTS[p].name}`}>
+                    Ver llamadas ›
+                  </Link>
+                </>
+              )}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <div>
+        <Button size="sm" variant="ghost" aria-expanded={table} onClick={() => setTable((t) => !t)}>
+          {table ? "Ocultar tabla" : "Ver como tabla"}
+        </Button>
+        {table && (
+          <table className="tbl mt-2">
+            <thead>
+              <tr>
+                <th scope="col">Tramo</th>
+                <th scope="col" className="num">
+                  Llamadas
+                </th>
+                <th scope="col" className="num">
+                  % de las que coinciden
+                </th>
+                <th scope="col" className="num">
+                  % del total
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {REASON_ORDER.map((p) => (
+                <tr key={p}>
+                  <th scope="row" className="font-normal">
+                    {REASON_PARTS[p].name}
+                  </th>
+                  <td className="num">{int(r[p])}</td>
+                  <td className="num">{fmtPct(share(r[p], n))}</td>
+                  <td className="num">{fmtPct(share(r[p], total))}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </section>
   );
 }

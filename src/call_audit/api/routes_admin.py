@@ -483,7 +483,22 @@ def start_cause_analysis(version: str, session: DbSession, user: Admin, source: 
     return {"id": run.id, "status": run.status, "estimatedCostUsd": run.estimated_cost_usd}
 
 
-Segment = Literal["promptFn", "promptFp", "reviewer", "undecided", "agree", "fp", "fn", "disagree", "changed", "all"]
+Segment = Literal[
+    "promptFn",
+    "promptFp",
+    "reviewer",
+    "undecided",
+    "agree",
+    "agreePass",
+    "agreeSame",
+    "agreePartial",
+    "agreeNone",
+    "fp",
+    "fn",
+    "disagree",
+    "changed",
+    "all",
+]
 Source = Literal["test", "full"]
 
 

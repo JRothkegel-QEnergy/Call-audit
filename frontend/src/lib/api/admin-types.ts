@@ -98,7 +98,12 @@ export interface Agreement {
   scope?: { total: number; measured: number; errors: number; noReference: number };
   /** Reglas incluidas en esta versión que salen de un análisis de causa: de estas mismas llamadas (aviso N8 A). */
   sameCallRules?: number;
+  /** Dentro de "agree": si también coinciden los motivos de rechazo (15-acuerdo-en-motivos-brief.md §8). n = byCall.agree. */
+  reasonMatch?: { n: number } & Record<ReasonMatch, number>;
 }
+
+/** Tramos de las llamadas que coinciden con el revisor según sus motivos de rechazo. */
+export type ReasonMatch = "bothPass" | "same" | "partial" | "none";
 
 /** Análisis por caso de una versión (06-ajustes-feedback.md §2): solo los motivos que no coinciden. */
 export interface QualityGrid {
@@ -116,7 +121,10 @@ export interface QualityGrid {
 }
 
 /** Lista de llamadas: una parte del mosaico, un lado (falsas alarmas / rechazos no detectados) o todo desacuerdo. */
-export type CallList = AgreementSegment | "fp" | "fn" | "disagree" | "changed" | "all";
+export type CallList = AgreementSegment | AgreeList | "fp" | "fn" | "disagree" | "changed" | "all";
+
+/** Listas de cada tramo de «¿Coinciden también en los motivos?». */
+export type AgreeList = "agreePass" | "agreeSame" | "agreePartial" | "agreeNone";
 
 /** Cifras del Resumen de Discrepancias (10-resumen-mas-informacion.md), de la misma fuente que el mosaico. */
 export interface Concentration {
@@ -539,6 +547,8 @@ export interface QualitySeries {
   listVersion: string | null;
   /** Medida sobre las llamadas de validación, con las mismas cifras del mosaico (05-numeros-propuesta.md §5). */
   agreement: Agreement;
+  /** Solo en la corrida completa en curso: llamadas de validación con resultado (`done`) de las que trae (`total`). */
+  progress: { done: number; total: number } | null;
 }
 
 export interface AiQuality {
@@ -546,6 +556,8 @@ export interface AiQuality {
   criteria: { id: number; name: string; minor: boolean }[];
   goals: { falsePositivePct: number; falseNegativePct: number };
   promptTestRunning: { version: string; done: number; total: number } | null;
+  /** Corrida completa en curso (14-corrida-en-curso.md): avance total y en validación; `seriesId` si ya tiene cifras. */
+  fullRunRunning: { version: string; seriesId: string | null; done: number; total: number; validation: { done: number; total: number } } | null;
 }
 
 export interface ActivityLogEntry {

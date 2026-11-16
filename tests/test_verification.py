@@ -249,3 +249,40 @@ def test_list_sides_and_criterion() -> None:
     assert [r for r in rows if matches(r, "disagree", 14)] == [fn_blue, agree_item]
     assert [r for r in rows if matches(r, "fp", 14)] == [agree_item]
     assert not any(matches(r, "disagree", 5) for r in rows)
+
+
+def test_reason_match_splits_agree_and_its_lists() -> None:
+    """Acuerdo en motivos (15-acuerdo-en-motivos-brief.md §8): solo dentro de "agree"; un motivo dudoso de la IA no
+    cuenta como rechazo suyo (H-M1); los cuatro tramos suman byCall.agree."""
+    from call_audit import agreement
+    from call_audit.verification import matches
+
+    fail, ok = "non_compliant", "compliant"
+    results = [
+        {"caseId": "p", "verdict": ok, "external": ok, "externalFails": []},
+        {"caseId": "s", "verdict": fail, "external": fail, "externalFails": [18], "failCriteria": [18]},
+        {"caseId": "q", "verdict": fail, "external": fail, "externalFails": [18, 6], "failCriteria": [18, 3]},
+        {"caseId": "z", "verdict": fail, "external": fail, "externalFails": [6], "failCriteria": [18]},
+        # H-M1: el 6 la IA lo dejó dudoso, así que no cuenta como "same" aunque el revisor también lo marque.
+        {
+            "caseId": "u",
+            "verdict": fail,
+            "external": fail,
+            "externalFails": [18, 6],
+            "failCriteria": [18, 6],
+            "uncertainCriteria": [6],
+        },
+        {"caseId": "x", "verdict": fail, "external": ok, "externalFails": [], "failCriteria": [18]},
+    ]
+    criteria = [3, 6, 18]
+    rows = agreement.call_rows(results, {}, set(), criteria)
+    by_case = {r["caseId"]: r["reasonMatch"] for r in rows}
+    assert by_case == {"p": "bothPass", "s": "same", "q": "partial", "z": "none", "u": "partial", "x": None}
+    out = agreement.compute_rows(rows, len(criteria))
+    reasons = out["reasonMatch"]
+    assert reasons == {"n": 5, "bothPass": 1, "same": 1, "partial": 2, "none": 1}
+    assert reasons["n"] == out["byCall"]["agree"]
+    assert [r["caseId"] for r in rows if matches(r, "agreePartial")] == ["q", "u"]
+    assert [r["caseId"] for r in rows if matches(r, "agreeNone")] == ["z"]
+    assert [r["caseId"] for r in rows if matches(r, "agreeNone", 6)] == ["z"]
+    assert not any(matches(r, "agreeSame", 6) for r in rows)

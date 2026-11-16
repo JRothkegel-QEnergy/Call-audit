@@ -27,6 +27,19 @@ PASS = "compliant"
 UNSURE = "uncertain"
 
 
+# Dentro de "agree" (mismo veredicto), si también coinciden los motivos de rechazo (15-acuerdo-en-motivos-brief.md §8).
+REASON_MATCH = ("bothPass", "same", "partial", "none")
+
+
+def reason_match(ai: set[int], ref: set[int]) -> str:
+    """ai: motivos que la IA rechaza (sin los dudosos); ref: los que rechaza el revisor."""
+    if not ai and not ref:
+        return "bothPass"
+    if ai == ref:
+        return "same"
+    return "partial" if ai & ref else "none"
+
+
 def empty() -> dict[str, int]:
     return dict.fromkeys(("n", "agree", "undecided", "promptFn", "promptFp", "reviewer", "reviewerFn", "reviewerFp"), 0)
 
@@ -87,7 +100,21 @@ def call_rows(
                 segment = "reviewer"
             else:
                 segment = "promptFn" if r["external"] == FAIL else "promptFp"
-        rows.append({"caseId": r["caseId"], "callId": call, "segment": segment, "items": items, "result": r})
+        reason = (
+            reason_match((ai_fails - ai_unsure) & set(criteria), ref_fails & set(criteria))
+            if segment == "agree"
+            else None
+        )
+        rows.append(
+            {
+                "caseId": r["caseId"],
+                "callId": call,
+                "segment": segment,
+                "reasonMatch": reason,
+                "items": items,
+                "result": r,
+            }
+        )
     return rows
 
 
@@ -102,7 +129,11 @@ def compute_rows(rows: list[dict[str, Any]], criteria_count: int) -> dict[str, A
     by_call["approved"] = by_call["rejected"] = 0
     bridge = {"calls": 0, **dict.fromkeys(SEGMENT_KIND | {"reviewer": ""}, 0)}
     per_crit: dict[int, dict[str, int]] = {}
+    reasons = {"n": 0, **dict.fromkeys(REASON_MATCH, 0)}
     for row in rows:
+        if row.get("reasonMatch"):
+            reasons["n"] += 1
+            reasons[row["reasonMatch"]] += 1
         wrong = False
         for item in row["items"]:
             add(by_item, item["kind"], item["blue"])
@@ -135,6 +166,7 @@ def compute_rows(rows: list[dict[str, Any]], criteria_count: int) -> dict[str, A
         "criteria": criteria_count,
         "bridge": bridge,
         "byCriterion": by_criterion,
+        "reasonMatch": reasons,
     }
 
 

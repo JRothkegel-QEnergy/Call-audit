@@ -32,13 +32,18 @@ TO_VERIFY = ("fn", "fp", "undecided")
 # Listas que no son una parte del mosaico (05-numeros-propuesta.md §3, §7): el lado de la falsa alarma o del rechazo no
 # detectado (amarillo o rojo + el azul de ese lado), o todos los desacuerdos de un motivo.
 SIDES = ("fp", "fn")
+# Partes de "agree" según si también coinciden los motivos de rechazo (15-acuerdo-en-motivos-brief.md §8).
+AGREE_PARTS = {"agreePass": "bothPass", "agreeSame": "same", "agreePartial": "partial", "agreeNone": "none"}
 # "all": todas las llamadas, para la lista de cada verificador (13-rol-verificador).
-LISTS = (*SEGMENTS, *SIDES, "disagree", "all")
+LISTS = (*SEGMENTS, *SIDES, *AGREE_PARTS, "disagree", "all")
 
 
 def matches(row: dict, segment: str, criterion: int | None = None) -> bool:
     """¿La llamada entra en la lista? Con `criterion`, solo las que tienen un desacuerdo en ese motivo (del lado
     `fp`/`fn` si se pide); sin él, la parte del mosaico o el lado de la llamada."""
+    if segment in AGREE_PARTS:
+        inside = row["segment"] == "agree" and row.get("reasonMatch") == AGREE_PARTS[segment]
+        return inside and (criterion is None or matches(row, "disagree", criterion))
     if criterion is not None:
         kinds = (segment,) if segment in SIDES else SIDES
         return any(i["criterionId"] == criterion and i["kind"] in kinds for i in row["items"])
@@ -159,7 +164,7 @@ def summarize(segment: str, items: list[dict], records: dict) -> dict[str, Any]:
             if d["outcome"] is not None and records[(it["caseId"], d["criterionId"])].seen_first
         )
     reviewed = counts["confirmed"] + counts["ai_wrong"] + counts["inconclusive"]
-    hits = counts["confirmed"] if segment in ("reviewer", "agree") else counts["ai_wrong"]
+    hits = counts["confirmed"] if segment in ("reviewer", "agree", *AGREE_PARTS) else counts["ai_wrong"]
     return {
         "calls": len(items) - counts["none"],
         "reviewed": reviewed,

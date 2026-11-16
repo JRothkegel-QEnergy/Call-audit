@@ -93,6 +93,13 @@
   --reviewer-bg: #2a6fc4;         /* Inconsistencia del revisor · con rayado 45° (blanco 25 %) */
   --undecided-bg: var(--neutral-300);
   --undecided-border: var(--neutral-500);
+  /* Acuerdo en motivos (docs/ux/admin-prompt-metrics/15 §10): zoom del verde, sin rayado */
+  --reason-pass-bg: #cde9db;      /* Ambos aprueban · ink-900 encima 12,83:1 */
+  --reason-pass-border: #0f7a55;  /* 5,34:1 vs blanco */
+  --reason-same-bg: var(--agree-bg); /* Mismos motivos · blanco encima 5,34:1 */
+  --reason-partial-bg: #ddd2f3;   /* Desacuerdo parcial · ink-900 encima 11,5:1 */
+  --reason-partial-border: #6b46b8; /* 6,58:1 vs blanco */
+  --reason-none-bg: #5b3a9e;      /* Desacuerdo total · blanco encima 8,26:1 */
 
   /* ---------- Dominio: fuente del dato ---------- */
   --source-ai-fg: var(--neutral-700);      /* "Según IA": contorno punteado */

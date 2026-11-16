@@ -1,9 +1,17 @@
 /** Textos de la verificación caso a caso (docs/ux/admin-prompt-metrics/04-verificacion-propuesta.md §6). */
 
-import type { AgreementSegment, CallList, CallVerification, Verdict3, VerificationOutcome, VerificationSummary } from "@/lib/api/admin-types";
+import type { AgreeList, AgreementSegment, CallList, ReasonMatch, CallVerification, Verdict3, VerificationOutcome, VerificationSummary } from "@/lib/api/admin-types";
 
 export const SEGMENTS: AgreementSegment[] = ["promptFn", "promptFp", "reviewer", "undecided", "agree"];
-export const LISTS: CallList[] = [...SEGMENTS, "fp", "fn", "disagree", "changed", "all"];
+export const AGREE_LISTS: AgreeList[] = ["agreePass", "agreeSame", "agreePartial", "agreeNone"];
+/** Tramo de «¿Coinciden también en los motivos?» de cada lista. */
+export const AGREE_LIST_PART: Record<AgreeList, ReasonMatch> = {
+  agreePass: "bothPass",
+  agreeSame: "same",
+  agreePartial: "partial",
+  agreeNone: "none",
+};
+export const LISTS: CallList[] = [...SEGMENTS, ...AGREE_LISTS, "fp", "fn", "disagree", "changed", "all"];
 
 /** Nombre de cada lista (05-numeros-propuesta.md §3): las partes del mosaico y los lados de las metas. */
 export const LIST_NAME: Record<CallList, string> = {
@@ -12,6 +20,10 @@ export const LIST_NAME: Record<CallList, string> = {
   reviewer: "Posible error del revisor",
   undecided: "Sin decisión de la IA",
   agree: "Coincide con el revisor",
+  agreePass: "Coincide · Ambos aprueban",
+  agreeSame: "Coincide · Mismos motivos",
+  agreePartial: "Coincide · Desacuerdo parcial en motivos",
+  agreeNone: "Coincide · Desacuerdo total en motivos",
   fp: "Falsas alarmas",
   fn: "Rechazos no detectados",
   disagree: "Desacuerdos por motivo",
@@ -20,12 +32,16 @@ export const LIST_NAME: Record<CallList, string> = {
 };
 
 /** Color de la lista para su muestra; los lados usan el de la IA (rojo o amarillo). */
-export const LIST_SWATCH: Record<CallList, AgreementSegment | null> = {
+export const LIST_SWATCH: Record<CallList, AgreementSegment | ReasonMatch | null> = {
   promptFn: "promptFn",
   promptFp: "promptFp",
   reviewer: "reviewer",
   undecided: "undecided",
   agree: "agree",
+  agreePass: "bothPass",
+  agreeSame: "same",
+  agreePartial: "partial",
+  agreeNone: "none",
   fp: "promptFp",
   fn: "promptFn",
   disagree: null,
@@ -54,6 +70,10 @@ export const SEGMENT_SUPPORT: Record<CallList, string> = {
   reviewer: "según la IA de análisis, se equivocó el revisor",
   undecided: "la IA quedó dudosa; pasan a revisión de un auditor",
   agree: "mismo veredicto que la planilla, aunque puede haber motivos en desacuerdo",
+  agreePass: "la IA y el revisor dicen que cumple: no hay motivos que comparar",
+  agreeSame: "ambos rechazan y marcan exactamente los mismos motivos",
+  agreePartial: "ambos rechazan; comparten al menos un motivo, pero no todos",
+  agreeNone: "ambos rechazan, pero sin ningún motivo en común",
   fp: "la IA rechaza y el revisor aprueba: a corregir o posible error del revisor",
   fn: "la IA aprueba y el revisor rechaza: a corregir o posible error del revisor",
   disagree: "llamadas con al menos un motivo en que la IA y el revisor no marcan lo mismo",

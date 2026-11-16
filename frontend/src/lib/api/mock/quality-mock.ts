@@ -30,6 +30,14 @@ function agreement(
       reviewerFp: items.rfp,
     },
     criteria,
+    // Acuerdo en motivos (sintético, 15-acuerdo-en-motivos-brief.md): suma byCall.agree.
+    reasonMatch: {
+      n: c.agree,
+      bothPass: Math.round(c.agree * 0.43),
+      same: Math.round(c.agree * 0.19),
+      partial: Math.round(c.agree * 0.22),
+      none: c.agree - Math.round(c.agree * 0.43) - Math.round(c.agree * 0.19) - Math.round(c.agree * 0.22),
+    },
     causeAnalysis: { status: analyzed ? "done" : "none", disagreements: n - c.agree - c.undecided, findingsStored: analyzed },
     bridge: { calls: 0, promptFn: 0, promptFp: 0, reviewer: 0, undecided: 0, agree: 0 },
     byCriterion,
@@ -60,6 +68,7 @@ export const mockAiQuality: AiQuality = {
       ranAt: null,
       costPerCallUsd: 0.004,
       listVersion: null,
+      progress: null,
       agreement: agreement(
         { agree: 112, undecided: 6, promptFn: 41, promptFp: 59, reviewerFn: 0, reviewerFp: 0, approved: 109 },
         [crit(14, 12, 20, 0, 0, 3), crit(31, 9, 14), crit(3, 6, 11, 0, 0, 2), crit(28, 8, 4)],
@@ -78,6 +87,7 @@ export const mockAiQuality: AiQuality = {
       ranAt: "2026-11-11T18:00:00Z",
       costPerCallUsd: 0.012,
       listVersion: "2.15",
+      progress: null,
       agreement: agreement(
         { agree: 126, undecided: 3, promptFn: 13, promptFp: 19, reviewerFn: 27, reviewerFp: 32, approved: 110 },
         [crit(14, 4, 7, 9, 10, 2), crit(31, 3, 5, 6, 8), crit(3, 2, 4, 5, 6, 1), crit(28, 4, 3, 7, 8)],
@@ -88,4 +98,5 @@ export const mockAiQuality: AiQuality = {
   criteria: Object.values(RUBRIC.criteria).map((c) => ({ id: c.id, name: c.name, minor: false })),
   goals: { falsePositivePct: 5, falseNegativePct: 20 },
   promptTestRunning: null,
+  fullRunRunning: null,
 };

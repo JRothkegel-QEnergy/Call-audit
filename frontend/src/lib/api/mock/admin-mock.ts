@@ -118,6 +118,14 @@ const metrics = (match: number, extra = 0): EvaluationMetrics => ({
       reviewerFp: extra ? 2 : 0,
     },
     criteria: 33,
+    // Acuerdo en motivos (sintético): suma byCall.agree.
+    reasonMatch: {
+      n: match,
+      bothPass: Math.round(match * 0.43),
+      same: Math.round(match * 0.19),
+      partial: Math.round(match * 0.22),
+      none: match - Math.round(match * 0.43) - Math.round(match * 0.19) - Math.round(match * 0.22),
+    },
     causeAnalysis: { status: extra ? "done" : "none", costUsd: extra ? 4.2 : null, finishedAt: extra ? "2026-11-11T18:00:00" : null, disagreements: 100 - match - (6 - extra), findingsStored: !!extra },
   },
   // Datos sintéticos de demo (no son de la corredora): 50 llamadas aprobadas y 50 rechazadas por la planilla.

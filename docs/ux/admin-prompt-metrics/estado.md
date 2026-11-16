@@ -170,3 +170,18 @@
 | 2026-11-13 | Propuesta: repartir solo llamadas con motivos en desacuerdo sin registro, después de la corrida (V1); menú «Verificación» con filtro «Asignadas a: Mí · Todas» y tarjeta «Te quedan…» (V2-V3); no asignadas en solo lectura con aviso (V4); `Repartir llamadas` estratificado por segmento × split y `Pasar pendientes a…` (V5); tabla de avance por verificador (V6); 10 % doble, a ciegas, con lista «Desacuerdo entre verificadores» (V7, requiere un registro por verificador); split oculto al verificador (V8); cada uno corrige lo suyo (V9). Supuestos H-V1 a H-V3; riesgos R-V1 a R-V4. Esperando V1-V9 | Diseñador |
 | 2026-11-13 | **Aprobado:** V1 B (se reparten las ~1.100, incluidas las de acuerdo total); V2, V3, V4, V5, V6, V8, V9 A; V7 fuera de alcance («eso veámoslo después»): sin dobles, sin % doble en `Repartir llamadas`, sin «Acuerdo en dobles», modelo de registros sin cambios | Johannes |
 | 2026-11-13 | Ajuste por V1 B: llamada sin motivos en desacuerdo se cierra con `Sin observaciones` (un clic, deshacible), guardado en la tabla de asignación; «revisada» = todos los desacuerdos registrados o `Sin observaciones`. Abierto O-V1 (IA y planilla ambas equivocadas en un motivo coincidente: sin registro en esta entrega) y R-V5 | Diseñador |
+
+---
+
+## Acuerdo en motivos dentro de «Coincide con el revisor» (pedido 2026-11-16)
+
+- **Estado:** brief en `15-acuerdo-en-motivos-brief.md`, esperando M1-M5. Sin código de UI aún.
+- **Origen:** Johannes: el verde cuenta como acuerdo llamadas con el mismo veredicto aunque rechacen por motivos distintos. Quiere un gráfico nuevo, aparte, solo con las «Coincide con el revisor», partido entre las que coinciden en motivos y las de «Desacuerdo en motivo de rechazo», con otros colores. El mosaico no cambia.
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-16 | Ya decidido: gráfico nuevo y aparte; mosaico sin cambios; colores distintos; es solo visualización (el análisis por motivo ya cubre estos casos). Cambio menor sobre `02`/`05` (un gate) | Johannes (vía coordinador) |
+| 2026-11-16 | Brief: P-20 / O-20; tramos Ambos aprueban 307 · Mismos motivos 134 · Desacuerdo parcial 155 · Desacuerdo total 113 (v3.0, verde = 709); barra al 100 % del verde como zoom bajo el mosaico. Supuestos H-M1 (motivo dudoso de la IA no cuenta como rechazo), H-M2; riesgos R-M1 a R-M3. Esperando M1-M5 | Diseñador |
+| 2026-11-16 | Johannes aprueba M1-M5 (todas A) y H-M1, H-M2 | Johannes |
+| 2026-11-16 | Propuesta de detalle en `15` §8-§12: `reasonMatch` (bothPass/same/partial/none) en `call_rows`/`compute_rows`; listas `agreePass/agreeSame/agreePartial/agreeNone`; `ReasonMatchBar` entre el mosaico y «Detalle por motivo» en Prueba y Calidad de la IA; tokens `--reason-*` con contraste validado. Lista para implementar | Diseñador |

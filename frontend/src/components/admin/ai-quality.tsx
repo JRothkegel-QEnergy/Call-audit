@@ -5,7 +5,7 @@ import { ChevronDown, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { AgreementMosaic } from "@/components/admin/agreement-charts";
+import { AgreementMosaic, ReasonMatchBar } from "@/components/admin/agreement-charts";
 import { CaseGrid } from "@/components/admin/case-grid";
 import { GoalBadge, QualityHeader, headerNumbers } from "@/components/admin/quality-header";
 import { listHref } from "@/components/admin/verification-labels";
@@ -111,6 +111,7 @@ export function AiQualityView({ data }: { data: AiQuality }) {
         }
       />
       <AgreementMosaic version={main.promptVersion} a={main.agreement} linked={!!main.listVersion} />
+      <ReasonMatchBar version={main.promptVersion} a={main.agreement} linked={!!main.listVersion} />
       <CaseGrid key={main.id} series={main} />
 
       {selected.length > 1 && <Comparison selected={selected} goals={data.goals} activeId={activeId} onView={view} />}
