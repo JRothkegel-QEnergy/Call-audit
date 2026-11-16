@@ -930,6 +930,24 @@ def quote_rate(runs: list[ModelRun]) -> float:
     return round(100 * sum(e.get("quoteValidated") is False for e in evidence) / len(evidence), 1) if evidence else 0.0
 
 
+def full_run_results(session: Session, evaluation: PromptEvaluation, split: str | None) -> list[dict]:
+    """Los resultados de una corrida completa que caen en el set de medición (validación): la corrida completa pasa
+    también por entrenamiento, y medir ahí inflaría la mejora (call_audit.golden_split)."""
+    results = evaluation.results or []
+    if split is None:
+        return results
+    ids = [r["caseId"] for r in results]
+    cases = session.scalars(select(Case).where(Case.id.in_(ids))) if ids else []
+    keep = {c.id for c in cases if golden_split.split_of(c) == split}
+    return [r for r in results if r["caseId"] in keep]
+
+
+def full_run_block(session: Session, evaluation: PromptEvaluation, split: str | None) -> dict | None:
+    results = full_run_results(session, evaluation, split)
+    stored = all("findings" in r or r.get("error") for r in results)
+    return agreement.for_results(session, results, None, stored)
+
+
 @router.get("/admin/quality")
 def admin_quality(session: DbSession, _: AdminReader):
     """Versiones medidas sobre las llamadas de validación (05-numeros-propuesta.md §5, N5): la vigente con sus
@@ -962,8 +980,26 @@ def admin_quality(session: DbSession, _: AdminReader):
 
     running = None
     for ev in session.scalars(select(PromptEvaluation).order_by(PromptEvaluation.created_at)):
-        if ev.status in ("queued", "running"):
+        if ev.status in ("queued", "running") and prompt_evaluation.is_test(ev):
             running = {"version": ev.version, "done": ev.done, "total": len(ev.case_ids)}
+        if ev.status == "done" and ev.purpose == "full":
+            block = full_run_block(session, ev, split)
+            if block is not None:
+                series.append(
+                    {
+                        "id": f"full:{ev.id}",
+                        "model": ev.model,
+                        "promptVersion": ev.version,
+                        "runLabel": f"Corrida completa v{ev.version}",
+                        "source": "full_run",
+                        "isCurrent": False,
+                        "ranAt": iso(accounts.aware(ev.finished_at or ev.created_at)),
+                        "costPerCallUsd": (ev.metrics or {}).get("costPerCallUsd"),
+                        "listVersion": None,
+                        "agreement": block,
+                    }
+                )
+            continue
         if ev.status != "done" or not prompt_evaluation.is_test(ev) or (split is not None and ev.split != split):
             continue
         block = with_verification(session, ev)
@@ -1022,6 +1058,15 @@ def admin_quality_grid(series: str, session: DbSession, _: AdminReader):
         rows, _patterns = verification.evaluation_rows(session, ev)
         latest = prompt_evaluation.latest(session, ev.version)
         version = ev.version if latest is not None and latest.id == ev.id else None
+    elif series.startswith("full:"):
+        ev = session.get(PromptEvaluation, series.removeprefix("full:"))
+        if ev is None or ev.status != "done" or ev.purpose != "full":
+            raise HTTPException(404, "not_found")
+        results = full_run_results(session, ev, prompt_evaluation.eval_split(session))
+        ids = [r["caseId"] for r in results]
+        call_ids = dict(session.execute(select(Case.id, Case.call_id).where(Case.id.in_(ids))).all()) if ids else {}
+        rows = agreement.call_rows(results, call_ids, set(), golden_split.layer2_criteria())
+        version = None
     else:
         raise HTTPException(404, "not_found")
     cases = {c.id: c for c in session.scalars(select(Case).where(Case.id.in_([r["caseId"] for r in rows])))}

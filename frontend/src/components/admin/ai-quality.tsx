@@ -101,7 +101,11 @@ export function AiQualityView({ data }: { data: AiQuality }) {
         note={
           !main.listVersion ? (
             <p className="help m-0">
-              {main.isCurrent ? "La vigente se mide con sus corridas de hoy, sin lista de llamadas ni análisis de causa." : "Hay una prueba más nueva de esta versión: la lista de llamadas abre esa."}
+              {main.isCurrent
+                ? "La vigente se mide con sus corridas de hoy, sin lista de llamadas ni análisis de causa."
+                : main.source === "full_run"
+                  ? "Corrida completa: aquí se mide solo en sus llamadas de validación, igual que las pruebas. Su lista completa está en Verificación."
+                  : "Hay una prueba más nueva de esta versión: la lista de llamadas abre esa."}
             </p>
           ) : null
         }

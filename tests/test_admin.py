@@ -469,6 +469,43 @@ def test_quality_series_on_validation(client: TestClient, admin: User, imported:
     assert "Ejecutivo" not in json.dumps(body)
 
 
+def test_quality_includes_full_run_on_validation(
+    client: TestClient, admin: User, imported: sessionmaker[Session]
+) -> None:
+    """La corrida completa (purpose "full") entra en Calidad de la IA medida solo en sus llamadas de validación, y es
+    la versión por defecto si es la más nueva: antes quedaba fuera y la última versión no aparecía."""
+    with imported() as session, session.begin():
+        cases = list(session.scalars(select(Case).order_by(Case.call_id)))
+        for c, split in zip(cases, ("val", "val", "train"), strict=False):
+            c.external_item_fails, c.external_verdict = [], "compliant"
+            c.call_metadata = {**(c.call_metadata or {}), "golden_split": split}
+        row = {"external": "compliant", "externalFails": [], "uncertainCriteria": [], "findings": []}
+        ev = PromptEvaluation(
+            version="9.15",
+            model=MODEL,
+            status="done",
+            purpose="full",
+            requested_by_id=admin.id,
+            case_ids=[c.id for c in cases],
+            done=len(cases),
+            results=[
+                {**row, "caseId": cases[0].id, "verdict": "non_compliant", "failCriteria": [2]},
+                {**row, "caseId": cases[1].id, "verdict": "compliant", "failCriteria": []},
+                {**row, "caseId": cases[2].id, "verdict": "non_compliant", "failCriteria": [2]},
+            ],
+        )
+        session.add(ev)
+        session.flush()
+        ev_id = ev.id
+    login(client, admin)
+    body = client.get("/api/admin/quality").json()
+    full = next(s for s in body["series"] if s["source"] == "full_run")
+    assert full["id"] == f"full:{ev_id}" and full["promptVersion"] == "9.15" and full["listVersion"] is None
+    assert full["agreement"]["byCall"]["n"] == 2 and full["agreement"]["scope"]["total"] == 2
+    grid = client.get(f"/api/admin/quality/grid?series=full:{ev_id}").json()
+    assert sorted(c["segment"] for c in grid["calls"]) == ["agree", "promptFp"]
+
+
 def test_quality_grid(client: TestClient, admin: User, imported: sessionmaker[Session]) -> None:
     """Análisis por caso (F1): por llamada, su parte del mosaico y solo los motivos que no coinciden."""
     with imported() as session, session.begin():

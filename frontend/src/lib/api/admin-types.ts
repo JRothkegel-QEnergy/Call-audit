@@ -530,7 +530,8 @@ export interface QualitySeries {
   colorIndex: number;
   promptVersion: string;
   runLabel: string;
-  source: "run" | "prompt_test";
+  /** `full_run`: corrida completa para verificación, medida solo en sus llamadas de validación. */
+  source: "run" | "prompt_test" | "full_run";
   isCurrent: boolean;
   ranAt: string | null;
   costPerCallUsd: number | null;
