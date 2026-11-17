@@ -89,8 +89,12 @@ def all_items(session: Session, evaluation: PromptEvaluation) -> list[dict]:
 # --- Reparto -------------------------------------------------------------------------------------------------------
 
 
-def plan(session: Session, evaluation: PromptEvaluation, user_ids: list[str]) -> dict[str, Any]:
-    """Qué le tocaría a cada verificador: solo lo sin asignar y no revisado, estratificado por segmento × set."""
+def plan(
+    session: Session, evaluation: PromptEvaluation, user_ids: list[str], only: set[str] | None = None
+) -> dict[str, Any]:
+    """Qué le tocaría a cada verificador: solo lo sin asignar y no revisado, estratificado por segmento × set.
+
+    `only`: ids de caso a los que se limita el reparto (p. ej. las divergentes de una planilla). None = todas."""
     people = {u.id: u for u in verifiers(session) if u.id in set(user_ids)}
     if not people:
         raise ValueError("no_verifiers")
@@ -100,7 +104,7 @@ def plan(session: Session, evaluation: PromptEvaluation, user_ids: list[str]) ->
     load = Counter(a.user_id for a in found.values() if a.user_id in people)
     strata: dict[tuple[str, str | None], list[dict]] = defaultdict(list)
     for it in items:
-        if it["caseId"] in found or is_reviewed(it, None):
+        if (only is not None and it["caseId"] not in only) or it["caseId"] in found or is_reviewed(it, None):
             continue
         strata[(it["segment"], it["split"])].append(it)
     picks: dict[str, str] = {}
@@ -123,8 +127,10 @@ def plan(session: Session, evaluation: PromptEvaluation, user_ids: list[str]) ->
     }
 
 
-def distribute(session: Session, evaluation: PromptEvaluation, user_ids: list[str], actor: User) -> dict[str, Any]:
-    result = plan(session, evaluation, user_ids)
+def distribute(
+    session: Session, evaluation: PromptEvaluation, user_ids: list[str], actor: User, only: set[str] | None = None
+) -> dict[str, Any]:
+    result = plan(session, evaluation, user_ids, only)
     for cid, uid in result["_picks"].items():
         session.add(VerificationAssignment(case_id=cid, user_id=uid, assigned_by_id=actor.id))
     accounts.log(

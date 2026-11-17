@@ -51,7 +51,9 @@ export function CallsListView({ version }: { version: string }) {
   );
 }
 
-type StatusFilter = "all" | Exclude<CallVerification, "none">;
+const plural = (n: number, one: string, many: string) => `${n.toLocaleString("es-CL")} ${n === 1 ? one : many}`;
+
+type StatusFilter ="all" | Exclude<CallVerification, "none">;
 const FILTERS: [StatusFilter, string][] = [
   ["all", "Todas"],
   ["pending", "Pendientes"],
@@ -81,9 +83,25 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
   const statusOf = (i: SegmentCall): CallVerification =>
     full && i.verification === "none" && !i.reviewedAt ? "pending" : i.verification;
   const count = (f: StatusFilter) => (f === "all" ? items.length : items.filter((i) => statusOf(i) === f).length);
-  const criteria = [
-    ...new Set([...items.flatMap((i) => i.disagreements.map((d) => d.criterionId)), ...(motivo != null ? [motivo] : [])]),
-  ].sort((a, b) => a - b);
+  // Opciones del motivo: con conteos del alcance completo cuando el servidor los trae (lista «all», 16 L2 A); si no,
+  // los motivos de la lista que se ve.
+  const criteria: { id: number; label: string }[] = data.criterionCounts
+    ? [
+        ...data.criterionCounts.map((c) => ({
+          id: c.criterionId,
+          label: `Motivo ${c.criterionId} · ${plural(c.calls, "llamada", "llamadas")} · ${
+            c.pending === 0 ? "al día" : plural(c.pending, "pendiente", "pendientes")
+          }`,
+        })),
+        ...(motivo != null && !data.criterionCounts.some((c) => c.criterionId === motivo)
+          ? [{ id: motivo, label: `Motivo ${motivo} · 0 llamadas` }]
+          : []),
+      ]
+    : [...new Set([...items.flatMap((i) => i.disagreements.map((d) => d.criterionId)), ...(motivo != null ? [motivo] : [])])]
+        .sort((a, b) => a - b)
+        .map((id) => ({ id, label: `Motivo ${id}` }));
+  const mine = full && scope.assignee === "me";
+  const clearMotivo = () => set("motivo", null);
   const shown = items
     .filter((i) => status === "all" || statusOf(i) === status)
     .sort((a, b) => (byCall ? a.callId.localeCompare(b.callId) : a.order - b.order));
@@ -171,10 +189,10 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
         <label className="flex items-center gap-1.5 text-sm">
           Motivo:
           <select className="control" value={motivo ?? ""} onChange={(e) => set("motivo", e.target.value || null)}>
-            <option value="">Todos</option>
+            <option value="">{data.criterionCounts ? `Todos los motivos · ${plural(data.n, "llamada", "llamadas")}` : "Todos"}</option>
             {criteria.map((c) => (
-              <option key={c} value={c}>
-                Motivo {c}
+              <option key={c.id} value={c.id}>
+                {c.label}
               </option>
             ))}
           </select>
@@ -187,7 +205,16 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
         </span>
       </div>
 
-      {items.length === 0 ? (
+      {items.length === 0 && motivo != null && segment === "all" ? (
+        <p className="empty-state">
+          {mine
+            ? `Ninguna de tus llamadas tiene desacuerdo en el motivo ${motivo}.`
+            : `Ninguna llamada de este alcance tiene desacuerdo en el motivo ${motivo}.`}{" "}
+          <button type="button" className="underline" onClick={clearMotivo}>
+            Quitar filtro
+          </button>
+        </p>
+      ) : items.length === 0 ? (
         <p className="empty-state">Ninguna llamada de esta prueba cae en esta parte.</p>
       ) : shown.length === 0 ? (
         <p className="empty-state">
@@ -215,7 +242,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
                 <th scope="col">Tipificó</th>
                 {segment === "changed" && <th scope="col">Cambio</th>}
                 <th scope="col">Motivos en desacuerdo</th>
-                {full && <th scope="col">Asignada a</th>}
+                {full && !mine && <th scope="col">Asignada a</th>}
                 <th scope="col">Verificación</th>
               </tr>
             </thead>
@@ -247,17 +274,18 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
                       {i.disagreements.map((d) => (
                         <span
                           key={d.criterionId}
-                          className="chip"
+                          className={d.criterionId === motivo ? "chip border-2 border-foreground font-bold" : "chip"}
                           title={d.kind === "undecided" ? "La IA quedó dudosa" : d.kind === "fn" ? "La IA aprueba, la planilla rechaza" : "La IA rechaza, la planilla aprueba"}
                         >
                           M{d.criterionId}
+                          {d.criterionId === motivo && <span className="sr-only"> (motivo filtrado)</span>}
                           {d.outcome && <span aria-hidden> ✓</span>}
                           <span className="sr-only">{d.outcome ? " registrado" : " sin registrar"}</span>
                         </span>
                       ))}
                     </span>
                   </td>
-                  {full && <td>{i.assigneeName ?? <span className="help">Sin asignar</span>}</td>}
+                  {full && !mine && <td>{i.assigneeName ?? <span className="help">Sin asignar</span>}</td>}
                   <td>
                     {full && i.verification === "none" ? (i.reviewedAt ? "Sin observaciones" : "Por revisar") : CALL_STATUS[i.verification]}
                   </td>

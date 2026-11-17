@@ -249,6 +249,28 @@ def test_list_sides_and_criterion() -> None:
     assert [r for r in rows if matches(r, "disagree", 14)] == [fn_blue, agree_item]
     assert [r for r in rows if matches(r, "fp", 14)] == [agree_item]
     assert not any(matches(r, "disagree", 5) for r in rows)
+    # La lista «all» por motivo también trae las dudosas (16-lista-verificador-por-motivo, L2 A); los lados no.
+    assert [r for r in rows if matches(r, "all", 5)] == [agree_item]
+    assert not any(matches(r, "fp", 5) or matches(r, "fn", 5) for r in rows)
+
+
+def test_criterion_counts_include_undecided_and_sort_by_calls() -> None:
+    from call_audit.verification import criterion_counts
+
+    def item(verification: str, kinds: list[tuple[int, str]]) -> dict:
+        return {"verification": verification, "disagreements": [{"criterionId": c, "kind": k} for c, k in kinds]}
+
+    items = [
+        item("pending", [(25, "fn"), (18, "undecided")]),
+        item("done", [(25, "fp"), (25, "undecided")]),
+        item("pending", [(18, "fp"), (3, "fn")]),
+        item("none", []),
+    ]
+    assert criterion_counts(items) == [
+        {"criterionId": 18, "calls": 2, "pending": 2},
+        {"criterionId": 25, "calls": 2, "pending": 1},
+        {"criterionId": 3, "calls": 1, "pending": 1},
+    ]
 
 
 def test_reason_match_splits_agree_and_its_lists() -> None:

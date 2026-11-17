@@ -7,6 +7,11 @@ Cada componente tiene además su propio historial detallado:
 - Prompt de verificación de afirmaciones: historial al final de `docs/layer2-claims-prompt.md`.
 - Diseño del front: `docs/ux/call-audit/estado.md` (fases y cambios aprobados).
 
+## 2026-11-17
+
+- **Repartir a verificadores solo las llamadas de una planilla** (Weekly 16-11: revisar las 630 llamadas divergentes de v3.0 entre 4 verificadores). Comando nuevo `python -m call_audit.admin distribute --version 3.0 --calls divergencias_v3.0.xlsx --verifiers <correos> --by <admin> [--apply]`: lee la columna «Llamada» (.xlsx) o un id por línea (.txt) y reparte solo esas, con el mismo reparto estratificado de «Repartir llamadas», sin mover lo ya asignado. Sin `--apply` es vista previa. Sin cambios de UI, migración ni corridas de IA.
+- **Lista del verificador con filtro por motivo** (`docs/ux/admin-prompt-metrics/16-lista-verificador-por-motivo.md`, L1-L4 A): botón `Ver mis llamadas` en la tarjeta «Te quedan…» y link «Ver mis {n} llamadas ›»; el select «Motivo:» de la lista muestra llamadas y pendientes por motivo (de más a menos) sobre todo el alcance, e incluye los motivos donde la IA quedó dudosa (antes se perdían al filtrar); el chip del motivo filtrado se destaca y, al abrir una llamada, el foco parte en ese motivo con la marca «Motivo filtrado». Sin migración ni corridas de IA.
+
 ## 2026-11-13
 
 - **Rol Verificador y reparto de llamadas** (`docs/ux/admin-prompt-metrics/13-rol-verificador-asignacion.md`, V1-V9; Johannes: 5 personas revisando caso a caso, cada una con su set):

@@ -198,6 +198,8 @@ function Overview({
   const scope: VerificationScope = { source: "full", assignee };
   const caseHref = (caseId: string) =>
     `/admin/prompts/${encodeURIComponent(version)}/calls/${encodeURIComponent(caseId)}?segment=all${scopeQuery(scope)}`;
+  // Lista plana de las llamadas propias, con filtro por motivo (16-lista-verificador-por-motivo, L1 A).
+  const myListHref = `${listHref(version, "all")}${scopeQuery({ source: "full", assignee: "me" })}`;
   return (
     <div className="grid gap-4">
       {data.me && (
@@ -208,9 +210,14 @@ function Overview({
           {data.me.assigned === 0 ? (
             <p className="m-0">Aún no tienes llamadas asignadas.</p>
           ) : data.me.pending === 0 ? (
-            <p className="m-0 font-semibold">
-              ¡Listo! Completaste tus {int(data.me.assigned)} llamadas.
-            </p>
+            <>
+              <p className="m-0 font-semibold">
+                ¡Listo! Completaste tus {int(data.me.assigned)} llamadas.
+              </p>
+              <Button className="ml-auto" onClick={() => router.push(myListHref)}>
+                Ver mis llamadas
+              </Button>
+            </>
           ) : (
             <>
               <p className="m-0 text-base">
@@ -232,15 +239,19 @@ function Overview({
                   }}
                 />
               </div>
-              {data.me.nextCaseId && (
-                <Button
-                  variant="primary"
-                  className="ml-auto"
-                  onClick={() => router.push(caseHref(data.me!.nextCaseId!))}
-                >
-                  Seguir revisando <ChevronRight size={14} aria-hidden />
+              <span className="ml-auto flex flex-wrap gap-2">
+                <Button onClick={() => router.push(myListHref)}>
+                  Ver mis llamadas
                 </Button>
-              )}
+                {data.me.nextCaseId && (
+                  <Button
+                    variant="primary"
+                    onClick={() => router.push(caseHref(data.me!.nextCaseId!))}
+                  >
+                    Seguir revisando <ChevronRight size={14} aria-hidden />
+                  </Button>
+                )}
+              </span>
             </>
           )}
         </section>
@@ -260,7 +271,9 @@ function Overview({
             className="ml-auto text-sm"
             href={`${listHref(version, "all")}${scopeQuery(scope)}`}
           >
-            Ver todas las llamadas ›
+            {assignee === "me"
+              ? `Ver mis ${int(data.n)} llamadas ›`
+              : `Ver las ${int(data.n)} llamadas ›`}
           </Link>
         )}
       </div>

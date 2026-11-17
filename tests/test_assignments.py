@@ -180,3 +180,42 @@ def test_full_run_reuses_results_and_does_not_replace_the_test(
             prompt_evaluation.start_full(session, "9.8", session.get(User, admin.id))
         # La prueba de la versión sigue siendo la prueba, no la corrida completa.
         assert prompt_evaluation.latest(session, "9.8").purpose is None
+
+
+def test_distribute_only_the_given_calls(
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+    two: tuple[User, User],
+) -> None:
+    """El reparto desde una planilla (admin distribute) toca solo esas llamadas y deja el resto sin asignar."""
+    from call_audit import assignments
+
+    seed_full(imported, admin)
+    ana, beto = two
+    with imported() as session, session.begin():
+        evaluation = session.scalar(select(PromptEvaluation).where(PromptEvaluation.purpose == "full"))
+        all_ids = assignments.plan(session, evaluation, [ana.id, beto.id])["_picks"]
+        only = set(list(all_ids)[:2])
+        done = assignments.distribute(session, evaluation, [ana.id, beto.id], admin, only=only)
+        assert set(done["_picks"]) == only
+        assert sorted(p["calls"] for p in done["people"]) == [1, 1]
+    with imported() as session:
+        assert {a.case_id for a in session.scalars(select(VerificationAssignment))} == only
+
+
+def test_read_call_ids_from_xlsx_and_txt(tmp_path) -> None:
+    import openpyxl
+
+    from call_audit.admin import read_call_ids
+
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.append(["Llamada", "Motivo"])
+    for row in (["187939", 1], [191242, 3], ["187939", 5]):
+        sheet.append(row)
+    xlsx = tmp_path / "divergencias.xlsx"
+    workbook.save(xlsx)
+    assert read_call_ids(xlsx) == ["187939", "191242"]
+    txt = tmp_path / "llamadas.txt"
+    txt.write_text("187939\n\n191242\n187939\n", encoding="utf-8")
+    assert read_call_ids(txt) == ["187939", "191242"]

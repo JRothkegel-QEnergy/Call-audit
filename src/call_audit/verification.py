@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import math
+from collections import Counter
 from typing import Any
 
 from sqlalchemy import select
@@ -45,7 +46,8 @@ def matches(row: dict, segment: str, criterion: int | None = None) -> bool:
         inside = row["segment"] == "agree" and row.get("reasonMatch") == AGREE_PARTS[segment]
         return inside and (criterion is None or matches(row, "disagree", criterion))
     if criterion is not None:
-        kinds = (segment,) if segment in SIDES else SIDES
+        # En la lista «all» (16-lista-verificador-por-motivo, L2 A) también entran las dudosas: hay que verificarlas.
+        kinds = (segment,) if segment in SIDES else TO_VERIFY if segment == "all" else SIDES
         return any(i["criterionId"] == criterion and i["kind"] in kinds for i in row["items"])
     if segment in SIDES:
         side = "promptFp" if segment == "fp" else "promptFn"
@@ -249,6 +251,7 @@ def segment_calls(
     for it in items:
         if it["caseId"] in groups:
             it["group"] = groups[it["caseId"]]
+    counts = criterion_counts(segment_items(rows, records, "all")) if segment == "all" else None
     from call_audit.api.serializers import typification_out
 
     cases = {c.id: c for c in session.scalars(select(Case).where(Case.id.in_([i["caseId"] for i in items])))}
@@ -266,7 +269,23 @@ def segment_calls(
         "sample": sample,
         "items": items,
         "summary": summarize(segment, items, records),
+        **({"criterionCounts": counts} if counts is not None else {}),
     }
+
+
+def criterion_counts(items: list[dict]) -> list[dict[str, int]]:
+    """Por motivo, cuántas llamadas del alcance tienen algo que verificar en él y cuántas de esas siguen pendientes
+    (16-lista-verificador-por-motivo, L2 A). Más llamadas primero; en empate, por número de motivo."""
+    calls: Counter[int] = Counter()
+    pending: Counter[int] = Counter()
+    for it in items:
+        for cid in {d["criterionId"] for d in it["disagreements"] if d["kind"] in TO_VERIFY}:
+            calls[cid] += 1
+            pending[cid] += it["verification"] == "pending"
+    return [
+        {"criterionId": cid, "calls": n, "pending": pending[cid]}
+        for cid, n in sorted(calls.items(), key=lambda kv: (-kv[1], kv[0]))
+    ]
 
 
 def analysis_for(patterns: list[DiscrepancyPattern], criterion_id: int, call_id: str) -> dict | None:

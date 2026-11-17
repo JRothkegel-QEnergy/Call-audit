@@ -216,6 +216,15 @@ export interface SegmentCalls {
   sample?: number | null;
   items: SegmentCall[];
   summary: VerificationSummary;
+  /** Lista «all»: por motivo, llamadas del alcance con algo que verificar en él (incluye dudosas) y cuántas siguen
+   * pendientes, sin aplicar el motivo filtrado. Más llamadas primero (16-lista-verificador-por-motivo, L2 A). */
+  criterionCounts?: CriterionCount[];
+}
+
+export interface CriterionCount {
+  criterionId: number;
+  calls: number;
+  pending: number;
 }
 
 export interface VerificationRecord {

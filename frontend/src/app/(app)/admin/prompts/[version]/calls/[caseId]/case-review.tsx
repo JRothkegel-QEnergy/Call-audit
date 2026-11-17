@@ -111,7 +111,13 @@ function CaseReview({
 
   const toVerify = cmp.criteria.filter((c) => TO_VERIFY.has(c.kind));
   const agreeing = cmp.criteria.filter((c) => !TO_VERIFY.has(c.kind));
-  const [focus, setFocus] = useState(() => Math.max(0, toVerify.findIndex((c) => !c.verification || c.verification.stale)));
+  // Foco inicial: el motivo de la lista si sigue sin registrar (16-lista-verificador-por-motivo, L3 A); si no, el primero
+  // sin registrar.
+  const [focus, setFocus] = useState(() => {
+    const unrecorded = (c: (typeof toVerify)[number]) => !c.verification || c.verification.stale;
+    const listed = toVerify.findIndex((c) => c.criterionId === motivo && unrecorded(c));
+    return listed >= 0 ? listed : Math.max(0, toVerify.findIndex(unrecorded));
+  });
   const [revealed, setRevealed] = useState<Set<number>>(new Set());
   const [sheetOpen, setSheetOpenState] = useState(sheetOpenMemory);
   const setSheetOpen = (open: boolean) => {
@@ -414,6 +420,7 @@ function CaseReview({
                 c={c}
                 version={cmp.version}
                 focused={i === focus}
+                filtered={c.criterionId === motivo}
                 canWrite={canWrite && c.verification?.canChange !== false}
                 busy={busy === c.criterionId}
                 revealed={revealed.has(c.criterionId)}
@@ -465,6 +472,7 @@ function CriterionCard({
   c,
   version,
   focused,
+  filtered,
   canWrite,
   busy,
   revealed,
@@ -476,6 +484,8 @@ function CriterionCard({
   c: CaseComparisonCriterion;
   version: string;
   focused: boolean;
+  /** Es el motivo con que se filtró la lista (16-lista-verificador-por-motivo, L3 A). */
+  filtered: boolean;
   canWrite: boolean;
   busy: boolean;
   revealed: boolean;
@@ -500,6 +510,7 @@ function CriterionCard({
       <h3 className="m-0 text-sm font-semibold">
         Motivo {c.criterionId}
         {c.blue && <span className="help font-normal"> · posible error del revisor</span>}
+        {filtered && <span className="chip ml-2 align-middle text-xs">Motivo filtrado</span>}
       </h3>
       <p className="help m-0">Criterio: {c.description}</p>
       <p className="m-0">

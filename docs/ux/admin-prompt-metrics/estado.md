@@ -173,6 +173,19 @@
 
 ---
 
+## Corrida completa en curso en Calidad de la IA (pedido 2026-11-16)
+
+- **Estado:** revisión rápida en `14-corrida-en-curso.md`, esperando U1-U5. Sin código de UI aún.
+- **Origen:** una corrida completa (`purpose = "full"`) de v3.0 en curso no aparece en Calidad de la IA hasta terminar.
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-16 | Ya decidido: «Serie parcial en curso», seleccionable, tarjetas y mosaico sobre las llamadas de validación ya terminadas, universo «87 de 220 · en curso», se actualiza al recargar. Cambio menor sobre `05`/`06` (un gate) | Johannes (vía coordinador) |
+| 2026-11-16 | Propuesta: microcopy de opción, título, universo, aviso de cifras parciales y línea de avance con «Ver cifras parciales»; badge neutro «Parcial · meta ≤ X %»; Análisis por caso y listas habilitados (clic al caso solo si la página de caso acepta corrida no terminada); botón «Actualizar» + hora sin auto-refresco; mínimo 20 llamadas de validación. Supuesto H-U1 (orden de procesamiento sesgado); riesgo R-U1. Esperando U1-U5 | Diseñador |
+
+---
+
 ## Acuerdo en motivos dentro de «Coincide con el revisor» (pedido 2026-11-16)
 
 - **Estado:** brief en `15-acuerdo-en-motivos-brief.md`, esperando M1-M5. Sin código de UI aún.
@@ -185,3 +198,16 @@
 | 2026-11-16 | Brief: P-20 / O-20; tramos Ambos aprueban 307 · Mismos motivos 134 · Desacuerdo parcial 155 · Desacuerdo total 113 (v3.0, verde = 709); barra al 100 % del verde como zoom bajo el mosaico. Supuestos H-M1 (motivo dudoso de la IA no cuenta como rechazo), H-M2; riesgos R-M1 a R-M3. Esperando M1-M5 | Diseñador |
 | 2026-11-16 | Johannes aprueba M1-M5 (todas A) y H-M1, H-M2 | Johannes |
 | 2026-11-16 | Propuesta de detalle en `15` §8-§12: `reasonMatch` (bothPass/same/partial/none) en `call_rows`/`compute_rows`; listas `agreePass/agreeSame/agreePartial/agreeNone`; `ReasonMatchBar` entre el mosaico y «Detalle por motivo» en Prueba y Calidad de la IA; tokens `--reason-*` con contraste validado. Lista para implementar | Diseñador |
+
+---
+
+## Lista completa del verificador con filtro por motivo (pedido 2026-11-17)
+
+- **Estado:** L1-L4 **aprobadas (A)** por Johannes el 2026-11-17, implementadas y desplegadas a producción el mismo día (`16-lista-verificador-por-motivo.md`).
+- **Origen:** Johannes: «puedes hacer también para que en la vista del revisor, pueda ver el listado total y filtrar por motivo?» (revisor = verificador). Se necesita hoy: 4 verificadores × ~155 de las 630 divergentes de v3.0; la Weekly parte por motivos 25 y 18.
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-17 | Cambio menor sobre `13` (V2, V3) y la lista de `04`/`05` (un gate). Diagnóstico: la lista completa (`calls?segment=all`) ya existe con select de motivo, pero el acceso es un link chico; `matches()` con `segment=all` + `criterion` deja fuera las dudosas de la IA; las opciones del select se reducen al filtrar y no tienen conteos; el foco en la revisión no va al motivo filtrado. P-21 / O-21 | Diseñador |
+| 2026-11-17 | Propuesta: L1 reutilizar la lista con botón `Ver mis llamadas`; L2 select con conteos (`criterionCounts`) ordenado por cantidad e incluyendo dudosas; L3 no ocultar motivos en la revisión, foco inicial en el filtrado, pendiente = llamada; L4 el admin usa la misma página. Supuestos H-L1, H-L2; riesgos R-L1, R-L2. Esperando L1-L4 | Diseñador |
