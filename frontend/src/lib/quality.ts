@@ -11,7 +11,8 @@ import type { QualitySeries } from "./api/admin-types";
  */
 export function defaultSeries(series: QualitySeries[]): string[] {
   const latestTest = series
-    .filter((s) => s.source === "prompt_test" || s.source === "full_run")
+    // La corrida en curso no es la por defecto (14-corrida-en-curso.md, U1): se elige a mano o desde su línea de avance.
+    .filter((s) => (s.source === "prompt_test" || s.source === "full_run") && !s.progress)
     .reduce<QualitySeries | null>((best, s) => (!best || (s.ranAt ?? "") > (best.ranAt ?? "") ? s : best), null);
   const pick = latestTest ?? series.find((s) => s.isCurrent) ?? series[0];
   return pick ? [pick.id] : [];
@@ -21,5 +22,8 @@ export const MAX_SERIES = 6;
 
 export function seriesName(s: QualitySeries): string {
   const kind = s.isCurrent ? "vigente" : s.source === "full_run" ? "corrida completa" : "prueba";
-  return [s.modelLabel, `v${s.promptVersion}`, kind].join(" · ");
+  return [s.modelLabel, `v${s.promptVersion}`, kind, ...(s.progress ? ["en curso"] : [])].join(" · ");
 }
+
+/** Bajo este número de llamadas de validación terminadas, la corrida en curso muestra solo su contador (U4). */
+export const MIN_PARTIAL = 20;

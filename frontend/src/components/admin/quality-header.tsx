@@ -56,7 +56,16 @@ export function scopeText(a: Agreement): string {
   return `${int(s.measured)} de las ${int(s.total)} llamadas de validación (${out}, fuera del cálculo)`;
 }
 
-export function GoalBadge({ ok, goal }: { ok: boolean; goal: number }) {
+/** Universo de la corrida en curso: «87 de 220 llamadas de validación · en curso · 2 con error de la IA, fuera del cálculo». */
+export function partialScopeText(a: Agreement, p: { done: number; total: number }): string {
+  const errors = a.scope?.errors ?? 0;
+  const out = errors ? ` · ${int(errors)} con error de la IA, fuera del cálculo` : "";
+  return `${int(p.done)} de ${int(p.total)} llamadas de validación · en curso${out}`;
+}
+
+export function GoalBadge({ ok, goal, partial }: { ok: boolean; goal: number; partial?: boolean }) {
+  // Con cifras parciales la meta no se evalúa (14-corrida-en-curso.md, U2): badge neutro, sin ✓/✗.
+  if (partial) return <span className="vt border-border text-muted-foreground">Parcial · meta ≤ {goal} %</span>;
   const Icon = ok ? Check : X;
   return (
     <span className={cn("vt", ok ? "vt-pass" : "vt-fail")}>
@@ -134,6 +143,7 @@ export function QualityHeader({
   compare,
   action,
   note,
+  partial,
 }: {
   version: string;
   a: Agreement;
@@ -142,6 +152,8 @@ export function QualityHeader({
   compare?: { label: string; a: Agreement } | null;
   action?: ReactNode;
   note?: ReactNode;
+  /** Corrida completa en curso: llamadas de validación terminadas de las que trae (14-corrida-en-curso.md). */
+  partial?: { done: number; total: number } | null;
 }) {
   const h = headerNumbers(a);
   const b = a.byCall;
@@ -165,8 +177,9 @@ export function QualityHeader({
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2 id="quality-header" className="m-0 text-base font-semibold">
           Calidad de v{version}
+          {partial && " · corrida completa en curso"}
         </h2>
-        <span className="help">{scopeText(a)}</span>
+        <span className="help">{partial ? partialScopeText(a, partial) : scopeText(a)}</span>
         {action && <span className="ml-auto">{action}</span>}
       </div>
       {note}
@@ -209,7 +222,7 @@ export function QualityHeader({
           value={`${h.fpPct} %`}
           sub={
             <>
-              {int(h.fp)} de {llamadas(h.approved)} que el revisor aprobó <GoalBadge ok={fpOk} goal={goals.falsePositivePct} />
+              {int(h.fp)} de {llamadas(h.approved)} que el revisor aprobó <GoalBadge ok={fpOk} goal={goals.falsePositivePct} partial={!!partial} />
             </>
           }
           extra={
@@ -227,7 +240,7 @@ export function QualityHeader({
             </>
           }
           href={h.fp > 0 ? href("fp") : null}
-          label={`Falsas alarmas: ${h.fpPct} %, ${int(h.fp)} de ${llamadas(h.approved)} que el revisor aprobó, ${fpOk ? "cumple" : "no cumple"} la meta de ${goals.falsePositivePct} %. Ver llamadas`}
+          label={`Falsas alarmas: ${h.fpPct} %, ${int(h.fp)} de ${llamadas(h.approved)} que el revisor aprobó, ${partial ? "cifra parcial, la meta se evalúa al terminar" : `${fpOk ? "cumple" : "no cumple"} la meta de ${goals.falsePositivePct} %`}. Ver llamadas`}
           swatch={<Swatch part="promptFp" />}
         />
         <Card
@@ -236,7 +249,7 @@ export function QualityHeader({
           value={`${h.fnPct} %`}
           sub={
             <>
-              {int(h.fn)} de {llamadas(h.rejected)} que el revisor rechazó <GoalBadge ok={fnOk} goal={goals.falseNegativePct} />
+              {int(h.fn)} de {llamadas(h.rejected)} que el revisor rechazó <GoalBadge ok={fnOk} goal={goals.falseNegativePct} partial={!!partial} />
             </>
           }
           extra={
@@ -254,7 +267,7 @@ export function QualityHeader({
             </>
           }
           href={h.fn > 0 ? href("fn") : null}
-          label={`Rechazos no detectados: ${h.fnPct} %, ${int(h.fn)} de ${llamadas(h.rejected)} que el revisor rechazó, ${fnOk ? "cumple" : "no cumple"} la meta de ${goals.falseNegativePct} %. Ver llamadas`}
+          label={`Rechazos no detectados: ${h.fnPct} %, ${int(h.fn)} de ${llamadas(h.rejected)} que el revisor rechazó, ${partial ? "cifra parcial, la meta se evalúa al terminar" : `${fnOk ? "cumple" : "no cumple"} la meta de ${goals.falseNegativePct} %`}. Ver llamadas`}
           swatch={<Swatch part="promptFn" />}
         />
       </div>

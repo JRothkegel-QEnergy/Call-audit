@@ -40,7 +40,7 @@ function QualityTab() {
   const quality = useAsync(() => api.getAiQuality(), []);
   return (
     <AsyncView state={quality} what="la calidad de la IA">
-      {(q) => <AiQualityView data={q} />}
+      {(q) => <AiQualityView data={q} onRefresh={() => quality.reload({ silent: true })} />}
     </AsyncView>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import * as Popover from "@radix-ui/react-popover";
-import { ChevronDown, Plus, X } from "lucide-react";
+import { ChevronDown, Clock, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -15,7 +15,7 @@ import { EmptyState } from "@/components/ui/states";
 import type { AiQuality, QualitySeries } from "@/lib/api/admin-types";
 import { cn } from "@/lib/cn";
 import { int, shortDate } from "@/lib/format";
-import { MAX_SERIES, defaultSeries, seriesName } from "@/lib/quality";
+import { MAX_SERIES, MIN_PARTIAL, defaultSeries, seriesName } from "@/lib/quality";
 
 /**
  * Estadísticas › Calidad de la IA (docs/ux/admin-prompt-metrics/05-numeros-propuesta.md §5): cabecera común + mosaico
@@ -33,7 +33,10 @@ function Dot({ s }: { s: QualitySeries }) {
   return <span aria-hidden className="inline-block h-2.5 w-2.5 flex-none rounded-full" style={{ background: color(s) }} />;
 }
 
-export function AiQualityView({ data }: { data: AiQuality }) {
+const clock = (d: Date) => d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hour12: false });
+
+/** @param onRefresh vuelve a pedir las cifras sin remontar la vista (corrida completa en curso, 14-corrida-en-curso.md). */
+export function AiQualityView({ data, onRefresh }: { data: AiQuality; onRefresh?: () => Promise<AiQuality | undefined> }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -45,6 +48,8 @@ export function AiQualityView({ data }: { data: AiQuality }) {
   // Versión activa (06-ajustes-feedback.md §5, F5): la que muestran cabecera, mosaico y análisis por caso.
   const activeId = selectedIds.includes(params.get("ver") ?? "") ? params.get("ver")! : selectedIds[0];
   const [announce, setAnnounce] = useState("");
+  const [loadedAt, setLoadedAt] = useState(() => new Date());
+  const [refreshing, setRefreshing] = useState(false);
 
   const update = (changes: Record<string, string | null>) => {
     const next = new URLSearchParams(params.toString());
@@ -60,6 +65,23 @@ export function AiQualityView({ data }: { data: AiQuality }) {
 
   const main = byId.get(activeId)!;
   const current = data.series.find((s) => s.isCurrent);
+  const partial = main.progress;
+  // Bajo el mínimo (U4) la corrida en curso tampoco entra en las tablas: solo se ve su contador.
+  const measurable = selected.filter((s) => !s.progress || s.progress.done >= MIN_PARTIAL);
+  const refresh = async () => {
+    if (!onRefresh) return;
+    setRefreshing(true);
+    const before = data.fullRunRunning;
+    const next = await onRefresh();
+    setRefreshing(false);
+    if (!next) return;
+    setLoadedAt(new Date());
+    // Aviso solo tras «Actualizar» y al terminar (U3, WCAG 4.1.3), nunca solo.
+    const p = next.series.find((s) => s.id === main.id)?.progress;
+    if (p) setAnnounce(`Cifras actualizadas: ${int(p.done)} de ${int(p.total)} llamadas de validación`);
+    else if (before && !next.fullRunRunning) setAnnounce(`Terminó la corrida completa de v${before.version}. Cifras finales.`);
+  };
+  const showPartial = (id: string) => (selectedIds.includes(id) ? view(id) : changeSeries([...selectedIds.slice(0, MAX_SERIES - 1), id]));
   const view = (id: string) => {
     update({ ver: id === selectedIds[0] ? null : id });
     setAnnounce(`Ahora ves ${seriesName(byId.get(id)!)}`);
@@ -90,16 +112,52 @@ export function AiQualityView({ data }: { data: AiQuality }) {
             <Link href={`/admin/prompts/${encodeURIComponent(data.promptTestRunning.version)}`}>Ver avance</Link>
           </span>
         )}
+        {data.fullRunRunning && (
+          <span>
+            Corrida completa de v{data.fullRunRunning.version} en curso: {int(data.fullRunRunning.done)} de {int(data.fullRunRunning.total)} llamadas (
+            {int(data.fullRunRunning.validation.done)} de {int(data.fullRunRunning.validation.total)} de validación)
+            {data.fullRunRunning.seriesId && data.fullRunRunning.seriesId !== main.id && (
+              <>
+                {" "}
+                ·{" "}
+                <button type="button" className="min-h-6 text-primary underline" onClick={() => showPartial(data.fullRunRunning!.seriesId!)}>
+                  Ver cifras parciales
+                </button>
+              </>
+            )}
+          </span>
+        )}
       </div>
 
+      {partial && partial.done < MIN_PARTIAL ? (
+        <section className="card grid gap-2" aria-labelledby="quality-header">
+          <h2 id="quality-header" className="m-0 text-base font-semibold">
+            Calidad de v{main.promptVersion} · corrida completa en curso
+          </h2>
+          <p className="m-0 text-sm">
+            Todavía hay pocas llamadas de validación terminadas ({int(partial.done)} de {int(partial.total)}). Las cifras aparecen desde las {MIN_PARTIAL}.
+          </p>
+          <RefreshLine at={loadedAt} busy={refreshing} onRefresh={onRefresh ? refresh : undefined} />
+        </section>
+      ) : (
+        <>
       <QualityHeader
         version={main.promptVersion}
         a={main.agreement}
         goals={data.goals}
         linkVersion={main.listVersion}
-        compare={current && current.id !== main.id ? { label: `v${current.promptVersion} (vigente)`, a: current.agreement } : null}
+        partial={partial}
+        compare={current && current.id !== main.id && !partial ? { label: `v${current.promptVersion} (vigente)`, a: current.agreement } : null}
         note={
-          !main.listVersion ? (
+          partial ? (
+            <div className="grid gap-1">
+              <p className="m-0 text-[13px]" role="note">
+                Cifras parciales: salen de las {int(partial.done)} llamadas de validación que ya terminaron y van a cambiar hasta que termine la corrida.
+                Las metas se evalúan al terminar. Las primeras llamadas no son una muestra al azar: la corrida avanza por fecha.
+              </p>
+              <RefreshLine at={loadedAt} busy={refreshing} onRefresh={onRefresh ? refresh : undefined} />
+            </div>
+          ) : !main.listVersion ? (
             <p className="help m-0">
               {main.isCurrent
                 ? "La vigente se mide con sus corridas de hoy, sin lista de llamadas ni análisis de causa."
@@ -112,11 +170,15 @@ export function AiQualityView({ data }: { data: AiQuality }) {
       />
       <AgreementMosaic version={main.promptVersion} a={main.agreement} linked={!!main.listVersion} />
       <ReasonMatchBar version={main.promptVersion} a={main.agreement} linked={!!main.listVersion} />
-      <CaseGrid key={main.id} series={main} />
+      <CaseGrid key={`${main.id}:${partial?.done ?? ""}`} series={main} />
+        </>
+      )}
 
-      {selected.length > 1 && <Comparison selected={selected} goals={data.goals} activeId={activeId} onView={view} />}
+      {measurable.length > 1 && <Comparison selected={measurable} goals={data.goals} activeId={activeId} onView={view} />}
 
-      <ByCriterion data={data} selected={selected} all={allMotives} onAll={() => update({ motives: allMotives ? null : "all" })} />
+      {measurable.length > 0 && (
+        <ByCriterion data={data} selected={measurable} all={allMotives} onAll={() => update({ motives: allMotives ? null : "all" })} />
+      )}
 
       <details className="card">
         <summary className="cursor-pointer font-semibold">Cómo leer esta pantalla</summary>
@@ -140,6 +202,23 @@ export function AiQualityView({ data }: { data: AiQuality }) {
         </dl>
       </details>
     </div>
+  );
+}
+
+function RefreshLine({ at, busy, onRefresh }: { at: Date; busy: boolean; onRefresh?: () => void }) {
+  return (
+    <p className="help m-0 flex flex-wrap items-center gap-1.5">
+      Cifras a las {clock(at)}
+      {onRefresh && (
+        <>
+          <span aria-hidden>·</span>
+          {/* aria-disabled y no disabled: el foco se queda en el botón mientras actualiza (WCAG 2.4.3). */}
+          <Button size="sm" variant="ghost" onClick={busy ? undefined : onRefresh} aria-disabled={busy} aria-busy={busy}>
+            {busy ? "Actualizando…" : "Actualizar"}
+          </Button>
+        </>
+      )}
+    </p>
   );
 }
 
@@ -245,7 +324,8 @@ function ViewSwitch({ selected, activeId, onView }: { selected: QualitySeries[];
           >
             <span className="inline-flex items-center gap-1.5">
               <Dot s={s} />
-              {s.isCurrent ? `v${s.promptVersion} vigente` : `v${s.promptVersion}`}
+              {s.progress && <Clock size={12} aria-hidden />}
+              {s.isCurrent ? `v${s.promptVersion} vigente` : s.progress ? `Corrida completa v${s.promptVersion} · en curso` : `v${s.promptVersion}`}
             </span>
           </button>
         ))}
@@ -319,6 +399,7 @@ function Comparison({
                     <span className="inline-flex items-center gap-1.5">
                       <Dot s={s} />
                       {seriesName(s)}
+                      {s.progress && ` (${int(s.progress.done)} de ${int(s.progress.total)})`}
                     </span>
                     <div className="mt-1">
                       {s.id === activeId ? (
@@ -337,14 +418,14 @@ function Comparison({
                     <div className="help font-normal">
                       {int(h.fp)} de {int(h.approved)}
                     </div>
-                    <GoalBadge ok={h.fpPct <= goals.falsePositivePct} goal={goals.falsePositivePct} />
+                    <GoalBadge ok={h.fpPct <= goals.falsePositivePct} goal={goals.falsePositivePct} partial={!!s.progress} />
                   </td>
                   <td className="num align-top">
                     {s.listVersion ? <Link href={listHref(s.listVersion, "fn")}>{h.fnPct} %</Link> : `${h.fnPct} %`}
                     <div className="help font-normal">
                       {int(h.fn)} de {int(h.rejected)}
                     </div>
-                    <GoalBadge ok={h.fnPct <= goals.falseNegativePct} goal={goals.falseNegativePct} />
+                    <GoalBadge ok={h.fnPct <= goals.falseNegativePct} goal={goals.falseNegativePct} partial={!!s.progress} />
                   </td>
                   {cell(`${pct(h.undecided, h.n)} %`, `${int(h.undecided)} de ${int(h.n)}`, "undecided")}
                   <td className="num align-top">{usd(s.costPerCallUsd)}</td>

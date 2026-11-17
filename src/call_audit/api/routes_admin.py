@@ -957,6 +957,18 @@ def full_run_results(session: Session, evaluation: PromptEvaluation, split: str 
     return [r for r in results if r["caseId"] in keep]
 
 
+def full_run_progress(session: Session, evaluation: PromptEvaluation, split: str | None) -> dict:
+    """Avance de una corrida completa en curso contado en el set de medición: cuántas de sus llamadas de validación
+    ya tienen resultado, de cuántas trae la corrida."""
+    ids = evaluation.case_ids or []
+    if split is None:
+        total = len(ids)
+    else:
+        cases = session.scalars(select(Case).where(Case.id.in_(ids))) if ids else []
+        total = sum(1 for c in cases if golden_split.split_of(c) == split)
+    return {"done": len(full_run_results(session, evaluation, split)), "total": total}
+
+
 def full_run_block(session: Session, evaluation: PromptEvaluation, split: str | None) -> dict | None:
     results = full_run_results(session, evaluation, split)
     stored = all("findings" in r or r.get("error") for r in results)
@@ -994,11 +1006,22 @@ def admin_quality(session: DbSession, _: AdminReader):
         )
 
     running = None
+    full_running: dict | None = None
     for ev in session.scalars(select(PromptEvaluation).order_by(PromptEvaluation.created_at)):
         if ev.status in ("queued", "running") and prompt_evaluation.is_test(ev):
             running = {"version": ev.version, "done": ev.done, "total": len(ev.case_ids)}
-        if ev.status == "done" and ev.purpose == "full":
+        if ev.purpose == "full" and ev.status in ("done", "queued", "running"):
+            # La corrida en curso también entra, medida en las llamadas de validación que ya terminaron.
+            in_progress = ev.status != "done"
             block = full_run_block(session, ev, split)
+            if in_progress:
+                full_running = {
+                    "version": ev.version,
+                    "seriesId": f"full:{ev.id}" if block is not None else None,
+                    "done": ev.done,
+                    "total": len(ev.case_ids or []),
+                    "validation": full_run_progress(session, ev, split),
+                }
             if block is not None:
                 series.append(
                     {
@@ -1008,10 +1031,11 @@ def admin_quality(session: DbSession, _: AdminReader):
                         "runLabel": f"Corrida completa v{ev.version}",
                         "source": "full_run",
                         "isCurrent": False,
-                        "ranAt": iso(accounts.aware(ev.finished_at or ev.created_at)),
+                        "ranAt": iso(accounts.aware(ev.finished_at or ev.started_at or ev.created_at)),
                         "costPerCallUsd": (ev.metrics or {}).get("costPerCallUsd"),
                         "listVersion": None,
                         "agreement": block,
+                        "progress": full_running["validation"] if in_progress else None,
                     }
                 )
             continue
@@ -1040,6 +1064,7 @@ def admin_quality(session: DbSession, _: AdminReader):
     # Color fijo por modelo, en el orden de models.toml (H-100); los modelos que no están ahí van al final.
     models = sorted({s["model"] for s in series}, key=lambda m: (order.get(m, len(order)), m))
     for s in series:
+        s.setdefault("progress", None)
         s["modelLabel"] = labels.get(s["model"], s["model"])
         s["colorIndex"] = models.index(s["model"]) % 6
     series.sort(key=lambda s: (prompt_registry.version_key(s["promptVersion"]), s["ranAt"] or ""))
@@ -1053,6 +1078,8 @@ def admin_quality(session: DbSession, _: AdminReader):
         ],
         "goals": QUALITY_GOALS,
         "promptTestRunning": running,
+        # Corrida completa en curso (14-corrida-en-curso.md): avance total y en validación; seriesId si ya tiene cifras.
+        "fullRunRunning": full_running,
     }
 
 
@@ -1075,7 +1102,7 @@ def admin_quality_grid(series: str, session: DbSession, _: AdminReader):
         version = ev.version if latest is not None and latest.id == ev.id else None
     elif series.startswith("full:"):
         ev = session.get(PromptEvaluation, series.removeprefix("full:"))
-        if ev is None or ev.status != "done" or ev.purpose != "full":
+        if ev is None or ev.status not in ("done", "queued", "running") or ev.purpose != "full":
             raise HTTPException(404, "not_found")
         results = full_run_results(session, ev, prompt_evaluation.eval_split(session))
         ids = [r["caseId"] for r in results]
