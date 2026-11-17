@@ -156,7 +156,45 @@ def mmss(ms) -> str:
     return f"{seconds // 60:02d}:{seconds % 60:02d}"
 
 
-def call_card(case: dict, runs: list[dict], reviews: list[dict]) -> str:
+EVAL_COLUMNS = ["evaluation_id", "version", "model", "finished_at", "case_id", "external_verdict", "verdict",
+                "fail_criteria", "uncertain_criteria", "findings"]
+
+
+def evaluation_runs(evaluations: list[dict]) -> list[dict]:
+    """Aplana las pruebas completas de prompt (purpose = full): una fila por llamada, como model_runs.
+
+    Esas corridas viven solo en prompt_evaluations.results (JSON); acá quedan consultables y entran a las fichas.
+    """
+    rows = []
+    for ev in sorted(evaluations, key=lambda e: str(e.get("finished_at")), reverse=True):
+        if ev.get("purpose") != "full" or ev.get("status") != "done":
+            continue
+        for result in ev.get("results") or []:
+            rows.append({
+                "evaluation_id": ev["id"], "version": ev.get("version"), "model": ev.get("model"),
+                "finished_at": ev.get("finished_at"), "case_id": result.get("caseId"),
+                "external_verdict": result.get("external"), "verdict": result.get("verdict"),
+                "fail_criteria": result.get("failCriteria"), "uncertain_criteria": result.get("uncertainCriteria"),
+                "findings": result.get("findings"),
+            })
+    return rows
+
+
+def finding_lines(findings) -> list[str]:
+    lines = []
+    for finding in findings or []:
+        if finding.get("verdict") in ("compliant", "not_applicable"):
+            continue
+        quote = (finding.get("evidence") or {}).get("quote")
+        cite = f" · cita: «{quote}»" if quote else ""
+        lines.append(
+            f"- Motivo {finding.get('criterionId')}: {finding.get('verdict')}"
+            f" ({finding.get('confidence')}) — {finding.get('comment') or ''}{cite}"
+        )
+    return lines
+
+
+def call_card(case: dict, runs: list[dict], reviews: list[dict], evals: list[dict] = ()) -> str:
     meta = case.get("call_metadata") or {}
     lines = [
         f"# Llamada {case['call_id']}",
@@ -183,15 +221,17 @@ def call_card(case: dict, runs: list[dict], reviews: list[dict]) -> str:
         ]
         if run.get("error"):
             lines.append(f"Error: {run['error']}")
-        for finding in run.get("findings") or []:
-            if finding.get("verdict") in ("compliant", "not_applicable"):
-                continue
-            quote = (finding.get("evidence") or {}).get("quote")
-            cite = f" · cita: «{quote}»" if quote else ""
-            lines.append(
-                f"- Motivo {finding.get('criterionId')}: {finding.get('verdict')}"
-                f" ({finding.get('confidence')}) — {finding.get('comment') or ''}{cite}"
-            )
+        lines += finding_lines(run.get("findings"))
+
+    for ev in evals:
+        lines += [
+            "",
+            f"## IA · prueba completa del prompt {ev['version']} (no vigente)",
+            "",
+            f"Modelo {ev['model']} · prompt {ev['version']} · terminó {ev['finished_at']}"
+            f" · veredicto **{ev['verdict']}**",
+        ]
+        lines += finding_lines(ev.get("findings"))
 
     for review in reviews:
         lines += ["", f"## Revisión del auditor · {review.get('final_verdict')} · {review.get('submitted_at')}", ""]
@@ -217,6 +257,13 @@ def cmd_dump(client: Client, args: argparse.Namespace) -> None:
         data[name] = dump_table(client, name, table["cols"], order, out / "tables" / f"{name}.jsonl")
         print(f"{name}: {len(data[name])} filas", file=sys.stderr)
 
+    data["evaluation_runs"] = evaluation_runs(data.get("prompt_evaluations", []))
+    columns["evaluation_runs"] = EVAL_COLUMNS
+    print(f"evaluation_runs: {len(data['evaluation_runs'])} filas (pruebas completas)", file=sys.stderr)
+    evals_by_case: dict[str, list[dict]] = {}
+    for row in data["evaluation_runs"]:
+        evals_by_case.setdefault(row["case_id"], []).append(row)
+
     calls = out / "calls"
     calls.mkdir(exist_ok=True)
     runs_by_case: dict[str, list[dict]] = {}
@@ -227,7 +274,10 @@ def cmd_dump(client: Client, args: argparse.Namespace) -> None:
         reviews_by_case.setdefault(review["case_id"], []).append(review)
     for case in data.get("cases", []):
         name = "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in str(case["call_id"]))
-        card = call_card(case, runs_by_case.get(case["id"], []), reviews_by_case.get(case["id"], []))
+        card = call_card(
+            case, runs_by_case.get(case["id"], []), reviews_by_case.get(case["id"], []),
+            evals_by_case.get(case["id"], []),
+        )
         (calls / f"{name}.md").write_text(card, encoding="utf-8")
     print(f"{len(data.get('cases', []))} fichas en {calls}", file=sys.stderr)
     write_sqlite(out / "qubico.db", columns, data)
