@@ -14,7 +14,7 @@ from sqlalchemy import select
 
 from call_audit import accounts
 from call_audit.api import serializers as out
-from call_audit.api.deps import CurrentUser, DbSession, Supervisor, SupervisorOrAdmin
+from call_audit.api.deps import Admin, CurrentUser, DbSession, Supervisor
 from call_audit.api.routes_auditor import REOPEN_PREFIX, RubricDep, get_case
 from call_audit.config import Settings, get_settings
 from call_audit.persistence.models import AccessLog, Alert, Case, DiscrepancyClassification, Note, Review, User
@@ -253,8 +253,9 @@ def branch(ai: str, client: str) -> str:
     return "ai_only_fail" if ai == "non_compliant" else "ai_missed_fail"
 
 
+# Discrepancias (IA vs planilla): por ahora solo el admin de Qubico, no el supervisor (D-48, pedido 2026-11-19).
 @router.get("/discrepancies")
-def discrepancies(session: DbSession, _: SupervisorOrAdmin):
+def discrepancies(session: DbSession, _: Admin):
     rows = []
     for case in session.scalars(select(Case).where(Case.external_verdict.is_not(None))):
         run = out.current_run(case)
@@ -299,7 +300,7 @@ def classification_for(session: DbSession, case_id: str, user: User) -> Discrepa
 
 
 @router.post("/discrepancies/{case_id}", status_code=204)
-def classify(case_id: str, body: ClassifyIn, session: DbSession, user: SupervisorOrAdmin) -> None:
+def classify(case_id: str, body: ClassifyIn, session: DbSession, user: Admin) -> None:
     get_case(session, case_id)
     item = classification_for(session, case_id, user)
     item.classification, item.criterion_ids = body.classification, body.criterionIds
@@ -318,7 +319,7 @@ class PresentationIn(BaseModel):
 
 
 @router.post("/discrepancies/{case_id}/presentation", status_code=204)
-def set_presentation(case_id: str, body: PresentationIn, session: DbSession, user: SupervisorOrAdmin) -> None:
+def set_presentation(case_id: str, body: PresentationIn, session: DbSession, user: Admin) -> None:
     get_case(session, case_id)
     item = session.get(DiscrepancyClassification, case_id)
     if item is None or item.classification != "ai_correct":

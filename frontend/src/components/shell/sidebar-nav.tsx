@@ -21,9 +21,7 @@ import {
   ScanSearch,
   Settings,
   ListChecks,
-  ShieldCheck,
   SquareCheckBig,
-  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -100,16 +98,9 @@ export function SidebarNav({
           { label: "Calidad del servicio", href: "/analysis", icon: BarChart3 },
           { label: "Alertas", href: "/alerts", icon: Bell, count: counts.alerts, alert: true },
           { label: "Revisiones", href: "/reviews", icon: SquareCheckBig, count: counts.approvals, match: ["/calls/"] },
-          // En modo real estas tres vistas no tienen datos: las reemplaza Calidad del servicio (F-3).
-          ...(isRealMode
-            ? []
-            : [
-                { label: "Ejecutivos", href: "/agents", icon: Users },
-                { label: "Criterios", href: "/dashboard/criteria", icon: List },
-                { label: "Auditores", href: "/auditors", icon: ShieldCheck },
-              ]),
+          // Las vistas antiguas de Ejecutivos, Criterios y Auditores no tienen datos todavía: las reemplaza Calidad del
+          // servicio y no se muestran (F-3, pedido 2026-11-19). Discrepancias, por ahora, solo para Qubico (D-48).
           { label: "Cola", href: "/queue", icon: List },
-          { label: "Discrepancias", href: "/discrepancies", icon: GitCompareArrows },
           // Cambio 11: solo con el permiso manage_catalog (D-28).
           ...(user.permissions.includes("manage_catalog")
             ? [{ label: "Seguros", href: "/catalog", icon: FileSpreadsheet }]

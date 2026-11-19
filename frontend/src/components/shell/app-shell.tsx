@@ -24,7 +24,6 @@ const ALLOWED: Record<Role, string[]> = {
     "/reviews",
     "/agents",
     "/auditors",
-    "/discrepancies",
     "/queue",
     "/catalog",
     ...COMMON,
@@ -52,8 +51,8 @@ export function homeFor(role: Role) {
 }
 
 /**
- * En modo real, las vistas del supervisor que dependían de revisiones confirmadas en la app (vacías hoy) llevan a
- * Calidad del servicio (F-4). En la demo siguen como estaban.
+ * Las vistas del supervisor que dependían de revisiones confirmadas en la app (vacías hoy) llevan a
+ * Calidad del servicio (F-4), también en la demo (pedido 2026-11-19).
  */
 const REAL_MODE_REDIRECTS: [RegExp, (m: RegExpMatchArray) => string][] = [
   [/^\/agents\/([^/]+)$/, (m) => `/analysis/agents/${m[1]}`],
@@ -63,7 +62,8 @@ const REAL_MODE_REDIRECTS: [RegExp, (m: RegExpMatchArray) => string][] = [
 ];
 
 function realModeRedirect(role: Role, pathname: string): string | null {
-  if (!isRealMode || role !== "supervisor") return null;
+  // Pedido 2026-11-19: también en la demo; esas vistas todavía no están disponibles.
+  if (role !== "supervisor") return null;
   for (const [re, to] of REAL_MODE_REDIRECTS) {
     const m = pathname.match(re);
     if (m) return to(m);

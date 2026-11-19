@@ -69,6 +69,8 @@
 | D-45 | 2026-11-19 | "Criterio del prompt" pasa a **"Regla de aplicación"**; "Prompt o criterio" a **"Prompt o regla de aplicación"** | Johannes (IT-Q18 A) |
 | D-46 | 2026-11-19 | En vistas agregadas el modal muestra solo la lista oficial y "Cómo se evalúa"; sin datos nuevos en la foto ni modal por fila en `/analysis/calls` | Johannes (IT-Q19 A) |
 | D-47 | 2026-11-19 | La lista de motivos de renuncia **se lee de `renunciation_reasons` en `prompts/layer2/prompt.yaml` vigente** (fuente única: el prompt) vía `GET /api/reference/renunciation-reasons`. No se mueve a la rúbrica por ahora porque obligaría a subir versión de rúbrica y prompt (resuelve P-12) | Coordinador (decisión técnica) |
+| D-48 | 2026-11-19 | **Discrepancias, por ahora, solo para el admin de Qubico.** El supervisor no la ve en el menú, la ruta lo saca y la API responde 403 (resuelve P-6) | Johannes ("saca de la vista de supervisor la vista discrepancias") |
+| D-49 | 2026-11-19 | Las vistas antiguas del supervisor sin datos (Ejecutivos `/agents`, Criterios `/dashboard/criteria`, Auditores `/auditors`) **no se muestran en ningún modo, tampoco en la demo**, y sus rutas llevan a Calidad del servicio. Amplía F-3/F-4 | Johannes ("no las muestres si es que aún no están disponibles") |
 
 ## Aprobaciones (continuación)
 
@@ -90,7 +92,7 @@
 | P-3 | `TIPO_SEGURO` no trae el tipo: en la base local viene con el sistema de origen (MUS 62, SALEFORCE 36, ANETO 2; revisado al implementar, 2026-11-17). La foto agrupa por nombre de producto (Accidentes personales, Sale Seguro, Vida y salud, Incendio Hogar); falta validar esa lista con la corredora | Johannes | La pestaña de tipo de seguro (filtro) |
 | P-4 | Volumen por ejecutivo en producción en 90 días (D-27): define si Ejecutivos se abre en la ola 1 | Johannes / analista | No (hay estado vacío) |
 | P-5 | El evaluador de la planilla debe venir en la importación (la base local no lo trae; Cambio 20, D-97) | Johannes | La pestaña Evaluadores |
-| P-6 | Confirmar H-16 en producción (ningún supervisor real usa Discrepancias) antes de quitársela (D-11) | Johannes | F-3/F-4 |
+| ~~P-6~~ | ~~Confirmar H-16 en producción antes de quitar Discrepancias al supervisor~~ | Johannes | **Resuelta 19-nov: se quita (D-48)** |
 | P-7 | Motivo 1 como "Explicado por los datos" (HE-03): validar con Verónica | Rodrigo | No |
 | P-8 | Fecha de la reunión con Verónica | Rodrigo | No |
 | P-9 | La foto solo se regenera al cerrar una corrida o importar una planilla (D-08); las revisiones del auditor hechas después no aparecen hasta la próxima foto. Decidir si también se regenera al aprobar revisiones o una vez al día | Johannes | No |

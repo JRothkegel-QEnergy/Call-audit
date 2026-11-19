@@ -1,8 +1,24 @@
 import pytest
+from argon2 import PasswordHasher
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session, sessionmaker
 
 from call_audit.persistence.models import User
-from tests.conftest import login
+from tests.conftest import PASSWORD, login
+
+
+@pytest.fixture
+def admin(imported: sessionmaker[Session]) -> User:
+    user = User(
+        email="admin@qubico-ejemplo.cl",
+        name="Admin",
+        role="qubico_admin",
+        permissions=[],
+        password_hash=PasswordHasher().hash(PASSWORD),
+    )
+    with imported() as session, session.begin():
+        session.add(user)
+    return user
 
 
 def case_id(client: TestClient, call_id: str) -> str:
@@ -96,8 +112,11 @@ def test_notes_by_finding_only_editable_by_author(client: TestClient, users: dic
     assert client.patch(f"/api/notes/{note['id']}", json={"text": "otra"}).status_code == 403
 
 
-def test_discrepancy_tree(client: TestClient, users: dict[str, User]) -> None:
+def test_discrepancy_tree(client: TestClient, users: dict[str, User], admin: User) -> None:
+    # D-48: Discrepancias, por ahora, solo para el admin de Qubico.
     login(client, users["supervisor"])
+    assert client.get("/api/discrepancies").status_code == 403
+    login(client, admin)
     rows = {r["callId"]: r for r in client.get("/api/discrepancies").json()}
     assert rows["1001"]["branch"] == "match"
     assert rows["1002"]["branch"] == "ai_only_fail"
@@ -113,8 +132,8 @@ def test_discrepancy_tree(client: TestClient, users: dict[str, User]) -> None:
     assert row["presentation"] == "presented"
 
 
-def test_presentation_only_for_ai_correct(client: TestClient, users: dict[str, User]) -> None:
-    login(client, users["supervisor"])
+def test_presentation_only_for_ai_correct(client: TestClient, admin: User) -> None:
+    login(client, admin)
     cid = next(r["caseId"] for r in client.get("/api/discrepancies").json() if r["callId"] == "1002")
     assert client.post(f"/api/discrepancies/{cid}/presentation", json={"presented": True}).status_code == 409
 
