@@ -1,5 +1,6 @@
 "use client";
 
+import { RenunciationReasonsButton } from "@/components/call/renunciation-reasons";
 import { ExportButton } from "@/components/dialogs/export-dialog";
 import { PageHeader } from "@/components/ui/page-header";
 import { AsyncView, UnavailableStats } from "@/components/ui/states";
@@ -18,11 +19,11 @@ export default function CriteriaPage() {
   return (
     <>
       <PageHeader
-        title="Motivos"
-        description="Incumplimientos confirmados · últimos 30 días. Haz clic en un motivo para ver sus llamadas."
+        title="Criterios"
+        description="Incumplimientos confirmados · últimos 30 días. Haz clic en un criterio para ver sus llamadas."
         actions={<ExportButton />}
       />
-      <AsyncView state={state} what="los motivos">
+      <AsyncView state={state} what="los criterios">
         {({ stats, heat }) => {
           const max = Math.max(1, ...heat.rows.flatMap((r) => r.counts));
           return (
@@ -30,7 +31,7 @@ export default function CriteriaPage() {
               <table className="tbl">
                 <thead>
                   <tr>
-                    <th>Motivo</th>
+                    <th>Criterio</th>
                     <th>Bloque</th>
                     <th>Incumplimientos</th>
                     <th>% de llamadas</th>
@@ -41,7 +42,8 @@ export default function CriteriaPage() {
                   {stats.map((s) => (
                     <tr key={s.criterionId}>
                       <td className="whitespace-normal">
-                        Motivo {s.criterionId} · {rubric?.criteria[s.criterionId]?.name}
+                        Criterio {s.criterionId} · {rubric?.criteria[s.criterionId]?.name}
+                        <RenunciationReasonsButton criterionId={s.criterionId} />
                       </td>
                       <td>{blockName(s.criterionId)}</td>
                       <td className="num">{s.count}</td>
@@ -51,14 +53,14 @@ export default function CriteriaPage() {
                   ))}
                 </tbody>
               </table>
-              <h2 className="mb-2 mt-5 text-base font-semibold">Motivo × ejecutivo</h2>
+              <h2 className="mb-2 mt-5 text-base font-semibold">Criterio × ejecutivo</h2>
               {isRealMode ? (
                 <UnavailableStats />
               ) : (
               <table className="tbl">
                 <thead>
                   <tr>
-                    <th>Motivo</th>
+                    <th>Criterio</th>
                     {heat.agents.map((a) => (
                       <th key={a.id} className="text-center">
                         {a.name.split(" ")[0]} {a.name.split(" ")[1]?.[0]}.
@@ -69,7 +71,10 @@ export default function CriteriaPage() {
                 <tbody>
                   {heat.rows.map((r) => (
                     <tr key={r.criterionId}>
-                      <td>Motivo {r.criterionId}</td>
+                      <td>
+                        Criterio {r.criterionId}
+                        <RenunciationReasonsButton criterionId={r.criterionId} />
+                      </td>
                       {r.counts.map((v, i) => (
                         <td
                           key={heat.agents[i].id}

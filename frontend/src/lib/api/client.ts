@@ -1,3 +1,4 @@
+import type { AnalysisApi } from "./analysis-types";
 import type {
   Agent,
   AgentDetail,
@@ -23,6 +24,7 @@ import type {
   Permission,
   QueueFilters,
   Role,
+  RenunciationReasons,
   Rubric,
   User,
 } from "./types";
@@ -83,7 +85,7 @@ import type {
  * se agrega `HttpApi` contra FastAPI con la misma interfaz y se elige por
  * NEXT_PUBLIC_API_MODE, sin tocar las pantallas.
  */
-export interface ApiClient {
+export interface ApiClient extends AnalysisApi {
   // Sesión
   /** `demoRole` existe solo en el mock (enlaces de la demo en el login). */
   login(input: { email: string; password: string } | { demoRole: Role }): Promise<User>;
@@ -96,6 +98,7 @@ export interface ApiClient {
 
   // Pauta
   getRubric(): Promise<Rubric>;
+  getRenunciationReasons(): Promise<RenunciationReasons>;
 
   // Auditor
   listQueue(filters?: QueueFilters): Promise<{ rows: CaseSummary[]; total: number; reviewedToday: number }>;
@@ -112,7 +115,7 @@ export interface ApiClient {
   ): Promise<void>;
   listMyReviews(): Promise<MyReviewRow[]>;
 
-  // Notas por caso y por motivo (Cambio 09 §3.3)
+  // Notas por caso y por criterio (Cambio 09 §3.3)
   addNote(caseId: string, input: { scope: "case" | "finding"; criterionId: number | null; text: string }): Promise<Note>;
   editNote(noteId: string, text: string): Promise<Note>;
   getDayStats(): Promise<{ reviewed: number; corrected: number; reviewSeconds: number; audioSeconds: number }>;
@@ -197,7 +200,7 @@ export interface ApiClient {
     changelog: string;
     rationale: string | null;
   }): Promise<PromptVersion>;
-  /** Cambio 18: la comparación por motivo con las reglas aceptadas aplicadas. No guarda nada ni gasta. */
+  /** Cambio 18: la comparación por criterio con las reglas aceptadas aplicadas. No guarda nada ni gasta. */
   previewPromptFromFollowUp(input: { proposalIds: string[]; overrides?: Record<number, string> }): Promise<FollowUpPromptPreview>;
   /** Cambio 18: crea el borrador con las reglas aplicadas; 409 si cambió la vigente o alguna regla. */
   createPromptFromFollowUp(input: {

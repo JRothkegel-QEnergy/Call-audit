@@ -8,16 +8,16 @@ export default function PromptCasePage({
   searchParams,
 }: {
   params: Promise<{ version: string; caseId: string }>;
-  searchParams: Promise<{ segment?: string; motivo?: string; fuente?: string; asignadas?: string }>;
+  searchParams: Promise<{ segment?: string; criterio?: string; fuente?: string; asignadas?: string }>;
 }) {
   return (
     <Suspense fallback={<LoadingState />}>
-      {Promise.all([params, searchParams]).then(([{ version, caseId }, { segment, motivo, fuente, asignadas }]) => (
+      {Promise.all([params, searchParams]).then(([{ version, caseId }, { segment, criterio, fuente, asignadas }]) => (
         <CaseReviewView
           version={decodeURIComponent(version)}
           caseId={decodeURIComponent(caseId)}
           segment={(segment as CallList | undefined) ?? null}
-          criterion={motivo ? Number(motivo) : null}
+          criterion={criterio ? Number(criterio) : null}
           scope={{ source: fuente === "full" ? "full" : "test", assignee: asignadas ?? null }}
         />
       ))}

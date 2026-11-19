@@ -79,7 +79,7 @@ const MODELS = [
 const BASE_PROMPT = [
   "Eres un auditor de calidad de llamadas de retención de seguros (texto sintético de la demo).",
   "1. Un motivo incumple solo si hay evidencia explícita en la transcripción.",
-  "2. Si la evidencia es ambigua, marca el motivo como dudoso.",
+  "2. Si la evidencia es ambigua, marca el criterio como dudoso.",
 ].join("\n");
 
 const metrics = (match: number, extra = 0): EvaluationMetrics => ({
@@ -118,7 +118,7 @@ const metrics = (match: number, extra = 0): EvaluationMetrics => ({
       reviewerFp: extra ? 2 : 0,
     },
     criteria: 33,
-    // Acuerdo en motivos (sintético): suma byCall.agree.
+    // Acuerdo en criterios (sintético): suma byCall.agree.
     reasonMatch: {
       n: match,
       bothPass: Math.round(match * 0.43),
@@ -186,7 +186,7 @@ const state = {
     { id: "u-aud-3", name: "Sofía Reyes", email: "sofia.reyes@empresa-ejemplo.cl", role: "auditor", status: "invite_expired", loginMethod: "password", permissions: [], lastLoginAt: null, createdBy: "Jorge Lagos", createdAt: "2026-10-15T15:00:00" },
   ] as UserAccount[],
   prompts: [
-    { meta: meta("2.9", "retired", "Criterio de Johannes para el motivo 32.", { activatedAt: "2026-10-20T09:00:00", retiredAt: "2026-10-22T09:00:00" }), content: BASE_PROMPT, history: [], run: { status: "done", startedAt: 0, total: 100, metrics: metrics(68) } },
+    { meta: meta("2.9", "retired", "Criterio de Johannes para el criterio 32.", { activatedAt: "2026-10-20T09:00:00", retiredAt: "2026-10-22T09:00:00" }), content: BASE_PROMPT, history: [], run: { status: "done", startedAt: 0, total: 100, metrics: metrics(68) } },
     { meta: meta("2.10", "active", "Exige frases exactas en el cierre.", { activatedAt: "2026-10-22T09:00:00", activationReason: "Sube la coincidencia con la planilla." }), content: `${BASE_PROMPT}\n3. Verifica las frases exactas del protocolo de cierre.`, history: [], run: { status: "done", startedAt: 0, total: 100, metrics: metrics(70, 1) } },
   ] as Record_[],
   activity: [
@@ -221,7 +221,7 @@ const greater = (a: string, b: string) => {
 };
 const active = () => state.prompts.find((p) => p.meta.status === "active")!;
 
-/** Cambio 18 en la demo: aplica las reglas aceptadas a un criterio sintético por motivo, como prompt_followup.py. */
+/** Cambio 18 en la demo: aplica las reglas aceptadas a un criterio sintético por criterio, como prompt_followup.py. */
 function followUpPreview(ids: string[], overrides: Record<number, string>): FollowUpPromptPreview {
   const cur = active().meta.version;
   let next = `${cur.split(".")[0]}.${Number(cur.split(".")[1]) + 1}`;
@@ -231,7 +231,7 @@ function followUpPreview(ids: string[], overrides: Record<number, string>): Foll
   const criteria = [...byMotive.entries()]
     .sort(([a], [b]) => a - b)
     .map(([criterionId, rules]) => {
-      const before = `Criterio sintético del motivo ${criterionId} en la demo.`;
+      const before = `Criterio sintético del criterio ${criterionId} en la demo.`;
       let current = before;
       const results = rules.map((p) => {
         const action = p.proposal?.action ?? null;
@@ -256,7 +256,7 @@ function followUpPreview(ids: string[], overrides: Record<number, string>): Foll
       const manual = override !== undefined && override.trim() !== current.trim();
       return {
         criterionId,
-        title: rules[0].criterionName ?? `Motivo ${criterionId}`,
+        title: rules[0].criterionName ?? `Criterio ${criterionId}`,
         before,
         generated: current,
         after: manual ? override.trim() : current,
@@ -269,8 +269,8 @@ function followUpPreview(ids: string[], overrides: Record<number, string>): Foll
     baseIsActive: true,
     version: next,
     model: active().meta.model,
-    changelog: `Reglas del análisis de discrepancias: ${criteria.length === 1 ? "motivo" : "motivos"} ${criteria.map((c) => c.criterionId).join(", ")}.`,
-    rationale: criteria.flatMap((c) => c.rules.map((r) => `Motivo ${c.criterionId} · Patrón #${r.patternRank}: ${r.note ?? r.patternTitle}`)).join("\n"),
+    changelog: `Reglas del análisis de discrepancias: ${criteria.length === 1 ? "criterio" : "criterios"} ${criteria.map((c) => c.criterionId).join(", ")}.`,
+    rationale: criteria.flatMap((c) => c.rules.map((r) => `Criterio ${c.criterionId} · Patrón #${r.patternRank}: ${r.note ?? r.patternTitle}`)).join("\n"),
     criteria,
   };
 }
@@ -494,7 +494,7 @@ export const adminMock: AdminApi = {
       if (preview.baseVersion !== input.baseVersion) throw new ApiError("base_changed");
       if (preview.criteria.some((c) => c.rules.some((r) => r.state === "review"))) throw new ApiError("review_pending");
       const cur = active();
-      const added = preview.criteria.map((c) => `Motivo ${c.criterionId} · Criterio: ${c.after}`).join("\n");
+      const added = preview.criteria.map((c) => `Criterio ${c.criterionId} · Criterio: ${c.after}`).join("\n");
       const record: Record_ = {
         meta: meta(preview.version, "draft", input.changelog.trim(), { source: cur.meta.source, model: input.model, rationale: input.rationale, createdBy: currentUser()?.name ?? "?", createdAt: iso() }),
         content: `${cur.content}\n${added}`,
@@ -557,7 +557,7 @@ export const adminMock: AdminApi = {
     wait(() => {
       const p = find(version);
       const rollback = p.meta.status === "retired";
-      if (!reason.trim()) throw new ApiError("invalid_prompt", ["Escribe el motivo de la activación."]);
+      if (!reason.trim()) throw new ApiError("invalid_prompt", ["Escribe la razón de la activación."]);
       const cur = active();
       if (cur !== p) Object.assign(cur.meta, { status: "retired", retiredAt: iso() });
       Object.assign(p.meta, { status: "active", activatedAt: iso(), activatedBy: currentUser()?.name ?? null, activationReason: reason, retiredAt: null });

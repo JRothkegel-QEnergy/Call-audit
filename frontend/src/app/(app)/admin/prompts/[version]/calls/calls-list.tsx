@@ -29,8 +29,8 @@ import { scopeFromParams, scopeQuery, verificationHref } from "@/lib/verificatio
 const scopeLabel = (assignee: string | null) =>
   assignee === "me" ? "asignadas a ti" : assignee === "unassigned" ? "sin asignar" : assignee && assignee !== "all" ? "de esta persona" : "de la corrida completa";
 
-/** Nivel 2 · Lista de las llamadas de una parte del mosaico (o de un lado, o de un motivo), con el avance de la
- * verificación (04-verificacion-propuesta.md §5.2, 05-numeros-propuesta.md §3). El motivo filtra en el servidor: la
+/** Nivel 2 · Lista de las llamadas de una parte del mosaico (o de un lado, o de un criterio), con el avance de la
+ * verificación (04-verificacion-propuesta.md §5.2, 05-numeros-propuesta.md §3). El criterio filtra en el servidor: la
  * suma de la verificación es la de la lista que se ve. */
 export function CallsListView({ version }: { version: string }) {
   const params = useSearchParams();
@@ -83,23 +83,23 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
   const statusOf = (i: SegmentCall): CallVerification =>
     full && i.verification === "none" && !i.reviewedAt ? "pending" : i.verification;
   const count = (f: StatusFilter) => (f === "all" ? items.length : items.filter((i) => statusOf(i) === f).length);
-  // Opciones del motivo: con conteos del alcance completo cuando el servidor los trae (lista «all», 16 L2 A); si no,
-  // los motivos de la lista que se ve.
+  // Opciones del criterio: con conteos del alcance completo cuando el servidor los trae (lista «all», 16 L2 A); si no,
+  // los criterios de la lista que se ve.
   const criteria: { id: number; label: string }[] = data.criterionCounts
     ? [
         ...data.criterionCounts.map((c) => ({
           id: c.criterionId,
-          label: `Motivo ${c.criterionId} · ${plural(c.calls, "llamada", "llamadas")} · ${
+          label: `Criterio ${c.criterionId} · ${plural(c.calls, "llamada", "llamadas")} · ${
             c.pending === 0 ? "al día" : plural(c.pending, "pendiente", "pendientes")
           }`,
         })),
         ...(motivo != null && !data.criterionCounts.some((c) => c.criterionId === motivo)
-          ? [{ id: motivo, label: `Motivo ${motivo} · 0 llamadas` }]
+          ? [{ id: motivo, label: `Criterio ${motivo} · 0 llamadas` }]
           : []),
       ]
     : [...new Set([...items.flatMap((i) => i.disagreements.map((d) => d.criterionId)), ...(motivo != null ? [motivo] : [])])]
         .sort((a, b) => a - b)
-        .map((id) => ({ id, label: `Motivo ${id}` }));
+        .map((id) => ({ id, label: `Criterio ${id}` }));
   const mine = full && scope.assignee === "me";
   const clearMotivo = () => set("motivo", null);
   const shown = items
@@ -124,7 +124,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
       <AdminHeader
         title={`${listTitle(segment, motivo, { vs: data.vs, sample: data.sample })} · v${version}`}
         description={`${items.length} llamadas de ${data.n} ${full ? scopeLabel(scope.assignee) : "de validación"} · ${
-          motivo != null ? `con desacuerdo en el motivo ${motivo}` : SEGMENT_SUPPORT[segment]
+          motivo != null ? `con desacuerdo en el criterio ${motivo}` : SEGMENT_SUPPORT[segment]
         }`}
       />
 
@@ -138,7 +138,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
           </MetricHelp>
         </h2>
         {s.calls === 0 && !(full && firstPending) ? (
-          <p className="help m-0">Ninguna llamada de esta parte tiene motivos en desacuerdo que verificar.</p>
+          <p className="help m-0">Ninguna llamada de esta parte tiene criterios en desacuerdo que verificar.</p>
         ) : (
           <>
             <div
@@ -187,9 +187,9 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
           ))}
         </div>
         <label className="flex items-center gap-1.5 text-sm">
-          Motivo:
+          Criterio:
           <select className="control" value={motivo ?? ""} onChange={(e) => set("motivo", e.target.value || null)}>
-            <option value="">{data.criterionCounts ? `Todos los motivos · ${plural(data.n, "llamada", "llamadas")}` : "Todos"}</option>
+            <option value="">{data.criterionCounts ? `Todos los criterios · ${plural(data.n, "llamada", "llamadas")}` : "Todos"}</option>
             {criteria.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.label}
@@ -208,8 +208,8 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
       {items.length === 0 && motivo != null && segment === "all" ? (
         <p className="empty-state">
           {mine
-            ? `Ninguna de tus llamadas tiene desacuerdo en el motivo ${motivo}.`
-            : `Ninguna llamada de este alcance tiene desacuerdo en el motivo ${motivo}.`}{" "}
+            ? `Ninguna de tus llamadas tiene desacuerdo en el criterio ${motivo}.`
+            : `Ninguna llamada de este alcance tiene desacuerdo en el criterio ${motivo}.`}{" "}
           <button type="button" className="underline" onClick={clearMotivo}>
             Quitar filtro
           </button>
@@ -241,7 +241,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
                 <th scope="col">Planilla</th>
                 <th scope="col">Tipificó</th>
                 {segment === "changed" && <th scope="col">Cambio</th>}
-                <th scope="col">Motivos en desacuerdo</th>
+                <th scope="col">Criterios en desacuerdo</th>
                 {full && !mine && <th scope="col">Asignada a</th>}
                 <th scope="col">Verificación</th>
               </tr>
@@ -278,7 +278,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
                           title={d.kind === "undecided" ? "La IA quedó dudosa" : d.kind === "fn" ? "La IA aprueba, la planilla rechaza" : "La IA rechaza, la planilla aprueba"}
                         >
                           M{d.criterionId}
-                          {d.criterionId === motivo && <span className="sr-only"> (motivo filtrado)</span>}
+                          {d.criterionId === motivo && <span className="sr-only"> (criterio filtrado)</span>}
                           {d.outcome && <span aria-hidden> ✓</span>}
                           <span className="sr-only">{d.outcome ? " registrado" : " sin registrar"}</span>
                         </span>

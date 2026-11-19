@@ -6,7 +6,7 @@ import { Dialog } from "@/components/ui/dialog";
 import type { ProductSheet as Sheet, ProductSheetSectionKey, SheetDetailSection, SheetDetailTable } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 
-/** Secciones de la ficha completa que se resaltan según la sección de la pauta del motivo en foco (11, K4). */
+/** Secciones de la ficha completa que se resaltan según la sección de la pauta del criterio en foco (11, K4). */
 const RELEVANT_DETAIL: Partial<Record<ProductSheetSectionKey, string[]>> = {
   coverages: ["coverages", "assistances", "exclusions"],
   premium: ["premiums"],
@@ -23,7 +23,7 @@ export function RelevantBadge({ criterionId }: { criterionId: number | null }) {
   if (criterionId == null) return null;
   return (
     <span className="ml-1.5 inline-flex h-[18px] items-center rounded-full border border-primary bg-card px-2 text-[11px] font-semibold text-accent-foreground">
-      Relevante para el motivo {criterionId}
+      Relevante para el criterio {criterionId}
     </span>
   );
 }
@@ -152,7 +152,7 @@ export function ProductSheetFullDialog({
   const relevantKeys = relevantDetailKeys(relevant);
   const firstRelevant = sections.find((x) => relevantKeys.includes(x.key))?.key;
 
-  // Abre desplazado a la primera sección relevante para el motivo en foco (K4).
+  // Abre desplazado a la primera sección relevante para el criterio en foco (K4).
   useEffect(() => {
     if (!open || !firstRelevant) return;
     const id = window.setTimeout(() => {

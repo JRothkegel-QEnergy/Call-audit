@@ -6,6 +6,7 @@ import { ShortcutsDialog } from "@/components/dialogs/shortcuts-dialog";
 import { LoadingState } from "@/components/ui/states";
 import type { Role } from "@/lib/api/types";
 import { useSession } from "@/lib/session";
+import { isRealMode } from "@/lib/api";
 import { NavCountsProvider } from "./nav-counts";
 import { SidebarNav } from "./sidebar-nav";
 
@@ -16,9 +17,20 @@ import { SidebarNav } from "./sidebar-nav";
 const COMMON = ["/calls/", "/settings"];
 const ALLOWED: Record<Role, string[]> = {
   auditor: ["/queue", "/my-reviews", ...COMMON],
-  supervisor: ["/dashboard", "/alerts", "/reviews", "/agents", "/auditors", "/discrepancies", "/queue", "/catalog", ...COMMON],
-  qubico_admin: ["/admin", "/discrepancies", "/catalog", ...COMMON],
-  qubico_viewer: ["/admin", ...COMMON],
+  supervisor: [
+    "/analysis",
+    "/dashboard",
+    "/alerts",
+    "/reviews",
+    "/agents",
+    "/auditors",
+    "/discrepancies",
+    "/queue",
+    "/catalog",
+    ...COMMON,
+  ],
+  qubico_admin: ["/admin", "/analysis", "/discrepancies", "/catalog", ...COMMON],
+  qubico_viewer: ["/admin", "/analysis", ...COMMON],
   // Verificador (13-rol-verificador): solo la verificación; las rutas de la versión se filtran abajo.
   qubico_verifier: ["/verification", "/settings"],
 };
@@ -34,7 +46,29 @@ function matchesPrefix(pathname: string, prefix: string) {
 export function homeFor(role: Role) {
   if (role === "qubico_admin" || role === "qubico_viewer") return "/admin/stats";
   if (role === "qubico_verifier") return "/verification";
-  return role === "supervisor" ? "/dashboard" : "/queue";
+  // D-20/D-41: en modo real el supervisor entra a Calidad del servicio → Ejecutivos; Inicio sigue en el menú.
+  if (role === "supervisor") return isRealMode ? "/analysis/agents" : "/dashboard";
+  return "/queue";
+}
+
+/**
+ * En modo real, las vistas del supervisor que dependían de revisiones confirmadas en la app (vacías hoy) llevan a
+ * Calidad del servicio (F-4). En la demo siguen como estaban.
+ */
+const REAL_MODE_REDIRECTS: [RegExp, (m: RegExpMatchArray) => string][] = [
+  [/^\/agents\/([^/]+)$/, (m) => `/analysis/agents/${m[1]}`],
+  [/^\/agents\/?$/, () => "/analysis/agents"],
+  [/^\/dashboard\/criteria\/?$/, () => "/analysis"],
+  [/^\/auditors(\/.*)?$/, () => "/analysis"],
+];
+
+function realModeRedirect(role: Role, pathname: string): string | null {
+  if (!isRealMode || role !== "supervisor") return null;
+  for (const [re, to] of REAL_MODE_REDIRECTS) {
+    const m = pathname.match(re);
+    if (m) return to(m);
+  }
+  return null;
 }
 
 export const ROLE_LABEL: Record<Role, string> = {
@@ -57,11 +91,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     !ALLOWED[user.role].some((p) => matchesPrefix(pathname, p)) &&
     !(user.role === "qubico_verifier" && VERIFIER_PATH.test(pathname));
 
+  const redirectTo = user ? realModeRedirect(user.role, pathname) : null;
+
   useEffect(() => {
     if (!ready) return;
     if (!user) router.replace("/login");
     else if (forbidden) router.replace(homeFor(user.role));
-  }, [ready, user, forbidden, router]);
+    else if (redirectTo) router.replace(redirectTo);
+  }, [ready, user, forbidden, redirectTo, router]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -77,7 +114,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  if (!ready || !user || forbidden) {
+  if (!ready || !user || forbidden || redirectTo) {
     return (
       <div className="p-6">
         <LoadingState />

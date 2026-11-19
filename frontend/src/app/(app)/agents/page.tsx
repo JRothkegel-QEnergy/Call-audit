@@ -47,7 +47,7 @@ export default function AgentsPage() {
                   <th aria-sort="ascending">Ejecutivo ↑</th>
                   <th>Auditadas</th>
                   <th>Cumplimiento final</th>
-                  <th>Motivos más incumplidos</th>
+                  <th>Criterios más incumplidos</th>
                   <th>Tendencia</th>
                   <th>Seguimientos pendientes</th>
                 </tr>

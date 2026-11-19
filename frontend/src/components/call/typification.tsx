@@ -3,7 +3,7 @@ import type { Typification } from "@/lib/api/types";
 
 /**
  * Qué tipificó el ejecutivo (docs/ux/admin-prompt-metrics/09-info-llamada-y-tipificacion.md, T1 A): «Tipificó: Retención
- * · Motivo de renuncia: Problemas Económicos». «Motivo de renuncia» y no «Motivo» a secas: «motivo» es cada punto de la
+ * · Motivo de renuncia: Problemas Económicos». «Motivo de renuncia» y no «Criterio» a secas: «criterio» es cada punto de la
  * pauta. Los casos de borde van en gris, no en color de alerta.
  */
 
@@ -31,7 +31,7 @@ export function TypificationLine({ t, className }: { t: Typification | null | un
     : t.assumed
       ? "El lote no trae la gestión tipificada; el sistema asume Retención."
       : !t.outcome
-        ? "El lote no trae la gestión tipificada: los motivos 19 a 25 de tipificación no se evalúan."
+        ? "El lote no trae la gestión tipificada: los criterios 19 a 25 de tipificación no se evalúan."
         : null;
   const muted = !t || t.assumed || !t.outcome || !t.reason;
   return (

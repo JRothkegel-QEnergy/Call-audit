@@ -55,12 +55,12 @@ export interface Agent {
 }
 
 export interface Criterion {
-  /** Número del motivo en la pauta del cliente (ej. 28). */
+  /** Número del criterio en la pauta del cliente (ej. 28). */
   id: number;
   name: string;
   blockId: string;
   critical: boolean;
-  /** Sección de la ficha del seguro relevante para este motivo (H-32: debe venir de la rúbrica). */
+  /** Sección de la ficha del seguro relevante para este criterio (H-32: debe venir de la rúbrica). */
   productSheetSection?: ProductSheetSectionKey;
 }
 
@@ -94,15 +94,15 @@ export interface Evidence {
   quoteValidated: boolean;
 }
 
-/** Hallazgo propuesto por la IA para un motivo. Los motivos sin hallazgo se consideran `compliant`. */
+/** Hallazgo propuesto por la IA para un criterio. Los criterios sin hallazgo se consideran `compliant`. */
 export interface Finding {
   criterionId: number;
   verdict: Verdict;
   confidence: number;
   evidence: Evidence | null;
-  /** Citas adicionales a `evidence` (desde v2.8 el motivo 3 lista cada objeción). */
+  /** Citas adicionales a `evidence` (desde v2.8 el criterio 3 lista cada objeción). */
   moreEvidence?: Evidence[];
-  /** Motivo 18: motivos de renuncia que sí calzan con lo que dijo el cliente, del más al menos adecuado. */
+  /** Criterio 18: motivos de renuncia que sí calzan con lo que dijo el cliente, del más al menos adecuado. */
   suggestedReasons?: SuggestedReason[];
   comment: string;
 }
@@ -137,7 +137,7 @@ export type EscalationReason = (typeof ESCALATION_REASONS)[number];
 export const OVERRIDE_REASONS = ["Criterio mal aplicado", "Evidencia mal interpretada", "Otro"] as const;
 export type OverrideReason = (typeof OVERRIDE_REASONS)[number];
 
-/** Decisión del auditor sobre un motivo. */
+/** Decisión del auditor sobre un criterio. */
 export interface ItemReview {
   criterionId: number;
   action: ReviewAction;
@@ -269,6 +269,12 @@ export interface CaseSummary {
 }
 
 /** Qué tipificó el ejecutivo (09-info-llamada-y-tipificacion.md). outcome null: el lote no la trae. */
+/** Lista oficial de motivos de renuncia, en el orden del prompt de la capa 2 (fuente única). */
+export interface RenunciationReasons {
+  promptVersion: string;
+  reasons: string[];
+}
+
 export interface Typification {
   outcome: string | null;
   reason: string | null;
@@ -291,7 +297,7 @@ export interface CaseDetail extends CaseSummary {
   rubricVersion: string;
   review: Review | null;
   notes: Note[];
-  /** Veredicto del cliente por motivo (a futuro, D-25). `null` = no vino. Solo para supervisor. */
+  /** Veredicto del cliente por criterio (a futuro, D-25). `null` = no vino. Solo para supervisor. */
   externalItemVerdicts: { criterionId: number; verdict: ExternalVerdict }[] | null;
   /** Comentario libre del cliente, ya enmascarado. Solo para supervisor. */
   externalComment: string | null;
@@ -430,7 +436,7 @@ export interface DiscrepancyRow {
   clientVerdict: ExternalVerdict;
   appAuditorVerdict: CallVerdict | null;
   branch: DiscrepancyBranch;
-  /** Motivos que la IA marcó Incumple. */
+  /** Criterios que la IA marcó Incumple. */
   aiFailCriteria: number[];
   classification: DiscrepancyClassification | null;
   classifiedCriteria: number[];

@@ -22,8 +22,8 @@ const pct = (k: number, n: number) => (n ? Math.round((100 * k) / n) : 0);
 
 /**
  * Pestaña Resumen (docs/ux/admin-prompt-metrics/05-numeros-propuesta.md §4): estado del análisis, la cabecera común con
- * el mosaico de la última prueba sobre validación, la frase que pasa de llamadas a desacuerdos por motivo, la barra de
- * esos desacuerdos y en qué motivos están. Todo con una unidad nombrada y sumas a la vista.
+ * el mosaico de la última prueba sobre validación, la frase que pasa de llamadas a desacuerdos por criterio, la barra de
+ * esos desacuerdos y en qué criterios están. Todo con una unidad nombrada y sumas a la vista.
  */
 export function SummaryTab({
   data,
@@ -58,7 +58,7 @@ export function SummaryTab({
       <section className="card grid gap-1.5">
         {a ? (
           <p className="m-0 text-sm">
-            Patrones: {data.readOnly ? "análisis" : "último análisis"} del {a.createdAt ? shortDateTime(a.createdAt) : "—"} · {a.model} · {a.doneCriteria.length} motivos ·{" "}
+            Patrones: {data.readOnly ? "análisis" : "último análisis"} del {a.createdAt ? shortDateTime(a.createdAt) : "—"} · {a.model} · {a.doneCriteria.length} criterios ·{" "}
             {usd(a.costUsd)}
             {a.status !== "done" && ` · ${ANALYSIS_STATUS[a.status]}`}
             <span className="help">
@@ -75,13 +75,13 @@ export function SummaryTab({
         )}
         {a?.status === "stopped" && (
           <p className="m-0 text-sm">
-            Análisis detenido por {a.stoppedBy ?? "—"} en {a.doneCriteria.length} de {a.criteria.length} motivos. Costo: {usd(a.costUsd)}.
+            Análisis detenido por {a.stoppedBy ?? "—"} en {a.doneCriteria.length} de {a.criteria.length} criterios. Costo: {usd(a.costUsd)}.
           </p>
         )}
         {a?.status === "failed" && (
           <p className="m-0 text-sm" role="alert">
-            El análisis falló en {a.failedCriteria.map((f) => `el motivo ${f.criterionId}`).join(", ") || "un motivo"}
-            {a.failedCriteria[0] ? `: ${a.failedCriteria[0].error}` : a.error ? `: ${a.error}` : ""}. Los {a.doneCriteria.length} motivos anteriores quedaron guardados.
+            El análisis falló en {a.failedCriteria.map((f) => `el criterio ${f.criterionId}`).join(", ") || "un criterio"}
+            {a.failedCriteria[0] ? `: ${a.failedCriteria[0].error}` : a.error ? `: ${a.error}` : ""}. Los {a.doneCriteria.length} criterios anteriores quedaron guardados.
           </p>
         )}
         {data.stale && (
@@ -103,7 +103,7 @@ export function SummaryTab({
                 <Button variant="primary" onClick={() => setDialog("default")}>
                   {a ? "Analizar de nuevo" : "Analizar discrepancias"}
                 </Button>
-                {pending.length > 0 && a && a.status !== "done" && <Button onClick={() => setDialog(pending)}>Analizar motivos pendientes ({pending.length})</Button>}
+                {pending.length > 0 && a && a.status !== "done" && <Button onClick={() => setDialog(pending)}>Analizar criterios pendientes ({pending.length})</Button>}
               </>
             )}
           </div>
@@ -163,8 +163,8 @@ export function SummaryTab({
       <details className="card">
         <summary className="cursor-pointer font-medium">Cómo leer este análisis</summary>
         <p className="mb-0">
-          <b>Llamadas</b> y <b>desacuerdos por motivo</b> son dos unidades distintas. Una llamada tiene un veredicto (Cumple o No cumple); un
-          desacuerdo por motivo es un motivo de una llamada en que la IA y el revisor no marcan lo mismo. Una llamada puede tener varios, y una llamada
+          <b>Llamadas</b> y <b>desacuerdos por criterio</b> son dos unidades distintas. Una llamada tiene un veredicto (Cumple o No cumple); un
+          desacuerdo por criterio es un criterio de una llamada en que la IA y el revisor no marcan lo mismo. Una llamada puede tener varios, y una llamada
           en que el veredicto coincide puede tener alguno.
         </p>
         <p className="mb-0">
@@ -198,7 +198,7 @@ export function SummaryTab({
 
 const sides = (c: AgreementCriterion) => ({ fn: c.fn, fp: c.fp, reviewer: c.reviewerFn + c.reviewerFp, total: c.fn + c.fp + c.reviewerFn + c.reviewerFp });
 
-/** Frase puente (§4.1-3) y barra de los desacuerdos por motivo en los colores del mosaico (§4.1-4). */
+/** Frase puente (§4.1-3) y barra de los desacuerdos por criterio en los colores del mosaico (§4.1-4). */
 function Bridge({ a, version }: { a: Agreement; version: string | null }) {
   const items = a.byCallCriterion;
   const total = items.promptFn + items.promptFp + items.reviewer;
@@ -214,20 +214,20 @@ function Bridge({ a, version }: { a: Agreement; version: string | null }) {
   return (
     <section className="card grid gap-3" aria-labelledby="bridge-h">
       <h3 id="bridge-h" className="m-0 text-sm font-semibold">
-        Desacuerdos por motivo
-        <MetricHelp title="Desacuerdos por motivo">
-          Un desacuerdo por motivo es un motivo de una llamada en que la IA y el revisor no marcan lo mismo. Rojo: el revisor marcó el motivo y la IA no.
+        Desacuerdos por criterio
+        <MetricHelp title="Desacuerdos por criterio">
+          Un desacuerdo por criterio es un criterio de una llamada en que la IA y el revisor no marcan lo mismo. Rojo: el revisor marcó el criterio y la IA no.
           Amarillo: la IA lo marcó y el revisor no. Azul: la IA de análisis cree que se equivocó el revisor.
         </MetricHelp>
       </h3>
       <p className="m-0 text-sm">
-        En las {int(a.byCall.n)} llamadas hay <b>{int(total)} desacuerdos por motivo</b> en <b>{int(crits)} motivos</b>. Además, la IA quedó sin decisión en{" "}
-        {int(undecidedCrits)} motivos de alguna llamada; esos no cuentan como desacuerdo.
+        En las {int(a.byCall.n)} llamadas hay <b>{int(total)} desacuerdos por criterio</b> en <b>{int(crits)} criterios</b>. Además, la IA quedó sin decisión en{" "}
+        {int(undecidedCrits)} criterios de alguna llamada; esos no cuentan como desacuerdo.
         {br && br.calls > 0 && (
           <>
             {" "}
             Los {int(total)} están en {int(br.calls)} llamadas: {int(verdictDiffers)} en desacuerdo de veredicto, {int(br.agree)} que coinciden en el
-            veredicto pero difieren en algún motivo{br.undecided ? ` y ${int(br.undecided)} sin decisión de la IA` : ""}.
+            veredicto pero difieren en algún criterio{br.undecided ? ` y ${int(br.undecided)} sin decisión de la IA` : ""}.
           </>
         )}
         {version && total > 0 && (
@@ -241,7 +241,7 @@ function Bridge({ a, version }: { a: Agreement; version: string | null }) {
         <>
           <div
             role="img"
-            aria-label={`${int(total)} desacuerdos por motivo: ${parts.map((p) => `${int(p.value)} ${p.label}`).join(", ")}.`}
+            aria-label={`${int(total)} desacuerdos por criterio: ${parts.map((p) => `${int(p.value)} ${p.label}`).join(", ")}.`}
             className="flex h-8 w-full gap-[2px]"
           >
             {parts
@@ -282,8 +282,8 @@ const viewValue = (c: AgreementCriterion, view: View) => {
   return view === "prompt" ? s.fn + s.fp : view === "reviewer" ? s.reviewer : s.total;
 };
 
-/** ¿En qué motivos? (§4.1-5, B6 de 10-resumen-mas-informacion.md): selector a corregir / a calibrar / todo, ordenado por
- * la columna elegida; «Ya estaba» cuenta los crónicos del motivo. La duda va en su columna. */
+/** ¿En qué criterios? (§4.1-5, B6 de 10-resumen-mas-informacion.md): selector a corregir / a calibrar / todo, ordenado por
+ * la columna elegida; «Ya estaba» cuenta los crónicos del criterio. La duda va en su columna. */
 function ByCriterion({
   a,
   version,
@@ -318,7 +318,7 @@ function ByCriterion({
   return (
     <section className="grid gap-2" aria-labelledby="by-crit-h">
       <h2 id="by-crit-h" className="m-0 text-lg font-semibold">
-        ¿En qué motivos?
+        ¿En qué criterios?
       </h2>
       <div className="seg" role="radiogroup" aria-label="Qué desacuerdos">
         {VIEW_LABEL.map(([k, label]) => (
@@ -328,14 +328,14 @@ function ByCriterion({
         ))}
       </div>
       <p className="help m-0">
-        {view === "prompt" ? "Rojo + amarillo" : view === "reviewer" ? "Posible error del revisor" : "Desacuerdos por motivo"} · suman {int(total)} en{" "}
-        {int(rows.length)} motivos{version ? " · Clic en un motivo para ver sus llamadas" : ""}
+        {view === "prompt" ? "Rojo + amarillo" : view === "reviewer" ? "Posible error del revisor" : "Desacuerdos por criterio"} · suman {int(total)} en{" "}
+        {int(rows.length)} criterios{version ? " · Clic en un criterio para ver sus llamadas" : ""}
       </p>
       <div className="overflow-x-auto">
         <table className="tbl">
           <thead>
             <tr>
-              <th scope="col">Motivo</th>
+              <th scope="col">Criterio</th>
               <th scope="col" className="w-[35%] min-w-[120px]">
                 <span className="sr-only">Barra</span>
               </th>
@@ -368,12 +368,12 @@ function ByCriterion({
             {shown.map((c) => {
               const s = sides(c);
               const patterns = patternsOf.get(c.criterionId);
-              const name = `${c.criterionId} · ${names.get(c.criterionId) ?? `Motivo ${c.criterionId}`}`;
+              const name = `${c.criterionId} · ${names.get(c.criterionId) ?? `Criterio ${c.criterionId}`}`;
               return (
                 <tr key={c.criterionId}>
                   <th scope="row" className="min-w-[12rem] max-w-[22rem] whitespace-normal font-normal">
                     {version ? (
-                      <Link href={listHref(version, "disagree", c.criterionId)} aria-label={`Motivo ${name}: ${s.total} desacuerdos. Ver llamadas`}>
+                      <Link href={listHref(version, "disagree", c.criterionId)} aria-label={`Criterio ${name}: ${s.total} desacuerdos. Ver llamadas`}>
                         {name}
                       </Link>
                     ) : (
@@ -417,7 +417,7 @@ function ByCriterion({
       {rows.length > TOP_MOTIVES && (
         <div>
           <Button size="sm" onClick={onAll}>
-            {all ? `Mostrar solo ${TOP_MOTIVES}` : `Ver los ${rows.length} motivos`}
+            {all ? `Mostrar solo ${TOP_MOTIVES}` : `Ver los ${rows.length} criterios`}
           </Button>
         </div>
       )}
@@ -431,7 +431,7 @@ function RunningLine({ run, onStopped }: { run: NonNullable<DiscrepancyOverview[
   return (
     <>
       <span aria-live="polite">
-        {run.status === "queued" ? "En cola: el worker lo toma en su próxima pasada" : `Analizando · ${done} de ${run.criteria.length} motivos`} · {usd(run.costUsd)}
+        {run.status === "queued" ? "En cola: el worker lo toma en su próxima pasada" : `Analizando · ${done} de ${run.criteria.length} criterios`} · {usd(run.costUsd)}
       </span>
       <Button
         loading={busy}

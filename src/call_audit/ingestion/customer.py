@@ -232,6 +232,11 @@ def main() -> None:
         updated, missing = backfill(session, rows)
         marked = sum(1 for c in session.scalars(select(Case)) if c.external_item_fails is not None)
     print(f"{updated} llamadas con la Ficha del cliente ({marked} con marca por motivo); {missing} sin fila")
+    if updated:
+        # Calidad del servicio (D-08): la planilla nueva cambia las cifras «según la planilla».
+        from call_audit.analysis.snapshot import rebuild_quietly
+
+        rebuild_quietly(get_sessionmaker())
 
 
 if __name__ == "__main__":

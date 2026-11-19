@@ -77,6 +77,7 @@ export const httpApi: ApiClient = {
   currentUser: () => get<User | null>("/api/auth/me"),
 
   getRubric: () => get("/api/rubric"),
+  getRenunciationReasons: () => get("/api/reference/renunciation-reasons"),
 
   listQueue: (filters) => get(`/api/queue${filterQuery(filters)}`),
   listAgents: (q) => get(`/api/agents${query({ query: q })}`),
@@ -245,6 +246,40 @@ export const httpApi: ApiClient = {
   setProposalFollowUp: (id, status) =>
     post(`/api/admin/discrepancies/patterns/${encodeURIComponent(id)}/follow-up`, { status }),
   getDiscrepancyFollowUp: () => get("/api/admin/discrepancies/follow-up"),
+
+  // Calidad del servicio (docs/ux/vistas-supervisor): solo lectura sobre la foto vigente.
+  getAnalysisStatus: () => get("/api/analysis/status"),
+  getAnalysisSnapshot: () => get("/api/analysis/snapshot"),
+  listAnalysisCriteria: (f) => get(`/api/analysis/criteria${query({ type: f.type, flow: f.flow })}`),
+  getAnalysisCriterion: (id, f) => get(`/api/analysis/criteria/${id}${query({ type: f.type, flow: f.flow })}`),
+  listAnalysisAgents: (f) =>
+    get(
+      `/api/analysis/agents${query({ type: f.type, flow: f.flow, criterion: f.criterion?.toString(), page: f.page?.toString() })}`,
+    ),
+  getAnalysisAgent: (id, f) =>
+    get(
+      `/api/analysis/agents/${encodeURIComponent(id)}${query({ type: f.type, flow: f.flow, all: f.all ? "true" : undefined })}`,
+    ),
+  listAnalysisEvaluators: (f) => get(`/api/analysis/evaluators${query({ type: f.type, flow: f.flow })}`),
+  getAnalysisEvaluator: (name, f) =>
+    get(`/api/analysis/evaluators/${encodeURIComponent(name)}${query({ type: f.type, flow: f.flow })}`),
+  getAnalysisEvaluatorMatrix: (f) => get(`/api/analysis/evaluators/matrix${query({ type: f.type, flow: f.flow })}`),
+  getAnalysisAgentMatrix: (f) =>
+    get(`/api/analysis/agents/matrix${query({ type: f.type, flow: f.flow, page: f.page?.toString() })}`),
+  listAnalysisReports: () => get("/api/analysis/reports"),
+  getAnalysisReport: (slug) => get(`/api/analysis/reports/${encodeURIComponent(slug)}`),
+  listAnalysisCalls: (q) =>
+    get(
+      `/api/analysis/calls${query({
+        type: q.type,
+        flow: q.flow,
+        criterion: q.criterion?.toString(),
+        source: q.source,
+        agent: q.agent,
+        evaluator: q.evaluator,
+        page: q.page?.toString(),
+      })}`,
+    ),
 
   resetDemo: async () => undefined,
 };

@@ -93,7 +93,7 @@ export function VerificationView({ version }: { version: string }) {
       )}
       <AdminHeader
         title={`Verificación · v${version}`}
-        description="Cada llamada de la corrida completa, revisada por una persona: quién tenía razón en cada motivo en que la IA y la planilla no coinciden."
+        description="Cada llamada de la corrida completa, revisada por una persona: quién tenía razón en cada criterio en que la IA y la planilla no coinciden."
       />
       {isAdmin && (
         <FullRunPanel
@@ -198,7 +198,7 @@ function Overview({
   const scope: VerificationScope = { source: "full", assignee };
   const caseHref = (caseId: string) =>
     `/admin/prompts/${encodeURIComponent(version)}/calls/${encodeURIComponent(caseId)}?segment=all${scopeQuery(scope)}`;
-  // Lista plana de las llamadas propias, con filtro por motivo (16-lista-verificador-por-motivo, L1 A).
+  // Lista plana de las llamadas propias, con filtro por criterio (16-lista-verificador-por-motivo, L1 A).
   const myListHref = `${listHref(version, "all")}${scopeQuery({ source: "full", assignee: "me" })}`;
   return (
     <div className="grid gap-4">

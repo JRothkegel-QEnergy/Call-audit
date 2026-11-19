@@ -3,7 +3,7 @@
 /**
  * Gráficos del análisis de discrepancias (Cambio 19 §7). Todo en HTML/CSS, sin librería: cada gráfico es un `figure`
  * con su equivalente en texto, las barras dibujadas van `aria-hidden` y nada depende solo del color (relleno sólido vs.
- * rayado, posición y rótulo). Cuentan casos (motivo × llamada), no patrones.
+ * rayado, posición y rótulo). Cuentan casos (criterio × llamada), no patrones.
  */
 import type { CSSProperties, ReactNode } from "react";
 import type {
@@ -179,7 +179,7 @@ export function ActionBar({
   return (
     <StackedBar
       title="¿Dónde se arregla?"
-      caption={`desacuerdos por motivo de los ${criteria} motivos analizados, según la propuesta de cada patrón`}
+      caption={`desacuerdos por criterio de los ${criteria} criterios analizados, según la propuesta de cada patrón`}
       segments={keys.map((k) => ({
         key: k,
         label: ACTION_LABEL[k],
@@ -218,7 +218,7 @@ export function PriorityMap({
   patterns: DiscrepancyPattern[];
   selected: Quadrant | null;
   onSelect: (q: Quadrant | null) => void;
-  /** Ficha de un patrón: lleva a su motivo (el patrón puede no estar en la página actual). */
+  /** Ficha de un patrón: lleva a su criterio (el patrón puede no estar en la página actual). */
   onPick: (p: DiscrepancyPattern) => void;
 }) {
   const pending = patterns.filter((p) => !p.isObservation && p.status === "pending");
@@ -259,7 +259,7 @@ export function PriorityMap({
                       type="button"
                       className="chip min-h-6 cursor-pointer pr-3"
                       title={p.title}
-                      aria-label={`Motivo ${p.criterionId}, ${p.caseCount} desacuerdos: ${p.title}`}
+                      aria-label={`Criterio ${p.criterionId}, ${p.caseCount} desacuerdos: ${p.title}`}
                       onClick={() => onPick(p)}
                     >
                       M{p.criterionId} · {p.caseCount}

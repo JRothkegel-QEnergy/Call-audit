@@ -67,7 +67,7 @@ export function FollowUpTab({ rows, onChange }: { rows: DiscrepancyPattern[]; on
             <input
               type="checkbox"
               className="size-[18px]"
-              aria-label={`Incluir la regla del motivo ${p.criterionId} en la versión nueva`}
+              aria-label={`Incluir la regla del criterio ${p.criterionId} en la versión nueva`}
               checked={!unchecked.includes(p.id)}
               onChange={() => setUnchecked((u) => (u.includes(p.id) ? u.filter((x) => x !== p.id) : [...u, p.id]))}
             />
@@ -114,7 +114,7 @@ export function FollowUpTab({ rows, onChange }: { rows: DiscrepancyPattern[]; on
         rows={client}
         action={
           client.length > 0 && (
-            <Button size="sm" onClick={() => void copy(client.map((p) => `Motivo ${p.criterionId}: ${text(p)}`).join("\n"))}>
+            <Button size="sm" onClick={() => void copy(client.map((p) => `Criterio ${p.criterionId}: ${text(p)}`).join("\n"))}>
               Copiar todas
             </Button>
           )
@@ -163,7 +163,7 @@ export function FollowUpTab({ rows, onChange }: { rows: DiscrepancyPattern[]; on
           {discarded.map((p) => (
             <div key={p.id} className="flex flex-wrap items-center gap-2 border-t border-border pt-2">
               <span className="flex-1">
-                Motivo {p.criterionId} · «{text(p)}» · {p.decision?.reason} · {p.decision?.by}
+                Criterio {p.criterionId} · «{text(p)}» · {p.decision?.reason} · {p.decision?.by}
               </span>
               <Button size="sm" onClick={() => void reopen(p)}>
                 Volver a pendiente
@@ -206,7 +206,7 @@ function FollowUpList({
           <div className="flex flex-wrap items-center gap-2">
             {select?.(p)}
             <Link href={`/admin/discrepancies/patterns/${p.id}`} className="font-medium">
-              Motivo {p.criterionId} · {p.title}
+              Criterio {p.criterionId} · {p.title}
             </Link>
             <StatusBadge tone="teal">{statusLabel(p)}</StatusBadge>
           </div>

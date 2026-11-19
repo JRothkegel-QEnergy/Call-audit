@@ -9,7 +9,7 @@ const VERDICT = {
   uncertain: "Dudosa",
 } as const;
 
-/** Llamada abierta desde un patrón del «Análisis de discrepancias» (Cambio 16, D-65): qué marcó cada uno en el motivo. */
+/** Llamada abierta desde un patrón del «Análisis de discrepancias» (Cambio 16, D-65): qué marcó cada uno en el criterio. */
 export function AnalysisBanner({ caseId, patternId }: { caseId: string; patternId: string }) {
   const pattern = useAsync(() => api.getDiscrepancyPattern(patternId), [patternId]);
   const p = pattern.data;
@@ -19,7 +19,7 @@ export function AnalysisBanner({ caseId, patternId }: { caseId: string; patternI
   return (
     <div className="banner mt-2" role="note">
       <span>
-        Llegaste desde Análisis de discrepancias · <b>Motivo {p.criterionId}</b>
+        Llegaste desde Análisis de discrepancias · <b>Criterio {p.criterionId}</b>
         {c && (
           <>
             : IA {VERDICT[c.aiVerdict as keyof typeof VERDICT] ?? c.aiVerdict} · Planilla {c.clientFail ? "No cumple" : "Cumple"} · Revisión manual:{" "}

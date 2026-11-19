@@ -1,5 +1,6 @@
 "use client";
 
+import { RenunciationReasonsButton } from "@/components/call/renunciation-reasons";
 import { Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ExportButton } from "@/components/dialogs/export-dialog";
@@ -103,18 +104,18 @@ export default function DashboardPage() {
               </div>
               <div className="card">
                 <div className="flex items-center gap-2">
-                  <b>Motivos más incumplidos</b>
+                  <b>Criterios más incumplidos</b>
                   <SourceBadge source="human" />
                 </div>
                 <ol className="my-3 pl-[18px]">
                   {k.topCriteria.map((c) => (
                     <li key={c.criterionId}>
-                      Motivo {c.criterionId} · {rubric?.criteria[c.criterionId]?.name ?? ""} · <b>{pct(c.pct)}</b>
+                      Criterio {c.criterionId} · {rubric?.criteria[c.criterionId]?.name ?? ""} <RenunciationReasonsButton criterionId={c.criterionId} /> · <b>{pct(c.pct)}</b>
                     </li>
                   ))}
                 </ol>
                 <Button variant="ghost" onClick={() => router.push("/dashboard/criteria")}>
-                  Ver todos los motivos
+                  Ver todos los criterios
                 </Button>
               </div>
             </div>

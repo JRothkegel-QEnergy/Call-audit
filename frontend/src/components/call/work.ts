@@ -1,9 +1,9 @@
 import type { CorrectionReason, Evidence, Finding, ItemReview, Rubric, Verdict } from "@/lib/api/types";
 
-/** Decisión en curso del auditor sobre un motivo (antes de guardar). */
+/** Decisión en curso del auditor sobre un criterio (antes de guardar). */
 export interface ItemWork {
   choice: "confirm" | "compliant" | "non_compliant";
-  /** true cuando la decisión quedó resuelta (confirmada, o corregida con motivo). */
+  /** true cuando la decisión quedó resuelta (confirmada, o corregida con criterio). */
   done: boolean;
   correctionReason?: CorrectionReason;
   comment?: string;
@@ -33,7 +33,7 @@ export function evidenceList(f: Finding): Evidence[] {
   return f.evidence ? [f.evidence, ...(f.moreEvidence ?? [])] : [];
 }
 
-/** El motivo pide acción del auditor: la IA lo marcó Incumple o Dudoso (O-02, D-18). */
+/** El criterio pide acción del auditor: la IA lo marcó Incumple o Dudoso (O-02, D-18). */
 export function isActionable(f: Finding) {
   return f.verdict === "non_compliant" || f.verdict === "uncertain";
 }
@@ -45,7 +45,7 @@ export function finalVerdictOf(f: Finding, work: ItemWork | undefined, added: Ad
   return work.choice;
 }
 
-/** Motivos que piden acción en el orden de la pauta (para J/K y foco inicial). */
+/** Criterios que piden acción en el orden de la pauta (para J/K y foco inicial). */
 export function actionableOrder(rubric: Rubric, findings: Finding[]) {
   return rubric.blocks.flatMap((b) => b.criterionIds).filter((id) => isActionable(findingFor(findings, id)));
 }

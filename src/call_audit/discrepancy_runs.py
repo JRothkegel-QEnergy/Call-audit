@@ -386,7 +386,7 @@ def run_analysis(factory: sessionmaker[Session], run_id: str, caller: ModelCalle
     def job(cid: int) -> tuple[int, dict | None, list[dict], float, str | None]:
         rows_c = of_criterion(rows, cid)
         if not rows_c:
-            return cid, {"summary": "Sin desacuerdos en este motivo."}, [], 0.0, None
+            return cid, {"summary": "Sin desacuerdos en este criterio."}, [], 0.0, None
         counts = analysis.criterion_counts(rows_c, summary["n_calls"])
         requests = analysis.build_requests(cid, rows_c, transcripts, counts, discarded.get(cid))
 
@@ -435,7 +435,7 @@ def run_analysis(factory: sessionmaker[Session], run_id: str, caller: ModelCalle
         run.finished_at = now()
         if run.failed_criteria:
             failed = ", ".join(str(f["criterionId"]) for f in run.failed_criteria)
-            run.status, run.error = "failed", f"Fallaron los motivos {failed}"
+            run.status, run.error = "failed", f"Fallaron los criterios {failed}"
         else:
             run.status = "done"
 

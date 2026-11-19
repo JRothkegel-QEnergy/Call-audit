@@ -39,7 +39,7 @@ function FromFollowUp({ ids }: { ids: string[] }) {
       <div className="mt-2">
         <AdminHeader
           title="Nueva versión desde Seguimiento"
-          description={`Las reglas aceptadas se aplican al criterio de cada motivo de ${base ? `la v${base}` : "la versión base"}. Revisa los cambios antes de crear el borrador.`}
+          description={`Las reglas aceptadas se aplican a la regla de aplicación de cada criterio de ${base ? `la v${base}` : "la versión base"}. Revisa los cambios antes de crear el borrador.`}
         />
       </div>
       <FollowUpReview proposalIds={ids} onBaseVersion={setBase} />

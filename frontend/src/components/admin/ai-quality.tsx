@@ -19,7 +19,7 @@ import { MAX_SERIES, MIN_PARTIAL, defaultSeries, seriesName } from "@/lib/qualit
 
 /**
  * Estadísticas › Calidad de la IA (docs/ux/admin-prompt-metrics/05-numeros-propuesta.md §5): cabecera común + mosaico
- * de la primera versión elegida, comparación entre versiones (con 2 o más) y desacuerdos por motivo. Todo sobre las
+ * de la primera versión elegida, comparación entre versiones (con 2 o más) y desacuerdos por criterio. Todo sobre las
  * llamadas de validación y con las cifras de la pestaña Prueba; cada cifra lleva a su lista de llamadas.
  * Las versiones elegidas viven en la URL (?series=…).
  */
@@ -198,7 +198,7 @@ export function AiQualityView({ data, onRefresh }: { data: AiQuality; onRefresh?
           <Term t="Posible error del revisor">
             Desacuerdos que una IA de análisis atribuye al revisor, no al prompt. Sin confirmar hasta que se verifiquen a mano.
           </Term>
-          <Term t="Desacuerdo por motivo">Un motivo de una llamada en que la IA y el revisor no marcan lo mismo. Una llamada puede tener varios.</Term>
+          <Term t="Desacuerdo por criterio">Un criterio de una llamada en que la IA y el revisor no marcan lo mismo. Una llamada puede tener varios.</Term>
         </dl>
       </details>
     </div>
@@ -440,7 +440,7 @@ function Comparison({
   );
 }
 
-// --- Desacuerdos por motivo (§5.1-4) -----------------------------------------------------------------------------
+// --- Desacuerdos por criterio (§5.1-4) -----------------------------------------------------------------------------
 
 function ByCriterion({ data, selected, all, onAll }: { data: AiQuality; selected: QualitySeries[]; all: boolean; onAll: () => void }) {
   const names = new Map(data.criteria.map((c) => [c.id, c.name]));
@@ -457,25 +457,25 @@ function ByCriterion({ data, selected, all, onAll }: { data: AiQuality; selected
   return (
     <section className="card" aria-labelledby="q-criteria">
       <h2 id="q-criteria" className="mb-1 mt-0 text-base font-semibold">
-        Desacuerdos por motivo
-        <MetricHelp title="Desacuerdos por motivo">
-          Un desacuerdo por motivo es un motivo de una llamada en que la IA y el revisor no marcan lo mismo; una llamada puede tener varios. «Solo el
-          revisor lo marca»: la planilla marcó el motivo y la IA no. «Solo la IA lo marca»: al revés. Incluye lo que la IA de análisis atribuye a la
+        Desacuerdos por criterio
+        <MetricHelp title="Desacuerdos por criterio">
+          Un desacuerdo por criterio es un criterio de una llamada en que la IA y el revisor no marcan lo mismo; una llamada puede tener varios. «Solo el
+          revisor lo marca»: la planilla marcó el criterio y la IA no. «Solo la IA lo marca»: al revés. Incluye lo que la IA de análisis atribuye a la
           planilla. La duda de la IA no cuenta aquí.
         </MetricHelp>
       </h2>
       <p className="help mb-3 mt-0">
-        {selected.map((s, i) => `${seriesName(s)}: ${int(sums[i])} desacuerdos por motivo`).join(" · ")} · Clic en un número para ver esas llamadas.
+        {selected.map((s, i) => `${seriesName(s)}: ${int(sums[i])} desacuerdos por criterio`).join(" · ")} · Clic en un número para ver esas llamadas.
       </p>
       {ids.length === 0 ? (
-        <p className="help m-0">No hay desacuerdos por motivo.</p>
+        <p className="help m-0">No hay desacuerdos por criterio.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="tbl">
             <thead>
               <tr>
                 <th scope="col" rowSpan={2}>
-                  Motivo
+                  Criterio
                 </th>
                 {selected.map((s) => (
                   <th key={s.id} scope="colgroup" colSpan={2} className="text-center">
@@ -533,7 +533,7 @@ function ByCriterion({ data, selected, all, onAll }: { data: AiQuality; selected
       {ids.length > TOP && (
         <div className="mt-2">
           <Button size="sm" onClick={onAll}>
-            {all ? `Mostrar solo ${TOP}` : `Ver los ${ids.length} motivos`}
+            {all ? `Mostrar solo ${TOP}` : `Ver los ${ids.length} criterios`}
           </Button>
         </div>
       )}

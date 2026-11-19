@@ -344,7 +344,7 @@ function OtherTasks({ status }: { status: ProcessingStatus }) {
       )}
       {discrepancyAnalysis && (
         <span>
-          Análisis de discrepancias: {discrepancyAnalysis.done} de {discrepancyAnalysis.total} motivos ·{" "}
+          Análisis de discrepancias: {discrepancyAnalysis.done} de {discrepancyAnalysis.total} criterios ·{" "}
           <Link href="/admin/discrepancies">Ver análisis</Link>
         </span>
       )}

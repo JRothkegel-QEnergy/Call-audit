@@ -9,7 +9,7 @@ import type { ProductCategory } from "@/lib/api/catalog-types";
 import { CATEGORY_LABEL } from "@/lib/api/catalog-types";
 import { cn } from "@/lib/cn";
 
-/** Motivos que se revisan contra la Ficha del cliente (31 y 33, acreditación). Mapeo de presentación (H-32, H-78):
+/** Criterios que se revisan contra la Ficha del cliente (31 y 33, acreditación). Mapeo de presentación (H-32, H-78):
  * la rúbrica v1.0.1 es inmutable y no trae la sección "customer". */
 export const CUSTOMER_CRITERIA = new Set([31, 33]);
 
@@ -20,7 +20,7 @@ function Badge({ criterionId }: { criterionId: number | null }) {
   if (criterionId == null) return null;
   return (
     <span className="ml-1.5 inline-flex h-[18px] items-center rounded-full border border-primary bg-card px-2 text-[11px] font-semibold text-accent-foreground">
-      Relevante para el motivo {criterionId}
+      Relevante para el criterio {criterionId}
     </span>
   );
 }
@@ -70,7 +70,7 @@ function Section({
   );
 }
 
-/** Ficha del cliente (Cambio 13): una por llamada, arriba de las pestañas de seguros. Se resalta con los motivos 31 y 33. */
+/** Ficha del cliente (Cambio 13): una por llamada, arriba de las pestañas de seguros. Se resalta con los criterios 31 y 33. */
 function CustomerBlock({
   customer,
   highlighted,
@@ -126,7 +126,7 @@ function MismatchNotice({ sheet, category }: { sheet: Sheet; category: string })
       <AlertTriangle size={14} aria-hidden className="mt-0.5 flex-none" />
       <span>
         La metadata y la ficha no coinciden: la metadata dice «{said}» y la ficha dice «{category}». Revisa cuál corresponde antes de
-        decidir el motivo.
+        decidir el criterio.
       </span>
     </p>
   );

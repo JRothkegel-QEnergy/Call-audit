@@ -27,7 +27,7 @@ export function HistoryTab() {
                 <th scope="col">Corrida de capa 2</th>
                 <th scope="col">Modelo</th>
                 <th scope="col">Prompt de análisis</th>
-                <th scope="col">Motivos</th>
+                <th scope="col">Criterios</th>
                 <th scope="col">Patrones</th>
                 <th scope="col">Costo real</th>
                 <th scope="col">Estado</th>

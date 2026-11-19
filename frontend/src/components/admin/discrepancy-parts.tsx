@@ -1,5 +1,6 @@
 "use client";
 
+import { RenunciationReasonsButton } from "@/components/call/renunciation-reasons";
 import Link from "next/link";
 import { useState } from "react";
 import { CaseMix, PatternAiLines } from "@/components/admin/discrepancy-charts";
@@ -21,7 +22,7 @@ import {
 import { shortDateTime } from "@/lib/format";
 import { useAsync } from "@/lib/use-async";
 
-/** Encabezado del patrón: prioridad, motivo, dirección, causa, confianza, casos y estado (todo con texto). */
+/** Encabezado del patrón: prioridad, criterio, dirección, causa, confianza, casos y estado (todo con texto). */
 export function PatternTags({ p }: { p: DiscrepancyPattern }) {
   const confidence = confidenceLabel(p.confidence);
   return (
@@ -67,7 +68,7 @@ export function PatternBody({ p }: { p: DiscrepancyPattern }) {
           {p.reviewerDisagreements} {p.reviewerDisagreements === 1 ? "desacuerdo" : "desacuerdos"} en que los revisores no coinciden entre sí: van a calibración.
         </p>
       )}
-      {p.decision?.reason && <p className="help m-0">Motivo del descarte: {p.decision.reason}</p>}
+      {p.decision?.reason && <p className="help m-0">Razón del descarte: {p.decision.reason}</p>}
       {p.decision?.at && (
         <p className="help m-0">
           {statusLabel(p)} por {p.decision.by} · {shortDateTime(p.decision.at)}
@@ -197,7 +198,7 @@ export function ObservationRow({
     >
       <div className="flex flex-wrap items-baseline gap-2">
         <span id={`pattern-title-${p.id}`} className="min-w-0 flex-1">
-          {withMotive && `Motivo ${p.criterionId} · `}
+          {withMotive && `Criterio ${p.criterionId} · `}
           {p.title || p.observationText}
         </span>
         <StatusBadge>
@@ -207,7 +208,7 @@ export function ObservationRow({
       </div>
       {p.explanation && <p className="help m-0">{p.explanation}</p>}
       {p.proposal?.editedText && <p className="m-0 text-sm">Para calibrar: {p.proposal.editedText}</p>}
-      {p.decision?.reason && <p className="help m-0">Motivo del descarte: {p.decision.reason}</p>}
+      {p.decision?.reason && <p className="help m-0">Razón del descarte: {p.decision.reason}</p>}
       <PatternActions p={p} readOnly={readOnly} onChange={onChange} onAsk={onAsk} shortcuts={focused} size="sm" />
     </article>
   );
@@ -237,7 +238,8 @@ export function PatternCard({
       aria-labelledby={`pattern-title-${p.id}`}
     >
       <h3 id={`pattern-title-${p.id}`} className="m-0 text-base font-semibold">
-        {p.isObservation ? "Observación" : `${p.rank} ·`} Motivo {p.criterionId} · {p.title}
+        {p.isObservation ? "Observación" : `${p.rank} ·`} Criterio {p.criterionId} · {p.title}
+        <RenunciationReasonsButton criterionId={p.criterionId} />
       </h3>
       <PatternTags p={p} />
       <CaseMix k={p.kindCounts} />
@@ -258,7 +260,8 @@ const ACCEPT_HELP = {
 function DecisionContext({ p }: { p: DiscrepancyPattern }) {
   return (
     <p className="help m-0">
-      Motivo {p.criterionId} · {p.title || p.observationText}
+      Criterio {p.criterionId} · {p.title || p.observationText}
+      <RenunciationReasonsButton criterionId={p.criterionId} />
     </p>
   );
 }
@@ -323,10 +326,10 @@ function AcceptDialog({
             : p.proposal?.type !== "prompt_rule"
             ? "Texto de la propuesta"
             : p.proposal.action === "replace"
-              ? `Reemplazar en el criterio del motivo ${p.criterionId}: «${p.proposal.find}» por:`
+              ? `Reemplazar en el criterio del criterio ${p.criterionId}: «${p.proposal.find}» por:`
               : p.proposal.action === "append"
-                ? `Agregar al criterio del motivo ${p.criterionId}:`
-                : `Texto libre: se agregará al final del criterio del motivo ${p.criterionId}.`}
+                ? `Agregar al criterio del criterio ${p.criterionId}:`
+                : `Texto libre: se agregará al final del criterio del criterio ${p.criterionId}.`}
         </span>
         <textarea className="control min-h-[96px] py-2" value={text} onChange={(e) => setText(e.target.value)} />
       </label>
@@ -377,7 +380,7 @@ function DiscardDialog({
             loading={busy}
             onClick={async () => {
               if (!reason) {
-                setError("Elige un motivo para descartar.");
+                setError("Elige una razón para descartar.");
                 return;
               }
               setBusy(true);
@@ -420,7 +423,7 @@ function ReasonFields({
   return (
     <>
       <fieldset className="m-0 grid gap-1.5 border-0 p-0" aria-invalid={invalid} aria-describedby={error ? "discard-error" : undefined}>
-        <legend className="mb-1 font-medium">Motivo (obligatorio)</legend>
+        <legend className="mb-1 font-medium">Criterio (obligatorio)</legend>
         {DISCARD_REASONS.map((r) => (
           <label key={r} className="flex items-center gap-2">
             <input type="radio" name="discard-reason" checked={choice === r} onChange={() => setChoice(r)} />
@@ -431,7 +434,7 @@ function ReasonFields({
           <input type="radio" name="discard-reason" checked={choice === "other"} onChange={() => setChoice("other")} />
           Otro
         </label>
-        {choice === "other" && <input className="control" aria-label="Otro motivo" value={other} onChange={(e) => setOther(e.target.value)} />}
+        {choice === "other" && <input className="control" aria-label="Otro criterio" value={other} onChange={(e) => setOther(e.target.value)} />}
       </fieldset>
       {error && (
         <span id="discard-error" className="field-error" role="alert">
@@ -442,7 +445,7 @@ function ReasonFields({
   );
 }
 
-/** Descartar las observaciones pendientes de un motivo con un único motivo de descarte (D-95). */
+/** Descartar las observaciones pendientes de un criterio con una única razón de descarte (D-95). */
 export function BulkDiscardDialog({
   items,
   onClose,
@@ -461,7 +464,7 @@ export function BulkDiscardDialog({
     <Dialog
       open
       onOpenChange={(o) => !o && onClose()}
-      title={`¿Descartar las ${items.length} observaciones de este motivo?`}
+      title={`¿Descartar las ${items.length} observaciones de este criterio?`}
       description={<p className="help m-0">El próximo análisis las recibe para no repetirlas. Puedes volver a pendiente cada una.</p>}
       footer={
         <>
@@ -470,7 +473,7 @@ export function BulkDiscardDialog({
             loading={busy}
             onClick={async () => {
               if (!reason) {
-                setError("Elige un motivo para descartar.");
+                setError("Elige una razón para descartar.");
                 return;
               }
               setBusy(true);
@@ -495,7 +498,7 @@ export function BulkDiscardDialog({
   );
 }
 
-/** Diálogo de lanzamiento (§7.3): motivos preseleccionados (3 o más desacuerdos), modelo y costo estimado (D-63, D-66). */
+/** Diálogo de lanzamiento (§7.3): criterios preseleccionados (3 o más desacuerdos), modelo y costo estimado (D-63, D-66). */
 export function AnalyzeDialog({
   open,
   onOpenChange,
@@ -506,13 +509,13 @@ export function AnalyzeDialog({
   open: boolean;
   onOpenChange: (o: boolean) => void;
   data: DiscrepancyOverview;
-  /** «Analizar motivos pendientes»: solo los que quedaron sin correr. */
+  /** «Analizar criterios pendientes»: solo los que quedaron sin correr. */
   initialCriteria?: number[];
   onStarted: () => void;
 }) {
   const rows = data.criteria.filter((c) => c.disagreements > 0);
   const preselected = (r: DiscrepancyCriterionRow) => r.disagreements >= 3;
-  // Se monta al abrir (ver la página): los motivos parten preseleccionados cada vez.
+  // Se monta al abrir (ver la página): los criterios parten preseleccionados cada vez.
   const [selected, setSelected] = useState<number[]>(() => initialCriteria ?? rows.filter(preselected).map((r) => r.criterionId));
   const [model, setModel] = useState(data.defaultModel);
   const [busy, setBusy] = useState(false);
@@ -573,7 +576,7 @@ export function AnalyzeDialog({
     >
       <fieldset className="m-0 grid gap-1 border-0 p-0">
         <legend className="mb-1 flex w-full flex-wrap items-center gap-2 font-medium">
-          Motivos a analizar ({selected.length} de {rows.length} con desacuerdos)
+          Criterios a analizar ({selected.length} de {rows.length} con desacuerdos)
         </legend>
         <div className="mb-1 flex gap-2">
           <Button size="sm" onClick={() => setSelected(rows.map((r) => r.criterionId))}>
@@ -613,14 +616,14 @@ export function AnalyzeDialog({
       ) : e ? (
         <div className="grid gap-1">
           <p className="m-0">
-            <b>{cost ? `Costo estimado: ${cost}` : "No hay costo registrado para este modelo; no podemos estimarlo."}</b> ({e.criteria.length} motivos · {e.cases} desacuerdos)
+            <b>{cost ? `Costo estimado: ${cost}` : "No hay costo registrado para este modelo; no podemos estimarlo."}</b> ({e.criteria.length} criterios · {e.cases} desacuerdos)
             {e.minutes != null && ` · Tiempo estimado: ${String(e.minutes).replace(".", ",")} min`}
           </p>
           {e.discardedProposals > 0 && (
             <p className="m-0">
               {e.discardedProposals === 1
-                ? "Se le pasa la propuesta descartada de estos motivos para que no la repita."
-                : `Se le pasan las ${e.discardedProposals} propuestas descartadas de estos motivos para que no las repita.`}
+                ? "Se le pasa la propuesta descartada de estos criterios para que no la repita."
+                : `Se le pasan las ${e.discardedProposals} propuestas descartadas de estos criterios para que no las repita.`}
             </p>
           )}
         </div>

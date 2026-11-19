@@ -53,7 +53,7 @@ export default function AlertsPage() {
               {a.kind === "escalation" ? <StatusBadge tone="doubt">Escalamiento</StatusBadge> : <StatusBadge tone="fail">Crítico confirmado</StatusBadge>}
               <div className="flex-1">
                 <b className="tabular">{a.callId}</b> · {a.reason}
-                {a.criterionId != null && ` · Motivo ${a.criterionId}${rubric ? ` · ${rubric.criteria[a.criterionId]?.name}` : ""}`}
+                {a.criterionId != null && ` · Criterio ${a.criterionId}${rubric ? ` · ${rubric.criteria[a.criterionId]?.name}` : ""}`}
                 {a.atMs != null && ` · ${mmss(a.atMs)}`}
                 <div className="help">
                   {a.raisedBy} · {shortDateTime(a.createdAt)}

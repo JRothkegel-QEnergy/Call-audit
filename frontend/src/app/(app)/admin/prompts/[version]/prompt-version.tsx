@@ -1,5 +1,6 @@
 "use client";
 
+import { RenunciationReasonsButton } from "@/components/call/renunciation-reasons";
 import { AlertTriangle, Check, ChevronLeft, Download, FlaskConical, Square, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -197,7 +198,7 @@ export function PromptVersionView({ version }: { version: string }) {
                     {meta.activationReason && (
                       <tr>
                         <td colSpan={3} className="whitespace-normal">
-                          <span className="help">Motivo de la activación:</span> {meta.activationReason}
+                          <span className="help">Razón de la activación:</span> {meta.activationReason}
                         </td>
                       </tr>
                     )}
@@ -359,7 +360,7 @@ function TestTab({ detail, onReload }: { detail: PromptVersionDetail; onReload: 
           <LoopEvolution loop={detail.loop} version={detail.meta.version} />
         </>
       ) : (
-        <p className="help m-0">Esta prueba no tiene la planilla por motivo, así que no se puede armar el mosaico.</p>
+        <p className="help m-0">Esta prueba no tiene la planilla por criterio, así que no se puede armar el mosaico.</p>
       )}
       <table className="tbl">
         <thead>
@@ -419,7 +420,7 @@ function TestTab({ detail, onReload }: { detail: PromptVersionDetail; onReload: 
 // --- Métricas contra la planilla (docs/ux/admin-prompt-metrics) ---------------------------------------------------
 
 const p0 = (v: number) => pct(Math.round(v), 0);
-/** Tasas de la planilla por motivo (fracción 0-1) a 0-100; si la prueba no trae marca por motivo, cae a references. */
+/** Tasas de la planilla por criterio (fracción 0-1) a 0-100; si la prueba no trae marca por criterio, cae a references. */
 const scoreRate = (m: EvaluationMetrics, key: "callMatchRate" | "callFpRate" | "callFnRate" | "callUncertainRate") => {
   const v = m.criterionScores?.[key];
   return v != null ? v * 100 : undefined;
@@ -606,7 +607,7 @@ function CriterionErrors({
 }) {
   const cur = shown.criterionScores;
   if (!cur)
-    return <p className="help m-0">Esta prueba no trae la marca por motivo de la planilla: no se pueden mostrar los errores por motivo.</p>;
+    return <p className="help m-0">Esta prueba no trae la marca por criterio de la planilla: no se pueden mostrar los errores por criterio.</p>;
   const prev = base?.criterionScores ?? null;
   const two = base != null;
   const at = (s: CriterionScores | null, id: number) => s?.byCriterion.find((c) => c.criterionId === id);
@@ -620,9 +621,9 @@ function CriterionErrors({
     </>
   );
   const HELP = {
-    marked: "Llamadas en que la planilla marcó este motivo como No cumple.",
-    fp: "La IA marcó el motivo como No cumple y la corredora no.",
-    fn: "La corredora marcó el motivo como No cumple y la IA no.",
+    marked: "Llamadas en que la planilla marcó este criterio como No cumple.",
+    fp: "La IA marcó el criterio como No cumple y la corredora no.",
+    fn: "La corredora marcó el criterio como No cumple y la IA no.",
   };
   const cell = (a: number | undefined, b: number | undefined) => {
     if (!two || a == null || b == null || a === b) return <>{b ?? "—"}</>;
@@ -636,15 +637,15 @@ function CriterionErrors({
   };
   return (
     <div>
-      <h3 className="m-0 mb-1 text-sm font-semibold">Errores por motivo</h3>
-      <p className="help m-0 mb-2">Compara qué motivos marcó la IA contra los que marcó la planilla, llamada por llamada.</p>
+      <h3 className="m-0 mb-1 text-sm font-semibold">Errores por criterio</h3>
+      <p className="help m-0 mb-2">Compara qué criterios marcó la IA contra los que marcó la planilla, llamada por llamada.</p>
       <table className="tbl">
         <thead>
           {two ? (
             <>
               <tr>
                 <th rowSpan={2} scope="col">
-                  Motivo
+                  Criterio
                 </th>
                 <th rowSpan={2} scope="col">
                   {head("Marcados por la corredora", HELP.marked)}
@@ -665,7 +666,7 @@ function CriterionErrors({
             </>
           ) : (
             <tr>
-              <th scope="col">Motivo</th>
+              <th scope="col">Criterio</th>
               <th scope="col">{head("Marcados por la corredora", HELP.marked)}</th>
               <th scope="col">{head("Falsas alarmas", HELP.fp)}</th>
               <th scope="col">{head("No detectados", HELP.fn)}</th>
@@ -680,7 +681,8 @@ function CriterionErrors({
             return (
               <tr key={id}>
                 <td className="whitespace-normal">
-                  Motivo {id} · {rubric?.criteria[id]?.name}
+                  Criterio {id} · {rubric?.criteria[id]?.name}
+                  <RenunciationReasonsButton criterionId={id} />
                   {support < cur.minSupport && <div className="help">Pocos casos: el resultado varía mucho</div>}
                 </td>
                 <td className="num">{support}</td>
@@ -812,7 +814,7 @@ function ActivateDialog({
             variant="primary"
             loading={busy}
             onClick={async () => {
-              if (!reason.trim()) return setError("Escribe el motivo de la activación.");
+              if (!reason.trim()) return setError("Escribe la razón de la activación.");
               setBusy(true);
               setError(null);
               try {
@@ -846,7 +848,7 @@ function ActivateDialog({
         </div>
       )}
       <label className="field">
-        {rollback ? "Motivo (obligatorio)" : "Motivo de la activación (obligatorio)"}
+        {rollback ? "Razón (obligatorio)" : "Razón de la activación (obligatorio)"}
         <textarea autoFocus className="control" rows={2} value={reason} onChange={(e) => setReason(e.target.value)} />
       </label>
       {error && (

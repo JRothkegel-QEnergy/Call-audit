@@ -1,5 +1,6 @@
 "use client";
 
+import { RenunciationReasonsButton } from "@/components/call/renunciation-reasons";
 import { Download, StickyNote } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -123,7 +124,7 @@ export default function DiscrepanciesPage() {
                       <th>IA</th>
                       <th>Planilla</th>
                       <th>Auditor de la app</th>
-                      <th>Motivos de la IA que incumplen</th>
+                      <th>Criterios de la IA que incumplen</th>
                       {branch === "ai_only_fail" && <th>Clasificación</th>}
                       <th>Notas</th>
                     </tr>
@@ -155,7 +156,8 @@ export default function DiscrepanciesPage() {
                           {r.aiFailCriteria.length
                             ? r.aiFailCriteria.map((c) => (
                                 <span key={c} className="mr-1.5" title={rubric?.criteria[c]?.name}>
-                                  Motivo {c}
+                                  Criterio {c}
+                                  <RenunciationReasonsButton criterionId={c} />
                                 </span>
                               ))
                             : "—"}
@@ -269,7 +271,7 @@ function ClassifyDialog({
             variant="primary"
             loading={busy}
             onClick={async () => {
-              if (!criteria.length) return setError("Elige al menos un motivo.");
+              if (!criteria.length) return setError("Elige al menos un criterio.");
               if (wrong && !note.trim()) return setError("Explica qué entendió mal la IA. Sirve para ajustar el prompt.");
               setBusy(true);
               try {
@@ -289,7 +291,7 @@ function ClassifyDialog({
       }
     >
       <fieldset className="m-0 rounded-md border border-border px-3 py-2">
-        <legend className="px-1 text-[13px] font-medium">¿En qué motivos?</legend>
+        <legend className="px-1 text-[13px] font-medium">¿En qué criterios?</legend>
         {row.aiFailCriteria.map((c) => (
           <label key={c} className="flex items-center gap-2">
             <input
@@ -297,7 +299,8 @@ function ClassifyDialog({
               checked={criteria.includes(c)}
               onChange={() => setCriteria((list) => (list.includes(c) ? list.filter((x) => x !== c) : [...list, c]))}
             />
-            Motivo {c} · {criterionName(c)}
+            Criterio {c} · {criterionName(c)}
+            <RenunciationReasonsButton criterionId={c} />
           </label>
         ))}
       </fieldset>

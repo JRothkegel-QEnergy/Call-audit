@@ -15,6 +15,7 @@ import {
   outcomeLabel,
 } from "@/components/admin/verification-labels";
 import { AudioPlayer } from "@/components/call/audio-player";
+import { RenunciationReasonsButton } from "@/components/call/renunciation-reasons";
 import { SuggestedReasons } from "@/components/call/suggested-reasons";
 import { TypificationLine } from "@/components/call/typification";
 import { CUSTOMER_CRITERIA, ProductSheetColumn, ProductSheetContent } from "@/components/call/product-sheet";
@@ -32,7 +33,7 @@ import type {
   VerificationOutcome,
   VerificationScope,
 } from "@/lib/api/admin-types";
-import type { CaseDetail, Evidence, Finding, Rubric } from "@/lib/api/types";
+import type { CaseDetail, Evidence, Finding, Rubric, Typification } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { mmss, shortDate, shortDateTime } from "@/lib/format";
 import { useSession } from "@/lib/session";
@@ -111,7 +112,7 @@ function CaseReview({
 
   const toVerify = cmp.criteria.filter((c) => TO_VERIFY.has(c.kind));
   const agreeing = cmp.criteria.filter((c) => !TO_VERIFY.has(c.kind));
-  // Foco inicial: el motivo de la lista si sigue sin registrar (16-lista-verificador-por-motivo, L3 A); si no, el primero
+  // Foco inicial: el criterio de la lista si sigue sin registrar (16-lista-verificador-por-motivo, L3 A); si no, el primero
   // sin registrar.
   const [focus, setFocus] = useState(() => {
     const unrecorded = (c: (typeof toVerify)[number]) => !c.verification || c.verification.stale;
@@ -211,7 +212,7 @@ function CaseReview({
       const next = await fetchCmp();
       setCmp(next);
       const label = outcomeLabel(outcome, c.kind === "undecided");
-      toast(`Guardado: ${label} en el motivo ${c.criterionId}.`, {
+      toast(`Guardado: ${label} en el criterio ${c.criterionId}.`, {
         action: {
           label: "Deshacer",
           onClick: () =>
@@ -270,7 +271,7 @@ function CaseReview({
   });
 
   const p = cmp.position;
-  // La sección de la ficha que importa sigue al motivo en foco (C3), como en la vista del auditor.
+  // La sección de la ficha que importa sigue al criterio en foco (C3), como en la vista del auditor.
   const focusId = toVerify[focus]?.criterionId ?? null;
   const relevantSection =
     focusId == null ? undefined : CUSTOMER_CRITERIA.has(focusId) ? "customer" : rubric.criteria[focusId]?.productSheetSection;
@@ -347,7 +348,7 @@ function CaseReview({
       )}
 
       {!cmp.findingsAvailable && (
-        <div className="banner mb-2.5">Esta prueba no guardó los comentarios ni las citas de la IA. Se muestran solo los veredictos por motivo.</div>
+        <div className="banner mb-2.5">Esta prueba no guardó los comentarios ni las citas de la IA. Se muestran solo los veredictos por criterio.</div>
       )}
 
       <AudioPlayer
@@ -403,7 +404,7 @@ function CaseReview({
                   </p>
                 ) : (
                   <>
-                    <p className="help m-0">La IA y la planilla coinciden en todos los motivos. Si estás de acuerdo, márcala sin observaciones.</p>
+                    <p className="help m-0">La IA y la planilla coinciden en todos los criterios. Si estás de acuerdo, márcala sin observaciones.</p>
                     {canWrite && (
                       <Button variant="primary" className="justify-self-start" disabled={reviewBusy} onClick={() => void markReviewed(true)}>
                         Sin observaciones
@@ -412,10 +413,11 @@ function CaseReview({
                   </>
                 )
               ) : (
-                <p className="help m-0">Esta llamada no tiene motivos en desacuerdo con la planilla.</p>
+                <p className="help m-0">Esta llamada no tiene criterios en desacuerdo con la planilla.</p>
               ))}
             {toVerify.map((c, i) => (
               <CriterionCard
+                typification={call.typification}
                 key={c.criterionId}
                 c={c}
                 version={cmp.version}
@@ -433,11 +435,11 @@ function CaseReview({
           </section>
           {agreeing.length > 0 && (
             <details className="card">
-              <summary className="cursor-pointer text-sm font-semibold">Coinciden con la planilla ({agreeing.length} motivos)</summary>
+              <summary className="cursor-pointer text-sm font-semibold">Coinciden con la planilla ({agreeing.length} criterios)</summary>
               <ul className="m-0 mt-2 grid list-none gap-1 p-0 text-[13px]">
                 {agreeing.map((c) => (
                   <li key={c.criterionId}>
-                    Motivo {c.criterionId} · {c.description} · IA <span className={VERDICT_CLASS[c.ai.verdict]}>{VERDICT[c.ai.verdict]}</span>
+                    Criterio {c.criterionId} · {c.description} · IA <span className={VERDICT_CLASS[c.ai.verdict]}>{VERDICT[c.ai.verdict]}</span>
                     {c.verification && <span className="help"> · verificado: {outcomeLabel(c.verification.outcome, false)}</span>}
                   </li>
                 ))}
@@ -480,11 +482,13 @@ function CriterionCard({
   onReveal,
   onSave,
   onListen,
+  typification,
 }: {
   c: CaseComparisonCriterion;
+  typification: Typification | null | undefined;
   version: string;
   focused: boolean;
-  /** Es el motivo con que se filtró la lista (16-lista-verificador-por-motivo, L3 A). */
+  /** Es el criterio con que se filtró la lista (16-lista-verificador-por-motivo, L3 A). */
   filtered: boolean;
   canWrite: boolean;
   busy: boolean;
@@ -500,7 +504,7 @@ function CriterionCard({
   const [noteOpen, setNoteOpen] = useState(!!v?.note);
   const [note, setNote] = useState(v?.note ?? "");
   const showExplanation = revealed || current != null;
-  const groupLabel = `¿Quién tenía razón? Motivo ${c.criterionId}`;
+  const groupLabel = `¿Quién tenía razón? Criterio ${c.criterionId}`;
   return (
     <article
       className={cn("grid gap-1.5 rounded-md border border-border p-3 text-[13px]", focused && "border-primary shadow-[inset_3px_0_0_var(--primary)]")}
@@ -508,16 +512,16 @@ function CriterionCard({
       aria-current={focused ? "true" : undefined}
     >
       <h3 className="m-0 text-sm font-semibold">
-        Motivo {c.criterionId}
+        Criterio {c.criterionId}
         {c.blue && <span className="help font-normal"> · posible error del revisor</span>}
-        {filtered && <span className="chip ml-2 align-middle text-xs">Motivo filtrado</span>}
+        {filtered && <span className="chip ml-2 align-middle text-xs">Criterio filtrado</span>}
       </h3>
       <p className="help m-0">Criterio: {c.description}</p>
       <p className="m-0">
         IA v{version}: <span className={VERDICT_CLASS[c.ai.verdict]}>{VERDICT[c.ai.verdict]}</span>
       </p>
       {c.ai.evidence.length === 0 ? (
-        <p className="help m-0">La IA no dejó cita para este motivo.</p>
+        <p className="help m-0">La IA no dejó cita para este criterio.</p>
       ) : (
         c.ai.evidence.map((e, i) => (
           <p key={i} className="quote m-0">
@@ -531,6 +535,12 @@ function CriterionCard({
         ))
       )}
       <SuggestedReasons reasons={c.ai.suggestedReasons} plainQuotes />
+      <RenunciationReasonsButton
+        criterionId={c.criterionId}
+        variant="text"
+        className="justify-self-start"
+        call={{ typification, verdict: c.ai.verdict, suggestedReasons: c.ai.suggestedReasons }}
+      />
       {c.ai.comment && <p className="m-0">Comentario de la IA: «{c.ai.comment}»</p>}
       <p className="m-0">
         Planilla: <span className={c.reviewerFail ? "vt vt-fail" : "vt vt-pass"}>{c.reviewerFail ? "No cumple" : "Cumple"}</span>

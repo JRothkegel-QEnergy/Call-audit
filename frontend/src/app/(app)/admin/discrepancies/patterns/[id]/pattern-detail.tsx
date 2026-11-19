@@ -87,7 +87,7 @@ function PatternDetail({ initial }: { initial: DiscrepancyPatternDetail }) {
     (c) => filter === "all" || (filter === "manual" ? c.manualVerdict != null : filter === "fix" ? c.expectedFix === true : disagree(c)),
   );
   const hasFix = p.expectedFix != null;
-  // Cambio 20: «volver» recupera la lista exacta (motivo y filtros) desde donde se abrió el patrón.
+  // Cambio 20: «volver» recupera la lista exacta (criterio y filtros) desde donde se abrió el patrón.
   // Este componente se monta recién con el patrón cargado, ya en el navegador.
   const [back] = useState(() => sessionStorage.getItem("discrepancies-list-url") ?? `/admin/discrepancies?tab=patterns&motivo=${initial.criterionId}`);
   // Al volver desde la llamada, el foco queda en la fila del caso (§7.6).
@@ -98,13 +98,13 @@ function PatternDetail({ initial }: { initial: DiscrepancyPatternDetail }) {
   return (
     <>
       <Link href={back} className="btn btn-ghost btn-sm mb-2">
-        <ChevronLeft size={14} aria-hidden /> Motivo {p.criterionId}
+        <ChevronLeft size={14} aria-hidden /> Criterio {p.criterionId}
       </Link>
-      <AdminHeader title={`Motivo ${p.criterionId} · ${p.title}`} description={p.criterionName ?? undefined} />
+      <AdminHeader title={`Criterio ${p.criterionId} · ${p.title}`} description={p.criterionName ?? undefined} />
       <section className="card mb-4 grid gap-2">
         <PatternTags p={p} />
         <PatternBody p={p} />
-        {p.criterionSummary && <p className="help m-0">Resumen del motivo: {p.criterionSummary}</p>}
+        {p.criterionSummary && <p className="help m-0">Resumen del criterio: {p.criterionSummary}</p>}
         <PatternActions p={p} readOnly={p.readOnly} showCases={false} onChange={(next: DiscrepancyPattern) => setP({ ...p, ...next })} />
       </section>
 

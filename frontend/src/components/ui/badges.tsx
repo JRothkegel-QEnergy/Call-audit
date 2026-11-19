@@ -5,7 +5,7 @@ import { CALL_VERDICT, ITEM_VERDICT, type Tone } from "@/lib/verdicts";
 
 const ICON: Record<Tone, typeof Check> = { fail: X, doubt: HelpCircle, pass: Check };
 
-/** Resultado de un motivo: rectangular (Cumple / Incumple / Dudoso). */
+/** Resultado de un criterio: rectangular (Cumple / Incumple / Dudoso). */
 export function ItemVerdictBadge({ verdict }: { verdict: Verdict }) {
   const { label, tone } = ITEM_VERDICT[verdict];
   const Icon = ICON[tone];

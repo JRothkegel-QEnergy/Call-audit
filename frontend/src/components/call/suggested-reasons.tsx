@@ -11,7 +11,7 @@ export function QuoteWarning() {
   );
 }
 
-/** Motivo 18: motivos de renuncia que sugiere la IA (prompt v2.8+). Sin sugerencias no se muestra nada.
+/** Criterio 18: motivos de renuncia que sugiere la IA (prompt v2.8+). Sin sugerencias no se muestra nada.
  * `plainQuotes` (revisión del admin, 12-motivos-sugeridos-en-revision.md S3): la cita va sin la caja ámbar, que en esa
  * tarjeta es la evidencia del veredicto que se escucha. */
 export function SuggestedReasons({ reasons, plainQuotes = false }: { reasons: SuggestedReason[] | undefined; plainQuotes?: boolean }) {

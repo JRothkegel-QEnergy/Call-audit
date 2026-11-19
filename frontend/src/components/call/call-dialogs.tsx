@@ -60,11 +60,11 @@ export function EscalateDialog({
       }
     >
       <div className="summary-box">
-        Sobre: {criterionId != null ? `Motivo ${criterionId} · ` : ""}
+        Sobre: {criterionId != null ? `Criterio ${criterionId} · ` : ""}
         {mmss(atMs)}
       </div>
       <label className="field">
-        Motivo
+        Criterio
         <select autoFocus className="control" value={reason} onChange={(e) => setReason(e.target.value as EscalationReason)}>
           {ESCALATION_REASONS.map((r) => (
             <option key={r}>{r}</option>
@@ -188,7 +188,7 @@ export function OverrideDialog({
       }
     >
       <label className="field">
-        Motivo del cambio (obligatorio)
+        Razón del cambio (obligatorio)
         <select autoFocus className="control" value={reason} onChange={(e) => setReason(e.target.value as OverrideReason)}>
           {OVERRIDE_REASONS.map((r) => (
             <option key={r}>{r}</option>

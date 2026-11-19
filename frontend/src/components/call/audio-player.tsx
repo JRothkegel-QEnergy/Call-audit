@@ -51,7 +51,7 @@ export function AudioPlayer({
       <div className="sticky top-0 z-[5] my-2.5 rounded-lg border border-border bg-card p-3 shadow-sm">
         <div className="error-state shadow-none" role="alert">
           <b className="block">No pudimos cargar el audio.</b>
-          <span className="help">Puedes revisar con la transcripción o escalar el caso con el motivo «Audio inaudible».</span>
+          <span className="help">Puedes revisar con la transcripción o escalar el caso con la razón «Audio inaudible».</span>
         </div>
       </div>
     );
@@ -107,7 +107,7 @@ export function AudioPlayer({
               key={f.criterionId}
               type="button"
               onClick={() => onMarker(f.criterionId)}
-              aria-label={`Motivo ${f.criterionId}, ${ITEM_VERDICT[f.verdict].label}, minuto ${mmss(f.evidence.startMs)}`}
+              aria-label={`Criterio ${f.criterionId}, ${ITEM_VERDICT[f.verdict].label}, minuto ${mmss(f.evidence.startMs)}`}
               className={cn(
                 "absolute -top-1 grid h-6 w-6 -translate-x-1/2 cursor-pointer place-items-center border-0 bg-transparent p-0",
                 focusId === f.criterionId && "rounded outline-2 outline-ring [outline-style:solid]",

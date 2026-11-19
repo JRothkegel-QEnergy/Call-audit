@@ -1,3 +1,4 @@
+import { analysisMock, bindAnalysisUser } from "./analysis-mock";
 import type { ApiClient } from "../client";
 import { adminMock, bindUser } from "./admin-mock";
 import { bindDiscrepancyUser, discrepancyMock } from "./discrepancy-mock";
@@ -20,7 +21,7 @@ import type {
   ReviewFlag,
   User,
 } from "../types";
-import { ACCOUNTS, AGENTS, AUDITORS, RUBRIC, USERS, buildCalibrationCases, buildCases } from "./data";
+import { ACCOUNTS, AGENTS, AUDITORS, RENUNCIATION_REASONS, RUBRIC, USERS, buildCalibrationCases, buildCases } from "./data";
 
 /**
  * Backend simulado en el navegador. Mantiene el estado en memoria y lo guarda en
@@ -87,8 +88,8 @@ function initialState(): State {
     user: null,
     cases,
     myReviews: [
-      { caseId: "c-r221", callId: "LL-1014-0221", submittedAt: "2026-10-14T16:02:00", status: "reopened", myVerdict: "compliant", note: "Jorge Lagos reabrió este caso: «Revisa el motivo 3: el cliente pidió la renuncia dos veces.»" },
-      { caseId: "c-r230", callId: "LL-1014-0230", submittedAt: "2026-10-14T16:20:00", status: "overridden", myVerdict: "non_compliant", note: "Tu decisión: No cumple → Supervisor: Cumple (motivo 32 · criterio ambiguo)" },
+      { caseId: "c-r221", callId: "LL-1014-0221", submittedAt: "2026-10-14T16:02:00", status: "reopened", myVerdict: "compliant", note: "Jorge Lagos reabrió este caso: «Revisa el criterio 3: el cliente pidió la renuncia dos veces.»" },
+      { caseId: "c-r230", callId: "LL-1014-0230", submittedAt: "2026-10-14T16:20:00", status: "overridden", myVerdict: "non_compliant", note: "Tu decisión: No cumple → Supervisor: Cumple (criterio 32 · criterio ambiguo)" },
       { caseId: "c-r244", callId: "LL-1014-0244", submittedAt: "2026-10-14T16:41:00", status: "escalated", myVerdict: null, note: "Esperando respuesta del supervisor" },
       { caseId: "c-r101", callId: "LL-1015-0101", submittedAt: "2026-10-15T08:55:00", status: "awaiting_approval", myVerdict: "non_compliant", note: "" },
       { caseId: "c-r190", callId: "LL-1013-0190", submittedAt: "2026-10-13T11:10:00", status: "closed", myVerdict: "compliant", note: "" },
@@ -120,6 +121,7 @@ function initialState(): State {
 let state: State | null = null;
 bindUser(() => state?.user ?? null);
 bindDiscrepancyUser(() => state?.user ?? null);
+bindAnalysisUser(() => state?.user ?? null);
 
 function load(): State {
   if (state) return state;
@@ -289,6 +291,7 @@ function upsertMyReview(row: MyReviewRow) {
 export const mockApi: ApiClient = {
   ...adminMock,
   ...discrepancyMock,
+  ...analysisMock,
   resendAuditorInvite: () => delay(() => undefined),
   login: (input) =>
     delay(() => {
@@ -308,6 +311,7 @@ export const mockApi: ApiClient = {
   },
 
   getRubric: () => delay(() => RUBRIC, 50),
+  getRenunciationReasons: () => delay(() => ({ promptVersion: "2.10", reasons: [...RENUNCIATION_REASONS] }), 50),
 
   listQueue: (filters) =>
     delay(() => {

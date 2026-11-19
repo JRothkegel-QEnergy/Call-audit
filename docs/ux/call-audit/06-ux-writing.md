@@ -81,9 +81,17 @@
 - Porcentajes con coma decimal y espacio: `92,4 %`. Miles con punto: `1.240`.
 - Minuto de la llamada: `07:42`, siempre con dos dígitos.
 
-### 2.8 Nombres de motivos
+### 2.8 Nombres de criterios (antes "Nombres de motivos")
 
-- Formato: `Motivo {n} · {nombre en la pauta}`. El nombre del motivo es un término del dominio de la corredora: se respeta tal como viene en la rúbrica (CLAUDE.md), sin reescribirlo.
+**Ajuste 2026-11-19 (vistas-supervisor, Iteración 2, D-42 a D-47).** Los 33 puntos de la pauta se llaman **criterios**; "motivo" queda solo para el **motivo de renuncia**.
+
+- Formato: `Criterio {n} · {nombre en la pauta}`. Forma corta en grillas y listas densas: `C{n}`. Plural: "criterios"; "los 33 criterios".
+- El nombre oficial de cada criterio es un término del dominio de la corredora: se respeta tal como viene en la rúbrica (CLAUDE.md), sin reescribirlo, aunque contenga la palabra "motivo" (p. ej. "Criterio 18 · Tipifica motivo de renuncia incorrecto").
+- En la pauta oficial y en la planilla de la corredora se llaman "motivos de no calidad". En textos de ayuda, la primera mención puede aclararlo: "criterios de la pauta (en la pauta: motivos de no calidad)".
+- **Motivo de renuncia** siempre con el nombre completo en rótulos. Nunca "motivo" solo para un criterio.
+- La razón de una acción del usuario se llama **razón**: "Razón de la corrección", "Razón del escalamiento", "Razón del cambio", "Elige una razón…", "Indica la razón para incluir datos personales" (D-43).
+- La regla con que la IA aplica un criterio (campo `criterion` del prompt) se llama **regla de aplicación**: "Regla de aplicación" (antes "Criterio del prompt"), "Prompt o regla de aplicación" (antes "Prompt o criterio") (D-45).
+- Alcance: todo texto visible de la app, incluidas las exportaciones (D-42). No cambian: el prompt de la capa 2, la rúbrica, los identificadores de código (`criterion`, `criterionId`) ni las URLs. Reglas de reemplazo completas: `../vistas-supervisor/10-criterios-y-motivos-de-renuncia.md` §3.3.
 
 ### 2.9 PII en textos
 
@@ -383,7 +391,20 @@ Textos completos en `11-catalogo-seguros.md` §7.2 (fuente de verdad). Los princ
 
 ## 5. Glosario
 
-El glosario aprobado en `03-arquitectura-informacion.md` §4.2 es la fuente única. Esta fase agrega:
+El glosario aprobado en `03-arquitectura-informacion.md` §4.2 es la fuente única.
+
+**Ajuste 2026-11-19 · Criterio y motivo de renuncia (vistas-supervisor, Iteración 2, D-42 a D-47).** Manda sobre toda entrada anterior de este glosario y de §4.2 de la AI que diga "motivo" para un punto de la pauta: ahí léase "criterio" (p. ej. **Caso** = un criterio de una llamada; **Desacuerdo** = las fuentes difieren en un criterio de una llamada; **Listo** = criterio sin patrones ni observaciones por decidir). La causa "Criterio del prompt" pasa a **Regla de aplicación** (`criterion`).
+
+| Término en la UI | Uso | Código | Evitar |
+|---|---|---|---|
+| **Criterio** | Cada uno de los 33 puntos de la pauta de calidad de la corredora ("motivos de no calidad" en la pauta oficial). `Criterio {n} · {nombre}`, corto `C{n}` | `criterion`, `criterionId` | "Motivo" para un punto de la pauta; "ítem" |
+| **Motivo de renuncia** | Razón por la que el cliente renuncia al seguro, elegida por el ejecutivo de la lista oficial (tipificación). Es el único "motivo" de la app | `Typification.reason`, `suggestedReasons`, lista `renunciation_reasons` del prompt | "Motivo" solo en un rótulo |
+| **Motivos de renuncia** (modal) | Modal de referencia que se abre desde cada aparición del criterio 18: lo tipificado, lo sugerido por la IA y la lista oficial | — | — |
+| **Razón** | Por qué el usuario hace una acción: corrección, escalamiento, cambio, ver datos personales | `correctionReason`, `escalationReason`, `overrideReason` | "Motivo de la corrección" |
+| **Regla de aplicación** | Cómo aplica la IA un criterio (texto del prompt de cada criterio) | campo `criterion` del prompt | "Criterio del prompt" |
+| **Bloque** | Grupo de criterios de la pauta (5) | `blockId` (`A`–`E`) | — |
+
+Esta fase agrega:
 
 | Término en la UI | Uso | Código |
 |---|---|---|
@@ -431,6 +452,24 @@ Textos completos de botones y diálogos: `16-ia-discrepancias.md` §7.5.
 | **Por presentar** / **Presentado** | Seguimiento de "La IA acertó" (antes "Por presentar al cliente") | `presentation` |
 
 Evitar en la UI: "cliente" para la empresa o su planilla, "auditoría del cliente", "auditor externo", "Excel del cliente", "estado de calidad". Las etiquetas de la fuente viven en una constante del front (D-74).
+
+**Ajuste 2026-11-17 · Calidad del servicio (`../vistas-supervisor/06-ux-writing.md` §9, D-25 de ese proceso).** Sección nueva `/analysis` para el supervisor y Qubico:
+
+| Término en la UI | Uso | Código |
+|---|---|---|
+| **Calidad del servicio** | La sección (Motivos, Ejecutivos, Evaluadores, Informes). No confundir con **Análisis de discrepancias** (calidad de la IA, admin) | `/analysis`, `analysis` |
+| **Datos al {fecha}** | Fecha de la foto precomputada; "foto" es solo término interno | `analysis_snapshot` |
+| **Según la IA / según el auditor** | Fuente de cada cifra; nunca mezcladas en una. El auditor es la revisión en la app o, si no la hay, la planilla (D-31 de `vistas-supervisor`, 2026-11-18) | `source = ai / sheet` |
+| **Diferencia** | % planilla − % IA, en pts | `gap_pts` |
+| **Frente al equipo** | Desvío contra la media, según la IA. No es ranking | `deviation_pts` |
+| **Marca distinto que la IA** | Desacuerdo del evaluador | `disagreement_rate` |
+| **Más estricto / más permisivo** | Severidad del evaluador | `severity_pts` |
+| **Parejo / Se marca distinto / Explicado por los datos** | Estado del criterio de un motivo | `criterion_status = consistent / divergent / data_explained` |
+| **Pocas llamadas** | Base menor a 10 | `low_sample` |
+| **Informe** · audiencia **Empresa / Interno** | Documento publicado con su corrida | `report.audience = company / internal` |
+| **Auditor** (en Calidad del servicio) | Quien hizo la referencia de la llamada: auditor de la app o quien llenó la planilla; pestaña **Auditores** (solo Qubico). "Evaluador" sigue en las pantallas que solo comparan con la planilla (D-28) | `evaluator` |
+
+Evitar en esta sección: "ranking", "peor", "sesgado", "inconsistente", "real" o "correcto" para una fuente, y "Actualizado" (los datos no son en vivo).
 
 **Palabras prohibidas en la UI:** sanción, falta, infracción, castigo, amonestación, puntaje, nota, agente (para referirse al ejecutivo), cliente (para referirse a la empresa), alucinación, error del usuario.
 

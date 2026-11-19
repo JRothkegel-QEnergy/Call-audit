@@ -13,7 +13,7 @@ import { useAsync } from "@/lib/use-async";
 
 /**
  * Análisis por caso (docs/ux/admin-prompt-metrics/06-ajustes-feedback.md §2, F1): una columna por llamada de validación
- * y una fila por motivo, con los colores del mosaico. Va en un acordeón cerrado y se pide al abrirlo.
+ * y una fila por criterio, con los colores del mosaico. Va en un acordeón cerrado y se pide al abrirlo.
  */
 
 type Kind = "fn" | "fp" | "undecided" | "both";
@@ -27,7 +27,7 @@ const CELL: Record<Kind | "blue", React.CSSProperties> = {
   both: PARTS.agree.style,
 };
 
-/** Orden de las columnas: desacuerdo de veredicto, luego solo por motivo, luego coincide. */
+/** Orden de las columnas: desacuerdo de veredicto, luego solo por criterio, luego coincide. */
 const RANK: Record<string, number> = { promptFn: 0, promptFp: 0, reviewer: 0, undecided: 1, agree: 2 };
 
 export function CaseGrid({ series }: { series: QualitySeries }) {
@@ -36,7 +36,7 @@ export function CaseGrid({ series }: { series: QualitySeries }) {
   return (
     <details className="card" onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
       <summary className="cursor-pointer font-semibold">
-        Análisis por caso · {int(n)} llamadas × {series.agreement.criteria} motivos de v{series.promptVersion}
+        Análisis por caso · {int(n)} llamadas × {series.agreement.criteria} criterios de v{series.promptVersion}
       </summary>
       {open && <GridBody series={series} />}
     </details>
@@ -100,8 +100,8 @@ function Grid({ g, series }: { g: QualityGrid; series: QualitySeries }) {
         {page === "approved" ? `${int(fp)} falsas alarmas` : `${int(fn)} rechazos no detectados`}. Cada columna es una llamada y lleva a su caso.
       </p>
       <p className="help m-0">
-        Cada columna es una llamada: primero las que no coinciden en el veredicto, luego las que solo difieren en algún motivo.
-        {v ? " Clic en una columna para abrir el caso; clic en un motivo para ver sus llamadas." : " La vigente no tiene página de caso."}
+        Cada columna es una llamada: primero las que no coinciden en el veredicto, luego las que solo difieren en algún criterio.
+        {v ? " Clic en una columna para abrir el caso; clic en un criterio para ver sus llamadas." : " La vigente no tiene página de caso."}
       </p>
       <div className="overflow-x-auto">
         <div className="grid min-w-[640px] grid-cols-[4.5rem_minmax(0,1fr)] gap-x-2">
@@ -109,11 +109,11 @@ function Grid({ g, series }: { g: QualityGrid; series: QualitySeries }) {
             <span className="font-semibold">Veredicto</span>
             {rows.map((cid) =>
               v ? (
-                <Link key={cid} href={listHref(v, "disagree", cid)} className="no-underline hover:underline" aria-label={`Ver las llamadas con desacuerdo en el motivo ${cid}`}>
+                <Link key={cid} href={listHref(v, "disagree", cid)} className="no-underline hover:underline" aria-label={`Ver las llamadas con desacuerdo en el criterio ${cid}`}>
                   M{String(cid).padStart(2, "0")}
                 </Link>
               ) : (
-                <span key={cid}>M{String(cid).padStart(2, "0")}</span>
+                <span key={cid}>C{String(cid).padStart(2, "0")}</span>
               ),
             )}
           </div>
@@ -128,7 +128,7 @@ function Grid({ g, series }: { g: QualityGrid; series: QualitySeries }) {
                   ))}
                 </>
               );
-              const label = `Llamada ${c.callId}: ${PARTS[c.segment].name}${c.items.length ? `, motivos ${c.items.map(([id]) => id).join(", ")}` : ""}. ${typificationLabel(c.typification)}`;
+              const label = `Llamada ${c.callId}: ${PARTS[c.segment].name}${c.items.length ? `, criterios ${c.items.map(([id]) => id).join(", ")}` : ""}. ${typificationLabel(c.typification)}`;
               return href ? (
                 <Link
                   key={c.caseId}
@@ -168,7 +168,7 @@ function Grid({ g, series }: { g: QualityGrid; series: QualitySeries }) {
           <span aria-hidden className="inline-block h-3 w-3 rounded-sm bg-[var(--neutral-100,#f4f4f4)]" /> Ninguno lo marca
         </span>
       </p>
-      <p className="help m-0">La fila Veredicto usa los colores del mosaico. Solo se muestran los motivos con alguna marca en estas llamadas.</p>
+      <p className="help m-0">La fila Veredicto usa los colores del mosaico. Solo se muestran los criterios con alguna marca en estas llamadas.</p>
     </div>
   );
 }

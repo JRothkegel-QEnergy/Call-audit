@@ -12,7 +12,7 @@ const SHORTCUTS: [string, string][] = [
   ["C", "Confirmar"],
   ["X", "Corregir (elige Cumple o Incumple)"],
   ["E", "Escalar"],
-  ["N", "Agregar nota al motivo en foco"],
+  ["N", "Agregar nota al criterio en foco"],
   ["Enter", "Guardar y siguiente"],
   ["A", "Aprobar y siguiente (supervisor)"],
   ["?", "Esta ayuda"],
@@ -23,8 +23,8 @@ const PATTERN_SHORTCUTS: [string, string][] = [
   ["J  /  K", "Elemento siguiente o anterior"],
   ["A", "Aceptar el elemento en foco"],
   ["D", "Descartar el elemento en foco"],
-  ["M", "Siguiente motivo con pendientes"],
-  ["Shift + M", "Motivo anterior con pendientes"],
+  ["M", "Siguiente criterio con pendientes"],
+  ["Shift + M", "Criterio anterior con pendientes"],
 ];
 
 export function ShortcutsDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {

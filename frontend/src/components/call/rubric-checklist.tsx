@@ -12,12 +12,14 @@ import {
   type ItemReview,
   type Note,
   type Rubric,
+  type Typification,
   type Verdict,
 } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { mmss } from "@/lib/format";
 import { ITEM_VERDICT } from "@/lib/verdicts";
 import { NoteEditor, NoteList } from "./notes";
+import { RenunciationReasonsButton } from "./renunciation-reasons";
 import { QuoteWarning, SuggestedReasons } from "./suggested-reasons";
 import { type AddedFinding, type DetailMode, type ItemWork, evidenceList, finalVerdictOf, findingFor, isActionable } from "./work";
 
@@ -42,15 +44,17 @@ interface Props {
   onUndo: (criterionId: number) => void;
   onAdd: (a: AddedFinding) => void;
   onSupervisorEdit?: (criterionId: number, v: "compliant" | "non_compliant") => void;
-  /** Notas por motivo (Cambio 09 §3.3). */
+  /** Notas por criterio (Cambio 09 §3.3). */
   notes: Note[];
   currentUserId: string;
   noteOpenFor: number | null;
   onNoteOpen: (criterionId: number | null) => void;
   onAddNote: (criterionId: number, text: string) => Promise<void>;
   onEditNote: (noteId: string, text: string) => Promise<void>;
-  /** Veredicto del cliente por motivo (solo supervisor, si vino). */
+  /** Veredicto del cliente por criterio (solo supervisor, si vino). */
   externalItemVerdicts?: { criterionId: number; verdict: ExternalVerdict }[] | null;
+  /** Para el modal de motivos de renuncia del criterio 18 (D-46). */
+  typification?: Typification | null;
 }
 
 export function RubricChecklist(props: Props) {
@@ -63,12 +67,12 @@ export function RubricChecklist(props: Props) {
         <b className="text-sm font-semibold">Pauta de calidad</b>
         <span
           className="grid h-[18px] w-[18px] cursor-help place-items-center rounded-full border border-input bg-card text-[11px] font-bold text-muted-foreground"
-          title="Cada motivo describe algo que no debe ocurrir. Incumple = ocurrió."
-          aria-label="Cada motivo describe algo que no debe ocurrir. Incumple = ocurrió."
+          title="Cada criterio describe algo que no debe ocurrir. Incumple = ocurrió."
+          aria-label="Cada criterio describe algo que no debe ocurrir. Incumple = ocurrió."
         >
           ?
         </span>
-        <span className="help">motivos de no calidad</span>
+        <span className="help">criterios de la pauta (en la pauta: motivos de no calidad)</span>
         <label className="help ml-auto flex items-center gap-2">
           <input type="checkbox" checked={onlyActionable} onChange={(e) => props.onOnlyActionable(e.target.checked)} />
           Solo los que piden acción
@@ -108,7 +112,7 @@ export function RubricChecklist(props: Props) {
                 ))}
                 {hidden > 0 && (
                   <div className="flex items-center gap-2 border-t border-[var(--neutral-100)] px-3 py-2.5 text-[13px] text-muted-foreground">
-                    <Check size={14} aria-hidden /> y {hidden === 1 ? "1 motivo" : `${hidden} motivos`} sin incumplimiento
+                    <Check size={14} aria-hidden /> y {hidden === 1 ? "1 criterio" : `${hidden} criterios`} sin incumplimiento
                     <Button variant="ghost" size="sm" onClick={() => props.onOnlyActionable(false)}>
                       Mostrar
                     </Button>
@@ -152,7 +156,7 @@ function FindingItem(props: Props & { criterionId: number }) {
       <div className="flex items-start gap-2">
         <ItemVerdictBadge verdict={verdict} />
         <span className="flex-1 font-medium">
-          Motivo {id} · {criterion.name}
+          Criterio {id} · {criterion.name}
           {criterion.critical && (
             <>
               {" "}
@@ -259,7 +263,17 @@ function FindingItem(props: Props & { criterionId: number }) {
       ))}
     </>
   ) : null;
-  const suggested = <SuggestedReasons reasons={f.suggestedReasons} />;
+  const suggested = (
+    <>
+      <SuggestedReasons reasons={f.suggestedReasons} />
+      <RenunciationReasonsButton
+        criterionId={id}
+        variant="text"
+        className="mt-1"
+        call={{ typification: props.typification, verdict: f.verdict, suggestedReasons: f.suggestedReasons }}
+      />
+    </>
+  );
   const comment =
     f.verdict === "uncertain" ? (
       <details>
@@ -316,7 +330,7 @@ function FindingItem(props: Props & { criterionId: number }) {
                 {client ? (
                   ITEM_VERDICT[client.verdict].label
                 ) : (
-                  <span title="Sin dato de la planilla en este motivo" aria-label="Sin dato de la planilla en este motivo">
+                  <span title="Sin dato de la planilla en este criterio" aria-label="Sin dato de la planilla en este criterio">
                     —
                   </span>
                 )}
@@ -325,7 +339,7 @@ function FindingItem(props: Props & { criterionId: number }) {
           </div>
         )}
         {props.editing && props.onSupervisorEdit && (
-          <div className="seg mt-2" role="group" aria-label={`Decisión del supervisor sobre el motivo ${id}`}>
+          <div className="seg mt-2" role="group" aria-label={`Decisión del supervisor sobre el criterio ${id}`}>
             {(["compliant", "non_compliant"] as const).map((v) => (
               <button
                 key={v}
@@ -372,7 +386,7 @@ function FindingItem(props: Props & { criterionId: number }) {
   return wrap(
     <>
       {body}
-      <div className="seg mt-2" role="group" aria-label={`Decisión sobre el motivo ${id}`} id={`seg-${id}`}>
+      <div className="seg mt-2" role="group" aria-label={`Decisión sobre el criterio ${id}`} id={`seg-${id}`}>
         {options.map((o) => (
           <button key={o.key} type="button" data-choice={o.key} aria-pressed={w?.choice === o.key} onClick={() => props.onChoose(id, o.key)}>
             {o.label}
@@ -407,7 +421,7 @@ function CorrectionForm({
   return (
     <div className="mt-2 grid gap-2 rounded-md border border-border bg-[var(--neutral-50)] p-2.5">
       <label className="field">
-        Motivo de la corrección
+        Razón de la corrección
         <select
           autoFocus
           className="control"
@@ -416,7 +430,7 @@ function CorrectionForm({
           aria-describedby={error ? errId : undefined}
           onChange={(e) => setReason(e.target.value as CorrectionReason)}
         >
-          <option value="">Elige un motivo…</option>
+          <option value="">Elige una razón…</option>
           {CORRECTION_REASONS.map((r) => (
             <option key={r}>{r}</option>
           ))}
@@ -436,8 +450,8 @@ function CorrectionForm({
         <Button
           variant="primary"
           onClick={() => {
-            if (!reason) return setError("Elige un motivo de corrección.");
-            if (reason === "Otro" && !comment.trim()) return setError("Escribe un comentario para el motivo «Otro».");
+            if (!reason) return setError("Elige una razón de corrección.");
+            if (reason === "Otro" && !comment.trim()) return setError("Escribe un comentario para la razón «Otro».");
             onSave(reason, comment.trim());
           }}
         >
@@ -469,12 +483,12 @@ function AddFinding({ rubric, currentMs, onAdd }: { rubric: Rubric; currentMs: n
       {open && (
         <div className="mt-2 grid gap-2 rounded-md border border-border bg-[var(--neutral-50)] p-2.5">
           <label className="field">
-            Motivo
+            Criterio
             <select autoFocus className="control" value={criterionId} onChange={(e) => setCriterionId(Number(e.target.value))}>
               {rubric.blocks.flatMap((b) =>
                 b.criterionIds.map((id) => (
                   <option key={id} value={id}>
-                    Motivo {id} · {rubric.criteria[id].name}
+                    Criterio {id} · {rubric.criteria[id].name}
                   </option>
                 )),
               )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { RenunciationReasonsButton } from "@/components/call/renunciation-reasons";
 import { ChevronLeft, Info, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -68,7 +69,8 @@ export function AgentDetailView({ id }: { id: string }) {
                             <X size={14} aria-hidden />
                             Incumple
                           </span>{" "}
-                          Motivo {c.criterionId}
+                          Criterio {c.criterionId}
+                          <RenunciationReasonsButton criterionId={c.criterionId} />
                         </td>
                         <td>
                           <StatusBadge tone={FOLLOW_UP[c.followUp][1]}>{FOLLOW_UP[c.followUp][0]}</StatusBadge>
@@ -176,7 +178,7 @@ function FeedbackDrawer({
         <input className="control" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
       </label>
       <fieldset className="m-0 rounded-md border border-border px-3 py-2">
-        <legend className="px-1 text-[13px] font-medium">Llamadas o motivos asociados</legend>
+        <legend className="px-1 text-[13px] font-medium">Llamadas o criterios asociados</legend>
         {detail.confirmedCalls.map((c) => (
           <label key={c.caseId} className="flex items-center gap-2">
             <input
@@ -191,7 +193,7 @@ function FeedbackDrawer({
                 })
               }
             />
-            {c.callId} · Motivo {c.criterionId}
+            {c.callId} · Criterio {c.criterionId}
           </label>
         ))}
       </fieldset>
@@ -206,7 +208,7 @@ function FeedbackDrawer({
           loading={busy}
           onClick={async () => {
             if (!text.trim()) return setError("Escribe el feedback que entregaste.");
-            if (!cases.size) return setError("Agrega al menos una llamada o un motivo.");
+            if (!cases.size) return setError("Agrega al menos una llamada o un criterio.");
             setBusy(true);
             try {
               await api.saveFeedback({

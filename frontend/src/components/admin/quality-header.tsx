@@ -50,7 +50,7 @@ export function headerNumbers(a: Agreement) {
 export function scopeText(a: Agreement): string {
   const s = a.scope;
   if (!s || s.total === s.measured) return `${int(a.byCall.n)} llamadas de validación`;
-  const out = [s.errors ? `${int(s.errors)} con error de la IA` : null, s.noReference ? `${int(s.noReference)} sin planilla por motivo` : null]
+  const out = [s.errors ? `${int(s.errors)} con error de la IA` : null, s.noReference ? `${int(s.noReference)} sin planilla por criterio` : null]
     .filter(Boolean)
     .join(", ");
   return `${int(s.measured)} de las ${int(s.total)} llamadas de validación (${out}, fuera del cálculo)`;
@@ -208,7 +208,7 @@ export function QualityHeader({
         />
         <Card
           title="Posible error del revisor"
-          help="Llamadas en que una IA de análisis revisó cada motivo en desacuerdo y concluyó que se equivocó el revisor al llenar la planilla, no el prompt. Es su juicio: la verificación a mano dice cuánto se confirma."
+          help="Llamadas en que una IA de análisis revisó cada criterio en desacuerdo y concluyó que se equivocó el revisor al llenar la planilla, no el prompt. Es su juicio: la verificación a mano dice cuánto se confirma."
           value={analyzed ? `${pct(h.reviewer, h.n)} %` : "—"}
           sub={analyzed ? llamadas(h.reviewer) : "Causa sin analizar"}
           extra={linkVersion && analyzed ? <VerificationLine version={linkVersion} a={a} /> : null}

@@ -17,7 +17,7 @@ import type {
   User,
 } from "../types";
 
-// ---------- Pauta (33 motivos en 5 bloques; textos de docs/context.md) ----------
+// ---------- Pauta (33 criterios en 5 bloques; textos de docs/context.md) ----------
 
 const CRITERIA_NAMES: Record<number, string> = {
   31: "No valida correctamente al cliente (RUT, nombre, fecha de nacimiento)",
@@ -63,10 +63,10 @@ const BLOCKS = [
   { id: "E", name: "Tipificación", criterionIds: [18, 19, 24, 20, 21, 22, 23, 25] },
 ];
 
-/** Gravedad por motivo: TBD con el cliente (docs/client-open-questions.md #1). Estos críticos son solo para la demo. */
+/** Gravedad por criterio: TBD con el cliente (docs/client-open-questions.md #1). Estos críticos son solo para la demo. */
 const DEMO_CRITICAL = new Set([28, 9, 17, 12]);
 
-/** Motivo → sección de la ficha (H-32: en el backend vendrá de la rúbrica). */
+/** Criterio → sección de la ficha (H-32: en el backend vendrá de la rúbrica). */
 const SHEET_SECTION: Partial<Record<number, Criterion["productSheetSection"]>> = {
   28: "refund",
   17: "category",
@@ -78,6 +78,38 @@ const SHEET_SECTION: Partial<Record<number, Criterion["productSheetSection"]>> =
   15: "call",
   13: "call",
 };
+
+/** Lista oficial de motivos de renuncia (copia de `prompts/layer2/prompt.yaml`, `renunciation_reasons`). */
+export const RENUNCIATION_REASONS = [
+  "No desea contraer más obligaciones",
+  "Problemas Económicos",
+  "Cliente posee otros Seguros",
+  "Desconoce contratación del seguro",
+  "Información errónea entregada en la venta",
+  "A cliente se le ofreció un mejor seguro en Banco",
+  "No recibió Póliza",
+  "Disconformidad con coberturas",
+  "Cambio de situación laboral",
+  "Mala experiencia con Banco Estado o con la Cía",
+  "Cliente se va fuera del País",
+  "Disconformidad con la asistencia",
+  "Siniestro Rechazado por Compañía",
+  "Recibe carta de adecuación",
+  "Cierre de Cuenta o Productos Banco",
+  "Cliente no cumple condiciones de asegurabilidad",
+  "Cobro mal Realizado",
+  "Retracto",
+  "Cambio de Beneficiario o Cargas",
+  "Aumento Valor de la Prima",
+  "Cambio de Domicilio o Venta de Propiedad",
+  "Seguro ya Utilizado, no desea dar Continuidad",
+  "No puede realizar el rescate del ahorro.",
+  "No puede ingresar al portal Metlife.",
+  "Carga o beneficiario fallecido.",
+  "Error en la contratación del seguro",
+  "No permite realizar cambio de beneficiarios en sucursal.",
+  "No informado",
+] as const;
 
 export const RUBRIC: Rubric = {
   id: "bancoestado_retention",
@@ -353,7 +385,7 @@ const FINDINGS_HOGAR: Finding[] = [
 
 const FINDINGS_PROTECCION: Finding[] = [
   F(17, "non_compliant", 0.88, 70, "¿seguro que no lo quiere mantener?", "Intenta retener un seguro no retenible."),
-  F(16, "uncertain", 0.51, 130, "¿Y si le bajamos el plan a uno más económico?", "Insiste después de una negativa explícita; revisar si corresponde al motivo 3 o al 17."),
+  F(16, "uncertain", 0.51, 130, "¿Y si le bajamos el plan a uno más económico?", "Insiste después de una negativa explícita; revisar si corresponde al criterio 3 o al 17."),
   F(13, "non_compliant", 0.72, 300, "Queda renunciado. ¿Algo más?", "No indica número de seguro ni medio de pago en el cierre."),
 ];
 
@@ -382,7 +414,7 @@ export function engineVerdict(findings: Finding[]) {
 }
 
 const APPLIED_RULE = {
-  non_compliant: "un motivo incumple → no cumple",
+  non_compliant: "un criterio incumple → no cumple",
   uncertain: "confianza bajo el umbral → dudosa",
   compliant: "sin incumplimientos → cumple",
 } as const;
@@ -427,13 +459,13 @@ function modelRun(id: string, callId: string, agent: Agent, sheets: ProductSheet
     promptSections: [
       {
         title: "System",
-        text: "Eres un auditor de calidad de llamadas de retención de seguros. Evalúas la transcripción contra la pauta de 33 motivos de no calidad. Respondes solo con JSON válido según el esquema. Cada hallazgo lleva una cita literal de la transcripción con su minuto. (Texto sintético de la demo.)",
+        text: "Eres un auditor de calidad de llamadas de retención de seguros. Evalúas la transcripción contra la pauta de 33 criterios de no calidad. Respondes solo con JSON válido según el esquema. Cada hallazgo lleva una cita literal de la transcripción con su minuto. (Texto sintético de la demo.)",
       },
       {
         title: "Reglas de revisión",
         text: [
-          "1. Un motivo incumple solo si hay evidencia explícita en la transcripción.",
-          "2. Si la evidencia es ambigua, marca el motivo como dudoso y explica por qué.",
+          "1. Un criterio incumple solo si hay evidencia explícita en la transcripción.",
+          "2. Si la evidencia es ambigua, marca el criterio como dudoso y explica por qué.",
           "3. Verifica las frases exactas del protocolo de cierre.",
           "4. Para la retención, evalúa el contexto de los turnos siguientes antes de decidir.",
           "5. Compara lo dicho por el ejecutivo con la ficha del seguro.",
@@ -443,7 +475,7 @@ function modelRun(id: string, callId: string, agent: Agent, sheets: ProductSheet
       {
         title: "Mensaje de usuario",
         text: [
-          `Metadatos: ID ${callId} · Ejecutivo ${agent.name} · Motivo tipificado: Cambio de situación laboral.`,
+          `Metadatos: ID ${callId} · Ejecutivo ${agent.name} · Motivo de renuncia tipificado: Cambio de situación laboral.`,
           `Seguros: ${sheets.map((x) => x.name).join(", ")}.`,
           "Transcripción (anonimizada): [turnos de la llamada]",
         ].join("\n"),
@@ -528,7 +560,7 @@ export function buildCases(now: Date): CaseDetail[] {
 
 /**
  * Lote de calibración (sintético): llamadas ya procesadas, la mayoría con veredicto del cliente,
- * para la vista de Discrepancias. Mezcla los tres niveles de D-25 (sin dato, por llamada, por motivo).
+ * para la vista de Discrepancias. Mezcla los tres niveles de D-25 (sin dato, por llamada, por criterio).
  */
 export function buildCalibrationCases(): CaseDetail[] {
   const ai = {

@@ -4,7 +4,7 @@ import type { AgreeList, AgreementSegment, CallList, ReasonMatch, CallVerificati
 
 export const SEGMENTS: AgreementSegment[] = ["promptFn", "promptFp", "reviewer", "undecided", "agree"];
 export const AGREE_LISTS: AgreeList[] = ["agreePass", "agreeSame", "agreePartial", "agreeNone"];
-/** Tramo de «¿Coinciden también en los motivos?» de cada lista. */
+/** Tramo de «¿Coinciden también en los criterios?» de cada lista. */
 export const AGREE_LIST_PART: Record<AgreeList, ReasonMatch> = {
   agreePass: "bothPass",
   agreeSame: "same",
@@ -21,12 +21,12 @@ export const LIST_NAME: Record<CallList, string> = {
   undecided: "Sin decisión de la IA",
   agree: "Coincide con el revisor",
   agreePass: "Coincide · Ambos aprueban",
-  agreeSame: "Coincide · Mismos motivos",
-  agreePartial: "Coincide · Desacuerdo parcial en motivos",
-  agreeNone: "Coincide · Desacuerdo total en motivos",
+  agreeSame: "Coincide · Mismos criterios",
+  agreePartial: "Coincide · Desacuerdo parcial en criterios",
+  agreeNone: "Coincide · Desacuerdo total en criterios",
   fp: "Falsas alarmas",
   fn: "Rechazos no detectados",
-  disagree: "Desacuerdos por motivo",
+  disagree: "Desacuerdos por criterio",
   changed: "Llamadas que cambian",
   all: "Todas las llamadas",
 };
@@ -49,13 +49,13 @@ export const LIST_SWATCH: Record<CallList, AgreementSegment | ReasonMatch | null
   all: null,
 };
 
-/** Con un motivo, la lista es por motivo (05-numeros-propuesta.md §2): «Solo el revisor lo marca · motivo 18». */
+/** Con un criterio, la lista es por criterio (05-numeros-propuesta.md §2): «Solo el revisor lo marca · criterio 18». */
 export function listTitle(list: CallList, criterion: number | null, extra: { vs?: string | null; sample?: number | null } = {}): string {
   if (list === "changed") return `Llamadas que cambian frente a v${extra.vs ?? "—"}`;
   if (extra.sample) return `${LIST_NAME[list]} · muestra de ${extra.sample}`;
   if (criterion == null) return LIST_NAME[list];
   const side = list === "fn" ? "Solo el revisor lo marca" : list === "fp" ? "Solo la IA lo marca" : "Desacuerdos";
-  return `${side} · motivo ${criterion}`;
+  return `${side} · criterio ${criterion}`;
 }
 
 export const listHref = (version: string, list: CallList, criterion?: number | null, extra: { vs?: string; sample?: number } = {}) =>
@@ -69,14 +69,14 @@ export const SEGMENT_SUPPORT: Record<CallList, string> = {
   promptFp: "la IA dice que no cumple y el revisor que sí: falsa alarma",
   reviewer: "según la IA de análisis, se equivocó el revisor",
   undecided: "la IA quedó dudosa; pasan a revisión de un auditor",
-  agree: "mismo veredicto que la planilla, aunque puede haber motivos en desacuerdo",
-  agreePass: "la IA y el revisor dicen que cumple: no hay motivos que comparar",
-  agreeSame: "ambos rechazan y marcan exactamente los mismos motivos",
-  agreePartial: "ambos rechazan; comparten al menos un motivo, pero no todos",
-  agreeNone: "ambos rechazan, pero sin ningún motivo en común",
+  agree: "mismo veredicto que la planilla, aunque puede haber criterios en desacuerdo",
+  agreePass: "la IA y el revisor dicen que cumple: no hay criterios que comparar",
+  agreeSame: "ambos rechazan y marcan exactamente los mismos criterios",
+  agreePartial: "ambos rechazan; comparten al menos un criterio, pero no todos",
+  agreeNone: "ambos rechazan, pero sin ningún criterio en común",
   fp: "la IA rechaza y el revisor aprueba: a corregir o posible error del revisor",
   fn: "la IA aprueba y el revisor rechaza: a corregir o posible error del revisor",
-  disagree: "llamadas con al menos un motivo en que la IA y el revisor no marcan lo mismo",
+  disagree: "llamadas con al menos un criterio en que la IA y el revisor no marcan lo mismo",
   changed: "pasan a coincidir o dejan de coincidir con el revisor frente a la versión anterior",
   all: "todas las llamadas de la corrida, en el orden aleatorio fijo",
 };

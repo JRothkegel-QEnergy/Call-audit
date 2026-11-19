@@ -130,7 +130,7 @@ function CriterionCard({
   return (
     <section className="card grid gap-3" aria-labelledby={`motive-${c.criterionId}`} style={review ? { borderLeft: "3px solid var(--amber-600)" } : undefined}>
       <h2 id={`motive-${c.criterionId}`} tabIndex={-1} className="m-0 text-[15px]">
-        Motivo {c.criterionId} · {c.title}
+        Criterio {c.criterionId} · {c.title}
       </h2>
       <ul className="m-0 grid list-none gap-2 p-0">
         {c.rules.map((r) => (
@@ -143,7 +143,7 @@ function CriterionCard({
       </div>
       {editing ? (
         <label className="field">
-          Texto final del criterio · Motivo {c.criterionId}
+          Texto final del criterio · Criterio {c.criterionId}
           <textarea ref={areaRef} className="control min-h-[120px] text-[13px] leading-5" value={override} onChange={(e) => onOverride(e.target.value)} />
         </label>
       ) : null}
@@ -174,7 +174,7 @@ function CriterionCard({
   );
 }
 
-/** «Nueva versión desde Seguimiento» (Cambio 18 §8.3): las reglas aceptadas aplicadas al criterio de cada motivo. */
+/** «Nueva versión desde Seguimiento» (Cambio 18 §8.3): las reglas aceptadas aplicadas a la regla de aplicación de cada criterio. */
 export function FollowUpReview({ proposalIds, onBaseVersion }: { proposalIds: string[]; onBaseVersion?: (version: string) => void }) {
   const router = useRouter();
   const [removed, setRemoved] = useState<{ rule: FollowUpRuleResult; criterionId: number }[]>([]);
@@ -296,7 +296,7 @@ export function FollowUpReview({ proposalIds, onBaseVersion }: { proposalIds: st
         {!p && preview.status === "loading"
           ? "Aplicando las reglas…"
           : active.length
-            ? `${ruleCount} ${ruleCount === 1 ? "regla" : "reglas"} en ${criteria.length} ${criteria.length === 1 ? "motivo" : "motivos"}${review.length ? ` · ${review.length} para revisar` : ""}`
+            ? `${ruleCount} ${ruleCount === 1 ? "regla" : "reglas"} en ${criteria.length} ${criteria.length === 1 ? "criterio" : "criterios"}${review.length ? ` · ${review.length} para revisar` : ""}`
             : "No queda ninguna regla."}
       </p>
       {review.length > 0 && (
@@ -304,7 +304,7 @@ export function FollowUpReview({ proposalIds, onBaseVersion }: { proposalIds: st
           {[...new Set(review)].map((c) => (
             <li key={c.criterionId}>
               <a href={`#motive-${c.criterionId}`} onClick={(e) => (e.preventDefault(), document.getElementById(`motive-${c.criterionId}`)?.focus())}>
-                Motivo {c.criterionId} · {c.rules.find((r) => r.state === "review")?.reviewReason}
+                Criterio {c.criterionId} · {c.rules.find((r) => r.state === "review")?.reviewReason}
               </a>
             </li>
           ))}
@@ -337,7 +337,7 @@ export function FollowUpReview({ proposalIds, onBaseVersion }: { proposalIds: st
           {removed.map(({ rule, criterionId }) => (
             <div key={rule.proposalId} className="flex flex-wrap items-center gap-2">
               <span className="flex-1 text-[13px] line-through decoration-1">
-                Motivo {criterionId} · “{rule.text}”
+                Criterio {criterionId} · “{rule.text}”
               </span>
               <Button size="sm" ref={(el) => void restoreRefs.current.set(rule.proposalId, el)} onClick={() => restore(rule.proposalId)}>
                 Volver a agregar

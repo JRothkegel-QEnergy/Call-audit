@@ -513,3 +513,60 @@ class AsrFailure(Base):
     error: Mapped[str] = mapped_column(Text, default="")
     attempts: Mapped[int] = mapped_column(Integer, default=0)
     last_attempt_at: Mapped[datetime] = mapped_column(default=now)
+
+
+class AnalysisSnapshot(Base):
+    """Foto precomputada de «Calidad del servicio» (docs/ux/vistas-supervisor/08-alta-fidelidad.md §4.1). La arma
+    `python -m call_audit.analysis.snapshot build`, sin IA; las vistas solo leen la vigente (`is_current`)."""
+
+    __tablename__ = "analysis_snapshots"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    created_at: Mapped[datetime] = mapped_column(default=now)
+    is_current: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    period_from: Mapped[str] = mapped_column(String(10))
+    period_to: Mapped[str] = mapped_column(String(10))
+    sheet_until: Mapped[str | None] = mapped_column(String(10))
+    # {"perCall": "v2.10", "perCriterion": "v2.10"}: distintas → aviso S-07.
+    runs: Mapped[dict[str, Any]] = mapped_column(default=dict)
+    config: Mapped[dict[str, Any]] = mapped_column(default=dict)
+    # Agregados de Motivos por combinación de filtros: {"criteria": {"<tipo>|<flujo>": [...]}, "filters": {...}}.
+    payload: Mapped[dict[str, Any]] = mapped_column(default=dict)
+
+
+class AnalysisSnapshotCall(Base):
+    """Una llamada de la foto, con lo justo para filtrar y listar sin leer las corridas en vivo."""
+
+    __tablename__ = "analysis_snapshot_calls"
+
+    snapshot_id: Mapped[str] = mapped_column(ForeignKey("analysis_snapshots.id"), primary_key=True)
+    case_id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    call_id: Mapped[str] = mapped_column(String(64))
+    call_date: Mapped[str] = mapped_column(String(10))
+    agent_id: Mapped[str] = mapped_column(String(64))
+    agent_name: Mapped[str] = mapped_column(String(200))
+    evaluator: Mapped[str | None] = mapped_column(String(200))
+    insurance_type: Mapped[str] = mapped_column(String(100))
+    flow: Mapped[str] = mapped_column(String(100))
+    ai_fails: Mapped[list[Any]] = mapped_column(default=list)
+    sheet_fails: Mapped[list[Any] | None] = mapped_column(JSON)  # None: la planilla no la evaluó
+    ai_evidence_ms: Mapped[dict[str, Any]] = mapped_column(default=dict)  # {"18": 61000}
+    ai_verdict: Mapped[str] = mapped_column(String(20))
+    sheet_verdict: Mapped[str | None] = mapped_column(String(20))
+    # De dónde sale la referencia humana (D-31): auditor (revisión en la app) | sheet (planilla) | None.
+    reference: Mapped[str | None] = mapped_column(String(10))
+
+
+class AnalysisReport(Base):
+    """Informe en Markdown publicado en «Calidad del servicio» (D-16, D-26). Lo carga el comando de la foto."""
+
+    __tablename__ = "analysis_reports"
+
+    slug: Mapped[str] = mapped_column(String(100), primary_key=True)
+    snapshot_id: Mapped[str | None] = mapped_column(ForeignKey("analysis_snapshots.id"))
+    title: Mapped[str] = mapped_column(String(300))
+    date: Mapped[str] = mapped_column(String(10))
+    run: Mapped[str] = mapped_column(String(100), default="")
+    audience: Mapped[str] = mapped_column(String(10))  # company | internal
+    body_md: Mapped[str] = mapped_column(Text)
+    loaded_at: Mapped[datetime] = mapped_column(default=now)

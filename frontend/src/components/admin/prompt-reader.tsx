@@ -1,5 +1,6 @@
 "use client";
 
+import { RenunciationReasonsButton } from "@/components/call/renunciation-reasons";
 import { useState } from "react";
 import type { PromptReaderItem, PromptReaderSpec } from "@/lib/api/admin-types";
 import { Button } from "@/components/ui/button";
@@ -125,7 +126,8 @@ function Rule({
       <div className="mb-1 flex flex-wrap items-baseline gap-2">
         {motive ? (
           <h4 className="m-0 text-[14px] font-semibold">
-            Motivo {item.number}
+            Criterio {item.number}
+            <RenunciationReasonsButton criterionId={Number(item.number)} />
           </h4>
         ) : (
           <span className="font-mono text-[12px] text-muted-foreground">
@@ -257,7 +259,7 @@ function ReadSpec({
             </ul>
             {motives.length > 0 && (
               <div>
-                <div className="mb-1 font-semibold">Ir a motivo</div>
+                <div className="mb-1 font-semibold">Ir a criterio</div>
                 <div className="flex flex-wrap gap-1">
                   {motives.map((m) => (
                     <a

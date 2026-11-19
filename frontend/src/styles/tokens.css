@@ -85,6 +85,20 @@
   --series-5: #c2477a;  /* frambuesa 4,69 / 4,29 */
   --series-6: #7a4fc4;  /* violeta   5,61 / 5,13 */
 
+  /* ---------- Dominio: gráficos de Calidad del servicio (docs/ux/vistas-supervisor/09b §B.2, D-37) ----------
+     Magnitud «cuánto marca distinto» (una tonalidad, violeta). Cortes 5/10/15/25 %; desde 15 (= U) texto blanco. */
+  --seq-1: #efeaf8;
+  --seq-2: #d5c8ef;
+  --seq-3: #b09ae0;
+  --seq-4: #7656bf;
+  --seq-5: #5f3fa6;
+  /* Divergente «más o menos que el equipo» (ocre ↔ violeta, gris al centro). Cortes ±2 y ±5 pts. */
+  --div-pos-2: #946200;
+  --div-pos-1: #ecc979;
+  --div-mid: var(--neutral-100);
+  --div-neg-1: #cfbdef;
+  --div-neg-2: #7656bf;
+
   /* ---------- Dominio: mosaico de acuerdo IA vs revisor (docs/ux/admin-prompt-metrics/02 §4) ---------- */
   --agree-bg: #0f7a55;            /* Coincide con el revisor · blanco encima 5,34:1 */
   --prompt-fn-bg: var(--red-700); /* IA Sí / Revisor No · blanco encima 6,64:1 */

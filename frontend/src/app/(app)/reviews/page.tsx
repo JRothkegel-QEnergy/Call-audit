@@ -97,8 +97,8 @@ export default function ReviewsPage() {
         <select className="control" aria-label="Fechas">
           <option>Ayer y hoy</option>
         </select>
-        <select className="control" aria-label="Motivo">
-          <option>Motivo: todos</option>
+        <select className="control" aria-label="Criterio">
+          <option>Criterio: todos</option>
         </select>
       </div>
       <div className="tabs" role="tablist">
@@ -177,7 +177,7 @@ export default function ReviewsPage() {
                   <th>Llamada</th>
                   <th>Auditor</th>
                   <th>Señal</th>
-                  <th>Motivo de corrección</th>
+                  <th>Razón de la corrección</th>
                   <th>Tiempo de revisión</th>
                 </tr>
               </thead>

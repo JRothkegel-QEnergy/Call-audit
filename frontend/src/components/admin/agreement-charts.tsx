@@ -27,7 +27,7 @@ import { useSession } from "@/lib/session";
 
 /**
  * Mosaico de acuerdo IA vs revisor (docs/ux/admin-prompt-metrics/02-mosaico-propuesta.md §11): A (Marimekko por
- * llamada), B (zoom al desacuerdo por motivo), C (evolución del loop), leyenda y aviso del análisis de causa.
+ * llamada), B (zoom al desacuerdo por criterio), C (evolución del loop), leyenda y aviso del análisis de causa.
  * Sin librería de gráficos: bloques con flex. Los % se calculan aquí desde conteos enteros.
  */
 
@@ -97,7 +97,7 @@ export function Swatch({ part }: { part: Part | ReasonMatch }) {
   return <span aria-hidden className="inline-block h-3 w-3 flex-none rounded-sm" style={style} />;
 }
 
-/** Tramos de «¿Coinciden también en los motivos?» (15-acuerdo-en-motivos-brief.md §9-§10): zoom del verde, sin rayado. */
+/** Tramos de «¿Coinciden también en los criterios?» (15-acuerdo-en-motivos-brief.md §9-§10): zoom del verde, sin rayado. */
 export const REASON_PARTS: Record<ReasonMatch, { name: string; list: AgreeList; style: React.CSSProperties; ink: string }> = {
   bothPass: {
     name: "Ambos aprueban",
@@ -105,7 +105,7 @@ export const REASON_PARTS: Record<ReasonMatch, { name: string; list: AgreeList; 
     style: { background: "var(--reason-pass-bg)", boxShadow: "inset 0 0 0 1px var(--reason-pass-border)" },
     ink: "var(--ink-900)",
   },
-  same: { name: "Mismos motivos", list: "agreeSame", style: { background: "var(--reason-same-bg)" }, ink: "#fff" },
+  same: { name: "Mismos criterios", list: "agreeSame", style: { background: "var(--reason-same-bg)" }, ink: "#fff" },
   partial: {
     name: "Desacuerdo parcial",
     list: "agreePartial",
@@ -255,7 +255,7 @@ function Block({
   );
 }
 
-/** A · Marimekko por llamada (§3.1): el ancho de cada columna es su %; rojo sobre amarillo dentro de "Prompt o criterio". */
+/** A · Marimekko por llamada (§3.1): el ancho de cada columna es su %; rojo sobre amarillo dentro de "Prompt o regla de aplicación". */
 export function AgreementMosaic({
   version,
   a,
@@ -273,7 +273,7 @@ export function AgreementMosaic({
   const b = a.byCall;
   const prompt = b.promptFn + b.promptFp;
   const cols: { key: string; value: number; label: string; parts: Part[] }[] = [
-    { key: "prompt", value: prompt, label: "Prompt o criterio", parts: ["promptFn", "promptFp"] },
+    { key: "prompt", value: prompt, label: "Prompt o regla de aplicación", parts: ["promptFn", "promptFp"] },
     { key: "reviewer", value: b.reviewer, label: "Posible error del revisor", parts: ["reviewer"] },
     { key: "undecided", value: b.undecided, label: "Sin decisión", parts: ["undecided"] },
     { key: "agree", value: b.agree, label: "Acuerdo", parts: ["agree"] },
@@ -289,7 +289,7 @@ export function AgreementMosaic({
             <br />
             <br />
             Posible error del revisor (según la IA de análisis): una IA revisó cada desacuerdo y concluyó que se equivocó el revisor
-            al llenar la planilla. Es su juicio y aún no está confirmado con el call center. Solo cuenta si todos sus motivos en
+            al llenar la planilla. Es su juicio y aún no está confirmado con el call center. Solo cuenta si todos sus criterios en
             desacuerdo apuntan a la planilla.
             <br />
             <br />
@@ -349,7 +349,7 @@ export function AgreementMosaic({
   );
 }
 
-/** Zoom del verde (15-acuerdo-en-motivos-brief.md): las llamadas que coinciden con el revisor, según sus motivos. */
+/** Zoom del verde (15-acuerdo-en-motivos-brief.md): las llamadas que coinciden con el revisor, según sus criterios. */
 export function ReasonMatchBar({
   version,
   a,
@@ -372,10 +372,10 @@ export function ReasonMatchBar({
   const parts = REASON_ORDER.filter((p) => r[p] > 0);
   const title = (
     <h3 id="reason-match" className="m-0 text-sm font-semibold">
-      ¿Coinciden también en los motivos?
-      <MetricHelp title="¿Coinciden también en los motivos?">
-        Una llamada coincide con el revisor si ambos dan el mismo veredicto, aunque rechacen por motivos distintos. Este gráfico
-        separa esas llamadas según sus motivos de rechazo. Un motivo que la IA dejó dudoso no cuenta como rechazo de la IA.
+      ¿Coinciden también en los criterios?
+      <MetricHelp title="¿Coinciden también en los criterios?">
+        Una llamada coincide con el revisor si ambos dan el mismo veredicto, aunque rechacen por criterios distintos. Este gráfico
+        separa esas llamadas según sus criterios de rechazo. Un criterio que la IA dejó dudoso no cuenta como rechazo de la IA.
       </MetricHelp>
     </h3>
   );
@@ -397,10 +397,10 @@ export function ReasonMatchBar({
       </div>
       <div
         role="img"
-        aria-label={`De ${int(n)} llamadas que coinciden con el revisor: ${int(r.bothPass)} ambos aprueban, ${int(r.same)} con los mismos motivos, ${int(r.partial)} con desacuerdo parcial y ${int(r.none)} con desacuerdo total en los motivos de rechazo.`}
+        aria-label={`De ${int(n)} llamadas que coinciden con el revisor: ${int(r.bothPass)} ambos aprueban, ${int(r.same)} con los mismos criterios, ${int(r.partial)} con desacuerdo parcial y ${int(r.none)} con desacuerdo total en los criterios de rechazo.`}
         className="flex h-8 w-full gap-[2px]"
         style={{
-          // Zigzag a la derecha, como «Detalle por motivo»: es un zoom, no la escala del total.
+          // Zigzag a la derecha, como «Detalle por criterio»: es un zoom, no la escala del total.
           clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 25%, calc(100% - 6px) 50%, 100% 75%, calc(100% - 6px) 100%, 0 100%)",
         }}
       >
@@ -431,7 +431,7 @@ export function ReasonMatchBar({
           <b>Coinciden en todo</b> · <span className="tabular">{fmtPct(share(full, n))} ({int(full)})</span>
         </span>
         <span>
-          <b>Desacuerdo en motivo de rechazo</b> · <span className="tabular">{fmtPct(share(split, n))} ({int(split)})</span>
+          <b>Desacuerdo en criterio de rechazo</b> · <span className="tabular">{fmtPct(share(split, n))} ({int(split)})</span>
         </span>
       </p>
       <p className="m-0 text-[13px]">
@@ -441,7 +441,7 @@ export function ReasonMatchBar({
             <b>
               {int(r.same)} ({fmtPct(share(r.same, rejected))})
             </b>{" "}
-            marcan los mismos motivos.
+            marcan los mismos criterios.
           </>
         ) : (
           "No hay rechazos en común con el revisor."
@@ -512,7 +512,7 @@ export function ReasonMatchBar({
 
 const DISAGREE: Part[] = ["promptFn", "promptFp", "reviewer"];
 
-/** B · Detalle por motivo (§3.2): el verde como número y el desacuerdo ampliado al 100 %. */
+/** B · Detalle por criterio (§3.2): el verde como número y el desacuerdo ampliado al 100 %. */
 export function DisagreementZoom({ a }: { a: Agreement }) {
   const [table, setTable] = useState(false);
   const b = a.byCallCriterion;
@@ -522,9 +522,9 @@ export function DisagreementZoom({ a }: { a: Agreement }) {
     <section className="card grid gap-3" aria-labelledby="mosaic-b">
       <div>
         <h3 id="mosaic-b" className="m-0 text-sm font-semibold">
-          Detalle por motivo
-          <MetricHelp title="Detalle por motivo">
-            Cada llamada se cuenta {a.criteria} veces, una por motivo. Como casi todos los motivos coinciden, el desacuerdo se
+          Detalle por criterio
+          <MetricHelp title="Detalle por criterio">
+            Cada llamada se cuenta {a.criteria} veces, una por criterio. Como casi todos los criterios coinciden, el desacuerdo se
             muestra aparte y ampliado para que se vea.
             <br />
             <br />
@@ -533,7 +533,7 @@ export function DisagreementZoom({ a }: { a: Agreement }) {
           </MetricHelp>
         </h3>
         <p className="help m-0">
-          % del total de llamadas × motivo · n = {int(calls)} × {a.criteria} = {int(b.n)}
+          % del total de llamadas × criterio · n = {int(calls)} × {a.criteria} = {int(b.n)}
         </p>
       </div>
       <p className="m-0 text-[13px]">
@@ -547,7 +547,7 @@ export function DisagreementZoom({ a }: { a: Agreement }) {
           </p>
           <div
             role="img"
-            aria-label={`Desacuerdos por motivo, vistos al 100 %: ${DISAGREE.map((p) => `${fmtPct(share(b[p], k))} ${PARTS[p].name}`).join(", ")}.`}
+            aria-label={`Desacuerdos por criterio, vistos al 100 %: ${DISAGREE.map((p) => `${fmtPct(share(b[p], k))} ${PARTS[p].name}`).join(", ")}.`}
             className="flex h-8 w-full gap-[2px]"
             style={{
               // Zigzag a la derecha: es un zoom, no la escala del total.
@@ -581,13 +581,13 @@ export function DisagreementZoom({ a }: { a: Agreement }) {
           )}
         </>
       ) : (
-        <p className="help m-0">No hay desacuerdos por motivo.</p>
+        <p className="help m-0">No hay desacuerdos por criterio.</p>
       )}
       <div>
         <Button size="sm" variant="ghost" aria-expanded={table} onClick={() => setTable((t) => !t)}>
           {table ? "Ocultar tabla" : "Ver como tabla"}
         </Button>
-        {table && <AsTable b={b} unit="Llamadas × motivo" />}
+        {table && <AsTable b={b} unit="Llamadas × criterio" />}
       </div>
     </section>
   );
@@ -627,7 +627,7 @@ export function LoopEvolution({ loop, version }: { loop: PromptLoopChain | null 
           {(
             [
               ["byCall", "Por llamada"],
-              ["byCallCriterion", "Por motivo"],
+              ["byCallCriterion", "Por criterio"],
             ] as const
           ).map(([k, label]) => (
             <Button key={k} size="sm" variant={unit === k ? "primary" : "default"} aria-pressed={unit === k} onClick={() => setUnit(k)}>

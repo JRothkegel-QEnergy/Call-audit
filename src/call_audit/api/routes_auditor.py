@@ -329,7 +329,7 @@ class NoteIn(BaseModel):
 def add_note(case_id: str, body: NoteIn, session: DbSession, user: CurrentUser):
     case = get_case(session, case_id)
     if body.scope == "finding" and body.criterionId is None:
-        raise HTTPException(422, "Una nota de motivo necesita criterionId")
+        raise HTTPException(422, "Una nota de criterio necesita criterionId")
     note = Note(
         case_id=case.id, scope=body.scope, criterion_id=body.criterionId, text=body.text.strip(), author_id=user.id
     )

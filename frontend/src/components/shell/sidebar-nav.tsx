@@ -73,6 +73,7 @@ export function SidebarNav({
       ? [
           { label: "Estadísticas", href: "/admin/stats", icon: LineChart },
           { label: "Análisis de discrepancias", href: "/admin/discrepancies", icon: ScanSearch },
+          { label: "Calidad del servicio", href: "/analysis", icon: BarChart3 },
           { label: "Prompt", href: "/admin/prompts", icon: FileCode2 },
         ]
       : user.role === "qubico_admin"
@@ -80,6 +81,8 @@ export function SidebarNav({
           { label: "Estadísticas", href: "/admin/stats", icon: LineChart },
           // Cambio 16 (D-61): entre Estadísticas y Prompt; nombre largo para no confundirlo con «Discrepancias».
           { label: "Análisis de discrepancias", href: "/admin/discrepancies", icon: ScanSearch },
+          // Calidad del servicio (docs/ux/vistas-supervisor, F-3): bajo «Análisis de discrepancias».
+          { label: "Calidad del servicio", href: "/analysis", icon: BarChart3 },
           { label: "Procesamiento", href: "/admin/processing", icon: Cpu },
           { label: "Prompt", href: "/admin/prompts", icon: FileCode2 },
           { label: "Cuentas", href: "/admin/accounts", icon: UserCog },
@@ -94,11 +97,17 @@ export function SidebarNav({
         ]
       : [
           { label: "Inicio", href: "/dashboard", icon: LayoutDashboard },
+          { label: "Calidad del servicio", href: "/analysis", icon: BarChart3 },
           { label: "Alertas", href: "/alerts", icon: Bell, count: counts.alerts, alert: true },
           { label: "Revisiones", href: "/reviews", icon: SquareCheckBig, count: counts.approvals, match: ["/calls/"] },
-          { label: "Ejecutivos", href: "/agents", icon: Users },
-          { label: "Motivos", href: "/dashboard/criteria", icon: BarChart3 },
-          { label: "Auditores", href: "/auditors", icon: ShieldCheck },
+          // En modo real estas tres vistas no tienen datos: las reemplaza Calidad del servicio (F-3).
+          ...(isRealMode
+            ? []
+            : [
+                { label: "Ejecutivos", href: "/agents", icon: Users },
+                { label: "Criterios", href: "/dashboard/criteria", icon: List },
+                { label: "Auditores", href: "/auditors", icon: ShieldCheck },
+              ]),
           { label: "Cola", href: "/queue", icon: List },
           { label: "Discrepancias", href: "/discrepancies", icon: GitCompareArrows },
           // Cambio 11: solo con el permiso manage_catalog (D-28).

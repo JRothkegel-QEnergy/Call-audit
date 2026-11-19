@@ -37,6 +37,7 @@ import { usePreferences } from "@/lib/preferences";
 import { loadRubric } from "@/lib/rubric";
 import { useSession } from "@/lib/session";
 import { AnalysisBanner } from "@/components/admin/quality-banner";
+import { RenunciationReasonsButton } from "@/components/call/renunciation-reasons";
 import { TypificationLine } from "@/components/call/typification";
 import { useAsync } from "@/lib/use-async";
 import { caseStatusLabel } from "@/lib/verdicts";
@@ -83,6 +84,17 @@ export function CallDetail({ id }: { id: string }) {
       qualitySeries={params.get("serie")}
       analysisPattern={params.get("pattern")}
       analysisMotive={params.get("motivo") ? Number(params.get("motivo")) : null}
+      service={
+        params.get("from") === "analysis"
+          ? {
+              criterion: params.get("criterion") ? Number(params.get("criterion")) : null,
+              source: params.get("source"),
+              reference: params.get("ref"),
+              // Solo rutas de la sección: «Volver» nunca lleva fuera de la app.
+              back: params.get("back")?.startsWith("/analysis") ? params.get("back")! : "/analysis",
+            }
+          : null
+      }
     />
   );
 }
@@ -95,6 +107,7 @@ function CallWorkspace({
   qualitySeries,
   analysisPattern,
   analysisMotive,
+  service,
 }: {
   rubric: Rubric;
   data: CaseDetail;
@@ -102,9 +115,11 @@ function CallWorkspace({
   startAtMs?: number;
   /** Abierta desde «Calidad de la IA» (Cambio 15): la corrida que se estaba mirando. */
   qualitySeries?: string | null;
-  /** Abierta desde un patrón del «Análisis de discrepancias» (Cambio 16, D-65): el patrón y su motivo. */
+  /** Abierta desde un patrón del «Análisis de discrepancias» (Cambio 16, D-65): el patrón y su criterio. */
   analysisPattern?: string | null;
   analysisMotive?: number | null;
+  /** Abierta desde «Calidad del servicio» (docs/ux/vistas-supervisor, F-6): criterio, fuente y la cifra de origen. */
+  service?: { criterion: number | null; source: string | null; back: string; reference: string | null } | null;
 }) {
   const router = useRouter();
   const { user } = useSession();
@@ -148,9 +163,10 @@ function CallWorkspace({
   }, []);
 
   // ---- Foco y audio: el caso abre en el primer hallazgo que pide acción, 4–5 s antes de la cita ----
-  // Desde un patrón del análisis de discrepancias, el checklist abre en su motivo (D-65).
+  // Desde un patrón del análisis de discrepancias, el checklist abre en su criterio (D-65).
   const fromAnalysis = isAdminRole(role) && !!analysisPattern;
-  const firstFocus = (fromAnalysis && analysisMotive != null ? analysisMotive : null) ?? order[0] ?? null;
+  const firstFocus =
+    (fromAnalysis && analysisMotive != null ? analysisMotive : null) ?? service?.criterion ?? order[0] ?? null;
   const [focusId, setFocusId] = useState<number | null>(firstFocus);
   const firstEvidence = firstFocus != null ? findingFor(data.findings, firstFocus).evidence : null;
   const [currentMs, setCurrentMs] = useState(startAtMs ?? Math.max(0, (firstEvidence?.startMs ?? 0) - 5000));
@@ -161,7 +177,7 @@ function CallWorkspace({
   const [sheetDrawer, setSheetDrawer] = useState(false);
   const [dialog, setDialog] = useState<null | "escalate" | "reopen" | "override">(null);
   const [modelOpen, setModelOpen] = useState(false);
-  // Notas por caso y por motivo (Cambio 09 §3.3): se pueden dejar en cualquier modo.
+  // Notas por caso y por criterio (Cambio 09 §3.3): se pueden dejar en cualquier modo.
   const [notes, setNotes] = useState<Note[]>(data.notes);
   const [noteOpenFor, setNoteOpenFor] = useState<number | null>(null);
   const [caseNoteOpen, setCaseNoteOpen] = useState(false);
@@ -199,7 +215,7 @@ function CallWorkspace({
     toast("Nota actualizada.");
   };
 
-  // Cita en foco dentro del hallazgo (un motivo puede traer varias, ej. cada objeción del motivo 3).
+  // Cita en foco dentro del hallazgo (un criterio puede traer varias, ej. cada objeción del criterio 3).
   const [evidenceIdx, setEvidenceIdx] = useState(0);
   const focusItem = useCallback(
     (criterionId: number | null | undefined, evidenceIndex = 0) => {
@@ -232,7 +248,9 @@ function CallWorkspace({
   const focusEvidence = focusId != null ? (evidenceList(findingFor(data.findings, focusId))[evidenceIdx] ?? null) : null;
   const markers = data.findings.filter((f) => f.verdict !== "compliant" && f.verdict !== "not_applicable");
   const fromQuality = isAdminRole(role) && !!qualitySeries;
-  const back = fromQuality
+  const back = service
+    ? ([service.back, "Calidad del servicio"] as const)
+    : fromQuality
     ? (["/admin/stats?tab=quality", "Calidad de la IA"] as const)
     : fromAnalysis
       ? ([`/admin/discrepancies/patterns/${encodeURIComponent(analysisPattern!)}`, "el patrón"] as const)
@@ -372,6 +390,15 @@ function CallWorkspace({
           {shortDateTime(data.callDate)} · Ejecutivo {data.agent.name} · {data.products.join(", ")}
         </span>
         <TypificationLine t={data.typification} className="text-[13px]" />
+        <RenunciationReasonsButton
+          criterionId={18}
+          variant="text"
+          call={{
+            typification: data.typification,
+            verdict: findingFor(data.findings, 18).verdict,
+            suggestedReasons: findingFor(data.findings, 18).suggestedReasons,
+          }}
+        />
         <span className="text-[13px] text-muted-foreground">Decisión del motor</span>
         <CallVerdictBadge verdict={data.engineVerdict} />
         <StatusBadge tone={mode === "supervisor" ? "teal" : "neutral"} locked={mode === "readonly" && data.status === "in_review"}>
@@ -390,6 +417,13 @@ function CallWorkspace({
       </div>
 
       {fromAnalysis && <AnalysisBanner caseId={data.id} patternId={analysisPattern!} />}
+      {service && (
+        <ServiceBanner
+          service={service}
+          aiFails={service.criterion != null && findingFor(data.findings, service.criterion).verdict === "non_compliant"}
+          onBack={() => router.push(service.back)}
+        />
+      )}
 
       {/* Veredicto del cliente: solo llega al supervisor (D-24) y solo si vino en la metadata (D-25). */}
       {seesClient && data.externalQualityVerdict && (
@@ -459,6 +493,7 @@ function CallWorkspace({
           }}
         />
         <RubricChecklist
+          typification={data.typification}
           rubric={rubric}
           findings={data.findings}
           mode={mode}
@@ -666,5 +701,45 @@ function CallWorkspace({
         }}
       />
     </>
+  );
+}
+
+const SERVICE_SOURCE: Record<string, string> = {
+  ai: "No cumple según la IA",
+  sheet: "No cumple según el auditor",
+  mismatch: "La IA y el auditor no coinciden",
+};
+
+/** Banner de origen desde Calidad del servicio (C-08), con el aviso cuando la IA no encontró evidencia. */
+function ServiceBanner({
+  service,
+  aiFails,
+  onBack,
+}: {
+  service: { criterion: number | null; source: string | null; back: string; reference: string | null };
+  aiFails: boolean;
+  onBack: () => void;
+}) {
+  return (
+    <div className="mt-2 grid gap-2">
+      <div className="banner" role="note">
+        <span>
+          Vienes de Calidad del servicio
+          {service.criterion != null && <> · <b>Criterio {service.criterion}</b></>}
+          {service.source && SERVICE_SOURCE[service.source] ? ` · ${SERVICE_SOURCE[service.source]}` : ""}.
+        </span>
+        <Button size="sm" variant="ghost" onClick={onBack}>
+          Volver
+        </Button>
+      </div>
+      {service.criterion != null && !aiFails && (
+        <div className="banner" role="note" style={{ background: "var(--amber-100)", borderLeftColor: "var(--amber-600)" }}>
+          El auditor marcó este criterio; la IA no encontró evidencia en la transcripción.
+          {service.reference && (
+            <span className="help">{service.reference === "auditor" ? "(revisión en la app)" : "(de la planilla)"}</span>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

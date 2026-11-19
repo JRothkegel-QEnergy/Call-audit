@@ -177,7 +177,7 @@ export function ModelPanel({
               <>
                 <div className="mb-3 flex flex-wrap items-center gap-2">
                   <CopyButton text={json} />
-                  <span className="help">Ir al motivo:</span>
+                  <span className="help">Ir al criterio:</span>
                   {items.map((it) => {
                     const id = Number(String(it.criterion_id).replace(/\D/g, ""));
                     return (

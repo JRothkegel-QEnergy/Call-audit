@@ -96,7 +96,7 @@ function Top({ c, listVersion, part }: { c: Concentration; listVersion: string |
               M{t.criterionId}
             </Link>
           ) : (
-            `M${t.criterionId}`
+            `C${t.criterionId}`
           )}{" "}
           {int(t.n)}
         </span>
@@ -132,7 +132,7 @@ export function FixColumns({
           <b>{int(p.n)} desacuerdos</b> · {int(p.fn)} solo el revisor lo marca + {int(p.fp)} solo la IA lo marca
         </p>
         <p className="m-0">
-          <b>{p.concentration.to50 != null && p.concentration.to50 <= 3 ? "Concentrado" : "Disperso"}:</b> {p.concentration.to50 ?? "—"} motivos suman el 50 %;{" "}
+          <b>{p.concentration.to50 != null && p.concentration.to50 <= 3 ? "Concentrado" : "Disperso"}:</b> {p.concentration.to50 ?? "—"} criterios suman el 50 %;{" "}
           {p.concentration.to80 ?? "—"} el 80 % (de {int(p.concentration.criteria)} con alguno).
         </p>
         {ins.chronic && (
@@ -140,7 +140,7 @@ export function FixColumns({
             <b>Crónico:</b> {int(ins.chronic.n)} de {int(ins.chronic.of)} ({pct(ins.chronic.n, ins.chronic.of)} %) ya estaban en v{ins.chronic.versions.join(" y v")} ·{" "}
             {int(ins.chronic.new)} nuevos
             <MetricHelp title="Crónico">
-              Mismo motivo, misma llamada y mismo lado en las dos versiones anteriores. Si un desacuerdo sigue en tres versiones, el loop no lo está
+              Mismo criterio, misma llamada y mismo lado en las dos versiones anteriores. Si un desacuerdo sigue en tres versiones, el loop no lo está
               corrigiendo: conviene escribir la regla a mano.
             </MetricHelp>
           </p>
@@ -184,7 +184,7 @@ export function FixColumns({
             <b>{r.concentration.to50 != null && r.concentration.to50 <= 3 ? "Concentrado" : "Disperso"}:</b> M{r.concentration.top[0].criterionId} suma el{" "}
             {pct(r.concentration.top[0].n, r.n)} %
             {r.concentration.top.length >= 3 &&
-              `; M${r.concentration.top
+              `; C${r.concentration.top
                 .slice(0, 3)
                 .map((t) => t.criterionId)
                 .join(" + M")}, el ${pct(

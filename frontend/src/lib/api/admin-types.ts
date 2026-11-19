@@ -35,11 +35,11 @@ export interface EvaluationMetrics {
   costPerCallUsd: number;
   latencyMsP50: number;
   latencyMsP95: number;
-  /** Cuántas llamadas marcó incumplidas cada motivo. */
+  /** Cuántas llamadas marcó incumplidas cada criterio. */
   byCriterion: { criterionId: number; failCount: number }[];
-  /** Contra la planilla de la corredora por motivo (golden_split.summary). Tasas como fracción 0-1. null si no hay marca por motivo. */
+  /** Contra la planilla de la corredora por criterio (golden_split.summary). Tasas como fracción 0-1. null si no hay marca por criterio. */
   criterionScores?: CriterionScores | null;
-  /** Mosaico IA vs revisor (docs/ux/admin-prompt-metrics/02-mosaico-propuesta.md §11). null sin planilla por motivo. */
+  /** Mosaico IA vs revisor (docs/ux/admin-prompt-metrics/02-mosaico-propuesta.md §11). null sin planilla por criterio. */
   agreement?: Agreement | null;
 }
 
@@ -61,7 +61,7 @@ export interface AgreementBreakdown {
   rejected?: number;
 }
 
-/** Desacuerdos por motivo de un motivo (05-numeros-propuesta.md §4.1-5). fn/fp sin el azul; el azul aparte. */
+/** Desacuerdos por criterio de un criterio (05-numeros-propuesta.md §4.1-5). fn/fp sin el azul; el azul aparte. */
 export interface AgreementCriterion {
   criterionId: number;
   fn: number;
@@ -86,26 +86,26 @@ export interface CauseAnalysis {
 export interface Agreement {
   byCall: AgreementBreakdown;
   byCallCriterion: AgreementBreakdown;
-  /** Motivos de la pauta (n de byCallCriterion = llamadas × criteria). */
+  /** Criterios de la pauta (n de byCallCriterion = llamadas × criteria). */
   criteria: number;
   causeAnalysis: CauseAnalysis;
   /** Suma de lo verificado a mano por parte del mosaico (04-verificacion-propuesta.md §6.1). */
   verification?: Record<AgreementSegment, VerificationSummary>;
-  /** Llamadas con al menos un desacuerdo por motivo, en total y por parte del mosaico (frase puente, §4.1-3). */
+  /** Llamadas con al menos un desacuerdo por criterio, en total y por parte del mosaico (frase puente, §4.1-3). */
   bridge?: { calls: number } & Record<AgreementSegment, number>;
   byCriterion?: AgreementCriterion[];
   /** Universo a la vista (N-R1): llamadas de la prueba, medidas y por qué quedaron fuera. */
   scope?: { total: number; measured: number; errors: number; noReference: number };
   /** Reglas incluidas en esta versión que salen de un análisis de causa: de estas mismas llamadas (aviso N8 A). */
   sameCallRules?: number;
-  /** Dentro de "agree": si también coinciden los motivos de rechazo (15-acuerdo-en-motivos-brief.md §8). n = byCall.agree. */
+  /** Dentro de "agree": si también coinciden los criterios de rechazo (15-acuerdo-en-motivos-brief.md §8). n = byCall.agree. */
   reasonMatch?: { n: number } & Record<ReasonMatch, number>;
 }
 
-/** Tramos de las llamadas que coinciden con el revisor según sus motivos de rechazo. */
+/** Tramos de las llamadas que coinciden con el revisor según sus criterios de rechazo. */
 export type ReasonMatch = "bothPass" | "same" | "partial" | "none";
 
-/** Análisis por caso de una versión (06-ajustes-feedback.md §2): solo los motivos que no coinciden. */
+/** Análisis por caso de una versión (06-ajustes-feedback.md §2): solo los criterios que no coinciden. */
 export interface QualityGrid {
   listVersion: string | null;
   criteria: number[];
@@ -123,7 +123,7 @@ export interface QualityGrid {
 /** Lista de llamadas: una parte del mosaico, un lado (falsas alarmas / rechazos no detectados) o todo desacuerdo. */
 export type CallList = AgreementSegment | AgreeList | "fp" | "fn" | "disagree" | "changed" | "all";
 
-/** Listas de cada tramo de «¿Coinciden también en los motivos?». */
+/** Listas de cada tramo de «¿Coinciden también en los criterios?». */
 export type AgreeList = "agreePass" | "agreeSame" | "agreePartial" | "agreeNone";
 
 /** Cifras del Resumen de Discrepancias (10-resumen-mas-informacion.md), de la misma fuente que el mosaico. */
@@ -160,7 +160,7 @@ export interface DiscrepancyInsights {
 
 export type AgreementSegment = "promptFn" | "promptFp" | "reviewer" | "undecided" | "agree";
 export type VerificationOutcome = "ai_error" | "reviewer_error" | "ambiguous" | "missing_info";
-/** none: la llamada no tiene desacuerdos por motivo que verificar. */
+/** none: la llamada no tiene desacuerdos por criterio que verificar. */
 export type CallVerification = "pending" | "confirmed" | "ai_wrong" | "inconclusive" | "none";
 export type Verdict3 = "compliant" | "non_compliant" | "uncertain";
 
@@ -216,8 +216,8 @@ export interface SegmentCalls {
   sample?: number | null;
   items: SegmentCall[];
   summary: VerificationSummary;
-  /** Lista «all»: por motivo, llamadas del alcance con algo que verificar en él (incluye dudosas) y cuántas siguen
-   * pendientes, sin aplicar el motivo filtrado. Más llamadas primero (16-lista-verificador-por-motivo, L2 A). */
+  /** Lista «all»: por criterio, llamadas del alcance con algo que verificar en él (incluye dudosas) y cuántas siguen
+   * pendientes, sin aplicar el criterio filtrado. Más llamadas primero (16-lista-verificador-por-motivo, L2 A). */
   criterionCounts?: CriterionCount[];
 }
 
@@ -249,7 +249,7 @@ export interface CaseComparisonCriterion {
     verdict: Verdict3;
     comment: string | null;
     evidence: { quote: string; startMs: number | null; quoteValidated?: boolean }[];
-    /** Motivo 18: motivos de renuncia que sugiere la IA (prompt v2.8+). Vacío en los demás. */
+    /** Criterio 18: motivos de renuncia que sugiere la IA (prompt v2.8+). Vacío en los demás. */
     suggestedReasons?: SuggestedReason[];
   };
   reviewerFail: boolean;
@@ -381,7 +381,7 @@ export interface CauseEstimate {
 
 export interface CriterionScore {
   criterionId: number;
-  /** Llamadas en que la corredora marcó el motivo. */
+  /** Llamadas en que la corredora marcó el criterio. */
   support: number;
   tp: number;
   fp: number;
@@ -448,7 +448,7 @@ export type PromptDiff =
 
 export interface PromptReaderItem {
   id: string;
-  /** Solo los motivos de la pauta: traen number, official y (opcional) criterion en vez de text. */
+  /** Solo los criterios de la pauta: traen number, official y (opcional) criterion en vez de text. */
   number: number | null;
   text: string | null;
   official: string | null;
@@ -641,7 +641,7 @@ export interface ProcessingStatus {
   otherTasks: {
     catalogUploadsQueued: number;
     promptEvaluation: { version: string; processed: number; n: number } | null;
-    /** Análisis de discrepancias en curso (Cambio 16): motivos terminados de los pedidos. */
+    /** Análisis de discrepancias en curso (Cambio 16): criterios terminados de los pedidos. */
     discrepancyAnalysis?: { id: string; done: number; total: number } | null;
   };
 }
@@ -683,11 +683,11 @@ export interface DiscrepancyCriterionRow {
   aiUncertain: number;
   disagreements: number;
   manualItems: number;
-  /** null = el análisis mostrado no incluyó este motivo («sin analizar»). */
+  /** null = el análisis mostrado no incluyó este criterio («sin analizar»). */
   patterns: number | null;
-  /** Casos del motivo que quedaron en un patrón (Cambio 19); null = sin analizar. */
+  /** Casos del criterio que quedaron en un patrón (Cambio 19); null = sin analizar. */
   explained: KindCounts | null;
-  /** fp + fn + IA dudosa del motivo enviados al análisis; null = sin analizar. */
+  /** fp + fn + IA dudosa del criterio enviados al análisis; null = sin analizar. */
   analyzedCases: number | null;
   summary: string | null;
 }
@@ -710,7 +710,7 @@ export interface DiscrepancyCapabilities {
 export type WhoIsRight = "auditor" | "ia" | "ambiguo";
 export type ActionGroup = "prompt_rule" | "calibrate_auditor" | "company" | "none" | "observation" | "unpatterned";
 
-/** Cifras del resumen (Cambio 19 §7.3), en casos (motivo × llamada), sin IA. */
+/** Cifras del resumen (Cambio 19 §7.3), en casos (criterio × llamada), sin IA. */
 export interface DiscrepancySummary {
   disagreements: number;
   criteriaWithDisagreements: number;
@@ -722,7 +722,7 @@ export interface DiscrepancySummary {
   pendingProposals: number;
   pendingCases: number;
   staleCases: number;
-  /** Fuente única con el Resumen (R1 A): desacuerdos del motivo 1 (capa 1) que quedan fuera de las cifras. */
+  /** Fuente única con el Resumen (R1 A): desacuerdos del criterio 1 (capa 1) que quedan fuera de las cifras. */
   layer1Cases?: number;
   sameSource?: boolean;
 }
@@ -852,7 +852,7 @@ export interface DiscrepancyOverview {
   calls: number;
   cases: number;
   manualCases: number;
-  /** Llamadas fuera de la tabla, por razón («sin corrida vigente», «la corrida vigente terminó con error», «sin marca por motivo del cliente»). */
+  /** Llamadas fuera de la tabla, por razón («sin corrida vigente», «la corrida vigente terminó con error», «sin marca por criterio del cliente»). */
   callsOutside: Record<string, number>;
   callMatch: { agree: number; total: number };
   criteria: DiscrepancyCriterionRow[];
@@ -866,7 +866,7 @@ export interface DiscrepancyOverview {
   patterns: DiscrepancyPattern[];
   models: DiscrepancyModelOption[];
   defaultModel: string;
-  /** Última prueba de versión sobre validación: cabecera, mosaico y desacuerdos por motivo del Resumen (§4). */
+  /** Última prueba de versión sobre validación: cabecera, mosaico y desacuerdos por criterio del Resumen (§4). */
   /** Cifras del Resumen según el análisis elegido (06-ajustes-feedback.md §4.1). `missing`: la versión del análisis
    * no tiene prueba en validación. `isCurrent`: la vigente medida en validación (análisis antiguos). */
   quality?:

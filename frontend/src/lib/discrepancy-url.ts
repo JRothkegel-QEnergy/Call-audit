@@ -31,7 +31,7 @@ export function resolveTab(params: Params): DiscrepancyTab {
   return hasPatternFilters(params) ? "patterns" : "summary";
 }
 
-/** "auto": el primer motivo con pendientes, sin escribirlo en la URL. Un enlace antiguo sin motivo era una lista global. */
+/** "auto": el primer criterio con pendientes, sin escribirlo en la URL. Un enlace antiguo sin criterio era una lista global. */
 export function resolveMotive(params: Params): MotiveSelection {
   const motive = motiveParam(params);
   if (motive != null) return motive;

@@ -557,6 +557,11 @@ def run_pass(settings: Settings, progress: Progress) -> dict[str, int]:
         store.close()
     logger.info("Pasada: %s", stats)
     progress.finish(archived=stats["archived"], validated=stats["validated"])
+    if stats["validated"]:
+        # Calidad del servicio (D-08): la foto se rehace cuando la pasada dejó corridas nuevas.
+        from call_audit.analysis.snapshot import rebuild_quietly
+
+        rebuild_quietly(get_sessionmaker())
     return stats
 
 

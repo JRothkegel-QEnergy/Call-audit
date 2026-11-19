@@ -213,6 +213,8 @@ flowchart TD
 
 Término de UI ↔ identificador en el código (`.claude/rules/frontend.md`: identificadores en inglés, textos en español).
 
+> **Ajuste 2026-11-19 (D-42 a D-47, `../vistas-supervisor/10-criterios-y-motivos-de-renuncia.md`):** los puntos de la pauta se llaman **criterios**; "motivo" queda solo para el **motivo de renuncia**; la razón de una acción es **razón**. Donde esta tabla diga "motivo" para un punto de la pauta, léase "criterio". Entradas nuevas en `06-ux-writing.md` §5.
+
 | Término en la UI | Definición | Código | Evitar |
 |---|---|---|---|
 | **Llamada** | Grabación de una conversación de retención con sus metadatos | `call` | "audio", "grabación" como sustantivo principal |

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { api, isRealMode } from "@/lib/api";
 
-/** Exportar lo filtrado: sin datos personales por defecto; con ellos, motivo obligatorio y registro (L-04). */
+/** Exportar lo filtrado: sin datos personales por defecto; con ellos, criterio obligatorio y registro (L-04). */
 export function ExportButton({ count = 1240 }: { count?: number }) {
   // Exportar no existe en el backend v0: se oculta para no fallar al enviar (Cambio 10, punto 3b).
   if (isRealMode) return null;
@@ -38,7 +38,7 @@ function ExportButtonDemo({ count }: { count: number }) {
               variant="primary"
               loading={busy}
               onClick={async () => {
-                if (pii && !reason.trim()) return setError("Indica el motivo para incluir datos personales.");
+                if (pii && !reason.trim()) return setError("Indica la razón para incluir datos personales.");
                 setBusy(true);
                 try {
                   await api.exportFiltered({ format, includePii: pii, piiReason: reason.trim() || undefined });
@@ -70,10 +70,10 @@ function ExportButtonDemo({ count }: { count: number }) {
         <label className="flex items-center gap-2">
           <input type="checkbox" checked={pii} onChange={(e) => setPii(e.target.checked)} /> Incluir datos personales
         </label>
-        <span className="help">Requiere permiso. Debes indicar el motivo y quedará en el registro de accesos.</span>
+        <span className="help">Requiere permiso. Debes indicar la razón y quedará en el registro de accesos.</span>
         {pii && (
           <label className="field">
-            Motivo
+            Criterio
             <input className="control" value={reason} onChange={(e) => setReason(e.target.value)} />
           </label>
         )}

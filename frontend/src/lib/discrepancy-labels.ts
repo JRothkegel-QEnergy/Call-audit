@@ -13,9 +13,9 @@ export const CAUSE: Record<DiscrepancyCause, string> = {
   rule_text: "Texto de la regla",
   ai_application: "La IA aplica mal la regla",
   auditor: "Auditor",
-  motive_overlap: "Frontera entre motivos",
+  motive_overlap: "Frontera entre criterios",
   // Causas del prompt de análisis v1.0.0, que siguen en los análisis guardados.
-  criterion: "Criterio del prompt",
+  criterion: "Regla de aplicación",
   evaluator: "Evaluador de la planilla",
   transcript: "Transcripción",
   missing_data: "Dato faltante",

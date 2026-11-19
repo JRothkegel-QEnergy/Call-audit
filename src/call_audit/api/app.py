@@ -7,9 +7,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from call_audit.api import (
     routes_admin,
+    routes_analysis,
     routes_auditor,
     routes_catalog,
     routes_discrepancies,
+    routes_reference,
     routes_supervisor,
     routes_verification,
 )
@@ -35,6 +37,8 @@ def create_app() -> FastAPI:
     app.include_router(routes_catalog.router)
     app.include_router(routes_admin.router)
     app.include_router(routes_discrepancies.router)
+    app.include_router(routes_analysis.router)
+    app.include_router(routes_reference.router)
 
     @app.get("/health")
     def health() -> dict:

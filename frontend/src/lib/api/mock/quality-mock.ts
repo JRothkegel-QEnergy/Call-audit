@@ -30,7 +30,7 @@ function agreement(
       reviewerFp: items.rfp,
     },
     criteria,
-    // Acuerdo en motivos (sintético, 15-acuerdo-en-motivos-brief.md): suma byCall.agree.
+    // Acuerdo en criterios (sintético, 15-acuerdo-en-motivos-brief.md): suma byCall.agree.
     reasonMatch: {
       n: c.agree,
       bothPass: Math.round(c.agree * 0.43),

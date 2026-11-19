@@ -15,7 +15,7 @@ import { usePreferences } from "@/lib/preferences";
 
 const CARDS_PER_PAGE = 10;
 const OBSERVATIONS_PER_PAGE = 20;
-/** Patrones u observaciones de un motivo: solo se paginan si superan esto (hoy, máximo 6). */
+/** Patrones u observaciones de un criterio: solo se paginan si superan esto (hoy, máximo 6). */
 const MOTIVE_LIST_LIMIT = 10;
 
 const isPending = (p: DiscrepancyPattern) => p.status === "pending";
@@ -36,7 +36,7 @@ interface RailRow {
 }
 const pendingOf = (r: RailRow) => r.pendingPatterns + r.pendingObservations;
 
-/** Pestaña Patrones (Cambio 20 §5): se revisa motivo por motivo; «Todos los motivos» mantiene la lista por impacto. */
+/** Pestaña Patrones (Cambio 20 §5): se revisa criterio por criterio; «Todos los criterios» mantiene la lista por impacto. */
 export function PatternsTab(props: {
   data: DiscrepancyOverview;
   patterns: DiscrepancyPattern[];
@@ -106,7 +106,7 @@ function Review({
     return {
       id,
       name:
-        (data.criteria.find((c) => c.criterionId === id)?.name ?? `Motivo ${id}`) +
+        (data.criteria.find((c) => c.criterionId === id)?.name ?? `Criterio ${id}`) +
         (id === 1 ? " · capa 1, no entra en las cifras del Resumen" : ""),
       pendingPatterns: mine.filter((p) => !p.isObservation && isPending(p)).length,
       pendingObservations: mine.filter((p) => p.isObservation && isPending(p)).length,
@@ -115,14 +115,14 @@ function Review({
   const ready = rows.filter((r) => pendingOf(r) === 0).length;
   const firstPending = (rows.find((r) => pendingOf(r) > 0) ?? rows[0])?.id ?? null;
 
-  // Sin motivo en la URL se abre el primero con pendientes, y se queda fijo: al cerrarlo no salta solo (§5).
+  // Sin criterio en la URL se abre el primero con pendientes, y se queda fijo: al cerrarlo no salta solo (§5).
   const selection = resolveMotive(params);
   const [autoMotive, setAutoMotive] = useState<number | null>(null);
   const autoValid = autoMotive != null && rows.some((r) => r.id === autoMotive);
   if (selection === "auto" && !autoValid && autoMotive !== firstPending) setAutoMotive(firstPending);
   const motive = selection === "auto" ? (autoValid ? autoMotive : firstPending) : selection;
 
-  // Lo recién decidido se queda en su lugar hasta cambiar de motivo, página o filtro (hallazgo 3).
+  // Lo recién decidido se queda en su lugar hasta cambiar de criterio, página o filtro (hallazgo 3).
   const viewKey = [motive, params.get("page"), cause, type, status, quad, action, right, listKind].join("|");
   const [justDecided, setJustDecided] = useState<Set<string>>(new Set());
   const [previousView, setPreviousView] = useState(viewKey);
@@ -161,7 +161,7 @@ function Review({
     el?.scrollIntoView({ block: "nearest" });
   };
 
-  // Llegada desde un gráfico, un cambio de motivo o de página: el foco va al título o a la tarjeta pedida.
+  // Llegada desde un gráfico, un cambio de criterio o de página: el foco va al título o a la tarjeta pedida.
   useEffect(() => {
     const target = takeFocusRequest();
     if (!target) return;
@@ -198,7 +198,7 @@ function Review({
   const applyDecision = (p: DiscrepancyPattern, moveFocus = true) => {
     onDecided(p);
     setJustDecided((s) => new Set(s).add(p.id));
-    setAnnounce(`${p.isObservation ? "Observación" : "Patrón"} del motivo ${p.criterionId}: ${statusLabel(p)}`);
+    setAnnounce(`${p.isObservation ? "Observación" : "Patrón"} del criterio ${p.criterionId}: ${statusLabel(p)}`);
     if (!moveFocus || isPending(p)) return;
     const order = navigable.map((x) => x.id);
     const next = navigable.slice(order.indexOf(p.id) + 1).find((x) => isPending(x) && x.id !== p.id) ?? navigable.find((x) => isPending(x) && x.id !== p.id);
@@ -274,7 +274,7 @@ function Review({
   const motiveAnalyzed = typeof motive === "number" && a.doneCriteria.includes(motive);
 
   const motiveTitle =
-    motive === "all" ? (listKind === "obs" ? "Observaciones" : "Patrones · ordenados por impacto") : motive == null ? "Patrones" : `Motivo ${motive}${criterion ? ` · ${criterion.name}` : ""}`;
+    motive === "all" ? (listKind === "obs" ? "Observaciones" : "Patrones · ordenados por impacto") : motive == null ? "Patrones" : `Criterio ${motive}${criterion ? ` · ${criterion.name}` : ""}`;
 
   return (
     <div className="grid gap-3">
@@ -283,7 +283,7 @@ function Review({
       </span>
       {(data.stale || data.running) && (
         <p className="help m-0">
-          {data.running ? `Analizando · ${data.running.doneCriteria.length} de ${data.running.criteria.length} motivos. ` : ""}
+          {data.running ? `Analizando · ${data.running.doneCriteria.length} de ${data.running.criteria.length} criterios. ` : ""}
           {data.stale ? "Este análisis está desactualizado: los detalles están en Resumen." : ""}
         </p>
       )}
@@ -298,13 +298,13 @@ function Review({
       {/* Lo que salió del Resumen (05-numeros-propuesta.md §4.2): cuánto explican los patrones y dónde se arregla. */}
       <section className="card grid gap-2" aria-label="Qué explican los patrones">
         <p className="m-0 text-sm">
-          La IA de análisis revisó {int(data.summary.analyzedCases)} desacuerdos por motivo
+          La IA de análisis revisó {int(data.summary.analyzedCases)} desacuerdos por criterio
           {data.summary.sameSource ? "" : " y dudas de la IA"} ({analysisUniverse(a).text}) y agrupó {int(data.summary.explainedCases)} ({data.summary.analyzedCases ? Math.round((100 * data.summary.explainedCases) / data.summary.analyzedCases) : 0} %) en{" "}
           {int(patterns.filter((p) => !p.isObservation).length)} patrones; {int(data.summary.byAction.unpatterned)} quedaron sin patrón.
           {data.summary.sameSource && !!data.summary.layer1Cases && (
             <span className="help">
               {" "}
-              Son las mismas cifras del Resumen; aparte, {int(data.summary.layer1Cases)} del motivo 1 (capa 1, lo calcula el código) no entran.
+              Son las mismas cifras del Resumen; aparte, {int(data.summary.layer1Cases)} del criterio 1 (capa 1, lo calcula el código) no entran.
             </span>
           )}
         </p>
@@ -446,18 +446,18 @@ function Review({
             </p>
           ) : !motiveAnalyzed && inMotive.length === 0 ? (
             <p className="help m-0">
-              Este motivo no se analizó. <Link href="/admin/discrepancies?tab=summary">Ir a Resumen</Link>
+              Este criterio no se analizó. <Link href="/admin/discrepancies?tab=summary">Ir a Resumen</Link>
             </p>
           ) : inMotive.length === 0 ? (
             narrowed ? (
               <div className="flex flex-wrap items-center gap-2">
-                <p className="help m-0">Ningún patrón con estos filtros en el motivo {motive}.</p>
+                <p className="help m-0">Ningún patrón con estos filtros en el criterio {motive}.</p>
                 <Button size="sm" onClick={clearFilters}>
                   Quitar filtros
                 </Button>
                 {nextRow && (
                   <Button size="sm" onClick={() => openMotive(nextRow.id)}>
-                    Siguiente motivo
+                    Siguiente criterio
                   </Button>
                 )}
               </div>
@@ -471,18 +471,18 @@ function Review({
                   <span>
                     {pendingTotal === 0 ? (
                       <>
-                        Revisaste todos los motivos.{" "}
+                        Revisaste todos los criterios.{" "}
                         <button type="button" className="underline" onClick={() => setParams({ tab: "followup", analysis: null })}>
                           Ir a Seguimiento
                         </button>
                       </>
                     ) : (
-                      `Motivo ${motive} listo.`
+                      `Criterio ${motive} listo.`
                     )}
                   </span>
                   {pendingTotal > 0 && nextRow && (
                     <Button size="sm" onClick={() => openMotive(nextRow.id)}>
-                      Siguiente motivo
+                      Siguiente criterio
                     </Button>
                   )}
                 </div>
@@ -534,7 +534,7 @@ function Review({
           onClose={() => setBulk(false)}
           onDone={(done) => {
             done.forEach((p) => applyDecision(p, false));
-            setAnnounce(`${plural(done.length, "observación descartada", "observaciones descartadas")} en el motivo ${motive}`);
+            setAnnounce(`${plural(done.length, "observación descartada", "observaciones descartadas")} en el criterio ${motive}`);
           }}
         />
       )}
@@ -590,11 +590,11 @@ function railDetail(r: RailRow): string {
 }
 
 function railLabel(r: RailRow): string {
-  if (pendingOf(r) === 0) return `Motivo ${r.id}: listo`;
+  if (pendingOf(r) === 0) return `Criterio ${r.id}: listo`;
   const parts = [];
   if (r.pendingPatterns) parts.push(plural(r.pendingPatterns, "patrón", "patrones"));
   if (r.pendingObservations) parts.push(plural(r.pendingObservations, "observación", "observaciones"));
-  return `Motivo ${r.id}: ${parts.join(" y ")} por decidir`;
+  return `Criterio ${r.id}: ${parts.join(" y ")} por decidir`;
 }
 
 function CriterionRail({
@@ -613,7 +613,7 @@ function CriterionRail({
   const progress = (
     <>
       <p className="m-0 text-sm font-medium" aria-live="polite">
-        {ready} de {rows.length} motivos listos
+        {ready} de {rows.length} criterios listos
       </p>
       <div aria-hidden className="h-1.5 overflow-hidden rounded-full bg-[var(--neutral-200,#e5e5e5)]">
         <div className="h-full bg-[var(--primary)]" style={{ width: `${rows.length ? (100 * ready) / rows.length : 0}%` }} />
@@ -625,9 +625,9 @@ function CriterionRail({
       <div className="grid gap-1.5 xl:hidden">
         {progress}
         <label className="field">
-          <span>Motivo</span>
+          <span>Criterio</span>
           <select className="control" value={String(motive ?? "")} onChange={(e) => onSelect(e.target.value === "all" ? "all" : Number(e.target.value))}>
-            <option value="all">Todos los motivos</option>
+            <option value="all">Todos los criterios</option>
             {rows.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.id} · {r.name} ({railDetail(r)})
@@ -636,7 +636,7 @@ function CriterionRail({
           </select>
         </label>
       </div>
-      <nav aria-label="Motivos" className="card sticky top-4 hidden max-h-[calc(100vh-2rem)] gap-2 overflow-y-auto xl:grid">
+      <nav aria-label="Criterios" className="card sticky top-4 hidden max-h-[calc(100vh-2rem)] gap-2 overflow-y-auto xl:grid">
         <div className="grid gap-1.5">{progress}</div>
         <button
           type="button"
@@ -644,7 +644,7 @@ function CriterionRail({
           onClick={() => onSelect("all")}
           className={`cursor-pointer rounded border-0 px-2 py-1.5 text-left font-medium hover:bg-[var(--neutral-100,#f4f4f4)] ${motive === "all" ? "bg-[var(--accent)]" : "bg-transparent"}`}
         >
-          Todos los motivos
+          Todos los criterios
         </button>
         <ul className="m-0 grid list-none gap-0.5 border-t border-border p-0 pt-2">
           {rows.map((r) => (
@@ -664,7 +664,7 @@ function CriterionRail({
             </li>
           ))}
         </ul>
-        {quietMotives > 0 && <p className="help m-0 border-t border-border pt-2">{plural(quietMotives, "motivo", "motivos")} sin patrones ni observaciones</p>}
+        {quietMotives > 0 && <p className="help m-0 border-t border-border pt-2">{plural(quietMotives, "criterio", "criterios")} sin patrones ni observaciones</p>}
       </nav>
     </>
   );
@@ -677,13 +677,13 @@ function MotiveNav({ previous, next, onOpen, short }: { previous: RailRow | null
         <ChevronLeft size={14} aria-hidden /> Anterior
       </Button>
       <Button size="sm" disabled={!next} onClick={() => next && onOpen(next.id)}>
-        {next && !short ? `Siguiente motivo: ${next.id} · ${pendingOf(next)} por decidir` : "Siguiente motivo"} <ChevronRight size={14} aria-hidden />
+        {next && !short ? `Siguiente criterio: ${next.id} · ${pendingOf(next)} por decidir` : "Siguiente criterio"} <ChevronRight size={14} aria-hidden />
       </Button>
     </div>
   );
 }
 
-/** Dentro de un motivo casi nunca hace falta paginar; si la lista supera el límite, aparece el paginador. */
+/** Dentro de un criterio casi nunca hace falta paginar; si la lista supera el límite, aparece el paginador. */
 function Paged({ items, label, children }: { items: DiscrepancyPattern[]; label: string; children: (page: DiscrepancyPattern[]) => React.ReactNode }) {
   const [page, setPage] = useState(1);
   const current = clampPage(page, items.length, MOTIVE_LIST_LIMIT);

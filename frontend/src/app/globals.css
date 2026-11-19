@@ -23,6 +23,8 @@
   --color-neutral-800: var(--neutral-800);
   --color-red-700: var(--red-700);
   --color-amber-800: var(--amber-800);
+  --color-teal-700: var(--teal-700);
+  --color-neutral-50: var(--neutral-50);
   --font-sans: var(--font-sans);
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
@@ -31,6 +33,12 @@
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
+}
+
+/* Calidad del servicio (F-8): alias de series existentes, no son colores nuevos. */
+:root {
+  --analysis-ai: var(--series-1);
+  --analysis-sheet: var(--series-2);
 }
 
 @layer base {

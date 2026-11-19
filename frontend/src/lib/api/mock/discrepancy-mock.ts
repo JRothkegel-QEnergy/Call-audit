@@ -1,7 +1,7 @@
 /**
- * «Análisis de discrepancias» en el modo demo (Cambio 16 §7.7). 100 % sintético: los nombres de los motivos son
+ * «Análisis de discrepancias» en el modo demo (Cambio 16 §7.7). 100 % sintético: los nombres de los criterios son
  * reales; conteos, patrones y textos son inventados. Cubre un análisis terminado con observaciones, uno detenido en el
- * historial, propuestas en varios estados y los motivos 1 y 25 como en producción, sin evaluador del cliente.
+ * historial, propuestas en varios estados y los criterios 1 y 25 como en producción, sin evaluador del cliente.
  */
 import type {
   DiscrepancyAnalysisRun,
@@ -189,7 +189,7 @@ state.patterns = [
     id: "p-18-1",
     criterionId: 18,
     title: "Cuando el cliente da dos razones, la IA acepta la tipificación si calza con cualquiera",
-    explanation: "La planilla exige el motivo principal. La regla del prompt no dice cuál elegir cuando hay más de uno.",
+    explanation: "La planilla exige el motivo de renuncia principal. La regla del prompt no dice cuál elegir cuando hay más de uno.",
     direction: "fn",
     cause: "criterion",
     confidence: 0.6,
@@ -222,7 +222,7 @@ state.patterns = [
     cause: "evaluator",
     confidence: 0.45,
     cases: makeCases(6, "fn", 4),
-    proposal: { type: "calibrate_auditor", text: "Revisar con el evaluador si ofrecer una sola alternativa basta para cumplir el motivo 32.", editedText: null },
+    proposal: { type: "calibrate_auditor", text: "Revisar con el evaluador si ofrecer una sola alternativa basta para cumplir el criterio 32.", editedText: null },
   }),
   pattern({
     id: "p-6-1",
@@ -318,7 +318,7 @@ const summary = (p: MockPattern): DiscrepancyPattern => {
   return rest;
 };
 
-/** El análisis en curso avanza solo: un motivo cada 5 s. */
+/** El análisis en curso avanza solo: un criterio cada 5 s. */
 function tick() {
   const run = state.analyses.find((a) => a.status === "running");
   if (!run) return;

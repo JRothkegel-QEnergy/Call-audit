@@ -79,7 +79,7 @@ def start(body: AnalysisIn, session: DbSession, user: Admin):
         user,
         "discrepancy_analysis_started",
         "Análisis de discrepancias",
-        f"{len(run.criteria)} motivos · {run.model} · estimado {run.estimated_cost_usd or 0:.2f} USD",
+        f"{len(run.criteria)} criterios · {run.model} · estimado {run.estimated_cost_usd or 0:.2f} USD",
     )
     session.commit()
     return discrepancy_runs.analysis_out(run)
@@ -99,7 +99,7 @@ def stop(analysis_id: str, session: DbSession, user: Admin) -> None:
         user,
         "discrepancy_analysis_stopped",
         "Análisis de discrepancias",
-        f"{len(run.done_criteria)} de {len(run.criteria)} motivos · {run.cost_usd:.2f} USD gastados",
+        f"{len(run.done_criteria)} de {len(run.criteria)} criterios · {run.cost_usd:.2f} USD gastados",
     )
     session.commit()
 
@@ -136,7 +136,7 @@ def decide(pattern_id: str, body: DecisionIn, session: DbSession, user: Admin):
         raise HTTPException(422 if str(exc) == "reason_required" else 409, str(exc)) from exc
     title = (pattern.data or {}).get("title", "")
     details = (body.reason or "") if body.decision == "discarded" else title
-    accounts.log(session, user, ACTIONS[body.decision], f"Motivo {pattern.criterion_id} · patrón", details[:500])
+    accounts.log(session, user, ACTIONS[body.decision], f"Criterio {pattern.criterion_id} · patrón", details[:500])
     session.commit()
     return discrepancy_runs.pattern_out(session, pattern, row)
 
@@ -160,7 +160,7 @@ def discard_observations(body: DiscardObservationsIn, session: DbSession, user: 
         session,
         user,
         "observations_discarded",
-        f"Motivo {rows[0][0].criterion_id} · observaciones",
+        f"Criterio {rows[0][0].criterion_id} · observaciones",
         f"{changed} observaciones · {body.reason.strip()}"[:500],
     )
     session.commit()
@@ -178,7 +178,7 @@ def follow_up(pattern_id: str, body: FollowUpIn, session: DbSession, user: Admin
         row = discrepancy_runs.set_follow_up(session, pattern, user, body.status)
     except ValueError as exc:
         raise HTTPException(409, str(exc)) from exc
-    accounts.log(session, user, f"proposal_{body.status}", f"Motivo {pattern.criterion_id} · patrón")
+    accounts.log(session, user, f"proposal_{body.status}", f"Criterio {pattern.criterion_id} · patrón")
     session.commit()
     return discrepancy_runs.pattern_out(session, pattern, row)
 

@@ -32,18 +32,18 @@ const COLUMNS: { key: Exclude<SortKey, "name">; label: string; full: string; uni
   { key: "calls", label: "Evaluadas", full: "Llamadas evaluadas", unit: "llamadas" },
   { key: "verdict", label: "Veredicto No cumple", full: "Veredicto No cumple", unit: "% de llamadas" },
   { key: "match", label: "Calce de llamada", full: "Calce de llamada", unit: "% de llamadas" },
-  { key: "motives", label: "No cumple marcados", full: "Motivos No cumple marcados", unit: "prom. por llamada" },
+  { key: "motives", label: "No cumple marcados", full: "Criterios No cumple marcados", unit: "prom. por llamada" },
   { key: "fp", label: "Solo la IA lo marca", full: "Solo la IA lo marca", unit: "desacuerdos" },
   { key: "fn", label: "Solo el revisor lo marca", full: "Solo el revisor lo marca", unit: "desacuerdos" },
 ];
 
 const HELP: [string, string][] = [
-  ["Llamadas evaluadas", "Sus llamadas con corrida vigente y marca por motivo en la planilla."],
+  ["Llamadas evaluadas", "Sus llamadas con corrida vigente y marca por criterio en la planilla."],
   ["Veredicto No cumple", "De sus llamadas, en qué porcentaje dejó el veredicto de llamada No cumple (en la planilla figura como RECHAZADA)."],
   ["Calce de llamada", "De sus llamadas, en qué porcentaje la IA dio el mismo veredicto de llamada que la planilla."],
-  ["Motivos No cumple marcados", "Cuántos motivos marca No cumple, en promedio, en cada llamada que evalúa."],
-  ["Solo la IA detectó", "La IA marcó No cumple en ese motivo y el evaluador no."],
-  ["Omitidos por la IA", "El evaluador marcó No cumple en ese motivo y la IA no."],
+  ["Criterios No cumple marcados", "Cuántos criterios marca No cumple, en promedio, en cada llamada que evalúa."],
+  ["Solo la IA detectó", "La IA marcó No cumple en ese criterio y el evaluador no."],
+  ["Omitidos por la IA", "El evaluador marcó No cumple en ese criterio y la IA no."],
 ];
 
 function CaseCell({ total, calls }: { total: number; calls: number }) {
@@ -141,7 +141,7 @@ export function EvaluatorsTab({ data, params, setParams }: { data: DiscrepancyOv
                 Llamadas
               </th>
               <th scope="colgroup" className="text-center">
-                Motivos
+                Criterios
               </th>
               <th scope="colgroup" colSpan={2} className="text-center">
                 Casos
@@ -178,7 +178,7 @@ export function EvaluatorsTab({ data, params, setParams }: { data: DiscrepancyOv
       </div>
       <Pager label="Evaluadores" page={page} size={PAGE_SIZE} total={sorted.length} onChange={(p) => setParams({ evalPage: p === 1 ? null : String(p) })} />
       {missing && <p className="m-0 text-sm">{int(missing.calls)} llamadas no traen evaluador en la planilla y no entran en Todos los evaluadores.</p>}
-      <p className="m-0 text-sm">Un desacuerdo es un motivo de una llamada en que la IA y el revisor no marcan lo mismo. Una llamada puede aportar varios, por eso estas columnas pueden superar a Llamadas evaluadas.</p>
+      <p className="m-0 text-sm">Un desacuerdo es un criterio de una llamada en que la IA y el revisor no marcan lo mismo. Una llamada puede aportar varios, por eso estas columnas pueden superar a Llamadas evaluadas.</p>
       <dl className="m-0 grid gap-x-4 gap-y-1 text-sm md:grid-cols-[minmax(12rem,auto)_1fr]">
         {HELP.map(([term, text]) => (
           <div key={term} className="contents">
