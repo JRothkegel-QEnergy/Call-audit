@@ -1097,7 +1097,7 @@ def admin_quality_grid(series: str, session: DbSession, _: AdminReader):
         ev = session.get(PromptEvaluation, series.removeprefix("test:"))
         if ev is None or ev.status != "done":
             raise HTTPException(404, "not_found")
-        rows, _patterns = verification.evaluation_rows(session, ev)
+        rows, _patterns = verification.evaluation_rows(session, ev, with_code=False)
         latest = prompt_evaluation.latest(session, ev.version)
         version = ev.version if latest is not None and latest.id == ev.id else None
     elif series.startswith("full:"):

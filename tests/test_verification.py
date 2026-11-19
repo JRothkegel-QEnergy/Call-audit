@@ -124,6 +124,33 @@ def test_segment_lists_calls_and_verification_sums(
     assert red["items"][0]["verification"] == "pending"
 
 
+def test_hold_criterion_is_verifiable_but_stays_out_of_the_mosaic(
+    client: TestClient,
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+) -> None:
+    """El motivo 1 lo decide el código: no cuenta en el mosaico, pero sus desacuerdos se verifican igual."""
+    ids = seed_tested_version(imported, admin)
+    with imported() as session, session.begin():
+        ev = session.scalar(select(PromptEvaluation).where(PromptEvaluation.version == "9.8"))
+        results = [dict(r) for r in ev.results]
+        results[2] = {**results[2], "verdict": "non_compliant", "failCriteria": [1]}
+        ev.results = results
+    login(client, admin)
+    calls = client.get("/api/admin/prompts/9.8/agreement/calls", params={"segment": "all"}).json()
+    assert {"criterionId": 1, "calls": 1, "pending": 1} in calls["criterionCounts"]
+    only = client.get("/api/admin/prompts/9.8/agreement/calls", params={"segment": "all", "criterion": 1}).json()
+    assert [i["caseId"] for i in only["items"]] == [ids[2]]
+    assert only["items"][0]["disagreements"] == [{"criterionId": 1, "kind": "fp", "blue": False, "outcome": None}]
+
+    put = client.put(f"/api/admin/verifications/{ids[2]}/1", json={"outcome": "ai_error", "version": "9.8"})
+    assert put.status_code == 200 and put.json()["correct"] == "compliant"
+
+    # Las métricas del mosaico siguen sin el 1.
+    by_criterion = client.get("/api/admin/prompts/9.8").json()["evaluation"]["metrics"]["agreement"]["byCriterion"]
+    assert all(c["criterionId"] != 1 for c in by_criterion)
+
+
 def test_case_shows_the_tested_version_and_hides_nothing(
     client: TestClient,
     admin: User,  # noqa: F811

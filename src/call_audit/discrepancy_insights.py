@@ -95,7 +95,7 @@ def bucket(p: DiscrepancyPattern | None) -> str:
 
 
 def insights(session: Session, ev: PromptEvaluation) -> dict[str, Any] | None:
-    rows, patterns = verification.evaluation_rows(session, ev)
+    rows, patterns = verification.evaluation_rows(session, ev, with_code=False)
     if not rows:
         return None
     mine = items(rows)
@@ -136,7 +136,7 @@ def insights(session: Session, ev: PromptEvaluation) -> dict[str, Any] | None:
 
     # --- Evolución (B2), crónicos (B5) y estabilidad del azul (B3) contra las pruebas anteriores ---
     prev = previous_tests(session, ev)
-    prev_rows = [verification.evaluation_rows(session, p)[0] for p in prev]
+    prev_rows = [verification.evaluation_rows(session, p, with_code=False)[0] for p in prev]
     evolution = None
     if prev_rows:
         before = {r["callId"]: r["segment"] == "agree" for r in prev_rows[0]}

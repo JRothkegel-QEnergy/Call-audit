@@ -186,6 +186,13 @@ def layer2_criteria() -> list[int]:
     return sorted(c for c, crit in rubric.criteria.items() if "layer2" in crit.layers)
 
 
+def code_criteria() -> list[int]:
+    """Motivos que decide el código (capa 1, hoy solo el 1 por espera). No entran al mosaico ni a las métricas del
+    prompt, pero sí a la verificación: hay que poder revisar a mano sus desacuerdos con la planilla."""
+    rubric = load_rubric(get_settings().rubric_path)
+    return sorted(c for c, crit in rubric.criteria.items() if "layer1" in crit.layers and "layer2" not in crit.layers)
+
+
 def run_row(case: Case) -> dict | None:
     """Fila de métricas con la corrida vigente que ya existe (sin gastar). None si no hay corrida usable."""
     run = next((r for r in case.runs if r.is_current), None)

@@ -94,8 +94,33 @@ def correct_for(outcome: str, reviewer: str) -> str | None:
 # --- Lectura -------------------------------------------------------------------------------------------------------
 
 
-def evaluation_rows(session: Session, evaluation: PromptEvaluation) -> tuple[list[dict], list[DiscrepancyPattern]]:
-    """Filas por llamada de la prueba (las mismas que el mosaico) y los patrones de su análisis de causa."""
+def add_code_items(rows: list[dict]) -> None:
+    """Suma a cada fila los motivos que decide el código (el 1, espera). Van después de calcular la parte del mosaico,
+    así que no la cambian: solo agregan desacuerdos que verificar."""
+    for row in rows:
+        r = row["result"]
+        ai_fails = set(r.get("failCriteria") or [])
+        ai_unsure = set(r.get("uncertainCriteria") or [])
+        ref_fails = {int(x) for x in r["externalFails"]}
+        for cid in golden_split.code_criteria():
+            if cid in ai_unsure:
+                kind = "undecided"
+            elif (cid in ai_fails) == (cid in ref_fails):
+                kind = "agree"
+            else:
+                kind = "fn" if cid in ref_fails else "fp"
+            row["items"].append({"criterionId": cid, "kind": kind, "blue": False})
+
+
+def verifiable_criteria() -> set[int]:
+    return set(golden_split.layer2_criteria()) | set(golden_split.code_criteria())
+
+
+def evaluation_rows(
+    session: Session, evaluation: PromptEvaluation, with_code: bool = True
+) -> tuple[list[dict], list[DiscrepancyPattern]]:
+    """Filas por llamada de la prueba (las mismas que el mosaico) y los patrones de su análisis de causa. Con
+    `with_code`, cada fila trae también los motivos que decide el código (el 1), para verificarlos."""
     results = evaluation.results or []
     ids = [r["caseId"] for r in results]
     call_ids = dict(session.execute(select(Case.id, Case.call_id).where(Case.id.in_(ids))).all()) if ids else {}
@@ -106,6 +131,8 @@ def evaluation_rows(session: Session, evaluation: PromptEvaluation) -> tuple[lis
         else []
     )
     rows = agreement.call_rows(results, call_ids, agreement.blue_cases(patterns), golden_split.layer2_criteria())
+    if with_code:
+        add_code_items(rows)
     for row in rows:
         row["order"] = order_key(evaluation.id, row["segment"], row["caseId"])
     rows.sort(key=lambda r: r["order"])
@@ -421,7 +448,7 @@ def record(
     result = next((r for r in evaluation.results or [] if r["caseId"] == case_id), None)
     if result is None or result.get("externalFails") is None or result.get("error"):
         raise LookupError("not_in_test")
-    if criterion_id not in golden_split.layer2_criteria():
+    if criterion_id not in verifiable_criteria():
         raise LookupError("bad_criterion")
     reviewer = reviewer_value(result, criterion_id)
     ai = (
