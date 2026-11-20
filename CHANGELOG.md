@@ -7,6 +7,10 @@ Cada componente tiene además su propio historial detallado:
 - Prompt de verificación de afirmaciones: historial al final de `docs/layer2-claims-prompt.md`.
 - Diseño del front: `docs/ux/call-audit/estado.md` (fases y cambios aprobados).
 
+## 2026-11-20
+
+- **Bandeja y revisadas del verificador** (`docs/ux/admin-prompt-metrics/18-verificador-bandeja-y-revisadas.md`, W1-W6 A; Johannes: «al igual que la vista de auditor, un inbox con las llamadas asignadas y otra pestaña con las ya revisadas»). El menú del verificador pasa a `Por revisar` (su inicio, con contador de pendientes), `Revisadas` y `Resumen` (la página anterior con el mosaico). Por revisar: sus llamadas sin terminar, en el orden aleatorio fijo, con «Avance» por criterio, `Seguir revisando`, filtros por discrepancia y criterio, y búsqueda por llamada. Revisadas: la más reciente primero, con «Revisada el» y filtro por resultado. El filtro «Discrepancia» agrupa el tipo de la llamada (Qubyt aprueba / rechaza frente al revisor, Qubyt en duda, mismo veredicto con distintos criterios, sin discrepancias), con conteos. Al abrir una llamada desde una bandeja, Anterior/Siguiente y «Volver» siguen esa bandeja. Backend: `tray` y `discrepancy` en `agreement/calls`, `lastReviewedAt` por llamada y `reviewed`/`reviewedToday` en el resumen del verificador. El admin no cambia. Sin migración ni corridas de IA.
+
 ## 2026-11-17
 
 - **Repartir a verificadores solo las llamadas de una planilla** (Weekly 16-11: revisar las 630 llamadas divergentes de v3.0 entre 4 verificadores). Comando nuevo `python -m call_audit.admin distribute --version 3.0 --calls divergencias_v3.0.xlsx --verifiers <correos> --by <admin> [--apply]`: lee la columna «Llamada» (.xlsx) o un id por línea (.txt) y reparte solo esas, con el mismo reparto estratificado de «Repartir llamadas», sin mover lo ya asignado. Sin `--apply` es vista previa. Sin cambios de UI, migración ni corridas de IA.

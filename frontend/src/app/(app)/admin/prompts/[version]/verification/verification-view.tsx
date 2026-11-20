@@ -35,7 +35,7 @@ import { ApiError } from "@/lib/api/admin-types";
 import { shortDateTime } from "@/lib/format";
 import { useSession } from "@/lib/session";
 import { useAsync } from "@/lib/use-async";
-import { scopeQuery } from "@/lib/verification-scope";
+import { scopeQuery, trayPath } from "@/lib/verification-scope";
 
 /**
  * Pestaña Verificación de una versión (docs/ux/admin-prompt-metrics/13-rol-verificador-asignacion.md): el mosaico de la
@@ -196,10 +196,13 @@ function Overview({
   const { user } = useSession();
   const isVerifier = user?.role === "qubico_verifier";
   const scope: VerificationScope = { source: "full", assignee };
-  const caseHref = (caseId: string) =>
-    `/admin/prompts/${encodeURIComponent(version)}/calls/${encodeURIComponent(caseId)}?segment=all${scopeQuery(scope)}`;
-  // Lista plana de las llamadas propias, con filtro por criterio (16-lista-verificador-por-motivo, L1 A).
-  const myListHref = `${listHref(version, "all")}${scopeQuery({ source: "full", assignee: "me" })}`;
+  // La tarjeta lleva a las bandejas del verificador (18-verificador-bandeja-y-revisadas, W1 A).
+  const nextHref = (caseId: string) =>
+    `/admin/prompts/${encodeURIComponent(version)}/calls/${encodeURIComponent(caseId)}?segment=all${scopeQuery({
+      source: "full",
+      assignee: "me",
+      tray: "pending",
+    })}`;
   return (
     <div className="grid gap-4">
       {data.me && (
@@ -214,8 +217,8 @@ function Overview({
               <p className="m-0 font-semibold">
                 ¡Listo! Completaste tus {int(data.me.assigned)} llamadas.
               </p>
-              <Button className="ml-auto" onClick={() => router.push(myListHref)}>
-                Ver mis llamadas
+              <Button className="ml-auto" onClick={() => router.push(trayPath("reviewed"))}>
+                Ver revisadas
               </Button>
             </>
           ) : (
@@ -240,13 +243,13 @@ function Overview({
                 />
               </div>
               <span className="ml-auto flex flex-wrap gap-2">
-                <Button onClick={() => router.push(myListHref)}>
-                  Ver mis llamadas
+                <Button onClick={() => router.push(trayPath("pending"))}>
+                  Ir a Por revisar
                 </Button>
                 {data.me.nextCaseId && (
                   <Button
                     variant="primary"
-                    onClick={() => router.push(caseHref(data.me!.nextCaseId!))}
+                    onClick={() => router.push(nextHref(data.me!.nextCaseId!))}
                   >
                     Seguir revisando <ChevronRight size={14} aria-hidden />
                   </Button>

@@ -10,9 +10,10 @@ interface Counts {
   reopened: number;
   alerts: number;
   approvals: number;
+  verifierPending: number;
 }
 
-const ZERO: Counts = { queue: 0, reopened: 0, alerts: 0, approvals: 0 };
+const ZERO: Counts = { queue: 0, reopened: 0, alerts: 0, approvals: 0, verifierPending: 0 };
 const Ctx = createContext<{ counts: Counts; refresh: () => void }>({ counts: ZERO, refresh: () => {} });
 
 /** Contadores de la sidebar. Se recalculan al navegar y cuando una pantalla llama a refresh(). */
@@ -22,7 +23,12 @@ export function NavCountsProvider({ role, children }: { role: Role; children: Re
   const refresh = useCallback(() => {
     const load = async () => {
       try {
-        if (role === "qubico_admin" || role === "qubico_viewer" || role === "qubico_verifier") return;
+        if (role === "qubico_admin" || role === "qubico_viewer") return;
+        if (role === "qubico_verifier") {
+          const home = await api.getVerificationHome();
+          setCounts({ ...ZERO, verifierPending: home.me?.pending ?? 0 });
+          return;
+        }
         if (role === "auditor") {
           const [q, mine] = await Promise.all([api.listQueue(), api.listMyReviews()]);
           setCounts({ ...ZERO, queue: q.total, reopened: mine.filter((m) => m.status === "reopened").length });

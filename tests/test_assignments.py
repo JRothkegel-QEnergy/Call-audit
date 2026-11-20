@@ -120,7 +120,7 @@ def test_verifier_records_only_on_own_calls_and_own_records(
     assert case["canRecord"] is True and case["assignment"]["mine"] is True
     assert client.put(f"/api/admin/verifications/{ids[0]}/14", json=put).status_code == 200
     card = client.get("/api/admin/prompts/9.8/verification").json()["me"]
-    assert card == {"assigned": 2, "pending": 1, "nextCaseId": ids[2]}
+    assert card == {"assigned": 2, "pending": 1, "reviewed": 1, "reviewedToday": 1, "nextCaseId": ids[2]}
 
     # La llamada sin desacuerdos se cierra con «Sin observaciones» y se puede deshacer.
     ok = client.put(f"/api/admin/assignments/{ids[2]}/reviewed", json={"reviewed": True})
@@ -139,6 +139,50 @@ def test_verifier_records_only_on_own_calls_and_own_records(
     # El admin corrige cualquiera.
     login(client, admin)
     assert client.delete(f"/api/admin/verifications/{ids[0]}/14").status_code == 204
+
+
+def test_verifier_trays_pending_and_reviewed_with_discrepancy_filter(
+    client: TestClient,
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+    two: tuple[User, User],
+) -> None:
+    """18 (W1-W6): Por revisar y Revisadas del verificador, el filtro por discrepancia y la fecha de revisión."""
+    ids = seed_full(imported, admin)
+    ana, beto = two
+    with imported() as session, session.begin():
+        session.add(VerificationAssignment(case_id=ids[0], user_id=ana.id, assigned_by_id=admin.id))
+        session.add(VerificationAssignment(case_id=ids[1], user_id=beto.id, assigned_by_id=admin.id))
+        session.add(VerificationAssignment(case_id=ids[2], user_id=ana.id, assigned_by_id=admin.id))
+    url = "/api/admin/prompts/9.8/agreement/calls"
+
+    def listed(**params: str) -> dict:
+        return client.get(url, params={"segment": "all", "source": "full", "assignee": "me", **params}).json()
+
+    login(client, ana)
+    home = client.get("/api/verification").json()
+    assert home["me"]["pending"] == 2 and home["me"]["reviewed"] == 0
+    pending = listed(tray="pending")
+    assert {i["caseId"] for i in pending["items"]} == {ids[0], ids[2]}  # nunca la de Beto
+    assert pending["discrepancyCounts"] == {"fn": 1, "fp": 0, "undecided": 0, "criteria": 0, "none": 1}
+    assert [i["caseId"] for i in listed(tray="pending", discrepancy="fn")["items"]] == [ids[0]]
+    assert listed(tray="reviewed")["items"] == []
+
+    # Al registrar el último criterio pasa a Revisadas con su fecha; la llamada abierta conserva su lista.
+    put = {"outcome": "reviewer_error", "version": "9.8", "source": "full"}
+    assert client.put(f"/api/admin/verifications/{ids[0]}/14", json=put).status_code == 200
+    case = client.get(f"{url}/{ids[0]}", params={"segment": "all", "tray": "pending"}).json()
+    assert case["position"]["index"] is not None and case["position"]["nextPendingCaseId"] == ids[2]
+    reviewed = listed(tray="reviewed")
+    assert [i["caseId"] for i in reviewed["items"]] == [ids[0]] and reviewed["items"][0]["lastReviewedAt"]
+    assert [i["caseId"] for i in listed(tray="pending")["items"]] == [ids[2]]
+
+    # «Sin observaciones» la manda a Revisadas (la más reciente primero) y «Deshacer» la devuelve.
+    client.put(f"/api/admin/assignments/{ids[2]}/reviewed", json={"reviewed": True})
+    assert [i["caseId"] for i in listed(tray="reviewed")["items"]] == [ids[2], ids[0]]
+    assert client.get("/api/verification").json()["me"]["reviewedToday"] == 2
+    client.put(f"/api/admin/assignments/{ids[2]}/reviewed", json={"reviewed": False})
+    assert [i["caseId"] for i in listed(tray="pending")["items"]] == [ids[2]]
 
 
 def test_move_pending_keeps_reviewed_calls(

@@ -211,3 +211,20 @@
 |---|---|---|
 | 2026-11-17 | Cambio menor sobre `13` (V2, V3) y la lista de `04`/`05` (un gate). Diagnóstico: la lista completa (`calls?segment=all`) ya existe con select de motivo, pero el acceso es un link chico; `matches()` con `segment=all` + `criterion` deja fuera las dudosas de la IA; las opciones del select se reducen al filtrar y no tienen conteos; el foco en la revisión no va al motivo filtrado. P-21 / O-21 | Diseñador |
 | 2026-11-17 | Propuesta: L1 reutilizar la lista con botón `Ver mis llamadas`; L2 select con conteos (`criterionCounts`) ordenado por cantidad e incluyendo dudosas; L3 no ocultar motivos en la revisión, foco inicial en el filtrado, pendiente = llamada; L4 el admin usa la misma página. Supuestos H-L1, H-L2; riesgos R-L1, R-L2. Esperando L1-L4 | Diseñador |
+
+---
+
+## Bandeja y revisadas del verificador (pedido 2026-11-20)
+
+- **Estado:** W1-W6 **aprobadas (todas A)** por Johannes el 2026-11-20 e implementadas el mismo día (`18-verificador-bandeja-y-revisadas.md`). Sin desplegar.
+- **Origen:** Johannes: «Ahora necesito modificar la vista de verificador, necesito que al igual que la vista de auditor, tenga un inbox con las llamadas asignadas y otra pestaña con las llamadas ya revisadas.»
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-20 | Cambio menor sobre `13` (V2, V3) y `16` (L1, L2), un gate. Diagnóstico: el verificador entra a un mosaico (página analítica bajo `/admin/...`); su lista existe a dos clics (`calls?segment=all&asignadas=me`) y mezcla pendientes y revisadas; no hay filtro «Sin observaciones», ni fecha del último registro por llamada (`decided_at` no llega al front), ni contador en el menú. P-23 / O-23 | Diseñador (con diagnóstico del coordinador) |
+| 2026-11-20 | Propuesta: W1 ítems de menú `Por revisar` (inicio, contador) · `Revisadas` · `Resumen` (página actual); W2 reglas de 13 sin cambios, las a medias en Por revisar con «Avance»; W3 orden aleatorio fijo + `Seguir revisando` + criterio + búsqueda; W4 Revisadas por `lastReviewedAt` desc. con filtro Resultado (backend nuevo); W5 admin sin cambios. Supuestos H-W1, H-W2; riesgos R-W1, R-W2. Esperando W1-W5 | Diseñador |
+| 2026-11-20 | Johannes responde a W1-W5: «incluye filtro por discrepancias.» No aprueba W1-W5 explícitamente | Johannes (vía coordinador) |
+| 2026-11-20 | Se suma W6 (`18` §2.1): «discrepancia» tiene tres lecturas en el código (tipo por veredicto de la llamada = partes del mosaico + `reasonMatch` de `15`; lado del criterio fp/fn/duda; con/sin discrepancia). Recomendada A: select `Discrepancia:` con tipo de la llamada agrupado en 5 opciones con conteos (incluye «Sin discrepancias»), sin «Posible error del revisor» (R-V1), en Por revisar y Revisadas; backend `discrepancia=` + `discrepancyCounts` sin IA. Supuesto H-W3; riesgo R-W3. Esperando W1-W6 | Diseñador |
+| 2026-11-20 | **W1-W6 aprobadas, todas A** (Johannes: «Sí, todas en A») | Johannes |
+| 2026-11-20 | Implementado. Desvíos menores por la regla de identificadores en inglés: rutas `/verification` (Por revisar), `/verification/reviewed` y `/verification/summary`; parámetros de API `tray=pending\|reviewed` y `discrepancy=`; en la URL del front, `bandeja=pendientes\|revisadas` y `discrepancia=` | Coordinador |

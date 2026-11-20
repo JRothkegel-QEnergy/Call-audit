@@ -39,7 +39,7 @@ import { mmss, shortDate, shortDateTime } from "@/lib/format";
 import { useSession } from "@/lib/session";
 import { loadRubric } from "@/lib/rubric";
 import { useAsync } from "@/lib/use-async";
-import { scopeQuery } from "@/lib/verification-scope";
+import { scopeQuery, trayPath } from "@/lib/verification-scope";
 
 /** Nivel 3 · Caso: lo que dijo la IA de la versión probada frente a la planilla, y el registro (§5.3). */
 export function CaseReviewView({
@@ -62,7 +62,7 @@ export function CaseReviewView({
       loadRubric(),
     ]);
     return { cmp, call, rubric };
-  }, [version, caseId, segment, criterion, scope.source, scope.assignee]);
+  }, [version, caseId, segment, criterion, scope.source, scope.assignee, scope.tray, scope.discrepancy]);
   return (
     <AsyncView state={state} what="la llamada">
       {({ cmp, call, rubric }) => (
@@ -107,7 +107,13 @@ function CaseReview({
   const base = `/admin/prompts/${encodeURIComponent(version)}/calls`;
   const motivo = cmp.listCriterion;
   const tail = `?segment=${segment}${motivo != null ? `&motivo=${motivo}` : ""}${scopeQuery(fullScope)}`;
-  const listHref = `${base}${tail}`;
+  // Desde una bandeja del verificador (18), «Volver» lleva a Por revisar o Revisadas con sus filtros.
+  const tray = full ? scope.tray : null;
+  const trayQuery = new URLSearchParams();
+  if (motivo != null) trayQuery.set("motivo", String(motivo));
+  if (scope.discrepancy) trayQuery.set("discrepancia", scope.discrepancy);
+  const listHref = tray ? `${trayPath(tray)}${trayQuery.size ? `?${trayQuery}` : ""}` : `${base}${tail}`;
+  const listLabel = tray === "pending" ? "Por revisar" : tray === "reviewed" ? "Revisadas" : null;
   const caseHref = (id: string) => `${base}/${encodeURIComponent(id)}${tail}`;
 
   const toVerify = cmp.criteria.filter((c) => TO_VERIFY.has(c.kind));
@@ -279,10 +285,10 @@ function CaseReview({
     <>
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <Link href={listHref} className="btn btn-ghost btn-sm">
-          <ChevronLeft size={14} aria-hidden /> Volver a la lista
+          <ChevronLeft size={14} aria-hidden /> {listLabel ? `Volver a ${listLabel}` : "Volver a la lista"}
         </Link>
         <h1 ref={headRef} tabIndex={-1} className="m-0 flex-1 text-base font-semibold outline-none">
-          {listTitle(segment, motivo)} · llamada {p.index ?? "—"} de {p.total} <span className="help font-normal">(pendientes: {p.pending})</span>
+          {listLabel ?? listTitle(segment, motivo)} · llamada {p.index ?? "—"} de {p.total} <span className="help font-normal">(pendientes: {p.pending})</span>
         </h1>
         <Button size="sm" variant="ghost" className="2xl:hidden" onClick={() => setSheetDrawer(true)}>
           <PanelRight size={14} aria-hidden />

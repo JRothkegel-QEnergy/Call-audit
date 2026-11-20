@@ -500,6 +500,8 @@ Segment = Literal[
     "all",
 ]
 Source = Literal["test", "full"]
+Tray = Literal["pending", "reviewed"]
+Discrepancy = Literal["fn", "fp", "undecided", "criteria", "none"]
 
 
 def verification_target(session: Session, version: str, source: str, user: User) -> PromptEvaluation:
@@ -525,15 +527,18 @@ def agreement_calls(
     sample: int | None = None,
     source: Source = "test",
     assignee: str | None = None,
+    tray: Tray | None = None,
+    discrepancy: Discrepancy | None = None,
 ):
     """Llamadas de una parte del mosaico (o de un lado, o de un motivo), en orden aleatorio fijo, con su verificación
-    (04-verificacion-propuesta.md §9.1, 05-numeros-propuesta.md §7). Con `assignee`, solo las asignadas (13, V3)."""
+    (04-verificacion-propuesta.md §9.1, 05-numeros-propuesta.md §7). Con `assignee`, solo las asignadas (13, V3).
+    En la corrida completa, `tray` (Por revisar / Revisadas) y `discrepancy` filtran la lista del verificador (18)."""
     evaluation = verification_target(session, version, source, user)
-    ids = (
-        assignments.scope_ids(session, evaluation, user, assignee)
-        if source == "full" or user.role == assignments.VERIFIER
-        else None
-    )
+    full = source == "full" or user.role == assignments.VERIFIER
+    ids = assignments.scope_ids(session, evaluation, user, assignee) if full else None
+    trayed = assignments.tray(session, evaluation, ids, tray, discrepancy, criterion) if full else None
+    if trayed is not None and (tray or discrepancy):
+        ids = set(trayed["ids"])
     try:
         data = verification.segment_calls(session, assignments.scoped(evaluation, ids), segment, criterion, vs, sample)
     except LookupError as exc:
@@ -543,6 +548,16 @@ def agreement_calls(
         a = found.get(it["caseId"])
         it["assigneeName"] = a.user.name if a and a.user else None
         it["reviewedAt"] = a.reviewed_at.isoformat() if a and a.reviewed_at else None
+        if trayed is not None:
+            it["lastReviewedAt"] = trayed["lastReviewedAt"].get(it["caseId"])
+            it["discrepancy"] = assignments.discrepancy_of(it)
+    if trayed is not None:
+        data["discrepancyCounts"] = trayed["discrepancyCounts"]
+        data["tray"] = tray
+        data["discrepancy"] = discrepancy
+        if tray == "reviewed":
+            rank = {cid: i for i, cid in enumerate(trayed["ids"])}
+            data["items"].sort(key=lambda it: rank.get(it["caseId"], len(rank)))
     return data
 
 
@@ -556,12 +571,22 @@ def agreement_case(
     criterion: int | None = None,
     source: Source = "test",
     assignee: str | None = None,
+    tray: Tray | None = None,
+    discrepancy: Discrepancy | None = None,
 ):
     """Una llamada con lo que dijo la IA de esa versión frente a la planilla, motivo por motivo (§9.2), con a quién
-    está asignada y si quien la mira puede registrar (13, V4)."""
+    está asignada y si quien la mira puede registrar (13, V4). Con `tray`/`discrepancy`, Anterior/Siguiente recorren
+    esa bandeja (18)."""
     evaluation = verification_target(session, version, source, user)
     full = source == "full" or user.role == assignments.VERIFIER
     ids = assignments.scope_ids(session, evaluation, user, assignee) if full else None
+    trayed = None
+    if full and (tray or discrepancy):
+        trayed = assignments.tray(session, evaluation, ids, tray, discrepancy)
+        # La llamada abierta sigue en su lista aunque acabe de salir de la bandeja (p. ej. al registrar el último
+        # criterio), para que «llamada i de t» y Siguiente no salten.
+        keep = {case_id} if ids is None or case_id in ids else set()
+        ids = set(trayed["ids"]) | keep
     scoped = assignments.scoped(evaluation, ids)
     try:
         data = verification.case_comparison(session, scoped, segment, case_id, criterion)
@@ -588,9 +613,21 @@ def agreement_case(
         data["position"]["pending"] = sum(
             1 for i in listed["items"] if not assignments.is_reviewed(i, found.get(i["caseId"]))
         )
+        ordered = [i["caseId"] for i in listed["items"]]
+        if tray == "reviewed" and trayed is not None:
+            rank = {cid: i for i, cid in enumerate(trayed["ids"])}
+            ordered.sort(key=lambda cid: rank.get(cid, -1))
+            if case_id in ordered:
+                at = ordered.index(case_id)
+                data["position"].update(
+                    index=at + 1,
+                    total=len(ordered),
+                    prevCaseId=ordered[at - 1] if at > 0 else None,
+                    nextCaseId=ordered[at + 1] if at < len(ordered) - 1 else None,
+                )
         if user.role == assignments.VERIFIER:
             data["position"]["nextPendingCaseId"] = assignments.next_pending(
-                session, evaluation, user, [i["caseId"] for i in listed["items"]], case_id
+                session, evaluation, user, ordered, case_id
             )
     for c in data["criteria"]:
         v = c.get("verification")

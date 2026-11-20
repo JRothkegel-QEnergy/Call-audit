@@ -1,26 +1,46 @@
 import { Suspense } from "react";
 import { LoadingState } from "@/components/ui/states";
 import type { CallList } from "@/lib/api/admin-types";
+import { discrepancyFromParam, trayFromParam } from "@/lib/verification-scope";
 import { CaseReviewView } from "./case-review";
+
+type Search = {
+  segment?: string;
+  motivo?: string;
+  criterio?: string;
+  fuente?: string;
+  asignadas?: string;
+  bandeja?: string;
+  discrepancia?: string;
+};
 
 export default function PromptCasePage({
   params,
   searchParams,
 }: {
   params: Promise<{ version: string; caseId: string }>;
-  searchParams: Promise<{ segment?: string; criterio?: string; fuente?: string; asignadas?: string }>;
+  searchParams: Promise<Search>;
 }) {
   return (
     <Suspense fallback={<LoadingState />}>
-      {Promise.all([params, searchParams]).then(([{ version, caseId }, { segment, criterio, fuente, asignadas }]) => (
-        <CaseReviewView
-          version={decodeURIComponent(version)}
-          caseId={decodeURIComponent(caseId)}
-          segment={(segment as CallList | undefined) ?? null}
-          criterion={criterio ? Number(criterio) : null}
-          scope={{ source: fuente === "full" ? "full" : "test", assignee: asignadas ?? null }}
-        />
-      ))}
+      {Promise.all([params, searchParams]).then(([{ version, caseId }, q]) => {
+        // Las listas mandan el criterio como `motivo`; `criterio` queda por los enlaces antiguos.
+        const criterion = q.motivo ?? q.criterio;
+        return (
+          <CaseReviewView
+            version={decodeURIComponent(version)}
+            caseId={decodeURIComponent(caseId)}
+            segment={(q.segment as CallList | undefined) ?? null}
+            criterion={criterion ? Number(criterion) : null}
+            scope={{
+              source: q.fuente === "full" ? "full" : "test",
+              assignee: q.asignadas ?? null,
+              tray: trayFromParam(q.bandeja ?? null),
+              discrepancy: discrepancyFromParam(q.discrepancia ?? null),
+            }}
+          />
+        );
+      })}
     </Suspense>
   );
 }

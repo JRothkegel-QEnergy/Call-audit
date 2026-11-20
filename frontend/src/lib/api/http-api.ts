@@ -59,7 +59,14 @@ function query(params: Record<string, string | undefined>): string {
 
 /** Corrida completa y filtro «Asignadas a» (13-rol-verificador). La prueba no manda nada: es lo de siempre. */
 const scopeParams = (scope?: VerificationScope) =>
-  scope?.source === "full" ? { source: "full", assignee: scope.assignee ?? undefined } : {};
+  scope?.source === "full"
+    ? {
+        source: "full",
+        assignee: scope.assignee ?? undefined,
+        tray: scope.tray ?? undefined,
+        discrepancy: scope.discrepancy ?? undefined,
+      }
+    : {};
 
 const filterQuery = (f?: QueueFilters) =>
   query({ agentId: f?.agentId, engineVerdict: f?.engineVerdict, blockId: f?.blockId, callId: f?.callId });

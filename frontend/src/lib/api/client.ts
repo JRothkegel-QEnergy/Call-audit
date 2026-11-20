@@ -56,6 +56,7 @@ import type {
   VerificationOverview,
   VerificationProgress,
   VerificationScope,
+  VerifierSummary,
   VerificationSource,
   AdminStats,
   AdminStatsFilters,
@@ -243,7 +244,7 @@ export interface ApiClient extends AnalysisApi {
   ): Promise<VerificationRecord>;
   deleteVerification(caseId: string, criterionId: number): Promise<void>;
   /** Verificación con verificadores (docs/ux/admin-prompt-metrics/13-rol-verificador-asignacion.md). */
-  getVerificationHome(): Promise<{ version: string | null }>;
+  getVerificationHome(): Promise<{ version: string | null; me?: VerifierSummary | null }>;
   getVerificationOverview(version: string, assignee?: string | null): Promise<VerificationOverview>;
   getVerificationProgress(version: string): Promise<VerificationProgress>;
   previewDistribution(version: string, userIds: string[]): Promise<DistributionPlan>;

@@ -43,6 +43,8 @@ interface Item {
   alert?: boolean;
   /** Rutas hijas que también marcan el ítem como activo. */
   match?: string[];
+  /** Activo solo en su ruta exacta (o en `match`), no en las hijas. */
+  exact?: boolean;
 }
 
 export function SidebarNav({
@@ -66,7 +68,19 @@ export function SidebarNav({
 
   const items: Item[] =
     user.role === "qubico_verifier"
-      ? [{ label: "Verificación", href: "/verification", icon: ListChecks, match: ["/admin/prompts/"] }]
+      ? [
+          // 18-verificador-bandeja-y-revisadas (W1 A): como el auditor, la bandeja es el inicio.
+          {
+            label: "Por revisar",
+            href: "/verification",
+            icon: ListChecks,
+            count: counts.verifierPending,
+            exact: true,
+            match: ["/admin/prompts/"],
+          },
+          { label: "Revisadas", href: "/verification/reviewed", icon: History },
+          { label: "Resumen", href: "/verification/summary", icon: BarChart3 },
+        ]
       : user.role === "qubico_viewer"
       ? [
           { label: "Estadísticas", href: "/admin/stats", icon: LineChart },
@@ -109,7 +123,8 @@ export function SidebarNav({
 
   const isActive = (it: Item) => {
     if (it.href === "/dashboard") return pathname === "/dashboard";
-    return pathname === it.href || pathname.startsWith(it.href + "/") || !!it.match?.some((m) => pathname.startsWith(m));
+    if (pathname === it.href || !!it.match?.some((m) => pathname.startsWith(m))) return true;
+    return !it.exact && pathname.startsWith(it.href + "/");
   };
 
   const initials = user.name

@@ -201,6 +201,9 @@ export interface SegmentCall {
   /** Corrida completa (13-rol-verificador): a quién está asignada y si se marcó «Sin observaciones». */
   assigneeName?: string | null;
   reviewedAt?: string | null;
+  /** Bandejas del verificador (18): último registro de la llamada y su tipo de discrepancia. */
+  lastReviewedAt?: string | null;
+  discrepancy?: Discrepancy;
 }
 
 export interface SegmentCalls {
@@ -219,7 +222,15 @@ export interface SegmentCalls {
   /** Lista «all»: por criterio, llamadas del alcance con algo que verificar en él (incluye dudosas) y cuántas siguen
    * pendientes, sin aplicar el criterio filtrado. Más llamadas primero (16-lista-verificador-por-motivo, L2 A). */
   criterionCounts?: CriterionCount[];
+  /** Corrida completa: llamadas por tipo de discrepancia, sin aplicar ese filtro (18, W6 A). */
+  discrepancyCounts?: Record<Discrepancy, number>;
 }
+
+/** Bandeja del verificador (18, W1-W4): Por revisar o Revisadas. */
+export type Tray = "pending" | "reviewed";
+
+/** Tipo de discrepancia de la llamada (18, W6 A). «Posible error del revisor» cae en el lado de su veredicto. */
+export type Discrepancy = "fn" | "fp" | "undecided" | "criteria" | "none";
 
 export interface CriterionCount {
   criterionId: number;
@@ -295,6 +306,17 @@ export type VerificationSource = "test" | "full";
 export interface VerificationScope {
   source: VerificationSource;
   assignee: string | null;
+  /** Bandeja de origen y filtro por discrepancia (18): Anterior/Siguiente recorren esa lista. */
+  tray?: Tray | null;
+  discrepancy?: Discrepancy | null;
+}
+
+export interface VerifierSummary {
+  assigned: number;
+  pending: number;
+  reviewed: number;
+  reviewedToday: number;
+  nextCaseId: string | null;
 }
 
 export interface CaseAssignment {
@@ -312,7 +334,7 @@ export interface VerificationOverview {
   assignee: string;
   n: number;
   agreement: Agreement | null;
-  me: { assigned: number; pending: number; nextCaseId: string | null } | null;
+  me: VerifierSummary | null;
   verifiers: { id: string; name: string }[];
 }
 

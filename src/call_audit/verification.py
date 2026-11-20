@@ -196,6 +196,7 @@ def segment_items(rows: list[dict], records: dict, segment: str, criterion: int 
                 ],
                 "verification": call_status([d["outcome"] for d in found]),
                 "segment": row["segment"],
+                "reasonMatch": row.get("reasonMatch"),
             }
         )
     return items

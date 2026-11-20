@@ -12,8 +12,10 @@ asignado no se mueve.
 from __future__ import annotations
 
 from collections import Counter, defaultdict
+from datetime import datetime
 from types import SimpleNamespace
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -23,6 +25,10 @@ from call_audit.persistence.models import Case, PromptEvaluation, User, Verifica
 
 VERIFIER = "qubico_verifier"
 SEGMENTS = verification.SEGMENTS
+CHILE = ZoneInfo("America/Santiago")
+# Bandejas del verificador (18-verificador-bandeja-y-revisadas, W1-W4) y tipos de discrepancia del filtro (W6 A).
+TRAYS = ("pending", "reviewed")
+DISCREPANCIES = ("fn", "fp", "undecided", "criteria", "none")
 
 
 def verifiers(session: Session) -> list[User]:
@@ -74,6 +80,70 @@ def is_reviewed(item: dict, assignment: VerificationAssignment | None) -> bool:
     if item["verification"] == "none":
         return assignment is not None and assignment.reviewed_at is not None
     return item["verification"] != "pending"
+
+
+def discrepancy_of(item: dict) -> str:
+    """Tipo de discrepancia de la llamada para el filtro W6 A. «Posible error del revisor» cae en el lado de su
+    veredicto (la misma regla que las listas `fn`/`fp`), para no sesgar al verificador."""
+    seg = item["segment"]
+    if seg == "promptFn" or (seg == "reviewer" and item["reviewerVerdict"] == verification.FAIL):
+        return "fn"
+    if seg in ("promptFp", "reviewer"):
+        return "fp"
+    if seg == "undecided":
+        return "undecided"
+    return "criteria" if item.get("reasonMatch") in ("partial", "none") else "none"
+
+
+def last_reviewed(records: dict, found: dict[str, VerificationAssignment]) -> dict[str, datetime]:
+    """Por llamada, el último registro: el más reciente de sus criterios o de «Sin observaciones»."""
+    last: dict[str, datetime] = {}
+    for (cid, _), rec in records.items():
+        if rec.decided_at and (cid not in last or rec.decided_at > last[cid]):
+            last[cid] = rec.decided_at
+    for cid, a in found.items():
+        if a.reviewed_at and (cid not in last or a.reviewed_at > last[cid]):
+            last[cid] = a.reviewed_at
+    return last
+
+
+def iso(value: datetime | None) -> str | None:
+    return accounts.aware(value).isoformat() if value else None
+
+
+def tray(
+    session: Session,
+    evaluation: PromptEvaluation,
+    ids: set[str] | None,
+    tray_name: str | None,
+    discrepancy: str | None,
+    criterion: int | None = None,
+) -> dict[str, Any]:
+    """Llamadas de la bandeja (pendientes o revisadas) y del tipo de discrepancia, dentro del alcance `ids`.
+
+    Devuelve los ids en el orden de la bandeja (revisadas: la más reciente primero), los conteos por tipo de
+    discrepancia (sobre la bandeja y el criterio, sin el filtro de discrepancia) y la fecha del último registro."""
+    rows, _ = verification.evaluation_rows(session, scoped(evaluation, ids))
+    records = verification.records_for(session, [r["caseId"] for r in rows])
+    items = verification.segment_items(rows, records, "all")
+    found = assignment_map(session, [it["caseId"] for it in items])
+    last = last_reviewed(records, found)
+    if tray_name in TRAYS:
+        items = [it for it in items if is_reviewed(it, found.get(it["caseId"])) == (tray_name == "reviewed")]
+    with_criterion = (
+        {r["caseId"] for r in rows if verification.matches(r, "all", criterion)} if criterion is not None else None
+    )
+    counts = Counter(discrepancy_of(it) for it in items if with_criterion is None or it["caseId"] in with_criterion)
+    if discrepancy in DISCREPANCIES:
+        items = [it for it in items if discrepancy_of(it) == discrepancy]
+    order = [it["caseId"] for it in items]
+    if tray_name == "reviewed":
+        order.sort(key=lambda cid: last[cid].timestamp() if cid in last else 0, reverse=True)
+    return {
+        "ids": order,
+        "discrepancyCounts": {d: counts[d] for d in DISCREPANCIES},
+        "lastReviewedAt": {cid: iso(at) for cid, at in last.items()},
+    }
 
 
 def all_items(session: Session, evaluation: PromptEvaluation) -> list[dict]:
@@ -300,9 +370,14 @@ def my_summary(session: Session, evaluation: PromptEvaluation, user: User) -> di
     mine = [it for it in items if (a := found.get(it["caseId"])) is not None and a.user_id == user.id]
     pending = [it for it in mine if not is_reviewed(it, found[it["caseId"]])]
     pending.sort(key=lambda it: it["order"])
+    done = {it["caseId"] for it in mine} - {it["caseId"] for it in pending}
+    last = last_reviewed(verification.records_for(session, list(done)), {c: found[c] for c in done})
+    today = datetime.now(CHILE).date()
     return {
         "assigned": len(mine),
         "pending": len(pending),
+        "reviewed": len(done),
+        "reviewedToday": sum(1 for at in last.values() if accounts.aware(at).astimezone(CHILE).date() == today),
         "nextCaseId": pending[0]["caseId"] if pending else None,
     }
 

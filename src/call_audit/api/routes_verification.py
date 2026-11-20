@@ -74,7 +74,9 @@ def verification_home(session: DbSession, user: VerificationReader):
     ev = prompt_evaluation.latest_full(session)
     if ev is None:
         return {"version": None}
-    return {"version": ev.version, "evaluationId": ev.id}
+    # El contador del menú y de la bandeja (18, W1 A): solo para el verificador.
+    me = assignments.my_summary(session, ev, user) if user.role == assignments.VERIFIER else None
+    return {"version": ev.version, "evaluationId": ev.id, "me": me}
 
 
 @router.get("/admin/prompts/{version}/verification")
