@@ -62,3 +62,11 @@
 | H-56 | Un aviso heurístico de RUT en las notas (sin bloquear) reduce la PII en texto libre. | Cambio 09 | Revisar las notas del piloto | Abierto |
 | H-57 | Para la calibración basta con el rol Supervisor (cuentas de Qubico) y `view_model_io` para auditores; el rol "Calidad de la IA" no hace falta en el MVP. | Cambio 09 (D-23) | Si alguien necesita clasificar discrepancias sin ver dashboards de ejecutivos, se agrega el rol | Abierto |
 | H-58 | El backend no envía el veredicto ni el comentario del cliente en las respuestas al rol auditor (no basta con ocultarlos en el front). | Cambio 09 (D-24) | Validar con `pipeline-architect` al definir la API | Abierto |
+| H-59 | El primer Administrador Qubico se crea por script (bootstrap); los siguientes, desde la app. | Cambio 10 | Definir al implementar el login | Abierto |
+| H-60 | El admin no tiene funciones de supervisor (mínimo privilegio); quien de Qubico las necesite usa además una cuenta de supervisor. | Cambio 10 | Confirmar en el uso | Abierto |
+| H-61 | MFA obligatorio y sesión de 15 min de inactividad para el admin. | Cambio 10 | Validar contra las exigencias del cliente (L-10) | Abierto |
+| H-62 | Un solo cliente en el MVP; el modelo de datos lleva `clientId` desde ya. | Cambio 10 | Cuando entre el segundo cliente | Abierto |
+| H-63 | El rol de una cuenta no se cambia: se desactiva y se invita de nuevo. | Cambio 10 | Uso real | Abierto |
+| H-64 | Activar una versión que empeora métricas se advierte, pero no se bloquea. | Cambio 10 | Uso real | Abierto |
+| H-65 | Una versión nueva del prompt solo afecta lotes futuros; reprocesar queda fuera del MVP. | Cambio 10 | ADR | Abierto |
+| H-66 | En el MVP la exportación al repo es una descarga manual (archivo + metadatos en el formato de `prompts/`); la sincronización con git la define el ADR. | Cambio 10 (D-26) | ADR | Abierto |

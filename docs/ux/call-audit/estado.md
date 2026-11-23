@@ -1,6 +1,6 @@
 # Estado del proceso UX · Front de Call Audit
 
-- **Estado:** **proceso UX cerrado** (2026-10-16) · **Cambio 09 aprobado** (2026-10-19, `09-cambio-auditoria-ia.md` §0). Fases 0 a 8 aprobadas por Johannes. El diseño está listo para implementar en `frontend/`; los cambios posteriores pasan por la revisión rápida contra lo aprobado.
+- **Estado:** **proceso UX cerrado** (2026-10-16) · **Cambio 09 aprobado** (2026-10-19, `09-cambio-auditoria-ia.md` §0) · **Cambio 10 (Administrador Qubico) aprobado** (2026-10-22, `10-cambio-admin-qubico.md` §0). Fases 0 a 8 aprobadas por Johannes. El diseño está listo para implementar en `frontend/`; los cambios posteriores pasan por la revisión rápida contra lo aprobado.
 - **Ubicación de los artefactos:** `call-audit/docs/ux/call-audit/` (dentro del repo, junto al resto de `docs/`).
 - **Aprueba los gates:** Johannes (D-04).
 
@@ -62,7 +62,17 @@
 | 2026-10-19 | D-23 · Sin rol "Calidad de la IA" en el MVP; Discrepancias y su clasificación quedan en Supervisor | Diseñador (supuesto, H-57) |
 | 2026-10-19 | D-24 · El auditor nunca ve el veredicto ni el comentario del cliente | Diseñador |
 | 2026-10-19 | D-25 · El veredicto del cliente es opcional: no viene / por llamada / por llamada + motivo; más un comentario opcional; el backend lo pasa si viene | Johannes |
+| 2026-10-22 | Cambio 10: rol Administrador Qubico (C10-1 a C10-7): cuentas de todos los roles, versiones del prompt inmutables con activación y vuelta atrás, estadísticas del sistema, registro de actividad, mínimo privilegio, MFA, un solo cliente | Diseñador, a pedido de Johannes; aprobado (D-26, D-27) |
+| 2026-10-22 | D-26 · Versiones del prompt subidas desde la app a un registro inmutable en la BD, exportables al repo | Johannes |
+| 2026-10-22 | D-27 · Rol Administrador Qubico aprobado; H-59 a H-65 siguen como supuestos vigentes | Johannes |
+| 2026-10-23 | D-28 · Sin SSO en el MVP: login solo con correo y contraseña; sin "Forma de ingreso" al invitar ni en las tablas de cuentas; `LoginMethod` se mantiene con el valor `password`; D-05/D-17 y #25 quedan fuera del MVP por ahora; MFA y re-autenticación del admin siguen | Johannes |
 | 2026-10-14 | En los artefactos solo se usan métricas agregadas de las transcripciones reales; los prototipos usan contenido sintético (L-19) | Diseñador |
+| 2026-11-20 | Cambio 11 (revisión rápida sobre Fase 8): marca Qubyt, re-theming de tokens con la paleta de la presentación a S4P y cambio de logo; propuesta en `11-cr-marca-qubyt.md` | Diseñador, a pedido de Johannes |
+| 2026-11-20 | D-29 · Paleta Qubyt: primary #3a6491, fondo #f4f6f9, tinta #1f2a37, rampa blue-*; rojo/ámbar sin cambios; "Confirmado" sigue en tinta | Johannes |
+| 2026-11-20 | D-30 · Login: panel marino #133b64, logo A (cian → lila), símbolo animado una vez; estático con prefers-reduced-motion | Johannes |
+| 2026-11-20 | D-31 · Rampa `teal-*` renombrada a `blue-*` (tono de StatusBadge `teal` → `blue`) | Johannes |
+| 2026-11-20 | D-32 · Copy del login: "Qubyt propone hallazgos sobre el 100 % de las llamadas." (solo el login; el resto sigue "La IA propone") | Johannes |
+| 2026-11-20 | Favicon con el símbolo Qubyt (`app/icon.png`, `app/apple-icon.png`). Cambio 11 implementado; falta la verificación visual en el navegador | Johannes; implementó el diseñador |
 
 ## Preguntas abiertas
 
@@ -74,7 +84,12 @@ Ninguna bloqueante.
 - H-48: `not_applicable` en el contrato y en el prompt de la capa 2 vs D-20 (`pipeline-architect`, `rubric-engineer`).
 - H-32: mapeo motivo → sección de la ficha como configuración (`rubric-engineer`).
 - Actualizar HU-AUD-03 en `docs/user-stories-auditor-supervisor.md` (sin "No aplica").
-- SVG oficial del logo (H-28).
+- SVG oficial del logo Qubyt (H-28).
+- Cambio 11: verificación visual en el navegador (login con animación, sidebar, heatmap). En Safari el webm con alfa puede no reproducirse; queda el poster estático.
+- Cambio 11: decidir si se borran los PNG `qubico-*` de `frontend/src/assets/brand/` (ya no se importan).
+- `06-ux-writing.md`: reflejar D-32 (subtítulo del login).
 - Verificar la licencia del design system "Modernist" del zip (L-13).
 - ADR del prompt único vs las capas de `CLAUDE.md` (`pipeline-architect`, H-52).
 - L-28: no desplegar datos reales a externos sin enmascarado ni DPA.
+- ADR del registro de versiones del prompt y de la evaluación contra la referencia (`pipeline-architect`, `llm-engineer`; Cambio 10).
+- **Ajustar la regla no negociable 2 de `call-audit/CLAUDE.md`** por D-26 (la fuente de verdad del prompt pasa a ser el registro versionado en la BD). Lo hace Johannes o el ADR; el diseñador no la edita.

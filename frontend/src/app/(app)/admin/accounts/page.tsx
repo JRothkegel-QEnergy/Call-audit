@@ -1,0 +1,336 @@
+"use client";
+
+import { Plus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { ReauthDialog } from "@/components/admin/reauth-dialog";
+import { ROLE_LABEL } from "@/components/shell/app-shell";
+import { StatusBadge } from "@/components/ui/badges";
+import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
+import { AsyncView, EmptyState } from "@/components/ui/states";
+import { api } from "@/lib/api";
+import type { AccountStatus, Role, UserAccount } from "@/lib/api/types";
+import { shortDateTime } from "@/lib/format";
+import { useSession } from "@/lib/session";
+import { useAsync } from "@/lib/use-async";
+
+const STATUS: Record<AccountStatus, [string, "blue" | "neutral" | "ink"]> = {
+  active: ["Activo", "blue"],
+  invited: ["Invitado", "neutral"],
+  deactivated: ["Desactivado", "ink"],
+};
+
+const ERRORS: Record<string, string> = {
+  self: "No puedes desactivar tu propia cuenta.",
+  last_admin: "Debe quedar al menos un Administrador Qubico activo.",
+  duplicate_email: "Ya existe una cuenta con este correo.",
+};
+
+export default function AdminAccountsPage() {
+  const { user } = useSession();
+  const accounts = useAsync(() => api.listAccounts(), []);
+  const [roleFilter, setRoleFilter] = useState<Role | "">("");
+  const [statusFilter, setStatusFilter] = useState<AccountStatus | "">("");
+  const [query, setQuery] = useState("");
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [confirm, setConfirm] = useState<UserAccount | null>(null);
+  const [reauthFor, setReauthFor] = useState<UserAccount | null>(null);
+  const reload = () => void accounts.reload({ silent: true });
+
+  const rows = useMemo(
+    () =>
+      (accounts.data ?? []).filter(
+        (a) =>
+          (!roleFilter || a.role === roleFilter) &&
+          (!statusFilter || a.status === statusFilter) &&
+          (!query || `${a.name} ${a.email}`.toLowerCase().includes(query.toLowerCase())),
+      ),
+    [accounts.data, roleFilter, statusFilter, query],
+  );
+
+  const setStatus = async (a: UserAccount, status: "active" | "deactivated", token?: string) => {
+    try {
+      await api.setUserStatus(a.id, status, token);
+      toast(status === "active" ? "Cuenta reactivada." : "Cuenta desactivada.");
+      reload();
+    } catch (e) {
+      toast(ERRORS[e instanceof Error ? e.message : ""] ?? "No pudimos actualizar la cuenta. Intenta de nuevo.");
+    }
+  };
+
+  return (
+    <>
+      <AdminHeader
+        title="Cuentas"
+        description={`Personas con acceso a Call Audit en ${user?.clientName ?? "el cliente"}.`}
+        actions={
+          <Button variant="primary" onClick={() => setInviteOpen(true)}>
+            <Plus size={14} aria-hidden />
+            Invitar persona
+          </Button>
+        }
+      />
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <input className="control search w-[240px]" placeholder="Buscar por nombre o correo" aria-label="Buscar cuenta" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <select className="control" aria-label="Rol" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value as Role | "")}>
+          <option value="">Rol: todos</option>
+          {(Object.keys(ROLE_LABEL) as Role[]).map((r) => (
+            <option key={r} value={r}>
+              {ROLE_LABEL[r]}
+            </option>
+          ))}
+        </select>
+        <select className="control" aria-label="Estado" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as AccountStatus | "")}>
+          <option value="">Estado: todos</option>
+          <option value="active">Activo</option>
+          <option value="invited">Invitado</option>
+          <option value="deactivated">Desactivado</option>
+        </select>
+      </div>
+      <AsyncView state={accounts} what="las cuentas">
+        {() =>
+          rows.length === 0 ? (
+            <EmptyState title="No hay cuentas con estos filtros." />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="tbl">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>MFA</th>
+                    <th>Ver prompt</th>
+                    <th>Último ingreso</th>
+                    <th>Creada por</th>
+                    <th>
+                      <span className="sr-only">Acciones</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((a) => {
+                    const self = a.id === user?.id;
+                    return (
+                      <tr key={a.id}>
+                        <td className="font-semibold">
+                          {a.name}
+                          {self && <span className="help ml-1">(tú)</span>}
+                        </td>
+                        <td>{a.email}</td>
+                        <td>{ROLE_LABEL[a.role]}</td>
+                        <td>
+                          <StatusBadge tone={STATUS[a.status][1]}>{STATUS[a.status][0]}</StatusBadge>
+                        </td>
+                        <td>{a.mfa === "active" ? "Activo" : "Pendiente"}</td>
+                        <td>
+                          {a.role === "auditor" ? (
+                            <input
+                              type="checkbox"
+                              aria-label={`Ver prompt y respuesta del modelo: ${a.name}`}
+                              checked={a.permissions.includes("view_model_io")}
+                              onChange={async (e) => {
+                                await api.setAccountPermissions(a.id, e.target.checked ? ["view_model_io"] : []);
+                                toast(e.target.checked ? `${a.name} ahora puede ver el prompt.` : `${a.name} ya no ve el prompt.`);
+                                reload();
+                              }}
+                            />
+                          ) : (
+                            <span className="help">Incluido en el rol</span>
+                          )}
+                        </td>
+                        <td className="tabular">{a.lastLoginAt ? shortDateTime(a.lastLoginAt) : "—"}</td>
+                        <td>{a.createdBy}</td>
+                        <td className="text-right">
+                          <span className="inline-flex gap-1">
+                            {a.status === "invited" && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={async () => {
+                                  await api.resendInvite(a.id);
+                                  toast(`Reenviamos la invitación a ${a.email}.`);
+                                }}
+                              >
+                                Reenviar invitación
+                              </Button>
+                            )}
+                            {a.mfa === "active" && !self && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={async () => {
+                                  await api.resetMfa(a.id);
+                                  toast(`MFA restablecido para ${a.name}. Deberá configurarlo al ingresar.`);
+                                  reload();
+                                }}
+                              >
+                                Restablecer MFA
+                              </Button>
+                            )}
+                            {!self &&
+                              (a.status === "deactivated" ? (
+                                <Button variant="ghost" size="sm" onClick={() => (a.role === "qubico_admin" ? setReauthFor({ ...a, status: "active" }) : void setStatus(a, "active"))}>
+                                  Reactivar
+                                </Button>
+                              ) : (
+                                <Button variant="ghost" size="sm" className="text-destructive" onClick={() => setConfirm(a)}>
+                                  Desactivar
+                                </Button>
+                              ))}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )
+        }
+      </AsyncView>
+      <p className="help mt-2">Para cambiar el rol de alguien, desactiva su cuenta e invítalo de nuevo con el rol correcto. Cada acción queda en el Registro de actividad.</p>
+
+      <Dialog
+        open={!!confirm}
+        onOpenChange={(o) => !o && setConfirm(null)}
+        title={`¿Desactivar la cuenta de ${confirm?.name ?? ""}?`}
+        description={<p className="m-0">No podrá ingresar. Sus revisiones se conservan y sus casos en revisión vuelven a la cola.</p>}
+        footer={
+          <>
+            <Button
+              variant="destructive"
+              autoFocus
+              onClick={() => {
+                const a = confirm!;
+                setConfirm(null);
+                if (a.role === "qubico_admin") setReauthFor({ ...a, status: "deactivated" });
+                else void setStatus(a, "deactivated");
+              }}
+            >
+              Desactivar cuenta
+            </Button>
+            <Button onClick={() => setConfirm(null)}>Cancelar</Button>
+          </>
+        }
+      />
+      <ReauthDialog
+        open={!!reauthFor}
+        onOpenChange={(o) => !o && setReauthFor(null)}
+        onToken={async (token) => {
+          const a = reauthFor!;
+          setReauthFor(null);
+          await setStatus(a, a.status === "active" ? "active" : "deactivated", token);
+        }}
+      />
+      <InviteDialog
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        onDone={(email) => {
+          setInviteOpen(false);
+          toast(`Enviamos la invitación a ${email}.`);
+          reload();
+        }}
+      />
+    </>
+  );
+}
+
+function InviteDialog({ open, onOpenChange, onDone }: { open: boolean; onOpenChange: (o: boolean) => void; onDone: (email: string) => void }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<Role>("auditor");
+  const [viewPrompt, setViewPrompt] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [reauthOpen, setReauthOpen] = useState(false);
+
+  const submit = async (token?: string) => {
+    setBusy(true);
+    try {
+      await api.inviteUser({ name: name.trim(), email: email.trim(), role, loginMethod: "password", permissions: role === "auditor" && viewPrompt ? ["view_model_io"] : [], reauthToken: token });
+      const sent = email.trim();
+      setName("");
+      setEmail("");
+      setRole("auditor");
+      setViewPrompt(false);
+      setError(null);
+      onDone(sent);
+    } catch (e) {
+      setError(ERRORS[e instanceof Error ? e.message : ""] ?? "No pudimos enviar la invitación. Intenta de nuevo.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <Dialog
+        open={open && !reauthOpen}
+        onOpenChange={onOpenChange}
+        title="Invitar persona"
+        footer={
+          <>
+            <Button
+              variant="primary"
+              loading={busy}
+              onClick={() => {
+                if (!name.trim()) return setError("Escribe el nombre de la persona.");
+                if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) return setError("Escribe un correo válido, por ejemplo nombre@empresa.cl.");
+                setError(null);
+                if (role === "qubico_admin") setReauthOpen(true);
+                else void submit();
+              }}
+            >
+              Invitar persona
+            </Button>
+            <Button onClick={() => onOpenChange(false)}>Cancelar</Button>
+          </>
+        }
+      >
+        <label className="field">
+          Nombre
+          <input autoFocus className="control" value={name} onChange={(e) => setName(e.target.value)} />
+        </label>
+        <label className="field">
+          Correo corporativo
+          <input className="control" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        </label>
+        <fieldset className="m-0 rounded-md border border-border px-3 py-2">
+          <legend className="px-1 text-[13px] font-medium">Rol</legend>
+          {(["auditor", "supervisor", "qubico_admin"] as Role[]).map((r) => (
+            <label key={r} className="flex items-center gap-2">
+              <input type="radio" name="role" checked={role === r} onChange={() => setRole(r)} /> {ROLE_LABEL[r]}
+            </label>
+          ))}
+        </fieldset>
+        {role === "auditor" && (
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={viewPrompt} onChange={(e) => setViewPrompt(e.target.checked)} /> Ver prompt y respuesta del modelo
+          </label>
+        )}
+        {role === "qubico_admin" && (
+          <div className="banner m-0" style={{ borderLeftColor: "var(--amber-600)" }}>
+            Tendrá acceso a cuentas, prompt y estadísticas. Requiere verificación en dos pasos.
+          </div>
+        )}
+        {error && (
+          <span className="field-error" role="alert">
+            {error}
+          </span>
+        )}
+      </Dialog>
+      <ReauthDialog
+        open={reauthOpen}
+        onOpenChange={setReauthOpen}
+        onToken={async (token) => {
+          setReauthOpen(false);
+          await submit(token);
+        }}
+      />
+    </>
+  );
+}

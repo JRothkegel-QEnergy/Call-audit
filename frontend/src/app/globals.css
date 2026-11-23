@@ -19,6 +19,9 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ink-900: var(--ink-900);
+  --color-blue-900: var(--blue-900);
+  --color-on-dark-muted: var(--on-dark-muted);
+  --color-on-dark-subtle: var(--on-dark-subtle);
   --color-neutral-300: var(--neutral-300);
   --color-neutral-800: var(--neutral-800);
   --color-red-700: var(--red-700);
@@ -55,7 +58,7 @@
     outline-offset: 2px;
   }
   ::selection {
-    background: var(--teal-200);
+    background: var(--selection);
   }
   a {
     color: var(--accent-foreground);
@@ -162,7 +165,7 @@
   }
   .btn-primary .kbd {
     background: transparent;
-    color: #fff;
+    color: var(--white);
     border-color: rgb(255 255 255 / 0.5);
   }
 
@@ -239,7 +242,7 @@
     color: inherit;
   }
   .chip button:hover {
-    background: var(--teal-200);
+    background: var(--blue-200);
   }
 
   /* DataTable */
@@ -272,7 +275,7 @@
     cursor: pointer;
   }
   .tbl tbody tr.clickable:hover td {
-    background: #fafbfc;
+    background: var(--row-hover);
   }
   .tbl tbody tr:last-child td {
     border-bottom: 0;
@@ -352,14 +355,14 @@
     border: 1px solid var(--neutral-300);
     white-space: nowrap;
   }
-  .st-teal {
+  .st-blue {
     background: var(--accent);
     color: var(--accent-foreground);
-    border-color: var(--teal-200);
+    border-color: var(--blue-200);
   }
   .st-ink {
     background: var(--ink-900);
-    color: #fff;
+    color: var(--white);
     border-color: var(--ink-900);
   }
   .src {
@@ -386,7 +389,7 @@
     padding: 0 6px;
     border-radius: var(--radius-full);
     background: var(--primary);
-    color: #fff;
+    color: var(--white);
     font-size: 12px;
     font-weight: 600;
     display: inline-grid;
@@ -492,7 +495,7 @@
   }
   .seg button[aria-pressed="true"] {
     background: var(--ink-900);
-    color: #fff;
+    color: var(--white);
   }
 
   .quote {

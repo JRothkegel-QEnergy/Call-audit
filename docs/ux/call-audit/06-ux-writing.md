@@ -400,3 +400,12 @@ El glosario aprobado en `03-arquitectura-informacion.md` §4.2 es la fuente úni
   3. El encabezado de la sección dice **"Pauta de calidad · motivos de no calidad"** y el tooltip explica: "Cada motivo describe algo que no debe ocurrir. Incumple = ocurrió."
   4. El nombre del motivo se mantiene **tal como está en la pauta** (no se reescribe; CLAUDE.md).
 - **Por qué no se unifica "No cumple" (llamada) con "Incumple" (motivo):** son dos niveles distintos. Usar la misma palabra haría pensar que un motivo que incumple es lo mismo que una llamada que no cumple, y la decisión de la llamada la toma el motor con reglas propias. **[SUPUESTO del diseñador: mantener la diferencia]**
+
+---
+
+## 8. Ajuste 2026-10-23 · Sin SSO en el MVP (D-28)
+
+- **Login:** se eliminan "Ingresar con la cuenta de tu empresa" y el separador "o ingresa con tu correo". Quedan Correo · Contraseña · **Ingresar** (botón primario) · ¿Olvidaste tu contraseña?
+- **Invitar auditor / Invitar persona:** se elimina "Forma de ingreso". La invitación siempre pide crear una contraseña: "Te invitaron a Call Audit. Crea tu contraseña para activar tu cuenta."
+- **Tablas de cuentas:** se elimina la columna "Forma de ingreso".
+- **Glosario:** "Cuenta de la empresa" (`auth_method = sso`) queda en desuso hasta que vuelva el SSO.

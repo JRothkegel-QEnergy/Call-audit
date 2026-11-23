@@ -23,8 +23,15 @@ import type {
   PendingApproval,
   QueueFilters,
   Role,
+  PromptSection,
+  PromptVersion,
+  PromptVersionDetail,
+  ActivityLogEntry,
+  AdminStats,
+  Permission,
   Rubric,
   User,
+  UserAccount,
 } from "./types";
 
 /**
@@ -36,7 +43,8 @@ import type {
  */
 export interface ApiClient {
   // Sesión
-  login(input: { email: string; password: string } | { sso: true; role?: Role }): Promise<User>;
+  /** `demoRole` existe solo en el mock (enlaces de la demo en el login). */
+  login(input: { email: string; password: string } | { demoRole: Role }): Promise<User>;
   logout(): Promise<void>;
   currentUser(): Promise<User | null>;
 
@@ -95,6 +103,28 @@ export interface ApiClient {
     input: { classification: DiscrepancyClassification | null; criterionIds: number[]; note?: string },
   ): Promise<void>;
   setPresentation(caseId: string, presented: boolean): Promise<void>;
+
+  // Administrador Qubico (Cambio 10)
+  listAccounts(): Promise<UserAccount[]>;
+  inviteUser(input: { name: string; email: string; role: Role; loginMethod: LoginMethod; permissions: Permission[]; reauthToken?: string }): Promise<void>;
+  setUserStatus(accountId: string, status: "active" | "deactivated", reauthToken?: string): Promise<void>;
+  setAccountPermissions(accountId: string, permissions: Permission[]): Promise<void>;
+  resendInvite(accountId: string): Promise<void>;
+  resetMfa(accountId: string): Promise<void>;
+  /** Re-autenticación con el código MFA; devuelve un token de un solo uso. */
+  reauthenticate(code: string): Promise<string>;
+  listPromptVersions(): Promise<PromptVersion[]>;
+  getPromptVersion(version: string): Promise<PromptVersionDetail>;
+  createPromptDraft(input: { version: string; model: string; changelog: string; rationale: string | null; sections: PromptSection[] }): Promise<void>;
+  updatePromptDraft(version: string, input: { model: string; changelog: string; rationale: string | null; sections: PromptSection[] }): Promise<void>;
+  discardPromptDraft(version: string): Promise<void>;
+  startPromptEvaluation(version: string): Promise<void>;
+  /** Activa una versión probada o vuelve a una retirada que fue probada. */
+  activatePromptVersion(version: string, input: { reason: string; reauthToken: string }): Promise<void>;
+  /** Versión vigente y desde cuándo (para el aviso a supervisores). */
+  getActivePrompt(): Promise<{ version: string; since: string; changedInApp: boolean }>;
+  getAdminStats(): Promise<AdminStats>;
+  listActivity(): Promise<ActivityLogEntry[]>;
 
   // Registro de accesos (D-13, L-18)
   logAgentSearch(agentId: string): Promise<void>;

@@ -1,10 +1,9 @@
 "use client";
 
-import { Cloud } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LogoMark, Wordmark } from "@/components/brand/logo";
+import { AnimatedBrandLogo } from "@/components/brand/logo";
 import { homeFor } from "@/components/shell/app-shell";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
@@ -39,23 +38,22 @@ export default function LoginPage() {
 
   const demo = (role: Role) => (e: React.MouseEvent) => {
     e.preventDefault();
-    void enter({ sso: true, role });
+    void enter({ demoRole: role });
   };
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
-      <section className="hidden flex-col justify-between bg-ink-900 p-12 text-white lg:flex">
+      <section className="hidden flex-col justify-between bg-blue-900 p-12 text-white lg:flex">
         <div className="flex items-center gap-3">
-          <LogoMark size={40} inverted />
-          <Wordmark className="text-xl" />
+          <AnimatedBrandLogo height={40} />
         </div>
         <div>
           <h2 className="m-0 max-w-[420px] text-[28px] font-semibold leading-[34px]">Auditoría de llamadas</h2>
-          <p className="max-w-[420px] text-[#c9ced4]">
-            La IA propone hallazgos sobre el 100 % de las llamadas. Las personas revisan y deciden.
+          <p className="max-w-[420px] text-on-dark-muted">
+            Qubyt propone hallazgos sobre el 100 % de las llamadas. Las personas revisan y deciden.
           </p>
         </div>
-        <p className="help text-[#9aa3ad]">Demo con datos sintéticos</p>
+        <p className="help text-on-dark-subtle">Demo con datos sintéticos</p>
       </section>
       <section className="grid place-items-center p-6">
         <form
@@ -70,13 +68,6 @@ export default function LoginPage() {
           }}
         >
           <h1 className="m-0 text-[22px] font-semibold">Ingresar</h1>
-          <Button variant="primary" size="lg" disabled={busy} onClick={() => void enter({ sso: true })}>
-            <Cloud size={18} aria-hidden />
-            Ingresar con la cuenta de tu empresa
-          </Button>
-          <div className="flex items-center gap-2.5 text-xs text-muted-foreground before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
-            o ingresa con tu correo
-          </div>
           <label className="field">
             Correo
             <input
@@ -102,7 +93,7 @@ export default function LoginPage() {
               <b>{error}</b>
             </div>
           )}
-          <Button type="submit" size="lg" loading={busy}>
+          <Button type="submit" variant="primary" size="lg" loading={busy}>
             Ingresar
           </Button>
           <a href="#" onClick={(e) => e.preventDefault()}>
@@ -110,9 +101,10 @@ export default function LoginPage() {
           </a>
           <div className="help border-t border-border pt-2.5">
             Demo: <a href="#" onClick={demo("auditor")}>entrar como auditora</a> ·{" "}
-            <a href="#" onClick={demo("supervisor")}>entrar como supervisor</a>
+            <a href="#" onClick={demo("supervisor")}>entrar como supervisor</a> ·{" "}
+            <a href="#" onClick={demo("qubico_admin")}>entrar como admin Qubico</a>
             <br />
-            Con correo y contraseña: si el correo contiene «sup», entras como supervisor.
+            Con correo y contraseña: si el correo contiene «sup» entras como supervisor, y si contiene «admin», como admin.
           </div>
           <div className="help">
             <Link href="/privacy">Privacidad</Link> · <Link href="/privacy#terminos">Términos de uso</Link> ·{" "}

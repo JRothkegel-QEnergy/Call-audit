@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LogoMark, Wordmark } from "@/components/brand/logo";
+import { BrandLogo } from "@/components/brand/logo";
 
 /**
  * Resúmenes en lenguaje claro (06-ux-writing.md §4). No reemplazan los textos legales
@@ -9,8 +9,7 @@ export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-[720px] px-6 py-10">
       <div className="mb-8 flex items-center gap-3">
-        <LogoMark size={32} />
-        <Wordmark className="text-base" />
+        <BrandLogo height={30} />
       </div>
       <h1 className="m-0 mb-6 text-[22px] font-semibold">Privacidad, términos y cookies</h1>
 

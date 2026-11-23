@@ -22,7 +22,7 @@ function StatusCell({ status }: { status: CaseStatus }) {
       </StatusBadge>
     );
   if (status === "escalated") return <StatusBadge tone="doubt">{label}</StatusBadge>;
-  if (status === "awaiting_approval") return <StatusBadge tone="teal">{label}</StatusBadge>;
+  if (status === "awaiting_approval") return <StatusBadge tone="blue">{label}</StatusBadge>;
   if (status === "closed") return <StatusBadge tone="ink">{label}</StatusBadge>;
   return <StatusBadge>{label}</StatusBadge>;
 }

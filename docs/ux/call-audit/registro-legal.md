@@ -1,6 +1,6 @@
 # Registro Legal · Front de Call Audit
 
-> Ni el diseñador ni el equipo son abogados. Todo lo marcado "Requiere abogado: sí" debe validarlo un profesional antes de producción. Última actualización: 2026-10-19 (Cambio 09).
+> Ni el diseñador ni el equipo son abogados. Todo lo marcado "Requiere abogado: sí" debe validarlo un profesional antes de producción. Última actualización: 2026-10-22 (Cambio 10).
 
 | ID | Requisito | Fase / pantalla donde aplica | Riesgo | Estado | Requiere abogado |
 |---|---|---|---|---|---|
@@ -36,3 +36,6 @@
 | L-30 | **Notas libres por caso y por motivo**: pueden terminar con PII o con datos de salud. Ayuda del campo, aviso heurístico de RUT, autor y fecha, historial; se exportan sin PII declarada; misma retención que el caso | Detalle, exportación | Medio | Diseñado | No |
 | L-31 | **Comparación con la auditoría del cliente**: las ramas "Omitidos por la IA" y "Solo la IA detectó" también dejan ver errores de los **auditores del cliente**. No se muestran rankings ni métricas por auditor del cliente; la unidad es la llamada y el objetivo declarado es ajustar el prompt. Evita que se use como evaluación de personas (L-22) | Discrepancias | Medio | Diseñado | Sí (en conjunto con L-06/L-22) |
 | L-32 | **Veredicto y comentario del cliente** (D-24, D-25): el comentario es texto libre de terceros con posible PII, así que se enmascara antes de llegar al front. Ambos se omiten en la API para el rol auditor (los externos son auditores del cliente). Solo los ve el supervisor; se exportan solo en Discrepancias, enmascarados | Detalle (supervisor), Discrepancias | Medio | Diseñado | No |
+| L-33 | **Superusuario (Administrador Qubico)**: mínimo privilegio (sin dashboards de ejecutivos, sin aprobar, PII sin enmascarar solo por el flujo de L-04); MFA obligatorio y re-autenticación para crear admins y activar prompts; sesión corta; registro de actividad inmutable (cuentas, prompt, PII, exportaciones); al menos un admin y no auto-desactivable; revisión periódica de cuentas. Qubico actúa como encargado: el acceso de su personal debe estar cubierto en el DPA (#6) | Cuentas, Registro de actividad, login | Alto | Diseñado; falta el DPA | Sí |
+| L-34 | **Cambio del prompt**: modifica cómo se generan los hallazgos sobre personas. Versiones inmutables con autor, motivo y changelog; prueba contra la referencia antes de activar; aviso a los supervisores ("desde el {fecha} se usa v{x}"); cada resultado guarda su versión (regla 3); sin reprocesar lo ya revisado por personas en el MVP | Versiones del prompt | Medio | **Aprobado (D-26, 2026-10-22)**: registro inmutable en la BD, exportable al repo; ADR y ajuste de la regla 2 pendientes | No |
+| L-35 | **Estadísticas del admin**: solo métricas del sistema; sin indicadores por auditor, por ejecutivo ni por auditor del cliente (L-06, L-22, L-31) | Estadísticas | Medio | Diseñado | No |

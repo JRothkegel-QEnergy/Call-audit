@@ -1,6 +1,7 @@
 /*
- * Call Audit · Design tokens (Fase 8) · v1.0 · 2026-10-16
- * Base: app.css del zip (Modernist retocado: acento teal, superficies blancas, radios suaves) + marca Qubico (negro).
+ * Call Audit · Design tokens (Fase 8) · v1.1 · 2026-11-20 (Cambio 11: marca Qubyt)
+ * Base: app.css del zip (Modernist retocado: superficies blancas, radios suaves) + paleta de la presentación a S4P (azul Qubyt).
+ * Cambio 11 (D-29, D-31): rampa de acento renombrada a blue-*; detalle y contrastes en docs/ux/call-audit/11-cr-marca-qubyt.md.
  * Nombres semánticos compatibles con shadcn/ui (--background, --foreground, --primary, ...) + tokens propios del dominio.
  * Contrastes validados (WCAG 2.2): ver 08-alta-fidelidad.md §1.2. Solo modo claro en el MVP.
  * Para Tailwind: mapear estas variables en el tema (ej. colors.primary = "var(--primary)").
@@ -8,23 +9,30 @@
 
 :root {
   /* ---------- Paleta base (rampas) ---------- */
-  --ink-900: #1b1f24;      /* texto principal · marca */
-  --ink-800: #23272d;
-  --neutral-800: #3a4048;
-  --neutral-700: #545b66;  /* texto secundario (6.85:1 sobre blanco) */
-  --neutral-600: #6e7682;  /* texto terciario: SOLO sobre blanco (4.59:1); sobre --background no alcanza */
-  --neutral-500: #8a929c;  /* borde de controles (3.15:1, WCAG 1.4.11) */
-  --neutral-300: #d6dbe0;
-  --neutral-200: #e2e6ea;  /* divisores decorativos */
-  --neutral-100: #f3f5f7;
-  --neutral-50:  #f5f7f8;
+  --ink-900: #1f2a37;      /* texto principal (14.54:1 sobre blanco, 13.43:1 sobre --background) */
+  --ink-800: #2a3645;
+  --neutral-800: #3a4656;  /* texto de "Cumple" */
+  --neutral-700: #5b6b7b;  /* texto secundario (5.48:1 blanco · 5.06:1 fondo · 4.83:1 sobre neutral-100) */
+  --neutral-600: #66737f;  /* texto terciario: SOLO sobre blanco (4.86:1); sobre --background no alcanza */
+  --neutral-500: #7b8794;  /* borde de controles (3.66:1 blanco · 3.38:1 fondo, WCAG 1.4.11) */
+  --neutral-300: #c9cfd6;
+  --neutral-200: #d5dce4;  /* divisores decorativos */
+  --neutral-100: #eef1f5;
+  --neutral-50:  #f4f6f9;
+  --row-hover:   #f7f9fb;  /* hover/foco de filas (transcripción, checklist, tablas) */
   --white: #ffffff;
 
-  --teal-800: #0b4843;
-  --teal-700: #0b5953;
-  --teal-600: #0f766e;     /* acento de marca / acción (5.47:1 con blanco) */
-  --teal-200: #c7e7e2;
-  --teal-100: #e7f4f2;
+  --blue-900: #133b64;     /* azul marino Qubyt: panel del login, texto de acento (11.43:1 blanco · 9.96:1 sobre blue-100) */
+  --blue-700: #2f5680;     /* hover de acción (7.60:1 con blanco) */
+  --blue-600: #3a6491;     /* azul Qubyt: acción y foco (6.16:1 blanco · 5.36:1 sobre blue-100) */
+  --blue-200: #d6e2ee;     /* bordes de chips/estados (decorativo) */
+  --blue-100: #eaf0f6;     /* hover y nav activa */
+  --cyan-400: #61b4d1;     /* celeste Qubyt: SOLO decorativo o sobre blue-900 (4.88:1); 2.34:1 sobre blanco */
+  --selection: #bee0ec;    /* selección de texto (10.43:1 con tinta) */
+
+  /* Sobre fondo oscuro (panel del login en --blue-900) */
+  --on-dark-muted: #c9d4e0;  /* 7.61:1 */
+  --on-dark-subtle: #9fb3c8; /* 5.31:1 */
 
   --red-800: #7f2523;
   --red-700: #a8322f;      /* Incumple (6.64:1 con blanco) */
@@ -43,21 +51,21 @@
   --card-foreground: var(--ink-900);
   --popover: var(--white);
   --popover-foreground: var(--ink-900);
-  --primary: var(--teal-600);
-  --primary-hover: var(--teal-700);
+  --primary: var(--blue-600);
+  --primary-hover: var(--blue-700);
   --primary-foreground: var(--white);
   --secondary: var(--white);
   --secondary-foreground: var(--ink-900);
   --muted: var(--neutral-100);
   --muted-foreground: var(--neutral-700);
   --subtle-foreground: var(--neutral-600);
-  --accent: var(--teal-100);          /* hover y elemento activo de navegación */
-  --accent-foreground: var(--teal-800);
+  --accent: var(--blue-100);          /* hover y elemento activo de navegación */
+  --accent-foreground: var(--blue-900);
   --destructive: var(--red-700);      /* acciones destructivas (desactivar cuenta) */
   --destructive-foreground: var(--white);
   --border: var(--neutral-200);       /* divisores */
   --input: var(--neutral-500);        /* borde de inputs, selects, checkboxes */
-  --ring: var(--teal-600);            /* foco: 2px + offset 2px */
+  --ring: var(--blue-600);            /* foco: 2px + offset 2px */
 
   /* ---------- Dominio: resultado por MOTIVO (D-20) ---------- */
   --verdict-fail-bg: var(--red-700);       /* Incumple: sólido, máxima atención */
@@ -66,7 +74,7 @@
   --verdict-doubt-bg: var(--amber-100);    /* Dudoso */
   --verdict-doubt-fg: var(--amber-800);
   --verdict-doubt-border: var(--amber-600);
-  --verdict-pass-bg: var(--neutral-100);   /* Cumple: discreto a propósito (es lo normal) y distinto del teal de acción */
+  --verdict-pass-bg: var(--neutral-100);   /* Cumple: discreto a propósito (es lo normal) y distinto del azul de acción */
   --verdict-pass-fg: var(--neutral-800);
   --verdict-pass-border: var(--neutral-300);
 

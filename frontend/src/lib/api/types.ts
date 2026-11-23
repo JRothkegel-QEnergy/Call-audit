@@ -7,7 +7,8 @@
  * (.claude/rules/layer-contract.md).
  */
 
-export type Role = "auditor" | "supervisor";
+/** `qubico_admin`: Administrador Qubico (Cambio 10). */
+export type Role = "auditor" | "supervisor" | "qubico_admin";
 
 /** Veredicto del contrato de capas. `not_applicable` se muestra como "Cumple" (D-20, H-48). */
 export type Verdict = "compliant" | "non_compliant" | "uncertain" | "not_applicable";
@@ -36,6 +37,11 @@ export interface User {
   email: string;
   role: Role;
   permissions: Permission[];
+  /** Un solo cliente en el MVP, pero el dato viaja desde ya (H-62). */
+  clientId: string;
+  clientName: string;
+  mfaEnabled: boolean;
+  lastLoginAt: string | null;
 }
 
 export interface Agent {
@@ -341,7 +347,8 @@ export interface AuditorStats {
 }
 
 export type AccountStatus = "invited" | "active" | "deactivated";
-export type LoginMethod = "sso" | "password";
+/** Solo correo y contraseña en el MVP; el SSO queda fuera por ahora (D-28). Se deja el tipo para reincorporarlo. */
+export type LoginMethod = "password";
 
 export interface AuditorAccount {
   id: string;
@@ -370,6 +377,137 @@ export interface DiscrepancyRow {
   classifiedCriteria: number[];
   presentation: "pending" | "presented" | null;
   notesCount: number;
+}
+
+// ---------- Administrador Qubico (Cambio 10) ----------
+
+/** Cuenta de cualquier rol, vista por el admin. El supervisor sigue viendo solo auditores (AuditorAccount). */
+export interface UserAccount {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  status: AccountStatus;
+  loginMethod: LoginMethod;
+  mfa: "active" | "pending";
+  permissions: Permission[];
+  lastLoginAt: string | null;
+  createdBy: string;
+  createdAt: string;
+}
+
+export type PromptVersionStatus = "draft" | "testing" | "test_failed" | "tested" | "active" | "retired";
+
+export interface PromptSection {
+  title: string;
+  text: string;
+}
+
+/** Versión del prompt en el registro inmutable (D-26). Desde "En prueba" no se puede editar. */
+export interface PromptVersion {
+  version: string;
+  status: PromptVersionStatus;
+  model: string;
+  changelog: string;
+  rationale: string | null;
+  createdBy: string;
+  createdAt: string;
+  testedAt: string | null;
+  activatedBy: string | null;
+  activatedAt: string | null;
+  activationReason: string | null;
+  retiredAt: string | null;
+}
+
+export interface PromptReferenceMetrics {
+  kind: "client" | "app_auditors";
+  n: number;
+  matchRate: number;
+  uncertainRate: number;
+  aiOnlyFail: number;
+  aiMissedFail: number;
+  unvalidatedQuoteRate: number;
+}
+
+export interface PromptEvaluation {
+  version: string;
+  status: "running" | "done" | "failed";
+  startedAt: string;
+  finishedAt: string | null;
+  references: PromptReferenceMetrics[];
+  costPerCallUsd: number;
+  latencyMsP50: number;
+  latencyMsP95: number;
+  byCriterion: { criterionId: number; matchRate: number }[];
+}
+
+export interface PromptVersionDetail {
+  meta: PromptVersion;
+  sections: PromptSection[];
+  evaluation: PromptEvaluation | null;
+  history: { at: string; actor: string; action: string }[];
+}
+
+export interface AdminStats {
+  operation: {
+    callsProcessed: number;
+    minutesProcessed: number;
+    medianHoursToResult: number;
+    batchesWithError: number;
+    humanQueue: number;
+    oldestQueueHours: number;
+    reviewedPerDay: number;
+    daily: { date: string; calls: number }[];
+    failedBatches: { batchId: string; at: string; stage: "ingesta" | "ASR" | "modelo" | "salida inválida"; calls: number }[];
+  };
+  aiQuality: {
+    promptVersion: string;
+    model: string;
+    reference: "client" | "app_auditors";
+    n: number;
+    matchRate: number;
+    uncertainRate: number;
+    unvalidatedQuoteRate: number;
+    distribution: { compliant: number; non_compliant: number; uncertain: number };
+  }[];
+  cost: {
+    model: string;
+    promptVersion: string;
+    calls: number;
+    totalUsd: number;
+    perCallUsd: number;
+    tokensIn: number;
+    tokensOut: number;
+    latencyMsAvg: number;
+    latencyMsP95: number;
+  }[];
+}
+
+export type ActivityAction =
+  | "account_invited"
+  | "account_deactivated"
+  | "account_reactivated"
+  | "permission_changed"
+  | "mfa_reset"
+  | "invite_resent"
+  | "prompt_published"
+  | "prompt_tested"
+  | "prompt_activated"
+  | "prompt_rolled_back"
+  | "pii_viewed"
+  | "pii_exported"
+  | "agent_search"
+  | "login_failed";
+
+export interface ActivityLogEntry {
+  id: string;
+  at: string;
+  actorId: string;
+  actorName: string;
+  actorRole: Role;
+  action: ActivityAction;
+  target: string;
+  details: string;
 }
 
 export interface QueueFilters {

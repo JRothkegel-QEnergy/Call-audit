@@ -195,7 +195,7 @@ export function QueueView() {
                   <td>
                     <span className="inline-flex gap-1.5">
                       {r.sampleCompliant ? (
-                        <StatusBadge tone="teal" title="Llamada que la IA marcó como Cumple, incluida al azar para controlar la calidad de la IA.">
+                        <StatusBadge tone="blue" title="Llamada que la IA marcó como Cumple, incluida al azar para controlar la calidad de la IA.">
                           Muestra cumple
                         </StatusBadge>
                       ) : (

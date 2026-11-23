@@ -1,7 +1,8 @@
 import type { ApiClient } from "../client";
 import type {
+  ActivityAction,
+  ActivityLogEntry,
   Alert,
-  AuditorAccount,
   CallVerdict,
   CaseDetail,
   CaseSummary,
@@ -17,15 +18,17 @@ import type {
   Review,
   ReviewFlag,
   User,
+  UserAccount,
 } from "../types";
-import { ACCOUNTS, AGENTS, AUDITORS, RUBRIC, USERS, buildCalibrationCases, buildCases } from "./data";
+import { ADMIN_STATS, PROMPTS, type PromptRecord, USER_ACCOUNTS, evaluation } from "./admin-data";
+import { AGENTS, AUDITORS, RUBRIC, USERS, buildCalibrationCases, buildCases } from "./data";
 
 /**
  * Backend simulado en el navegador. Mantiene el estado en memoria y lo guarda en
  * sessionStorage para que sobreviva a recargas de la pestaña. Solo para la demo.
  */
 
-const STORAGE_KEY = "call-audit-mock-v3";
+const STORAGE_KEY = "call-audit-mock-v5";
 const FAST_REVIEW_SECONDS = 60; // H-37
 
 interface State {
@@ -34,13 +37,19 @@ interface State {
   myReviews: MyReviewRow[];
   alerts: Alert[];
   approvals: PendingApproval[];
-  accounts: AuditorAccount[];
+  accounts: UserAccount[];
   feedback: Feedback[];
   reviewedToday: number;
   correctedToday: number;
   reviewSecondsToday: number;
   audioSecondsToday: number;
-  accessLog: { at: string; userId: string; action: string; target: string }[];
+  /** Registro de actividad inmutable (Cambio 10 §4.4). */
+  activity: ActivityLogEntry[];
+  prompts: PromptRecord[];
+  /** Cuándo se activó la versión vigente desde la app (para el aviso a supervisores). */
+  promptChangedAt: string | null;
+  /** Tokens de re-autenticación MFA de un solo uso. */
+  reauthTokens: string[];
   /** Clasificación de las discrepancias con el cliente, por caso (Cambio 09 §3.1). */
   discrepancy: Record<string, { classification: DiscrepancyClassification | null; criteria: number[]; presentation: "pending" | "presented" | null }>;
   /** Últimas aprobaciones, para el Deshacer del lote. */
@@ -97,7 +106,7 @@ function initialState(): State {
       { id: "al-3", kind: "escalation", status: "handled", caseId: "c-r201", callId: "LL-1014-0201", criterionId: null, atMs: 125_000, reason: "Audio inaudible", comment: "No se escucha al cliente desde el minuto 2.", raisedBy: "Sofía Reyes", createdAt: "2026-10-14T12:10:00", handledComment: "Se reprocesa el audio." },
     ],
     approvals,
-    accounts: ACCOUNTS.map((a) => ({ ...a })),
+    accounts: USER_ACCOUNTS.map((a) => ({ ...a })),
     feedback: [
       { id: "fb-1", agentId: "ag-104", supervisorName: "Jorge Lagos", createdAt: "2026-10-08T10:00:00", text: "Revisamos cómo informar la devolución de primas.", commitment: "Informar la regla del seguro.", followUpDate: "2026-10-22", caseIds: ["c-r170"] },
     ],
@@ -105,7 +114,13 @@ function initialState(): State {
     correctedToday: 3,
     reviewSecondsToday: 6480,
     audioSecondsToday: 19800,
-    accessLog: [],
+    activity: [
+      { id: "act-1", at: "2026-10-20T15:00:00", actorId: "u-sup-1", actorName: "Jorge Lagos", actorRole: "supervisor", action: "account_invited", target: "sofia.reyes@empresa-ejemplo.cl", details: "Rol: auditor" },
+      { id: "act-2", at: "2026-10-13T09:00:00", actorId: "u-adm-1", actorName: "Admin Qubico (demo)", actorRole: "qubico_admin", action: "prompt_activated", target: "Prompt v2.7.0", details: "Sube la coincidencia con el cliente de 64 % a 70 %." },
+    ],
+    prompts: structuredClone(PROMPTS),
+    promptChangedAt: null,
+    reauthTokens: [],
     discrepancy: {
       "c-k200": { classification: "ai_correct", criteria: [28], presentation: "pending" },
       "c-k211": { classification: "ai_wrong", criteria: [28], presentation: null },
@@ -157,9 +172,63 @@ function isSupervisor() {
   return load().user?.role === "supervisor";
 }
 
+function isAdmin() {
+  return load().user?.role === "qubico_admin";
+}
+
+/** El supervisor y el admin ven los datos del cliente y Discrepancias (D-24, Cambio 10). */
+function canSeeClient() {
+  return isSupervisor() || isAdmin();
+}
+
+function log(action: ActivityAction, target: string, details = "") {
+  const st = load();
+  if (!st.user) return;
+  st.activity.unshift({ id: `act-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, at: new Date().toISOString(), actorId: st.user.id, actorName: st.user.name, actorRole: st.user.role, action, target, details });
+}
+
+function requireAdmin() {
+  if (!isAdmin()) throw new Error("forbidden");
+}
+
+function consumeReauth(token: string | undefined) {
+  const st = load();
+  if (!token || !st.reauthTokens.includes(token)) throw new Error("reauth_required");
+  st.reauthTokens = st.reauthTokens.filter((t) => t !== token);
+}
+
+function semverGt(a: string, b: string) {
+  const pa = a.split(".").map(Number);
+  const pb = b.split(".").map(Number);
+  for (let i = 0; i < 3; i++) {
+    if ((pa[i] ?? 0) !== (pb[i] ?? 0)) return (pa[i] ?? 0) > (pb[i] ?? 0);
+  }
+  return false;
+}
+
+function findPrompt(version: string) {
+  const p = load().prompts.find((x) => x.meta.version === version);
+  if (!p) throw new Error("not_found");
+  return p;
+}
+
+/** La evaluación es asíncrona: en la demo termina unos segundos después de iniciarla. */
+function settleEvaluations() {
+  const st = load();
+  for (const p of st.prompts) {
+    if (p.meta.status === "testing" && p.evaluation && Date.now() - new Date(p.evaluation.startedAt).getTime() > 4000) {
+      const done = evaluation(p.meta.version, 73, 2);
+      p.evaluation = { ...done, startedAt: p.evaluation.startedAt, finishedAt: new Date().toISOString() };
+      p.meta.status = "tested";
+      p.meta.testedAt = new Date().toISOString();
+      p.history.push({ at: new Date().toISOString(), actor: "Sistema", action: "Terminó la prueba contra la referencia" });
+    }
+  }
+}
+
 /** El veredicto y el comentario del cliente solo viajan al supervisor (D-24, H-58). */
 function forRole<T extends CaseSummary>(c: T): T {
-  if (isSupervisor()) return c;
+  if (canSeeClient()) return c;
   const out = { ...c, externalQualityVerdict: null } as T & Partial<CaseDetail>;
   if ("externalComment" in out) {
     out.externalComment = null;
@@ -285,7 +354,8 @@ export const mockApi: ApiClient = {
   login: (input) =>
     delay(() => {
       const st = load();
-      const role = "sso" in input ? (input.role ?? "auditor") : input.email.toLowerCase().includes("sup") ? "supervisor" : "auditor";
+      const email = "demoRole" in input ? "" : input.email.toLowerCase();
+      const role = "demoRole" in input ? input.demoRole : email.includes("admin") ? "qubico_admin" : email.includes("sup") ? "supervisor" : "auditor";
       st.user = USERS[role];
       return st.user;
     }, 400),
@@ -557,25 +627,35 @@ export const mockApi: ApiClient = {
       { auditorId: "u-aud-2", name: "Luis Muñoz", casesPerDay: 71, avgReviewSeconds: 125, correctsAiPct: 6, reopenedOrChangedPct: 9, escalationsPct: 1 },
       { auditorId: "u-aud-3", name: "Sofía Reyes", casesPerDay: 52, avgReviewSeconds: 250, correctsAiPct: 17, reopenedOrChangedPct: 2, escalationsPct: 4 },
     ]),
-  listAuditorAccounts: () => delay(() => load().accounts),
+  listAuditorAccounts: () =>
+    delay(() =>
+      load()
+        .accounts.filter((a) => a.role === "auditor")
+        .map((a) => ({ id: a.id, name: a.name, email: a.email, status: a.status, loginMethod: a.loginMethod })),
+    ),
   listActiveAuditors: () => delay(() => load().accounts.filter((a) => a.status === "active").map((a) => ({ id: a.id, name: a.name })), 100),
   inviteAuditor: (input) =>
     delay(() => {
       const st = load();
       if (st.accounts.some((a) => a.email.toLowerCase() === input.email.toLowerCase())) throw new Error("duplicate_email");
-      st.accounts.push({ id: `u-aud-${Date.now()}`, name: input.name, email: input.email, status: "invited", loginMethod: input.loginMethod });
+      st.accounts.push({ id: `u-aud-${Date.now()}`, name: input.name, email: input.email, role: "auditor", status: "invited", loginMethod: input.loginMethod, mfa: "pending", permissions: [], lastLoginAt: null, createdBy: st.user?.name ?? "?", createdAt: new Date().toISOString() });
+      log("account_invited", input.email, "Rol: auditor");
     }),
   setAccountStatus: (accountId, status) =>
     delay(() => {
-      const a = load().accounts.find((x) => x.id === accountId);
+      const a = load().accounts.find((x) => x.id === accountId && x.role === "auditor");
+      if (a) log(status === "active" ? "account_reactivated" : "account_deactivated", a.email);
       if (a) a.status = status;
     }),
-  exportFiltered: () => delay(() => undefined, 500),
+  exportFiltered: (input) =>
+    delay(() => {
+      if (input.includePii) log("pii_exported", "Exportación filtrada", input.piiReason ?? "");
+    }, 500),
 
   listDiscrepancies: () =>
     delay(() => {
       const st = load();
-      if (!isSupervisor()) throw new Error("forbidden");
+      if (!canSeeClient()) throw new Error("forbidden");
       return st.cases
         .filter((c) => c.externalQualityVerdict)
         .map((c): DiscrepancyRow => {
@@ -602,7 +682,7 @@ export const mockApi: ApiClient = {
   classifyDiscrepancy: (caseId, input) =>
     delay(() => {
       const st = load();
-      if (!isSupervisor() || !st.user) throw new Error("forbidden");
+      if (!canSeeClient() || !st.user) throw new Error("forbidden");
       st.discrepancy[caseId] = {
         classification: input.classification,
         criteria: input.criterionIds,
@@ -619,10 +699,161 @@ export const mockApi: ApiClient = {
       if (d && d.classification === "ai_correct") d.presentation = presented ? "presented" : "pending";
     }, 120),
 
-  logAgentSearch: (agentId) =>
+  // ---------- Administrador Qubico (Cambio 10) ----------
+  listAccounts: () =>
+    delay(() => {
+      requireAdmin();
+      return load().accounts;
+    }),
+  inviteUser: (input) =>
+    delay(() => {
+      requireAdmin();
+      const st = load();
+      if (input.role === "qubico_admin") consumeReauth(input.reauthToken);
+      if (st.accounts.some((a) => a.email.toLowerCase() === input.email.toLowerCase())) throw new Error("duplicate_email");
+      st.accounts.push({ id: `u-${Date.now()}`, name: input.name, email: input.email, role: input.role, status: "invited", loginMethod: input.loginMethod, mfa: "pending", permissions: input.role === "auditor" ? input.permissions : [], lastLoginAt: null, createdBy: st.user!.name, createdAt: new Date().toISOString() });
+      log("account_invited", input.email, `Rol: ${input.role}`);
+    }),
+  setUserStatus: (accountId, status, reauthToken) =>
+    delay(() => {
+      requireAdmin();
+      const st = load();
+      const a = st.accounts.find((x) => x.id === accountId);
+      if (!a) throw new Error("not_found");
+      if (a.id === st.user?.id) throw new Error("self");
+      if (a.role === "qubico_admin") {
+        if (status === "deactivated" && st.accounts.filter((x) => x.role === "qubico_admin" && x.status === "active").length <= 1) throw new Error("last_admin");
+        consumeReauth(reauthToken);
+      }
+      a.status = status;
+      log(status === "active" ? "account_reactivated" : "account_deactivated", a.email);
+    }),
+  setAccountPermissions: (accountId, permissions) =>
+    delay(() => {
+      requireAdmin();
+      const a = load().accounts.find((x) => x.id === accountId && x.role === "auditor");
+      if (!a) throw new Error("not_found");
+      a.permissions = permissions;
+      log("permission_changed", a.email, permissions.includes("view_model_io") ? "Ver prompt: sí" : "Ver prompt: no");
+    }),
+  resendInvite: (accountId) =>
+    delay(() => {
+      const a = load().accounts.find((x) => x.id === accountId);
+      if (a) log("invite_resent", a.email);
+    }),
+  resetMfa: (accountId) =>
+    delay(() => {
+      requireAdmin();
+      const a = load().accounts.find((x) => x.id === accountId);
+      if (!a) throw new Error("not_found");
+      a.mfa = "pending";
+      log("mfa_reset", a.email);
+    }),
+  reauthenticate: (code) =>
+    delay(() => {
+      // Demo: cualquier código de 6 dígitos es válido.
+      if (!/^\d{6}$/.test(code)) throw new Error("invalid_code");
+      const token = `reauth-${Date.now()}`;
+      load().reauthTokens.push(token);
+      return token;
+    }, 300),
+  listPromptVersions: () =>
+    delay(() => {
+      requireAdmin();
+      settleEvaluations();
+      return load()
+        .prompts.map((p) => p.meta)
+        .sort((a, b) => (semverGt(a.version, b.version) ? -1 : 1));
+    }),
+  getPromptVersion: (version) =>
+    delay(() => {
+      if (!isAdmin() && !isSupervisor()) throw new Error("forbidden");
+      settleEvaluations();
+      return findPrompt(version);
+    }),
+  createPromptDraft: (input) =>
+    delay(() => {
+      requireAdmin();
+      const st = load();
+      const active = st.prompts.find((p) => p.meta.status === "active")!;
+      if (!/^\d+\.\d+\.\d+$/.test(input.version) || !semverGt(input.version, active.meta.version)) throw new Error("version_not_greater");
+      if (st.prompts.some((p) => p.meta.version === input.version)) throw new Error("version_exists");
+      const now = new Date().toISOString();
+      st.prompts.push({
+        meta: { version: input.version, status: "draft", model: input.model, changelog: input.changelog, rationale: input.rationale, createdBy: st.user!.name, createdAt: now, testedAt: null, activatedBy: null, activatedAt: null, activationReason: null, retiredAt: null },
+        sections: input.sections,
+        evaluation: null,
+        history: [{ at: now, actor: st.user!.name, action: "Creó el borrador" }],
+      });
+      log("prompt_published", `Prompt v${input.version}`, input.changelog);
+    }),
+  updatePromptDraft: (version, input) =>
+    delay(() => {
+      requireAdmin();
+      const p = findPrompt(version);
+      if (p.meta.status !== "draft") throw new Error("immutable");
+      Object.assign(p.meta, { model: input.model, changelog: input.changelog, rationale: input.rationale });
+      p.sections = input.sections;
+    }),
+  discardPromptDraft: (version) =>
+    delay(() => {
+      requireAdmin();
+      const st = load();
+      const p = findPrompt(version);
+      if (p.meta.status !== "draft") throw new Error("immutable");
+      st.prompts = st.prompts.filter((x) => x !== p);
+    }),
+  startPromptEvaluation: (version) =>
+    delay(() => {
+      requireAdmin();
+      const p = findPrompt(version);
+      if (!["draft", "test_failed"].includes(p.meta.status)) throw new Error("invalid_state");
+      p.meta.status = "testing";
+      p.evaluation = { ...evaluation(version, 0), status: "running", finishedAt: null, startedAt: new Date().toISOString() };
+      p.history.push({ at: new Date().toISOString(), actor: load().user!.name, action: "Inició la prueba contra la referencia (la versión queda inmutable)" });
+      log("prompt_tested", `Prompt v${version}`);
+    }),
+  activatePromptVersion: (version, input) =>
+    delay(() => {
+      requireAdmin();
+      const st = load();
+      consumeReauth(input.reauthToken);
+      const p = findPrompt(version);
+      const rollback = p.meta.status === "retired";
+      if (!(p.meta.status === "tested" || (rollback && p.meta.testedAt))) throw new Error("invalid_state");
+      const now = new Date().toISOString();
+      const current = st.prompts.find((x) => x.meta.status === "active");
+      if (current) {
+        current.meta.status = "retired";
+        current.meta.retiredAt = now;
+        current.history.push({ at: now, actor: st.user!.name, action: `Retirada al activar v${version}` });
+      }
+      Object.assign(p.meta, { status: "active", activatedAt: now, activatedBy: st.user!.name, activationReason: input.reason, retiredAt: null });
+      p.history.push({ at: now, actor: st.user!.name, action: rollback ? "Volvió a esta versión" : "Activó la versión" });
+      st.promptChangedAt = now;
+      log(rollback ? "prompt_rolled_back" : "prompt_activated", `Prompt v${version}`, input.reason);
+    }),
+  getActivePrompt: () =>
     delay(() => {
       const st = load();
-      st.accessLog.push({ at: new Date().toISOString(), userId: st.user?.id ?? "?", action: "agent_filter", target: agentId });
+      const p = st.prompts.find((x) => x.meta.status === "active")!;
+      return { version: p.meta.version, since: p.meta.activatedAt ?? p.meta.createdAt, changedInApp: !!st.promptChangedAt };
+    }, 80),
+  getAdminStats: () =>
+    delay(() => {
+      requireAdmin();
+      return ADMIN_STATS;
+    }),
+  listActivity: () =>
+    delay(() => {
+      requireAdmin();
+      return load().activity;
+    }),
+
+  logAgentSearch: (agentId) =>
+    delay(() => {
+      const agent = AGENTS.find((a) => a.id === agentId);
+      log("agent_search", agent?.name ?? agentId);
     }, 0),
 
   resetDemo: async () => {

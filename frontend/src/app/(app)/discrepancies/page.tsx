@@ -162,7 +162,7 @@ export default function DiscrepanciesPage() {
                           <td>
                             {r.classification ? (
                               <span className="inline-flex flex-wrap items-center gap-1.5">
-                                <StatusBadge tone={r.classification === "ai_correct" ? "teal" : "doubt"}>{CLASS_LABEL[r.classification]}</StatusBadge>
+                                <StatusBadge tone={r.classification === "ai_correct" ? "blue" : "doubt"}>{CLASS_LABEL[r.classification]}</StatusBadge>
                                 {r.classification === "ai_correct" && (
                                   <label className="help inline-flex items-center gap-1">
                                     <input

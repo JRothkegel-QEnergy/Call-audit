@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell } from "lucide-react";
+import { Bell, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ExportButton } from "@/components/dialogs/export-dialog";
 import { SourceBadge } from "@/components/ui/badges";
@@ -16,8 +16,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const rubric = useRubric();
   const state = useAsync(async () => {
-    const [kpis, alerts] = await Promise.all([api.getKpis(), api.listAlerts("new")]);
-    return { kpis, newAlerts: alerts.length };
+    const [kpis, alerts, prompt] = await Promise.all([api.getKpis(), api.listAlerts("new"), api.getActivePrompt()]);
+    return { kpis, newAlerts: alerts.length, prompt };
   }, []);
 
   return (
@@ -39,8 +39,16 @@ export default function DashboardPage() {
         </select>
       </div>
       <AsyncView state={state} what="el panel">
-        {({ kpis: k, newAlerts }) => (
+        {({ kpis: k, newAlerts, prompt }) => (
           <>
+            {prompt.changedInApp && (
+              <div className="banner mb-3" role="status">
+                <Info size={14} aria-hidden />
+                <span>
+                  Desde el {shortDate(prompt.since)} se usa el prompt v{prompt.version}.
+                </span>
+              </div>
+            )}
             {newAlerts > 0 && (
               <div className="banner mb-3" style={{ borderLeftColor: "var(--red-700)" }}>
                 <Bell size={14} aria-hidden />

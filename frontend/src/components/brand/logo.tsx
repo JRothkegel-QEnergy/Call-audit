@@ -1,34 +1,82 @@
+"use client";
+
+import Image from "next/image";
+import { useSyncExternalStore } from "react";
+import logo from "@/assets/brand/qubyt-logo.png";
+import logoOnDark from "@/assets/brand/qubyt-logo-on-dark.png";
+import symbol from "@/assets/brand/qubyt-symbol.png";
+import wordmarkOnDark from "@/assets/brand/qubyt-wordmark-on-dark.png";
+import animatedPoster from "@/assets/brand/qubyt-symbol-animated-poster.png";
+
 /**
- * Aproximación vectorial PROVISIONAL del logo Qubico (cubo con nodos).
- * Reemplazar por el SVG oficial cuando esté disponible (H-28).
+ * Logo de Qubyt (Cambio 11). PNG transparentes recortados del original y exportados a 2× del uso.
+ * `full`: símbolo + "Qubyt" (variante C, azul marino → celeste) para fondos claros.
+ * `symbol`: solo el símbolo, para la sidebar colapsada.
+ * `onDark`: variante A (degradado cian → lila) para el panel marino del login.
  */
-export function LogoMark({ size = 28, inverted = false }: { size?: number; inverted?: boolean }) {
-  const ink = inverted ? "#fff" : "var(--ink-900)";
-  const fill = inverted ? "var(--ink-900)" : "#fff";
-  const nodes: [number, number][] = [
-    [6, 13],
-    [26, 13],
-    [6, 33],
-    [26, 33],
-    [14, 5],
-    [34, 5],
-    [14, 25],
-    [34, 25],
-  ];
-  return (
-    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden className="flex-none">
-      <g fill="none" stroke={ink} strokeWidth={2.6}>
-        <path d="M6 13h20v20H6zM14 5h20v20H14zM6 13l8-8M26 13l8-8M26 33l8-8M6 33l8-8" />
-      </g>
-      <g fill={fill} stroke={ink} strokeWidth={2.4}>
-        {nodes.map(([x, y]) => (
-          <rect key={`${x}-${y}`} x={x - 3} y={y - 3} width={6} height={6} rx={2} />
-        ))}
-      </g>
-    </svg>
+export function BrandLogo({
+  variant = "full",
+  onDark = false,
+  height = 28,
+  className,
+}: {
+  variant?: "full" | "symbol";
+  onDark?: boolean;
+  height?: number;
+  className?: string;
+}) {
+  const src = variant === "symbol" ? symbol : onDark ? logoOnDark : logo;
+  const width = Math.round((src.width / src.height) * height);
+  return <Image src={src} alt="Qubyt" width={width} height={height} priority className={className} style={{ height, width }} />;
+}
+
+/** Separación símbolo–texto del logo original (16 % del alto). */
+const GAP_RATIO = 0.158;
+
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+
+function subscribeReducedMotion(onChange: () => void) {
+  const mq = window.matchMedia(REDUCED_MOTION);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+
+function usePrefersReducedMotion() {
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION).matches,
+    () => true, // en el servidor: estático
   );
 }
 
-export function Wordmark({ className }: { className?: string }) {
-  return <span className={`font-bold tracking-[0.14em] ${className ?? ""}`}>QUBICO</span>;
+/**
+ * Logo del login sobre fondo marino con el símbolo animado (D-30).
+ * El video (webm VP9 con alfa, 4 s) se reproduce una sola vez y queda en el último cuadro; el poster es ese
+ * mismo cuadro, así que si el navegador no reproduce webm con alfa (p. ej. Safari) se ve el logo estático.
+ * Con prefers-reduced-motion: reduce no se monta el video. Arranca en estático hasta conocer la preferencia.
+ */
+export function AnimatedBrandLogo({ height = 40 }: { height?: number }) {
+  const reduced = usePrefersReducedMotion();
+  const wordWidth = Math.round((wordmarkOnDark.width / wordmarkOnDark.height) * height);
+  return (
+    <span role="img" aria-label="Qubyt" className="inline-flex items-center" style={{ gap: Math.round(height * GAP_RATIO) }}>
+      {reduced ? (
+        <Image src={animatedPoster} alt="" width={height} height={height} priority style={{ height, width: height }} />
+      ) : (
+        <video
+          src="/brand/qubyt-symbol-animated.webm"
+          poster={animatedPoster.src}
+          width={height}
+          height={height}
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          style={{ height, width: height }}
+        />
+      )}
+      <Image src={wordmarkOnDark} alt="" width={wordWidth} height={height} priority style={{ height, width: wordWidth }} />
+    </span>
+  );
 }

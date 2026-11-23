@@ -15,9 +15,9 @@ import type { AgentDetail, FollowUpStatus } from "@/lib/api/types";
 import { pct, shortDate } from "@/lib/format";
 import { useAsync } from "@/lib/use-async";
 
-const FOLLOW_UP: Record<FollowUpStatus, [string, "neutral" | "teal" | "ink"]> = {
+const FOLLOW_UP: Record<FollowUpStatus, [string, "neutral" | "blue" | "ink"]> = {
   pending: ["Pendiente", "neutral"],
-  with_feedback: ["Con feedback", "teal"],
+  with_feedback: ["Con feedback", "blue"],
   handled: ["Gestionada", "ink"],
 };
 

@@ -4,7 +4,6 @@
  */
 import type {
   Agent,
-  AuditorAccount,
   CaseDetail,
   Criterion,
   ExternalVerdict,
@@ -100,10 +99,13 @@ export const RUBRIC: Rubric = {
 
 // ---------- Personas (ficticias) ----------
 
-export const USERS: Record<"auditor" | "supervisor", User> = {
+const CLIENT_FIELDS = { clientId: "becs", clientName: "BancoEstado Corredores de Seguros", mfaEnabled: true, lastLoginAt: null };
+
+export const USERS: Record<User["role"], User> = {
   // La auditora de la demo tiene `view_model_io`, como Vero y el equipo externo (D-22).
-  auditor: { id: "u-aud-1", name: "Ana Pérez", email: "ana.perez@empresa-ejemplo.cl", role: "auditor", permissions: ["view_model_io"] },
-  supervisor: { id: "u-sup-1", name: "Jorge Lagos", email: "jorge.lagos@empresa-ejemplo.cl", role: "supervisor", permissions: [] },
+  auditor: { id: "u-aud-1", name: "Ana Pérez", email: "ana.perez@empresa-ejemplo.cl", role: "auditor", permissions: ["view_model_io"], ...CLIENT_FIELDS },
+  supervisor: { id: "u-sup-1", name: "Jorge Lagos", email: "jorge.lagos@empresa-ejemplo.cl", role: "supervisor", permissions: [], ...CLIENT_FIELDS },
+  qubico_admin: { id: "u-adm-1", name: "Admin Qubico (demo)", email: "admin@qubico-ejemplo.cl", role: "qubico_admin", permissions: [], ...CLIENT_FIELDS },
 };
 
 export const AUDITORS = [
@@ -121,12 +123,6 @@ export const AGENTS: Agent[] = [
   { id: "ag-106", name: "Camila Vargas", team: "Retención · equipo 3" },
 ];
 
-export const ACCOUNTS: AuditorAccount[] = [
-  { id: "u-aud-1", name: "Ana Pérez", email: "ana.perez@empresa-ejemplo.cl", status: "active", loginMethod: "sso" },
-  { id: "u-aud-2", name: "Luis Muñoz", email: "luis.munoz@empresa-ejemplo.cl", status: "active", loginMethod: "password" },
-  { id: "u-aud-3", name: "Sofía Reyes", email: "sofia.reyes@empresa-ejemplo.cl", status: "invited", loginMethod: "sso" },
-  { id: "u-aud-4", name: "Pablo Torres", email: "pablo.torres@empresa-ejemplo.cl", status: "deactivated", loginMethod: "sso" },
-];
 
 // ---------- Fichas de seguro (sintéticas) ----------
 

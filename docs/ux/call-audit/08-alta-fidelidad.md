@@ -19,7 +19,9 @@
 
 ### 1.1 Decisiones de color
 
-- **Teal (`--primary` #0f766e) = acción, foco y navegación activa.** Nunca representa un veredicto.
+> **Cambio 11 (2026-11-20, D-29 a D-32):** paleta de la marca Qubyt y logo Qubyt. Valores y contrastes actualizados abajo; detalle en `11-cr-marca-qubyt.md`.
+
+- **Azul Qubyt (`--primary` #3a6491) = acción, foco y navegación activa.** Nunca representa un veredicto.
 - **Veredictos con su propia familia** (resuelve el riesgo de `05` §3.2):
   - Incumple: rojo sólido;
   - No cumple (llamada): rojo suave en píldora;
@@ -27,29 +29,31 @@
   - Cumple: **neutro**, discreto a propósito, porque es lo normal y no debe competir por atención.
 - **Fuente del dato:**
   - "Según IA": contorno punteado;
-  - "Confirmado": sólido tinta (`--ink-900`, el negro de la marca).
+  - "Confirmado": sólido tinta (`--ink-900` #1f2a37; no marino, para no confundirse con el botón primario).
 - Solo modo claro en el MVP **[SUPUESTO]** (H-51).
 
 ### 1.2 Contraste (calculado, WCAG 2.2)
 
 | Par | Contraste | Mínimo | |
 |---|---|---|---|
-| Texto principal / fondo | 15,41:1 | 4,5 | ✓ |
-| Texto secundario (neutral-700) / blanco · / fondo | 6,85 · 6,38 | 4,5 | ✓ |
-| Texto terciario (neutral-600) / blanco | 4,59 | 4,5 | ✓ |
-| Texto terciario / fondo `#f5f7f8` | 4,27 | 4,5 | ✕ **no usar** |
-| Blanco / botón primario · / hover | 5,47 · 8,18 | 4,5 | ✓ |
-| Texto activo (teal-800) / `--accent` | 9,21 | 4,5 | ✓ |
-| Anillo de foco teal-600 / blanco | 5,47 | 3 | ✓ |
+| Texto principal / fondo | 13,43:1 | 4,5 | ✓ |
+| Texto secundario (neutral-700) / blanco · / fondo | 5,48 · 5,06 | 4,5 | ✓ |
+| Texto terciario (neutral-600) / blanco | 4,86 | 4,5 | ✓ |
+| Texto terciario / fondo `#f4f6f9` | 4,49 | 4,5 | ✕ **no usar** |
+| Blanco / botón primario · / hover | 6,16 · 7,60 | 4,5 | ✓ |
+| Texto activo (blue-900) / `--accent` | 9,96 | 4,5 | ✓ |
+| Anillo de foco blue-600 / blanco · / `--accent` | 6,16 · 5,36 | 3 | ✓ |
 | Blanco / Incumple (red-700) | 6,64 | 4,5 | ✓ |
 | No cumple (red-700) / red-100 | 5,89 | 4,5 | ✓ |
 | Dudoso (amber-800) / amber-100 | 7,57 | 4,5 | ✓ |
 | Borde Dudoso (amber-600) / blanco | 3,05 | 3 | ✓ |
-| Cumple (neutral-800) / neutral-100 | 9,57 | 4,5 | ✓ |
-| Borde de controles (neutral-500) / blanco | 3,15 | 3 | ✓ |
-| Divisor (neutral-200) / blanco | 1,25 | — | decorativo (no delimita controles) |
+| Cumple (neutral-800) / neutral-100 | 8,46 | 4,5 | ✓ |
+| Borde de controles (neutral-500) / blanco · / fondo | 3,66 · 3,38 | 3 | ✓ |
+| Divisor (neutral-200) / blanco | 1,38 | — | decorativo (no delimita controles) |
+| Texto / panel del login (blue-900): blanco · on-dark-muted · on-dark-subtle | 11,43 · 7,61 · 5,31 | 4,5 | ✓ |
+| Heatmap de criterios (rampa blanco → blue-900 con salto de banda) | ≥ 4,73 | 4,5 | ✓ |
 
-> El `#e2e6ea` de `app.css` no sirve como borde de inputs (1,25:1). Los controles usan `--input` (#8a929c).
+> Los divisores de la presentación (#bfc7d1, #d5dce4…) no sirven como borde de inputs. Los controles usan `--input` (#7b8794). El celeste `#61b4d1` es solo decorativo (2,34:1 sobre blanco).
 
 ### 1.3 Tipografía
 
@@ -83,10 +87,11 @@ Las cifras van tabulares (`tabular-nums`).
 
 ### 1.5 Marca
 
-- El logo Qubico (PNG negro del usuario) es la referencia.
-- En los HTML va una **aproximación vectorial provisional** del símbolo (cubo con nodos) más el logotipo compuesto en Archivo 700 con tracking 0,14 em, en versión normal e invertida.
-- **Hay que reemplazarla por el SVG oficial** (H-28).
-- No se copió el PNG al repo.
+- **Qubyt** (Cambio 11). PNG transparentes recortados y exportados a 2× del uso en `frontend/src/assets/brand/qubyt-*`:
+  - sidebar y privacy: horizontal C (marino → celeste);
+  - sidebar colapsada y favicon: símbolo;
+  - login (panel `--blue-900`): símbolo animado (webm VP9 con alfa en `frontend/public/brand/`, una reproducción, estático con `prefers-reduced-motion`) + wordmark A (cian → lila).
+- Pendiente el SVG oficial (H-28).
 
 ### 1.6 Resultado por motivo (D-20) y la lectura invertida (HE-01)
 

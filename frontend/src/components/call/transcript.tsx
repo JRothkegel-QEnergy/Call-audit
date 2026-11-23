@@ -89,12 +89,12 @@ export function Transcript({
                 if (e.key === "Enter") onSeek(t.startMs);
               }}
               className={cn(
-                "grid cursor-pointer grid-cols-[48px_72px_1fr] gap-2 border-b border-[var(--neutral-100)] px-3 py-2 text-[15px] leading-[22px] hover:bg-[#fafbfc]",
+                "grid cursor-pointer grid-cols-[48px_72px_1fr] gap-2 border-b border-[var(--neutral-100)] px-3 py-2 text-[15px] leading-[22px] hover:bg-[var(--row-hover)]",
                 i === current && "bg-accent shadow-[inset_3px_0_0_var(--primary)] hover:bg-accent",
               )}
             >
               <span className="pt-0.5 text-xs text-subtle-foreground tabular">{mmss(t.startMs)}</span>
-              <span className={cn("pt-0.5 text-xs font-semibold text-muted-foreground", t.speaker === "customer" && "text-[var(--teal-800)]")}>
+              <span className={cn("pt-0.5 text-xs font-semibold text-muted-foreground", t.speaker === "customer" && "text-[var(--accent-foreground)]")}>
                 {SPEAKER[t.speaker]}
               </span>
               <span>

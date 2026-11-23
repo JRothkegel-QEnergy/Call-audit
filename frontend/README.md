@@ -26,6 +26,7 @@ src/
       my-reviews/               Mis revisiones (auditor)
       dashboard/, alerts/, reviews/, agents/, dashboard/criteria/, auditors/   supervisor
       discrepancies/            Discrepancias con el cliente (supervisor, Cambio 09)
+      admin/                    Administrador Qubico: stats, prompts, accounts, activity (Cambio 10)
       settings/                 Preferencias (atajos de una tecla, velocidad del audio)
   components/
     ui/                         Button, badges, Dialog/Sheet, estados vacío/error/carga
@@ -64,10 +65,22 @@ Ver `docs/ux/call-audit/09-cambio-auditoria-ia.md`.
 - **Discrepancias** (`/discrepancies`, supervisor): ramas Solo la IA detectó · Omitidos por la IA · IA dudosa ·
   Coinciden, clasificación «La IA acertó / se equivocó» y seguimiento «Por presentar al cliente».
 
+## Cambio 10 (Administrador Qubico)
+
+Ver `docs/ux/call-audit/10-cambio-admin-qubico.md`. Entrar con «entrar como admin Qubico».
+- **Estadísticas** del sistema (operación, calidad de la IA por versión y modelo, costo), sin métricas por persona.
+- **Prompt:** versiones en un registro inmutable. Flujo: borrador → en prueba → probada → vigente → retirada.
+  Activar y volver atrás piden motivo y código MFA; «Descargar para el repo» baja el archivo con sus metadatos.
+- **Cuentas** de todos los roles: invitar (crear un admin pide MFA), desactivar o reactivar, restablecer MFA,
+  permiso «Ver prompt» para auditores. Nadie se desactiva a sí mismo y siempre queda un admin.
+- **Registro de actividad** de solo lectura (cuentas, prompt, búsquedas por ejecutivo, exportaciones con PII).
+- Pendiente fuera del front: ADR del registro de prompts y ajustar la regla 2 de `call-audit/CLAUDE.md`.
+
 ## Qué está simulado
 
 - **Audio:** no hay archivo; el reproductor avanza con un reloj. Con el backend se usa wavesurfer.js con `audioUrl`.
-- **SSO y contraseña:** cualquier ingreso entra; si el correo contiene «sup», entra como supervisor.
+- **Ingreso:** solo correo y contraseña (el SSO quedó fuera del MVP, D-28). Cualquier contraseña entra; si el correo contiene «sup», entra como supervisor, y si contiene «admin», como admin.
+- **MFA:** cualquier código de 6 dígitos sirve. La prueba de un prompt termina sola a los pocos segundos con métricas inventadas.
 - **Exportar e invitaciones:** muestran la confirmación, pero no generan archivos ni correos.
 - **Gravedad de los motivos:** los críticos (28, 9, 17, 12) son solo de la demo; la gravedad real es `TBD` con el cliente.
 - **Logo:** aproximación vectorial provisional (H-28).
