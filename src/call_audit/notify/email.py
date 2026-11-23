@@ -70,19 +70,19 @@ ROLE_LABEL = {
 
 
 def _layout(body_html: str, settings: Settings) -> str:
-    logo = f"{settings.app_base_url.rstrip('/')}/brand/qubico-logo.png"
+    logo = f"{settings.app_base_url.rstrip('/')}/brand/qubyt-logo.png"
     return (
         '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;'
-        'color:#1b1f24;max-width:560px">'
-        f'<img src="{logo}" alt="Qubico" height="32" style="height:32px;margin:0 0 24px">'
+        'color:#1f2a37;max-width:560px">'
+        f'<img src="{logo}" alt="Qubyt" height="32" style="height:32px;margin:0 0 24px">'
         f"{body_html}"
-        '<p style="color:#545b66;font-size:12px;margin-top:32px">— Qubico</p></div>'
+        '<p style="color:#5b6b7b;font-size:12px;margin-top:32px">— Qubico</p></div>'
     )
 
 
 def _button(url: str, label: str) -> str:
     return (
-        f'<p><a href="{escape(url)}" style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;'
+        f'<p><a href="{escape(url)}" style="display:inline-block;background:#3a6491;color:#fff;text-decoration:none;'
         f'padding:10px 16px;border-radius:6px;font-weight:600">{escape(label)}</a></p>'
     )
 
@@ -107,9 +107,9 @@ def invitation(
         f"{escape(client)}, con el rol <b>{escape(role_label)}</b>.</p>"
         "<p>Te invitaron a Call Audit. Crea tu contraseña para activar tu cuenta.</p>"
         f"{_button(url, 'Crear contraseña')}"
-        f"<p style='color:#545b66'>El enlace vence el {escape(expires)} (72 horas) y sirve una sola vez. "
+        f"<p style='color:#5b6b7b'>El enlace vence el {escape(expires)} (72 horas) y sirve una sola vez. "
         f"Si el botón no funciona, copia este enlace en tu navegador: {escape(url)}</p>"
-        "<p style='color:#545b66'>Si no esperabas esta invitación, ignora este correo: tu cuenta no se activará.</p>",
+        "<p style='color:#5b6b7b'>Si no esperabas esta invitación, ignora este correo: tu cuenta no se activará.</p>",
         settings,
     )
     return Email(to=to, subject="Te invitaron a Call Audit", text=text, html=html)
@@ -124,7 +124,7 @@ def password_reset(*, to: str, url: str, settings: Settings) -> Email:
     html = _layout(
         "<p>Recibimos una solicitud para restablecer tu contraseña.</p>"
         f"{_button(url, 'Crear contraseña nueva')}"
-        "<p style='color:#545b66'>El enlace vence en 72 horas y sirve una sola vez. Si no lo pediste, ignora este "
+        "<p style='color:#5b6b7b'>El enlace vence en 72 horas y sirve una sola vez. Si no lo pediste, ignora este "
         "correo.</p>",
         settings,
     )
