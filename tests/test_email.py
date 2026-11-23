@@ -59,11 +59,11 @@ def test_password_reset_plain_text_mirrors_html() -> None:
 
 def test_invitation_uses_same_template_with_details() -> None:
     email = invite()
-    assert email.subject == "Te invitaron a Call Audit"
-    for value in ("Te invitaron a Call Audit</h1>", "La corredora", "Auditor", "ana@ejemplo.cl", "Crear contraseña"):
+    assert email.subject == "Te invitaron a Qubyt"
+    for value in ("Te invitaron a Qubyt</h1>", "La corredora", "Auditor", "ana@ejemplo.cl", "Crear contraseña"):
         assert value in email.html
     # La frase ya no se repite en el cuerpo (error del copy anterior).
-    assert email.text.count("Te invitaron a Call Audit") == 1
+    assert email.text.count("Te invitaron a Qubyt") == 1
     assert "Rol: Auditor" in email.text and "Vence: 26-11-2026 a las 14:30 (72 horas)" in email.text
 
 
