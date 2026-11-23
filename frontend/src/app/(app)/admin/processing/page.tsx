@@ -353,7 +353,7 @@ function OtherTasks({ status }: { status: ProcessingStatus }) {
 }
 
 function RunResult({ run }: { run: PipelineRun }) {
-  if (run.status === "running") return <StatusBadge tone="teal">En curso</StatusBadge>;
+  if (run.status === "running") return <StatusBadge tone="blue">En curso</StatusBadge>;
   if (run.status === "failed")
     return (
       <StatusBadge tone="fail" title={run.error ?? undefined}>

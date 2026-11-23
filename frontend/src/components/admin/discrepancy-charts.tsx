@@ -31,7 +31,7 @@ const empty = (color: string): CSSProperties => ({
   boxShadow: `inset 0 0 0 1px ${color}`,
 });
 
-const NEUTRAL = "var(--neutral-500, #737373)";
+const NEUTRAL = "var(--neutral-500)";
 const FP = "var(--series-1)";
 const FN = "var(--series-2)";
 
@@ -237,7 +237,7 @@ export function PriorityMap({
                 key={q}
                 role="group"
                 aria-label={title}
-                className={`grid content-start gap-1.5 rounded border p-2 ${selected === q ? "border-[var(--ink-700,#333)]" : "border-border"}`}
+                className={`grid content-start gap-1.5 rounded border p-2 ${selected === q ? "border-[var(--ink-800)]" : "border-border"}`}
               >
                 {mine.length ? (
                   <button

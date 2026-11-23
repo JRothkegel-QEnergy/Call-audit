@@ -202,7 +202,7 @@ export default function CatalogPage() {
                                 Incompleto
                               </StatusBadge>
                             ) : (
-                              <StatusBadge tone="teal">Activo</StatusBadge>
+                              <StatusBadge tone="blue">Activo</StatusBadge>
                             )}
                           </td>
                         </tr>
@@ -248,7 +248,7 @@ export default function CatalogPage() {
                         <span className="help block">{u.uploadedBy.name}</span>
                       </td>
                       <td>
-                        <StatusBadge tone={u.status === "failed" ? "fail" : u.status === "ready" || u.status === "partial" ? "teal" : "neutral"}>
+                        <StatusBadge tone={u.status === "failed" ? "fail" : u.status === "ready" || u.status === "partial" ? "blue" : "neutral"}>
                           {UPLOAD_STATUS[u.status]}
                         </StatusBadge>
                       </td>
@@ -417,7 +417,7 @@ function UploadDialog({
           </div>
           <span className="help">o arrástralo aquí</span>
           {error && (
-            <p role="alert" className="m-0 font-medium text-[var(--fail-700,#b42318)]">
+            <p role="alert" className="m-0 font-medium text-[var(--red-700)]">
               {error}
             </p>
           )}
@@ -428,7 +428,7 @@ function UploadDialog({
             <b>{upload.fileName}</b>
           </p>
           {upload.status === "failed" ? (
-            <p role="alert" className="m-0 font-medium text-[var(--fail-700,#b42318)]">
+            <p role="alert" className="m-0 font-medium text-[var(--red-700)]">
               {UPLOAD_ERROR[upload.error ?? "extraction_failed"]}
             </p>
           ) : (

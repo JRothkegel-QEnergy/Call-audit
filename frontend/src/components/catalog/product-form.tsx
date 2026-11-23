@@ -20,7 +20,7 @@ function Meta({ source, missing, review }: { source?: Source; missing?: boolean;
       )}
       {missing && <span className="help block">No viene en el Excel</span>}
       {review && (
-        <span role="alert" className="block text-[13px] font-medium text-[var(--fail-700,#b42318)]">
+        <span role="alert" className="block text-[13px] font-medium text-[var(--red-700)]">
           Revisar: {review}
         </span>
       )}

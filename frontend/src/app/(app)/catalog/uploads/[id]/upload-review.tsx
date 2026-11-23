@@ -118,7 +118,7 @@ export function UploadReview({ id }: { id: string }) {
               {u.items.length > 0 && (
                 <>
                   <div className="mb-3 flex flex-wrap gap-2" aria-label="Resumen de la carga">
-                    <StatusBadge tone="teal">Nuevos {u.counts.new}</StatusBadge>
+                    <StatusBadge tone="blue">Nuevos {u.counts.new}</StatusBadge>
                     <StatusBadge tone="ink">Ya existen con cambios {u.counts.existsChanged}</StatusBadge>
                     <StatusBadge>Ya existen sin cambios {u.counts.existsUnchanged}</StatusBadge>
                     <StatusBadge tone="doubt">Con advertencias {u.counts.withWarnings}</StatusBadge>

@@ -50,7 +50,7 @@ export function HistoryTab() {
                   <td className="num">{r.patterns ?? "—"}</td>
                   <td className="num">{usd(r.costUsd)}</td>
                   <td>
-                    <StatusBadge tone={r.status === "failed" ? "fail" : r.status === "done" ? "teal" : "neutral"} title={r.error ?? undefined}>
+                    <StatusBadge tone={r.status === "failed" ? "fail" : r.status === "done" ? "blue" : "neutral"} title={r.error ?? undefined}>
                       {ANALYSIS_STATUS[r.status]}
                     </StatusBadge>
                   </td>

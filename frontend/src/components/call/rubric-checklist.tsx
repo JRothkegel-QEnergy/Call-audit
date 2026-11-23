@@ -194,7 +194,7 @@ function FindingItem(props: Props & { criterionId: number }) {
   const wrap = (children: React.ReactNode) => (
     <div
       id={`item-${id}`}
-      className={cn("border-t border-[var(--neutral-100)] px-3 py-2.5", focused && "bg-[#fbfcfc] shadow-[inset_3px_0_0_var(--primary)]")}
+      className={cn("border-t border-[var(--neutral-100)] px-3 py-2.5", focused && "bg-[var(--row-hover)] shadow-[inset_3px_0_0_var(--primary)]")}
     >
       {header}
       {children}

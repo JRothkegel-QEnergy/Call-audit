@@ -615,7 +615,7 @@ function CriterionRail({
       <p className="m-0 text-sm font-medium" aria-live="polite">
         {ready} de {rows.length} criterios listos
       </p>
-      <div aria-hidden className="h-1.5 overflow-hidden rounded-full bg-[var(--neutral-200,#e5e5e5)]">
+      <div aria-hidden className="h-1.5 overflow-hidden rounded-full bg-[var(--neutral-200)]">
         <div className="h-full bg-[var(--primary)]" style={{ width: `${rows.length ? (100 * ready) / rows.length : 0}%` }} />
       </div>
     </>
@@ -642,7 +642,7 @@ function CriterionRail({
           type="button"
           aria-current={motive === "all" || undefined}
           onClick={() => onSelect("all")}
-          className={`cursor-pointer rounded border-0 px-2 py-1.5 text-left font-medium hover:bg-[var(--neutral-100,#f4f4f4)] ${motive === "all" ? "bg-[var(--accent)]" : "bg-transparent"}`}
+          className={`cursor-pointer rounded border-0 px-2 py-1.5 text-left font-medium hover:bg-[var(--neutral-100)] ${motive === "all" ? "bg-[var(--accent)]" : "bg-transparent"}`}
         >
           Todos los criterios
         </button>
@@ -654,7 +654,7 @@ function CriterionRail({
                 aria-label={railLabel(r)}
                 aria-current={motive === r.id || undefined}
                 onClick={() => onSelect(r.id)}
-                className={`grid w-full cursor-pointer rounded border-0 px-2 py-1.5 text-left hover:bg-[var(--neutral-100,#f4f4f4)] ${motive === r.id ? "bg-[var(--accent)]" : "bg-transparent"}`}
+                className={`grid w-full cursor-pointer rounded border-0 px-2 py-1.5 text-left hover:bg-[var(--neutral-100)] ${motive === r.id ? "bg-[var(--accent)]" : "bg-transparent"}`}
               >
                 <span className="truncate text-sm">
                   {r.id} · {r.name}

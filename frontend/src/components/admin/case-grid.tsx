@@ -124,7 +124,7 @@ function Grid({ g, series }: { g: QualityGrid; series: QualitySeries }) {
                 <>
                   <span className="block h-[10px]" style={PARTS[c.segment].style} />
                   {rows.map((cid) => (
-                    <span key={cid} className="block h-[10px] bg-[var(--neutral-100,#f4f4f4)]" style={cellOf(c, cid)} />
+                    <span key={cid} className="block h-[10px] bg-[var(--neutral-100)]" style={cellOf(c, cid)} />
                   ))}
                 </>
               );
@@ -165,7 +165,7 @@ function Grid({ g, series }: { g: QualityGrid; series: QualitySeries }) {
           <Swatch part="undecided" /> Sin decisión de la IA
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span aria-hidden className="inline-block h-3 w-3 rounded-sm bg-[var(--neutral-100,#f4f4f4)]" /> Ninguno lo marca
+          <span aria-hidden className="inline-block h-3 w-3 rounded-sm bg-[var(--neutral-100)]" /> Ninguno lo marca
         </span>
       </p>
       <p className="help m-0">La fila Veredicto usa los colores del mosaico. Solo se muestran los criterios con alguna marca en estas llamadas.</p>

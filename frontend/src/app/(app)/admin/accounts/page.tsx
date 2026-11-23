@@ -18,8 +18,8 @@ import { useAsync } from "@/lib/use-async";
 
 type Status = UserAccount["status"];
 
-const STATUS: Record<Status, [string, "teal" | "neutral" | "ink"]> = {
-  active: ["Activo", "teal"],
+const STATUS: Record<Status, [string, "blue" | "neutral" | "ink"]> = {
+  active: ["Activo", "blue"],
   invited: ["Invitado", "neutral"],
   invite_expired: ["Invitación vencida", "neutral"],
   deactivated: ["Desactivado", "ink"],

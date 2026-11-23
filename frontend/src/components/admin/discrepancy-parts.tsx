@@ -31,7 +31,7 @@ export function PatternTags({ p }: { p: DiscrepancyPattern }) {
       {p.cause && <StatusBadge tone="ink">{CAUSE[p.cause]}</StatusBadge>}
       {confidence && <StatusBadge>{confidence}</StatusBadge>}
       <StatusBadge>{p.caseCount} desacuerdos</StatusBadge>
-      {(!p.isObservation || p.status !== "pending") && <StatusBadge tone={p.status === "pending" ? "doubt" : "teal"}>{statusLabel(p)}</StatusBadge>}
+      {(!p.isObservation || p.status !== "pending") && <StatusBadge tone={p.status === "pending" ? "doubt" : "blue"}>{statusLabel(p)}</StatusBadge>}
     </div>
   );
 }
@@ -204,7 +204,7 @@ export function ObservationRow({
         <StatusBadge>
           {p.caseCount} {p.caseCount === 1 ? "desacuerdo" : "desacuerdos"}
         </StatusBadge>
-        {p.status !== "pending" && <StatusBadge tone="teal">{statusLabel(p)}</StatusBadge>}
+        {p.status !== "pending" && <StatusBadge tone="blue">{statusLabel(p)}</StatusBadge>}
       </div>
       {p.explanation && <p className="help m-0">{p.explanation}</p>}
       {p.proposal?.editedText && <p className="m-0 text-sm">Para calibrar: {p.proposal.editedText}</p>}

@@ -7,7 +7,7 @@ import { CONDITIONS, IDENTIFICATION, TABLES, isList, show } from "./fields";
 
 export function CategoryBadge({ category }: { category: string }) {
   const label = CATEGORY_LABEL[category as ProductCategory] ?? category;
-  return <StatusBadge tone={category === "RETENIBLE" ? "teal" : "ink"}>{label}</StatusBadge>;
+  return <StatusBadge tone={category === "RETENIBLE" ? "blue" : "ink"}>{label}</StatusBadge>;
 }
 
 function Rows({ rows }: { rows: { label: string; value: string }[] }) {

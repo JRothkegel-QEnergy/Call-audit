@@ -766,7 +766,7 @@ function AgreeCriterion({
     >
       <summary className="cursor-pointer px-3 py-2">
         Criterio {c.criterionId} · {c.description} · Qubyt y planilla: <span className={c.reviewerFail ? "vt vt-fail" : "vt vt-pass"}>{both}</span>
-        {state && <b className={current === "both_wrong" ? "ml-1 text-[var(--danger,#b42318)]" : "ml-1"}> · {state}</b>}
+        {state && <b className={current === "both_wrong" ? "ml-1 text-[var(--red-700)]" : "ml-1"}> · {state}</b>}
       </summary>
       <div className="grid gap-1.5 border-t border-border p-3">
         <CriterionEvidence c={c} version={version} typification={typification} onListen={onListen} />

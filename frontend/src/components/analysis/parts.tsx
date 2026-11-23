@@ -257,7 +257,7 @@ export function CriterionStatusBadge({ status }: { status: CriterionStatus }) {
 export function MetricLink({ href, label, children }: { href: string | null; label: string; children: React.ReactNode }) {
   if (!href) return <span className="tabular">{children}</span>;
   return (
-    <Link href={href} aria-label={label} className="tabular inline-flex min-h-6 min-w-6 items-center font-semibold text-teal-700 underline-offset-2 hover:underline">
+    <Link href={href} aria-label={label} className="tabular inline-flex min-h-6 min-w-6 items-center font-semibold text-accent-foreground underline-offset-2 hover:underline">
       {children}
     </Link>
   );

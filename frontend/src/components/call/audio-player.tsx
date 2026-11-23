@@ -115,7 +115,7 @@ export function AudioPlayer({
               style={{ left: `${(f.evidence.startMs / durationMs) * 100}%` }}
             >
               {f.verdict === "non_compliant" ? (
-                <span className="block h-3 w-3 rounded-[2px] bg-red-700 shadow-[0_0_0_2px_#fff]" />
+                <span className="block h-3 w-3 rounded-[2px] bg-red-700 shadow-[0_0_0_2px_var(--white)]" />
               ) : (
                 <span className="block h-3 w-3 rounded-full border-2 border-dashed border-[var(--amber-600)] bg-[var(--amber-100)]" />
               )}

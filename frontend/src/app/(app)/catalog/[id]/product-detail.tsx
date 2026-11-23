@@ -203,7 +203,7 @@ function Editor({
       </div>
       <div className="sticky bottom-0 z-10 mt-4 flex flex-wrap items-center gap-2 rounded-t-lg border border-border bg-card px-4 py-3 shadow-md">
         {error && (
-          <p role="alert" className="m-0 mr-auto font-medium text-[var(--fail-700,#b42318)]">
+          <p role="alert" className="m-0 mr-auto font-medium text-[var(--red-700)]">
             {error}
             {error.startsWith("Otra persona") && (
               <Button variant="ghost" size="sm" onClick={() => router.refresh()}>
@@ -261,7 +261,7 @@ function History({ id, current, onRestored }: { id: string; current: number; onR
               {rows.map((v) => (
                 <tr key={v.version}>
                   <td className="num">
-                    v{v.version} {v.version === current && <StatusBadge tone="teal">Vigente</StatusBadge>}
+                    v{v.version} {v.version === current && <StatusBadge tone="blue">Vigente</StatusBadge>}
                   </td>
                   <td>{shortDateTime(v.createdAt)}</td>
                   <td>{v.author?.name ?? "—"}</td>

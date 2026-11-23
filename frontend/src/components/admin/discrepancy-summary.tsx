@@ -85,7 +85,7 @@ export function SummaryTab({
           </p>
         )}
         {data.stale && (
-          <p className="m-0 flex items-center gap-1.5 text-sm text-[var(--amber-700,#9a6700)]">
+          <p className="m-0 flex items-center gap-1.5 text-sm text-[var(--amber-800)]">
             <AlertTriangle size={14} aria-hidden />
             Patrones desactualizados:{" "}
             {data.stale.currentSeriesChanged && data.stale.currentSeries

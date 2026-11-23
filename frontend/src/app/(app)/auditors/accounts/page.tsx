@@ -13,8 +13,8 @@ import type { AccountStatus, AuditorAccount } from "@/lib/api/types";
 import { useAsync } from "@/lib/use-async";
 import { AuditorsTabs } from "../auditors-tabs";
 
-const STATUS: Record<AccountStatus, [string, "teal" | "neutral" | "ink"]> = {
-  active: ["Activo", "teal"],
+const STATUS: Record<AccountStatus, [string, "blue" | "neutral" | "ink"]> = {
+  active: ["Activo", "blue"],
   invited: ["Invitado", "neutral"],
   deactivated: ["Desactivado", "ink"],
 };

@@ -25,7 +25,7 @@ export function Dialog({
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Portal>
-        <RadixDialog.Overlay className="fixed inset-0 z-[80] bg-[rgb(13_15_18/0.45)]" />
+        <RadixDialog.Overlay className="fixed inset-0 z-[80] bg-[rgb(31_42_55/0.45)]" />
         <RadixDialog.Content
           className="fixed left-1/2 top-1/2 z-[81] grid max-h-[calc(100vh-32px)] w-[calc(100%-32px)] -translate-x-1/2 -translate-y-1/2 gap-3 overflow-auto rounded-xl bg-card p-5 shadow-lg"
           style={{ maxWidth: width }}
@@ -63,7 +63,7 @@ export function Sheet({
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Portal>
-        <RadixDialog.Overlay className="fixed inset-0 z-[70] bg-[rgb(13_15_18/0.2)]" />
+        <RadixDialog.Overlay className="fixed inset-0 z-[70] bg-[rgb(31_42_55/0.2)]" />
         <RadixDialog.Content
           className={cn(
             "fixed bottom-0 right-0 top-0 z-[71] grid w-[min(440px,100%)] content-start gap-3 overflow-auto border-l border-border bg-card p-5 shadow-lg",
