@@ -97,6 +97,8 @@ def verification_overview(version: str, session: DbSession, user: VerificationRe
         "n": len(ids) if ids is not None else len(ev.results or []),
         "agreement": block,
         "progress": {"total": len(items), "reviewed": reviewed, "pending": len(items) - reviewed},
+        # Cumple / No cumple según Qubyt por criterio, en las mismas llamadas del avance (22, AA1-AA4).
+        "criteria": verification.criteria_stats(ev, {it["caseId"] for it in items}),
         "me": assignments.my_summary(session, ev, user) if user.role == assignments.VERIFIER else None,
         "verifiers": [{"id": u.id, "name": u.name} for u in assignments.verifiers(session)]
         if user.role != assignments.VERIFIER
