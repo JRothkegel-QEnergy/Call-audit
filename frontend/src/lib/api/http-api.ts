@@ -67,6 +67,9 @@ const scopeParams = (scope?: VerificationScope) =>
         discrepancy: scope.discrepancy ?? undefined,
         sort: scope.sort ?? undefined,
         dir: scope.sort ? (scope.dir ?? "asc") : undefined,
+        rejected: scope.rejected != null ? String(scope.rejected) : undefined,
+        ai_verdict: scope.aiVerdict ?? undefined,
+        reviewer_verdict: scope.reviewerVerdict ?? undefined,
       }
     : {};
 

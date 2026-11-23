@@ -84,7 +84,7 @@ export const SEGMENT_SUPPORT: Record<CallList, string> = {
 export const CALL_STATUS: Record<CallVerification, string> = {
   pending: "Pendiente",
   confirmed: "Confirmada",
-  ai_wrong: "La IA se equivocó",
+  ai_wrong: "Qubyt se equivocó",
   inconclusive: "No concluyente",
   none: "Sin desacuerdos",
 };
@@ -96,7 +96,7 @@ export const VERDICT_CLASS: Record<Verdict3, string> = { compliant: "vt vt-pass"
 
 /** Botones del registro, con IA dudosa los dos primeros cambian (§4.2). */
 export function outcomeLabel(outcome: VerificationOutcome, aiUndecided: boolean): string {
-  if (outcome === "ai_error") return aiUndecided ? "El revisor tiene razón" : "Error de la IA";
+  if (outcome === "ai_error") return aiUndecided ? "El revisor tiene razón" : "Error de Qubyt";
   if (outcome === "reviewer_error") return aiUndecided ? "El revisor se equivocó" : "Error del revisor";
   if (outcome === "both_right") return "Ambos tienen razón";
   if (outcome === "both_wrong") return "Ambos se equivocaron";
@@ -120,5 +120,5 @@ export function summaryLine(segment: CallList, s: VerificationSummary): string |
   const margin = s.ci95 ? ` (margen ${p0(s.ci95[0])}-${p0(s.ci95[1])} %)` : "";
   if (segment === "reviewer" || segment === "agree")
     return `Error del revisor confirmado en ${s.confirmed} de ${s.reviewed} revisadas: ${p0(s.confirmed / s.reviewed)} %${margin}`;
-  return `La IA se equivocó en ${s.aiWrong} de ${s.reviewed} revisadas: ${p0(s.aiWrong / s.reviewed)} %${margin}`;
+  return `Qubyt se equivocó en ${s.aiWrong} de ${s.reviewed} revisadas: ${p0(s.aiWrong / s.reviewed)} %${margin}`;
 }

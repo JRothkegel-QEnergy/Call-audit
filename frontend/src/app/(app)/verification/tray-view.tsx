@@ -4,29 +4,30 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CallSearch } from "@/components/call-search";
 import { AdminHeader } from "@/components/admin/admin-header";
-import { CALL_STATUS, VERDICT, VERDICT_CLASS } from "@/components/admin/verification-labels";
+import { VERDICT, VERDICT_CLASS } from "@/components/admin/verification-labels";
 import { Button } from "@/components/ui/button";
 import { nextSort, SortableTh } from "@/components/ui/sortable-th";
 import { AsyncView, EmptyState } from "@/components/ui/states";
+import { cn } from "@/lib/cn";
 import { api } from "@/lib/api";
 import type {
-  CallVerification,
-  Discrepancy,
   SegmentCall,
   SegmentCalls,
+  SegmentDisagreement,
   SortDirection,
   Tray,
   TraySort,
+  Verdict3,
   VerifierSummary,
 } from "@/lib/api/admin-types";
-import { int, shortDate, shortDateTime } from "@/lib/format";
+import { int, personName, shortDate, shortDateTime } from "@/lib/format";
 import { useAsync } from "@/lib/use-async";
-import { discrepancyFromParam, dirFromParam, scopeQuery, SORT_PARAM, sortFromParam, trayPath } from "@/lib/verification-scope";
+import { dirFromParam, scopeQuery, SORT_PARAM, sortFromParam, trayPath, verdictFromParam } from "@/lib/verification-scope";
 
 /**
- * Bandejas del verificador (docs/ux/admin-prompt-metrics/18-verificador-bandeja-y-revisadas.md): «Por revisar» (sus
- * llamadas asignadas que faltan, en el orden aleatorio fijo) y «Revisadas» (lo ya revisado, la más reciente primero).
- * Las dos resuelven la versión con la última corrida completa terminada.
+ * Bandejas del verificador (docs/ux/admin-prompt-metrics/18-verificador-bandeja-y-revisadas.md, ajustadas en
+ * 21-ajustes-vista-verificador.md): «Por revisar» (sus llamadas asignadas que faltan, en el orden aleatorio fijo) y
+ * «Revisadas» (lo ya revisado, la más reciente primero). Las dos resuelven la versión con la última corrida completa.
  */
 export function TrayView({ tray }: { tray: Tray }) {
   const home = useAsync(() => api.getVerificationHome(), []);
@@ -53,74 +54,102 @@ const DESCRIPTION: Record<Tray, string> = {
 };
 
 const SORT_LABEL: Record<TraySort, string> = {
-  call: "Llamada",
-  date: "Fecha",
-  ai: "Qubyt",
-  reviewer: "Planilla",
-  reviewed: "Revisada el",
+  call: "ID de llamada",
+  date: "Fecha llamada",
+  ai: "Veredicto Qubyt",
+  reviewer: "Veredicto revisor",
+  reviewed: "Fecha de revisión",
 };
 
-// Nombre de la columna dentro de una frase: en minúscula, salvo la marca Qubyt.
-const sortName = (sort: TraySort) => (sort === "ai" ? SORT_LABEL.ai : SORT_LABEL[sort].toLowerCase());
+// Nombre de la columna dentro de una frase: primera letra en minúscula («veredicto Qubyt»).
+const sortName = (sort: TraySort) => SORT_LABEL[sort].charAt(0).toLowerCase() + SORT_LABEL[sort].slice(1);
+const dirName = (dir: SortDirection | null) => (dir === "desc" ? "descendente" : "ascendente");
 
 /** «Ordenado por {columna}, ascendente|descendente» o el orden por defecto de la bandeja. */
 const sortText = (tray: Tray, sort: TraySort | null, dir: SortDirection | null) =>
   sort
-    ? `Ordenado por ${sortName(sort)}, ${dir === "desc" ? "descendente" : "ascendente"}`
+    ? `Ordenado por ${sortName(sort)}, ${dirName(dir)}`
     : tray === "pending"
       ? "Orden aleatorio fijo"
-      : "Ordenado por revisada el, descendente";
+      : "Ordenado por fecha de revisión, descendente";
 
 function TrayHeader({ tray, actions, sort = null, dir = null }: { tray: Tray; actions?: React.ReactNode; sort?: TraySort | null; dir?: SortDirection | null }) {
   const description =
     tray === "pending" && sort
-      ? `Tus llamadas asignadas que faltan por revisar, ordenadas por ${sortName(sort)}, ${dir === "desc" ? "descendente" : "ascendente"}.`
+      ? `Tus llamadas asignadas que faltan por revisar, ordenadas por ${sortName(sort)}, ${dirName(dir)}.`
       : DESCRIPTION[tray];
   return <AdminHeader title={TITLE[tray]} description={description} actions={actions} />;
 }
 
-const DISCREPANCY_OPTIONS: [Discrepancy, string][] = [
-  ["fn", "Qubyt aprueba, el revisor rechaza"],
-  ["fp", "Qubyt rechaza, el revisor aprueba"],
-  ["undecided", "Qubyt en duda"],
-  ["criteria", "Mismo veredicto, distintos criterios"],
-  ["none", "Sin discrepancias"],
+const AI_OPTIONS: [Verdict3, string][] = [
+  ["compliant", "Cumple"],
+  ["non_compliant", "No cumple"],
+  ["uncertain", "Dudosa"],
+];
+const REVIEWER_OPTIONS: ["compliant" | "non_compliant", string][] = [
+  ["compliant", "Cumple"],
+  ["non_compliant", "No cumple"],
 ];
 
-// «Ambos se equivocaron»: llamadas con algún criterio en acuerdo rechazado (20, Y4 A); también cuentan en «Qubyt se
-// equivocó».
-type Result = Exclude<CallVerification, "pending"> | "both_wrong";
-const RESULTS: [Result, string][] = [
-  ["confirmed", "Confirmada"],
-  ["ai_wrong", "Qubyt se equivocó"],
-  ["both_wrong", "Ambos se equivocaron"],
-  ["inconclusive", "No concluyente"],
-  ["none", "Sin observaciones"],
-];
-
-const resultLabel = (i: SegmentCall) => {
-  const base = i.verification === "none" ? "Sin observaciones" : CALL_STATUS[i.verification];
-  const both = i.bothWrong ?? 0;
-  return both > 0 ? `${base} · ambos se equivocaron en ${both} ${both === 1 ? "criterio" : "criterios"}` : base;
-};
-
+/** Avance de una llamada pendiente (21): «Por revisar» o «{k} de {t} criterios». */
 function progressLabel(i: SegmentCall) {
   const total = i.disagreements.length;
-  if (total === 0) return "Sin desacuerdos · por confirmar";
   const done = i.disagreements.filter((d) => d.outcome).length;
-  return done === 0 ? "Sin empezar" : `${done} de ${total} criterios`;
+  return done === 0 ? "Por revisar" : `${done} de ${total} criterios`;
+}
+
+/** Marca de un criterio ya registrado (21, Z2 A): ✓ Qubyt tenía razón · ✗ Qubyt se equivocó · ? ambiguo o falta info. */
+function mark(d: SegmentDisagreement): { sign: string; text: string } | null {
+  if (!d.outcome) return null;
+  if (d.outcome === "reviewer_error") return { sign: "✓", text: "Qubyt tenía razón" };
+  if (d.outcome === "ai_error") return { sign: "✗", text: "Qubyt se equivocó" };
+  return { sign: "?", text: "ambiguo o falta información" };
+}
+
+const KIND_TEXT: Record<SegmentDisagreement["kind"], string> = {
+  fp: "Lo rechaza Qubyt",
+  fn: "Lo rechaza el revisor",
+  undecided: "Qubyt en duda",
+};
+
+/** Criterios de la llamada (21, Z1 A): primero los que rechaza Qubyt (rojo); después, en gris, los demás por revisar. */
+function CriteriaCell({ items, filtered }: { items: SegmentDisagreement[]; filtered: number | null }) {
+  const ordered = [...items.filter((d) => d.kind === "fp"), ...items.filter((d) => d.kind !== "fp")];
+  if (ordered.length === 0) return <span className="help">—</span>;
+  return (
+    <span className="flex flex-wrap gap-1">
+      {ordered.map((d) => {
+        const m = mark(d);
+        return (
+          <span
+            key={d.criterionId}
+            className={cn("chip", d.kind === "fp" ? "chip-fail" : "chip-muted", d.criterionId === filtered && "font-bold ring-2 ring-[var(--ring)]")}
+            title={`${KIND_TEXT[d.kind]}${m ? ` · ${m.text}` : " · sin revisar"}`}
+          >
+            C{d.criterionId}
+            {m && <span aria-hidden> {m.sign}</span>}
+            <span className="sr-only">
+              {" "}
+              {KIND_TEXT[d.kind].toLowerCase()}, {m ? m.text : "sin revisar"}
+            </span>
+          </span>
+        );
+      })}
+    </span>
+  );
 }
 
 function TrayList({ tray, version, me }: { tray: Tray; version: string; me: VerifierSummary }) {
   const params = useSearchParams();
   const motivo = params.get("motivo") ? Number(params.get("motivo")) : null;
-  const discrepancy = discrepancyFromParam(params.get("discrepancia"));
+  const aiVerdict = verdictFromParam(params.get("qubyt"));
+  const reviewerVerdict = verdictFromParam(params.get("revisor")) as "compliant" | "non_compliant" | null;
   const sort = sortFromParam(params.get("orden"));
   const dir = sort ? (dirFromParam(params.get("dir")) ?? "asc") : null;
-  const scope = { source: "full" as const, assignee: "me", tray, discrepancy, sort, dir };
+  const scope = { source: "full" as const, assignee: "me", tray, sort, dir, rejected: motivo, aiVerdict, reviewerVerdict };
   const state = useAsync(
     () => api.getSegmentCalls(version, "all", motivo, { scope }),
-    [version, tray, motivo, discrepancy, sort, dir],
+    [version, tray, motivo, aiVerdict, reviewerVerdict, sort, dir],
   );
   const actions = (
     <span className="help tabular" aria-live="polite">
@@ -142,8 +171,8 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
   const pathname = usePathname();
   const params = useSearchParams();
   const motivo = data.criterion;
-  const discrepancy = discrepancyFromParam(params.get("discrepancia"));
-  const result = params.get("resultado") as Result | null;
+  const aiVerdict = verdictFromParam(params.get("qubyt"));
+  const reviewerVerdict = verdictFromParam(params.get("revisor")) as "compliant" | "non_compliant" | null;
   const call = params.get("llamada");
   const sort = sortFromParam(params.get("orden"));
   const dir = sort ? (dirFromParam(params.get("dir")) ?? "asc") : null;
@@ -169,28 +198,24 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
   const th = (column: TraySort) => (
     <SortableTh label={SORT_LABEL[column]} dir={sort === column ? dir : null} onClick={() => sortBy(column)} />
   );
-  const scope = { source: "full" as const, assignee: "me", tray, discrepancy, sort, dir };
+  const scope = { source: "full" as const, assignee: "me", tray, sort, dir, rejected: motivo, aiVerdict, reviewerVerdict };
   const caseHref = (caseId: string) =>
     `/admin/prompts/${encodeURIComponent(version)}/calls/${encodeURIComponent(caseId)}?segment=all${
       motivo != null ? `&motivo=${motivo}` : ""
     }${scopeQuery(scope)}`;
 
   const { items } = data;
-  const resultOf = (i: SegmentCall): Result => (i.verification === "pending" ? "none" : i.verification);
   // El orden lo da el servidor (bandeja + columna), el mismo que siguen Anterior/Siguiente (19, X5 A).
-  const shown = items
-    .filter(
-      (i) => tray !== "reviewed" || !result || (result === "both_wrong" ? (i.bothWrong ?? 0) > 0 : resultOf(i) === result),
-    )
-    .filter((i) => !call || i.callId.startsWith(call));
-
-  const counts = data.discrepancyCounts;
-  const totalCounts = counts ? Object.values(counts).reduce((a, b) => a + b, 0) : items.length;
-  const filtered = motivo != null || discrepancy != null || !!result || !!call;
+  const shown = items.filter((i) => !call || i.callId.startsWith(call));
+  const filtered = motivo != null || aiVerdict != null || reviewerVerdict != null || !!call;
   const clear = () => router.replace(pathname, { scroll: false });
+  const ai = data.verdictCounts?.ai;
+  const reviewer = data.verdictCounts?.reviewer;
+  const sum = (r?: Record<string, number>) => (r ? Object.values(r).reduce((a, b) => a + b, 0) : items.length);
+  const calls = (n: number) => `${int(n)} ${n === 1 ? "llamada" : "llamadas"}`;
 
   // Bandeja vacía sin filtros: todo hecho (Por revisar) o nada aún (Revisadas).
-  if (items.length === 0 && motivo == null && discrepancy == null) {
+  if (items.length === 0 && !filtered) {
     return tray === "pending" ? (
       <EmptyState title={`¡Listo! Revisaste tus ${int(me.assigned)} llamadas.`} body="Si el admin te asigna más, aparecerán aquí.">
         <Button onClick={() => router.push(trayPath("reviewed"))}>Ver revisadas</Button>
@@ -208,45 +233,41 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
       <div className="mb-3 flex flex-wrap items-center gap-2" role="search">
         <CallSearch value={call ?? undefined} onChange={(v) => set("llamada", v)} />
         <label className="flex items-center gap-1.5 text-sm">
-          Discrepancia:
-          <select className="control" value={discrepancy ?? ""} onChange={(e) => set("discrepancia", e.target.value || null)}>
-            <option value="">
-              Todas · {int(totalCounts)} {totalCounts === 1 ? "llamada" : "llamadas"}
-            </option>
-            {DISCREPANCY_OPTIONS.map(([k, label]) => (
+          Criterios rechazados por Qubyt:
+          <select className="control" value={motivo ?? ""} onChange={(e) => set("motivo", e.target.value || null)}>
+            <option value="">Todos</option>
+            {(data.rejectedCounts ?? []).map((c) => (
+              <option key={c.criterionId} value={c.criterionId}>
+                C{c.criterionId} · {calls(c.calls)}
+              </option>
+            ))}
+            {motivo != null && !data.rejectedCounts?.some((c) => c.criterionId === motivo) && (
+              <option value={motivo}>C{motivo} · 0 llamadas</option>
+            )}
+          </select>
+        </label>
+        <label className="flex items-center gap-1.5 text-sm">
+          Veredicto Qubyt:
+          <select className="control" value={aiVerdict ?? ""} onChange={(e) => set("qubyt", e.target.value || null)}>
+            <option value="">Todos · {calls(sum(ai))}</option>
+            {AI_OPTIONS.filter(([k]) => k !== "uncertain" || (ai?.uncertain ?? 0) > 0 || aiVerdict === "uncertain").map(([k, label]) => (
               <option key={k} value={k}>
-                {label} · {int(counts?.[k] ?? 0)}
+                {label} · {int(ai?.[k] ?? 0)}
               </option>
             ))}
           </select>
         </label>
         <label className="flex items-center gap-1.5 text-sm">
-          Criterio:
-          <select className="control" value={motivo ?? ""} onChange={(e) => set("motivo", e.target.value || null)}>
-            <option value="">Todos los criterios</option>
-            {(data.criterionCounts ?? []).map((c) => (
-              <option key={c.criterionId} value={c.criterionId}>
-                Criterio {c.criterionId} · {int(c.calls)} {c.calls === 1 ? "llamada" : "llamadas"}
+          Veredicto revisor:
+          <select className="control" value={reviewerVerdict ?? ""} onChange={(e) => set("revisor", e.target.value || null)}>
+            <option value="">Todos · {calls(sum(reviewer))}</option>
+            {REVIEWER_OPTIONS.map(([k, label]) => (
+              <option key={k} value={k}>
+                {label} · {int(reviewer?.[k] ?? 0)}
               </option>
             ))}
-            {motivo != null && !data.criterionCounts?.some((c) => c.criterionId === motivo) && (
-              <option value={motivo}>Criterio {motivo} · 0 llamadas</option>
-            )}
           </select>
         </label>
-        {tray === "reviewed" && (
-          <label className="flex items-center gap-1.5 text-sm">
-            Resultado:
-            <select className="control" value={result ?? ""} onChange={(e) => set("resultado", e.target.value || null)}>
-              <option value="">Todos</option>
-              {RESULTS.map(([k, label]) => (
-                <option key={k} value={k}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
         <span className="help" aria-live="polite">
           {sortText(tray, sort, dir)}
         </span>
@@ -273,14 +294,10 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
           </p>
         ) : (
           <p className="empty-state">
-            {discrepancy && !motivo && !result
-              ? `Ninguna de tus llamadas ${tray === "pending" ? "pendientes" : "revisadas"} es de este tipo.`
-              : "No hay llamadas con este filtro."}{" "}
-            {filtered && (
-              <button type="button" className="underline" onClick={clear}>
-                Quitar filtro
-              </button>
-            )}
+            No hay llamadas con este filtro.{" "}
+            <button type="button" className="underline" onClick={clear}>
+              Quitar filtros
+            </button>
           </p>
         )
       ) : (
@@ -288,18 +305,19 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
           <table className="tbl">
             <thead>
               <tr>
-                {tray === "pending" && (
-                  <th scope="col" className="num">
-                    #
-                  </th>
-                )}
                 {th("call")}
                 {th("date")}
                 {th("ai")}
                 {th("reviewer")}
-                <th scope="col">Criterios</th>
-                <th scope="col">{tray === "pending" ? "Avance" : "Resultado"}</th>
-                {tray === "reviewed" && th("reviewed")}
+                <th scope="col">Criterios rechazados por Qubyt</th>
+                {tray === "pending" ? (
+                  <th scope="col">Avance</th>
+                ) : (
+                  <>
+                    <th scope="col">Revisor</th>
+                    {th("reviewed")}
+                  </>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -313,7 +331,6 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
                     if (e.key === "Enter") router.push(caseHref(i.caseId));
                   }}
                 >
-                  {tray === "pending" && <td className="num">{i.order}</td>}
                   <td>
                     <Link href={caseHref(i.caseId)} onClick={(e) => e.stopPropagation()} tabIndex={-1}>
                       {i.callId}
@@ -327,29 +344,16 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
                     <span className={VERDICT_CLASS[i.reviewerVerdict]}>{VERDICT[i.reviewerVerdict]}</span>
                   </td>
                   <td>
-                    <span className="flex flex-wrap gap-1">
-                      {i.disagreements.length === 0 && <span className="help">—</span>}
-                      {i.disagreements.map((d) => (
-                        <span
-                          key={d.criterionId}
-                          className={d.criterionId === motivo ? "chip border-2 border-foreground font-bold" : "chip"}
-                          title={
-                            d.kind === "undecided"
-                              ? "Qubyt quedó en duda"
-                              : d.kind === "fn"
-                                ? "Qubyt aprueba, la planilla rechaza"
-                                : "Qubyt rechaza, la planilla aprueba"
-                          }
-                        >
-                          M{d.criterionId}
-                          {d.outcome && <span aria-hidden> ✓</span>}
-                          <span className="sr-only">{d.outcome ? " registrado" : " sin registrar"}</span>
-                        </span>
-                      ))}
-                    </span>
+                    <CriteriaCell items={i.disagreements} filtered={motivo} />
                   </td>
-                  <td>{tray === "pending" ? progressLabel(i) : resultLabel(i)}</td>
-                  {tray === "reviewed" && <td>{i.lastReviewedAt ? shortDateTime(i.lastReviewedAt) : "—"}</td>}
+                  {tray === "pending" ? (
+                    <td>{progressLabel(i)}</td>
+                  ) : (
+                    <>
+                      <td>{personName(i.evaluator) || "—"}</td>
+                      <td>{i.lastReviewedAt ? shortDateTime(i.lastReviewedAt) : "—"}</td>
+                    </>
+                  )}
                 </tr>
               ))}
             </tbody>

@@ -49,3 +49,14 @@ export function minutesAgo(iso: string, now = Date.now()): string {
 export function plural(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`;
 }
+
+/** Nombre de persona legible desde un usuario tipo «valeria.salinas» o «VALERIA_SALINAS»: «Valeria Salinas» (21). */
+export function personName(raw: string | null | undefined): string {
+  if (!raw) return "";
+  return raw
+    .trim()
+    .split(/[\s._-]+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toLocaleUpperCase("es-CL") + w.slice(1).toLocaleLowerCase("es-CL"))
+    .join(" ");
+}

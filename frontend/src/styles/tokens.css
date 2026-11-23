@@ -70,8 +70,10 @@
   --ring: var(--blue-600);            /* foco: 2px + offset 2px */
 
   /* ---------- Dominio: resultado por MOTIVO (D-20) ---------- */
-  --verdict-fail-bg: var(--red-700);       /* Incumple: sólido, máxima atención */
-  --verdict-fail-fg: var(--white);
+  /* Incumple: rojo pastel con texto oscuro (21: sin colores fuertes en los badges; 7.9:1) */
+  --verdict-fail-bg: var(--red-200);
+  --verdict-fail-fg: var(--red-800);
+  --verdict-fail-border: var(--red-200);
   --verdict-fail-soft: var(--red-100);     /* fondo del ítem en foco */
   --verdict-doubt-bg: var(--amber-100);    /* Dudoso */
   --verdict-doubt-fg: var(--amber-800);

@@ -182,6 +182,52 @@ def row_status(row: dict, records: dict) -> str:
     return call_status([d["outcome"] for d in disagreements(row, records)], rejected_agreements(row, records))
 
 
+def tray_facets(
+    session: Session,
+    evaluation: PromptEvaluation,
+    rejected: int | None,
+    ai_verdict: str | None,
+    reviewer_verdict: str | None,
+) -> tuple[set[str], dict[str, Any]]:
+    """Filtros de las bandejas del verificador (21-ajustes-vista-verificador, Z1 A): criterio rechazado por Qubyt
+    (solo los que Qubyt rechaza y la planilla aprueba, `kind == "fp"`), veredicto de Qubyt y veredicto del revisor.
+
+    Devuelve las llamadas que pasan los tres filtros y los conteos de cada uno, calculados sin ese mismo filtro."""
+    rows, _ = evaluation_rows(session, evaluation)
+    records = records_for(session, [r["caseId"] for r in rows])
+    status = {r["caseId"]: row_status(r, records) for r in rows}
+
+    def rejected_by_ai(row: dict) -> set[int]:
+        return {i["criterionId"] for i in row["items"] if i["kind"] == "fp"}
+
+    def keep(row: dict, skip: str) -> bool:
+        return (
+            (skip == "rejected" or rejected is None or rejected in rejected_by_ai(row))
+            and (skip == "ai" or ai_verdict is None or row["result"]["verdict"] == ai_verdict)
+            and (skip == "reviewer" or reviewer_verdict is None or row["result"]["external"] == reviewer_verdict)
+        )
+
+    calls: Counter[int] = Counter()
+    pending: Counter[int] = Counter()
+    for row in (r for r in rows if keep(r, "rejected")):
+        for cid in rejected_by_ai(row):
+            calls[cid] += 1
+            pending[cid] += status[row["caseId"]] == "pending"
+    ai = Counter(r["result"]["verdict"] for r in rows if keep(r, "ai"))
+    reviewer = Counter(r["result"]["external"] for r in rows if keep(r, "reviewer"))
+    facets = {
+        "rejectedCounts": [
+            {"criterionId": cid, "calls": n, "pending": pending[cid]}
+            for cid, n in sorted(calls.items(), key=lambda kv: (-kv[1], kv[0]))
+        ],
+        "verdictCounts": {
+            "ai": {v: ai[v] for v in (PASS, FAIL, "uncertain")},
+            "reviewer": {v: reviewer[v] for v in (PASS, FAIL)},
+        },
+    }
+    return {r["caseId"] for r in rows if keep(r, "")}, facets
+
+
 def sort_items(items: list[dict], sort: str | None, direction: str | None, last: dict[str, str | None]) -> list[dict]:
     """Orden por columna de las bandejas (19, X4 A). Sin `sort` válido, el orden de entrada. Los empates conservan el
     orden de entrada (el de la bandeja). `last`: fecha del último registro por llamada (columna «Revisada el»)."""
@@ -309,6 +355,8 @@ def segment_calls(
         case = cases.get(it["caseId"])
         it["callDate"] = case.call_date if case else ""
         it["typification"] = typification_out(case) if case else None
+        # Evaluador de la planilla («Revisor» en Revisadas, 21 Z3 A).
+        it["evaluator"] = (case.call_metadata or {}).get("external_evaluator") if case else None
     return {
         "version": evaluation.version,
         "evaluationId": evaluation.id,

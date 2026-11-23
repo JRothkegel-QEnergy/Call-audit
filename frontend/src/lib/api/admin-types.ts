@@ -215,6 +215,8 @@ export interface SegmentCall {
   discrepancy?: Discrepancy;
   /** Criterios en acuerdo marcados «los dos se equivocaron» (20, Y4 A). */
   bothWrong?: number;
+  /** Evaluador de la planilla, tal como viene (p. ej. «valeria.salinas»); se muestra con `personName` (21, Z3 A). */
+  evaluator?: string | null;
 }
 
 export interface SegmentCalls {
@@ -235,6 +237,10 @@ export interface SegmentCalls {
   criterionCounts?: CriterionCount[];
   /** Corrida completa: llamadas por tipo de discrepancia, sin aplicar ese filtro (18, W6 A). */
   discrepancyCounts?: Record<Discrepancy, number>;
+  /** Bandejas (21, Z1 A): por criterio, llamadas en que Qubyt lo rechaza y la planilla lo aprueba. */
+  rejectedCounts?: CriterionCount[];
+  /** Bandejas (21): llamadas por veredicto de Qubyt y del revisor, cada uno sin su propio filtro. */
+  verdictCounts?: { ai: Record<Verdict3, number>; reviewer: Record<"compliant" | "non_compliant", number> };
 }
 
 /** Bandeja del verificador (18, W1-W4): Por revisar o Revisadas. */
@@ -329,6 +335,10 @@ export interface VerificationScope {
   /** Orden por columna (19, X5 A): Anterior/Siguiente recorren la bandeja en ese orden. */
   sort?: TraySort | null;
   dir?: SortDirection | null;
+  /** Filtros de las bandejas (21, Z1 A): criterio rechazado por Qubyt y veredictos. */
+  rejected?: number | null;
+  aiVerdict?: Verdict3 | null;
+  reviewerVerdict?: "compliant" | "non_compliant" | null;
 }
 
 export interface VerifierSummary {

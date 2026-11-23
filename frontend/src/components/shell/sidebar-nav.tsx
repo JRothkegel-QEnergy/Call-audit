@@ -146,10 +146,10 @@ export function SidebarNav({
     >
       <div className={cn("flex items-center gap-2.5 px-2 pb-[18px]", collapsed && "justify-center px-0")}>
         {collapsed ? (
-          <BrandLogo variant="symbol" height={28} />
+          <BrandLogo variant="symbol" height={44} />
         ) : (
           <span className="grid gap-1.5">
-            <BrandLogo height={28} />
+            <BrandLogo height={44} />
             <small className="block text-xs text-muted-foreground">Auditoría de llamadas</small>
           </span>
         )}

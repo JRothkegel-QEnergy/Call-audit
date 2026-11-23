@@ -1,4 +1,4 @@
-import type { Discrepancy, SortDirection, Tray, TraySort, VerificationScope } from "@/lib/api/admin-types";
+import type { Discrepancy, SortDirection, Tray, TraySort, VerificationScope, Verdict3 } from "@/lib/api/admin-types";
 
 /** Bandejas del verificador en la URL (18-verificador-bandeja-y-revisadas): `bandeja=pendientes|revisadas`. */
 const TRAY_PARAM: Record<Tray, string> = { pending: "pendientes", reviewed: "revisadas" };
@@ -22,6 +22,10 @@ export const discrepancyFromParam = (value: string | null): Discrepancy | null =
 export const sortFromParam = (value: string | null): TraySort | null =>
   (Object.entries(SORT_PARAM).find(([, v]) => v === value)?.[0] as TraySort | undefined) ?? null;
 
+const VERDICTS: Verdict3[] = ["compliant", "non_compliant", "uncertain"];
+export const verdictFromParam = (value: string | null): Verdict3 | null =>
+  VERDICTS.includes(value as Verdict3) ? (value as Verdict3) : null;
+
 export const dirFromParam = (value: string | null): SortDirection | null =>
   value === "asc" || value === "desc" ? value : null;
 
@@ -44,6 +48,9 @@ export function scopeFromParams(params: {
     discrepancy: discrepancyFromParam(params.get("discrepancia")),
     sort,
     dir: sort ? (dirFromParam(params.get("dir")) ?? "asc") : null,
+    rejected: params.get("rechazado") ? Number(params.get("rechazado")) : null,
+    aiVerdict: verdictFromParam(params.get("qubyt")),
+    reviewerVerdict: verdictFromParam(params.get("revisor")) as "compliant" | "non_compliant" | null,
   };
 }
 
@@ -56,7 +63,9 @@ export function scopeQuery(scope?: VerificationScope | null): string {
   if (!scope || scope.source !== "full") return "";
   return `&fuente=full${scope.assignee ? `&asignadas=${encodeURIComponent(scope.assignee)}` : ""}${
     scope.tray ? `&bandeja=${TRAY_PARAM[scope.tray]}` : ""
-  }${scope.discrepancy ? `&discrepancia=${scope.discrepancy}` : ""}${sortQuery(scope)}`;
+  }${scope.discrepancy ? `&discrepancia=${scope.discrepancy}` : ""}${sortQuery(scope)}${
+    scope.rejected != null ? `&rechazado=${scope.rejected}` : ""
+  }${scope.aiVerdict ? `&qubyt=${scope.aiVerdict}` : ""}${scope.reviewerVerdict ? `&revisor=${scope.reviewerVerdict}` : ""}`;
 }
 
 export const verificationHref = (version: string, assignee?: string | null) =>

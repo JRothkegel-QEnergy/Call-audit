@@ -504,6 +504,8 @@ Tray = Literal["pending", "reviewed"]
 Discrepancy = Literal["fn", "fp", "undecided", "criteria", "none"]
 Sort = Literal["date", "reviewed", "ai", "reviewer", "call"]
 Direction = Literal["asc", "desc"]
+AiVerdict = Literal["compliant", "non_compliant", "uncertain"]
+SheetVerdict = Literal["compliant", "non_compliant"]
 
 
 def verification_target(session: Session, version: str, source: str, user: User) -> PromptEvaluation:
@@ -533,6 +535,9 @@ def agreement_calls(
     discrepancy: Discrepancy | None = None,
     sort: Sort | None = None,
     dir: Direction | None = None,  # noqa: A002
+    rejected: int | None = None,
+    ai_verdict: AiVerdict | None = None,
+    reviewer_verdict: SheetVerdict | None = None,
 ):
     """Llamadas de una parte del mosaico (o de un lado, o de un motivo), en orden aleatorio fijo, con su verificación
     (04-verificacion-propuesta.md §9.1, 05-numeros-propuesta.md §7). Con `assignee`, solo las asignadas (13, V3).
@@ -543,6 +548,12 @@ def agreement_calls(
     trayed = assignments.tray(session, evaluation, ids, tray, discrepancy, criterion) if full else None
     if trayed is not None and (tray or discrepancy):
         ids = set(trayed["ids"])
+    facets = None
+    if full and tray:
+        # Filtros de las bandejas (21, Z1 A): criterio rechazado por Qubyt, veredicto de Qubyt y del revisor.
+        ids, facets = verification.tray_facets(
+            session, assignments.scoped(evaluation, ids), rejected, ai_verdict, reviewer_verdict
+        )
     try:
         data = verification.segment_calls(session, assignments.scoped(evaluation, ids), segment, criterion, vs, sample)
     except LookupError as exc:
@@ -555,6 +566,8 @@ def agreement_calls(
         if trayed is not None:
             it["lastReviewedAt"] = trayed["lastReviewedAt"].get(it["caseId"])
             it["discrepancy"] = assignments.discrepancy_of(it)
+    if facets is not None:
+        data.update(facets)
     if trayed is not None:
         data["discrepancyCounts"] = trayed["discrepancyCounts"]
         data["tray"] = tray
@@ -582,6 +595,9 @@ def agreement_case(
     discrepancy: Discrepancy | None = None,
     sort: Sort | None = None,
     dir: Direction | None = None,  # noqa: A002
+    rejected: int | None = None,
+    ai_verdict: AiVerdict | None = None,
+    reviewer_verdict: SheetVerdict | None = None,
 ):
     """Una llamada con lo que dijo la IA de esa versión frente a la planilla, motivo por motivo (§9.2), con a quién
     está asignada y si quien la mira puede registrar (13, V4). Con `tray`/`discrepancy`, Anterior/Siguiente recorren
@@ -595,7 +611,12 @@ def agreement_case(
         # La llamada abierta sigue en su lista aunque acabe de salir de la bandeja (p. ej. al registrar el último
         # criterio), para que «llamada i de t» y Siguiente no salten.
         keep = {case_id} if ids is None or case_id in ids else set()
-        ids = set(trayed["ids"]) | keep
+        ids = set(trayed["ids"])
+        if tray:  # los mismos filtros que la lista (21, Z1 A)
+            ids, _ = verification.tray_facets(
+                session, assignments.scoped(evaluation, ids), rejected, ai_verdict, reviewer_verdict
+            )
+        ids = ids | keep
     scoped = assignments.scoped(evaluation, ids)
     try:
         data = verification.case_comparison(session, scoped, segment, case_id, criterion)

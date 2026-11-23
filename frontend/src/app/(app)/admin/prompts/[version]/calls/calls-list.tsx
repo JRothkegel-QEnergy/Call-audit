@@ -277,7 +277,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
                           className={d.criterionId === motivo ? "chip border-2 border-foreground font-bold" : "chip"}
                           title={d.kind === "undecided" ? "La IA quedó dudosa" : d.kind === "fn" ? "La IA aprueba, la planilla rechaza" : "La IA rechaza, la planilla aprueba"}
                         >
-                          M{d.criterionId}
+                          C{d.criterionId}
                           {d.criterionId === motivo && <span className="sr-only"> (criterio filtrado)</span>}
                           {d.outcome && <span aria-hidden> ✓</span>}
                           <span className="sr-only">{d.outcome ? " registrado" : " sin registrar"}</span>

@@ -368,3 +368,38 @@ def test_old_disagreement_record_reads_as_agreement(
     crit = next(c for c in case["criteria"] if c["criterionId"] == 14)
     assert crit["verification"]["outcome"] == "both_right"
     assert case["verification"] == "none"
+
+
+def test_tray_filters_by_qubyt_rejected_criterion_and_verdicts(
+    client: TestClient,
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+    two: tuple[User, User],
+) -> None:
+    """21 (Z1 A): filtro por criterio rechazado por Qubyt (solo Qubyt No cumple y planilla Cumple), por veredicto de
+    Qubyt y del revisor, con conteos, y Anterior/Siguiente con los mismos filtros."""
+    ids = seed_full(imported, admin)
+    ana, _ = two
+    with imported() as session, session.begin():
+        for cid in ids:
+            session.add(VerificationAssignment(case_id=cid, user_id=ana.id, assigned_by_id=admin.id))
+    login(client, ana)
+    url = "/api/admin/prompts/9.8/agreement/calls"
+    base = {"segment": "all", "source": "full", "assignee": "me", "tray": "pending"}
+
+    data = client.get(url, params=base).json()
+    # El 14 lo rechaza solo la planilla (no cuenta); el 2 lo rechaza Qubyt y la planilla lo aprueba.
+    assert data["rejectedCounts"] == [{"criterionId": 2, "calls": 1, "pending": 1}]
+    assert data["verdictCounts"]["ai"] == {"compliant": 2, "non_compliant": 1, "uncertain": 0}
+    assert data["verdictCounts"]["reviewer"] == {"compliant": 2, "non_compliant": 1}
+    assert "evaluator" in data["items"][0]
+
+    assert [i["caseId"] for i in client.get(url, params={**base, "rejected": 2}).json()["items"]] == [ids[1]]
+    assert client.get(url, params={**base, "rejected": 14}).json()["items"] == []
+    only = client.get(url, params={**base, "ai_verdict": "compliant", "reviewer_verdict": "non_compliant"}).json()
+    assert [i["caseId"] for i in only["items"]] == [ids[0]]
+    # Cada conteo se calcula sin su propio filtro.
+    assert only["verdictCounts"]["ai"]["non_compliant"] == 0 and only["verdictCounts"]["reviewer"]["compliant"] == 1
+
+    case = client.get(f"{url}/{ids[1]}", params={"segment": "all", "tray": "pending", "rejected": 2}).json()
+    assert case["position"]["total"] == 1 and case["position"]["index"] == 1

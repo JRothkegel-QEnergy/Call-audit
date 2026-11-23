@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { LoadingState } from "@/components/ui/states";
 import type { CallList } from "@/lib/api/admin-types";
-import { dirFromParam, discrepancyFromParam, sortFromParam, trayFromParam } from "@/lib/verification-scope";
+import { scopeFromParams } from "@/lib/verification-scope";
 import { CaseReviewView } from "./case-review";
 
 type Search = {
@@ -14,6 +14,9 @@ type Search = {
   discrepancia?: string;
   orden?: string;
   dir?: string;
+  rechazado?: string;
+  qubyt?: string;
+  revisor?: string;
 };
 
 export default function PromptCasePage({
@@ -28,21 +31,13 @@ export default function PromptCasePage({
       {Promise.all([params, searchParams]).then(([{ version, caseId }, q]) => {
         // Las listas mandan el criterio como `motivo`; `criterio` queda por los enlaces antiguos.
         const criterion = q.motivo ?? q.criterio;
-        const sort = sortFromParam(q.orden ?? null);
         return (
           <CaseReviewView
             version={decodeURIComponent(version)}
             caseId={decodeURIComponent(caseId)}
             segment={(q.segment as CallList | undefined) ?? null}
             criterion={criterion ? Number(criterion) : null}
-            scope={{
-              source: q.fuente === "full" ? "full" : "test",
-              assignee: q.asignadas ?? null,
-              tray: trayFromParam(q.bandeja ?? null),
-              discrepancy: discrepancyFromParam(q.discrepancia ?? null),
-              sort,
-              dir: sort ? (dirFromParam(q.dir ?? null) ?? "asc") : null,
-            }}
+            scope={scopeFromParams({ get: (name) => (q as Record<string, string | undefined>)[name] ?? null })}
           />
         );
       })}

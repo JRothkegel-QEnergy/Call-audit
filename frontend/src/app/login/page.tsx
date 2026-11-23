@@ -53,7 +53,7 @@ export default function LoginPage() {
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       <section className="hidden flex-col justify-between bg-blue-900 p-12 text-white lg:flex">
         <div className="flex items-center gap-3">
-          <AnimatedBrandLogo height={40} />
+          <AnimatedBrandLogo height={80} />
         </div>
         <div>
           <h2 className="m-0 max-w-[420px] text-[28px] font-semibold leading-[34px]">Auditoría de llamadas</h2>

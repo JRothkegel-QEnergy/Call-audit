@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
-  CALL_STATUS_LONG,
   CAUSE,
   listTitle,
   OUTCOMES,
@@ -35,7 +34,7 @@ import type {
 } from "@/lib/api/admin-types";
 import type { CaseDetail, Evidence, Finding, Rubric, Typification } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
-import { mmss, shortDate, shortDateTime } from "@/lib/format";
+import { mmss, personName, shortDate, shortDateTime } from "@/lib/format";
 import { useSession } from "@/lib/session";
 import { loadRubric } from "@/lib/rubric";
 import { useAsync } from "@/lib/use-async";
@@ -62,7 +61,7 @@ export function CaseReviewView({
       loadRubric(),
     ]);
     return { cmp, call, rubric };
-  }, [version, caseId, segment, criterion, scope.source, scope.assignee, scope.tray, scope.discrepancy, scope.sort, scope.dir]);
+  }, [version, caseId, segment, criterion, scope.source, scope.assignee, scope.tray, scope.discrepancy, scope.sort, scope.dir, scope.rejected, scope.aiVerdict, scope.reviewerVerdict]);
   return (
     <AsyncView state={state} what="la llamada">
       {({ cmp, call, rubric }) => (
@@ -70,6 +69,11 @@ export function CaseReviewView({
       )}
     </AsyncView>
   );
+}
+
+/** La versión del prompt y el modelo solo los ve el admin; el verificador ve «Qubyt» (21). */
+function useIsAdmin() {
+  return useSession().user?.role === "qubico_admin";
 }
 
 /** Ficha abierta o plegada (07-ficha-en-caso.md, C2): se mantiene al pasar de caso, no al recargar la página. */
@@ -112,6 +116,8 @@ function CaseReview({
   const trayQuery = new URLSearchParams();
   if (motivo != null) trayQuery.set("motivo", String(motivo));
   if (scope.discrepancy) trayQuery.set("discrepancia", scope.discrepancy);
+  if (scope.aiVerdict) trayQuery.set("qubyt", scope.aiVerdict);
+  if (scope.reviewerVerdict) trayQuery.set("revisor", scope.reviewerVerdict);
   if (scope.sort) {
     trayQuery.set("orden", SORT_PARAM[scope.sort]);
     trayQuery.set("dir", scope.dir ?? "asc");
@@ -122,6 +128,15 @@ function CaseReview({
 
   const toVerify = cmp.criteria.filter((c) => TO_VERIFY.has(c.kind));
   const agreeing = cmp.criteria.filter((c) => !TO_VERIFY.has(c.kind));
+  // Estado de revisión (21): el mismo lenguaje que la columna Avance de Por revisar.
+  const toRecord = cmp.criteria.filter((c) => TO_VERIFY.has(c.kind)).length;
+  const recorded = cmp.criteria.filter((c) => TO_VERIFY.has(c.kind) && c.verification && !c.verification.stale).length;
+  const reviewed =
+    (toRecord > 0 && recorded === toRecord) ||
+    !!cmp.assignment?.reviewedAt ||
+    (cmp.bothWrong ?? 0) > 0 ||
+    (toRecord === 0 && cmp.verification !== "none" && cmp.verification !== "pending");
+  const reviewState = reviewed ? "Revisada" : recorded > 0 ? `${recorded} de ${toRecord} criterios revisados` : "Por revisar";
   // Foco inicial: el criterio de la lista si sigue sin registrar (16-lista-verificador-por-motivo, L3 A); si no, el primero
   // sin registrar.
   const [focus, setFocus] = useState(() => {
@@ -318,7 +333,8 @@ function CaseReview({
           {call.agent.name} · {call.products.join(", ") || "sin seguro"} · {mmss(cmp.durationMs)} min
         </p>
         <TypificationLine t={call.typification} className="m-0 block" />
-        <p className="help m-0">v{cmp.version} ({full ? "corrida completa" : "prueba de validación"})</p>
+        {/* La versión que corrió Qubyt solo la ve el admin (21). */}
+        {isAdmin && <p className="help m-0">v{cmp.version} ({full ? "corrida completa" : "prueba de validación"})</p>}
         {full && cmp.assignment && (
           <p className="m-0 flex flex-wrap items-center gap-2">
             {isAdmin && cmp.verifiers ? (
@@ -340,18 +356,18 @@ function CaseReview({
         )}
         <p className="m-0 flex flex-wrap items-center gap-x-4 gap-y-1">
           <span>
-            IA v{cmp.version}: <span className={VERDICT_CLASS[cmp.aiVerdict]}>{VERDICT[cmp.aiVerdict]}</span>
+            Qubyt{isAdmin ? ` v${cmp.version}` : ""}: <span className={VERDICT_CLASS[cmp.aiVerdict]}>{VERDICT[cmp.aiVerdict]}</span>
           </span>
           <span>
             Planilla: <span className={VERDICT_CLASS[cmp.reviewer.verdict]}>{VERDICT[cmp.reviewer.verdict]}</span>
           </span>
-          {cmp.reviewer.evaluator && <span>Evaluador de la planilla: {cmp.reviewer.evaluator}</span>}
+          {cmp.reviewer.evaluator && <span>Evaluador de la planilla: {personName(cmp.reviewer.evaluator)}</span>}
         </p>
         <p className="m-0">
           {cmp.reviewer.comment ? <>Comentario de la planilla: «{cmp.reviewer.comment}»</> : <span className="help">La planilla no trae comentario.</span>}
         </p>
         <p className="m-0" aria-live="polite">
-          Estado de la llamada: <b>{CALL_STATUS_LONG[cmp.verification]}</b>
+          Estado de revisión de la llamada: <b>{reviewState}</b>
         </p>
       </section>
 
@@ -364,7 +380,7 @@ function CaseReview({
       )}
 
       {!cmp.findingsAvailable && (
-        <div className="banner mb-2.5">Esta prueba no guardó los comentarios ni las citas de la IA. Se muestran solo los veredictos por criterio.</div>
+        <div className="banner mb-2.5">Esta prueba no guardó los comentarios ni las citas de Qubyt. Se muestran solo los veredictos por criterio.</div>
       )}
 
       <AudioPlayer
@@ -556,6 +572,7 @@ function CriterionCard({
   onSave: (outcome: VerificationOutcome, note: string | null) => void;
   onListen: (quote: string, startMs: number | null) => void;
 }) {
+  const admin = useIsAdmin();
   const v = c.verification;
   const current = v && !v.stale ? v.outcome : null;
   const undecided = c.kind === "undecided";
@@ -640,7 +657,7 @@ function CriterionCard({
         <p className="help m-0">
           Registrado por {v.by}
           {v.at ? ` el ${shortDateTime(v.at)}` : ""}
-          {v.versionAt !== version ? ` desde v${v.versionAt}` : ""}
+          {v.versionAt !== version ? (admin ? ` desde v${v.versionAt}` : " en una revisión anterior") : ""}
           {v.seenFirst ? " · con la explicación a la vista" : ""}
         </p>
       )}
@@ -649,14 +666,14 @@ function CriterionCard({
         (showExplanation ? (
           c.analysis ? (
             <p className="m-0 rounded bg-muted p-2">
-              Según la IA de análisis: <b>{c.analysis.title}</b>. {c.analysis.explanation} <span className="help">Causa: {CAUSE[c.analysis.cause] ?? c.analysis.cause}</span>
+              Según Qubyt: <b>{c.analysis.title}</b>. {c.analysis.explanation} <span className="help">Causa: {CAUSE[c.analysis.cause] ?? c.analysis.cause}</span>
             </p>
           ) : (
             <p className="help m-0">La IA de análisis no agrupó este desacuerdo en un patrón.</p>
           )
         ) : (
           <p className="help m-0">
-            Explicación de la IA de análisis: se muestra al registrar, para no influir en tu decisión.{" "}
+            Explicación de Qubyt: se muestra al registrar, para no influir en tu decisión.{" "}
             {canWrite ? (
               <button type="button" className="underline" onClick={onReveal}>
                 Mostrar explicación ahora
@@ -685,10 +702,11 @@ function CriterionEvidence({
   typification: Typification | null | undefined;
   onListen: (quote: string, startMs: number | null) => void;
 }) {
+  const admin = useIsAdmin();
   return (
     <>
       <p className="m-0">
-        Qubyt v{version}: <span className={VERDICT_CLASS[c.ai.verdict]}>{VERDICT[c.ai.verdict]}</span>
+        Qubyt{admin ? ` v${version}` : ""}: <span className={VERDICT_CLASS[c.ai.verdict]}>{VERDICT[c.ai.verdict]}</span>
       </p>
       {c.ai.evidence.length === 0 ? (
         <p className="help m-0">
@@ -750,6 +768,7 @@ function AgreeCriterion({
   onUndo: () => void;
   onListen: (quote: string, startMs: number | null) => void;
 }) {
+  const admin = useIsAdmin();
   const v = c.verification;
   const current = v && !v.stale ? v.outcome : null;
   const [noteOpen, setNoteOpen] = useState(!!v?.note);
@@ -820,7 +839,7 @@ function AgreeCriterion({
             Registrado por {v.by}
             {v.at ? ` el ${shortDateTime(v.at)}` : ""}
             {v.versionAt !== version
-              ? ` desde v${v.versionAt}: ${outcomeLabel(v.outcome, false)}`
+              ? `${admin ? ` desde v${v.versionAt}` : " en una revisión anterior"}: ${outcomeLabel(v.outcome, false)}`
               : ""}
           </p>
         )}

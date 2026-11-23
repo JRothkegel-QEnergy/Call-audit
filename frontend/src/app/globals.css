@@ -251,6 +251,19 @@
   .chip button:hover {
     background: var(--blue-200);
   }
+  /* Criterios en las bandejas del verificador (21, Z1 A): rechazados por Qubyt en rojo pastel; los demás, en gris. */
+  .chip-fail {
+    background: var(--red-100);
+    border-color: var(--red-200);
+    color: var(--red-800);
+    padding: 0 10px;
+  }
+  .chip-muted {
+    background: var(--muted);
+    border-color: var(--neutral-300);
+    color: var(--neutral-800);
+    padding: 0 10px;
+  }
 
   /* DataTable */
   .tbl {
@@ -310,11 +323,12 @@
   .vt-fail {
     background: var(--verdict-fail-bg);
     color: var(--verdict-fail-fg);
+    border-color: var(--verdict-fail-border);
   }
   .vt-doubt {
     background: var(--verdict-doubt-bg);
     color: var(--verdict-doubt-fg);
-    border: 1px dashed var(--verdict-doubt-border);
+    border: 1px solid var(--verdict-doubt-border);
   }
   .vt-pass {
     background: var(--verdict-pass-bg);
@@ -379,7 +393,7 @@
     height: 20px;
     font-size: 12px;
     font-weight: 500;
-    border: 1px dashed var(--source-ai-border);
+    border: 1px solid var(--source-ai-border);
     border-radius: var(--radius-full);
     padding: 0 8px;
     color: var(--source-ai-fg);
@@ -404,12 +418,13 @@
     font-variant-numeric: tabular-nums;
   }
   .nav-badge-alert {
-    background: var(--red-700);
+    background: var(--red-200);
+    color: var(--red-800);
   }
 
   /* Estados */
   .empty-state {
-    border: 1px dashed var(--neutral-300);
+    border: 1px solid var(--neutral-300);
     border-radius: var(--radius-lg);
     padding: 40px 32px;
     background: var(--card);
