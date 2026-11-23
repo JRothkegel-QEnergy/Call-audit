@@ -36,7 +36,7 @@ export function StatusBadge({
   title,
 }: {
   children: React.ReactNode;
-  tone?: "neutral" | "teal" | "ink" | "fail" | "doubt";
+  tone?: "neutral" | "blue" | "ink" | "fail" | "doubt";
   locked?: boolean;
   title?: string;
 }) {
@@ -48,7 +48,7 @@ export function StatusBadge({
     );
   }
   return (
-    <span className={cn("st", tone === "teal" && "st-teal", tone === "ink" && "st-ink")} title={title}>
+    <span className={cn("st", tone === "blue" && "st-blue", tone === "ink" && "st-ink")} title={title}>
       {locked && <Lock size={12} aria-hidden />}
       {children}
     </span>

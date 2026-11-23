@@ -50,7 +50,7 @@ export const PARTS: Record<Part, { name: string; support: string; style: React.C
     name: "IA Sí / Revisor No",
     support: "La IA dice que cumple y el revisor que no. Rechazo no detectado.",
     style: { background: "var(--prompt-fn-bg)" },
-    ink: "#fff",
+    ink: "var(--white)",
   },
   promptFp: {
     name: "IA No / Revisor Sí",
@@ -65,7 +65,7 @@ export const PARTS: Record<Part, { name: string; support: string; style: React.C
       background:
         "repeating-linear-gradient(45deg, rgb(255 255 255 / 0.25) 0 4px, transparent 4px 9px), var(--reviewer-bg)",
     },
-    ink: "#fff",
+    ink: "var(--white)",
   },
   undecided: {
     name: "Sin decisión de la IA",
@@ -77,7 +77,7 @@ export const PARTS: Record<Part, { name: string; support: string; style: React.C
     name: "Coincide con el revisor",
     support: "Mismo resultado que la planilla.",
     style: { background: "var(--agree-bg)" },
-    ink: "#fff",
+    ink: "var(--white)",
   },
 };
 
@@ -105,14 +105,14 @@ export const REASON_PARTS: Record<ReasonMatch, { name: string; list: AgreeList; 
     style: { background: "var(--reason-pass-bg)", boxShadow: "inset 0 0 0 1px var(--reason-pass-border)" },
     ink: "var(--ink-900)",
   },
-  same: { name: "Mismos criterios", list: "agreeSame", style: { background: "var(--reason-same-bg)" }, ink: "#fff" },
+  same: { name: "Mismos criterios", list: "agreeSame", style: { background: "var(--reason-same-bg)" }, ink: "var(--white)" },
   partial: {
     name: "Desacuerdo parcial",
     list: "agreePartial",
     style: { background: "var(--reason-partial-bg)", boxShadow: "inset 0 0 0 1px var(--reason-partial-border)" },
     ink: "var(--ink-900)",
   },
-  none: { name: "Desacuerdo total", list: "agreeNone", style: { background: "var(--reason-none-bg)" }, ink: "#fff" },
+  none: { name: "Desacuerdo total", list: "agreeNone", style: { background: "var(--reason-none-bg)" }, ink: "var(--white)" },
 };
 const REASON_ORDER: ReasonMatch[] = ["bothPass", "same", "partial", "none"];
 const reasonHref = (version: string, part: ReasonMatch, scope?: VerificationScope | null) =>

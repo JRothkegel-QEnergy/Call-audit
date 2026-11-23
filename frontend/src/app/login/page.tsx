@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BrandLogo } from "@/components/brand/logo";
+import { AnimatedBrandLogo } from "@/components/brand/logo";
 import { homeFor } from "@/components/shell/app-shell";
 import { Button } from "@/components/ui/button";
 import { api, isRealMode } from "@/lib/api";
@@ -51,17 +51,17 @@ export default function LoginPage() {
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
-      <section className="hidden flex-col justify-between bg-ink-900 p-12 text-white lg:flex">
+      <section className="hidden flex-col justify-between bg-blue-900 p-12 text-white lg:flex">
         <div className="flex items-center gap-3">
-          <BrandLogo onDark height={40} />
+          <AnimatedBrandLogo height={40} />
         </div>
         <div>
           <h2 className="m-0 max-w-[420px] text-[28px] font-semibold leading-[34px]">Auditoría de llamadas</h2>
-          <p className="max-w-[420px] text-[#c9ced4]">
-            La IA propone hallazgos sobre el 100 % de las llamadas. Las personas revisan y deciden.
+          <p className="max-w-[420px] text-on-dark-muted">
+            Qubyt propone hallazgos sobre el 100 % de las llamadas. Las personas revisan y deciden.
           </p>
         </div>
-        {!isRealMode && <p className="help text-[#9aa3ad]">Demo con datos sintéticos</p>}
+        {!isRealMode && <p className="help text-on-dark-subtle">Demo con datos sintéticos</p>}
       </section>
       <section className="grid place-items-center p-6">
         <form

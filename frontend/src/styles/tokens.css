@@ -1,6 +1,7 @@
 /*
- * Call Audit · Design tokens (Fase 8) · v1.0 · 2026-10-16
- * Base: app.css del zip (Modernist retocado: acento teal, superficies blancas, radios suaves) + marca Qubico (negro).
+ * Call Audit · Design tokens (Fase 8) · v1.1 · 2026-11-23 (Cambio 21: marca Qubyt)
+ * Base: app.css del zip (Modernist retocado: superficies blancas, radios suaves) + paleta de la presentación a S4P (azul Qubyt).
+ * Cambio 21 (D-98, D-100): rampa de acento renombrada a blue-*; detalle y contrastes en docs/ux/call-audit/21-marca-qubyt.md.
  * Nombres semánticos compatibles con shadcn/ui (--background, --foreground, --primary, ...) + tokens propios del dominio.
  * Contrastes validados (WCAG 2.2): ver 08-alta-fidelidad.md §1.2. Solo modo claro en el MVP.
  * Para Tailwind: mapear estas variables en el tema (ej. colors.primary = "var(--primary)").
@@ -8,23 +9,32 @@
 
 :root {
   /* ---------- Paleta base (rampas) ---------- */
-  --ink-900: #1b1f24;      /* texto principal · marca */
-  --ink-800: #23272d;
-  --neutral-800: #3a4048;
-  --neutral-700: #545b66;  /* texto secundario (6.85:1 sobre blanco) */
-  --neutral-600: #6e7682;  /* texto terciario: SOLO sobre blanco (4.59:1); sobre --background no alcanza */
-  --neutral-500: #8a929c;  /* borde de controles (3.15:1, WCAG 1.4.11) */
-  --neutral-300: #d6dbe0;
-  --neutral-200: #e2e6ea;  /* divisores decorativos */
-  --neutral-100: #f3f5f7;
-  --neutral-50:  #f5f7f8;
+  --ink-900: #1f2a37;      /* texto principal (14.54:1 sobre blanco, 13.43:1 sobre --background) */
+  --ink-800: #2a3645;
+  --neutral-800: #3a4656;  /* texto de "Cumple" */
+  --neutral-700: #5b6b7b;  /* texto secundario (5.48:1 blanco · 5.06:1 fondo · 4.83:1 sobre neutral-100) */
+  --neutral-600: #66737f;  /* texto terciario: SOLO sobre blanco (4.86:1); sobre --background no alcanza */
+  --neutral-500: #7b8794;  /* borde de controles (3.66:1 blanco · 3.38:1 fondo, WCAG 1.4.11) */
+  --neutral-300: #c9cfd6;
+  --neutral-200: #d5dce4;  /* divisores decorativos */
+  --neutral-100: #eef1f5;
+  --neutral-50:  #f4f6f9;
+  --row-hover:   #f7f9fb;  /* hover/foco de filas (transcripción, checklist, tablas) */
   --white: #ffffff;
 
-  --teal-800: #0b4843;
-  --teal-700: #0b5953;
-  --teal-600: #0f766e;     /* acento de marca / acción (5.47:1 con blanco) */
-  --teal-200: #c7e7e2;
-  --teal-100: #e7f4f2;
+  --blue-900: #133b64;     /* azul marino Qubyt: panel del login, texto de acento (11.43:1 blanco · 9.96:1 sobre blue-100) */
+  --blue-700: #2f5680;     /* hover de acción (7.60:1 con blanco) */
+  --blue-600: #3a6491;     /* azul Qubyt: acción y foco (6.16:1 blanco · 5.36:1 sobre blue-100) */
+  --blue-300: #c9d7e6;     /* rellenos claros de gráficos (tinta encima 9.93:1) */
+  --blue-200: #d6e2ee;     /* bordes de chips/estados (decorativo) */
+  --blue-100: #eaf0f6;     /* hover y nav activa */
+  --slate-blue-400: #9fb3c8; /* relleno de gráficos de la presentación (tinta encima 6.75:1; 2.15:1 vs blanco: solo relleno) */
+  --cyan-400: #61b4d1;     /* celeste Qubyt: SOLO decorativo o sobre blue-900 (4.88:1); 2.34:1 sobre blanco */
+  --selection: #bee0ec;    /* selección de texto (10.43:1 con tinta) */
+
+  /* Sobre fondo oscuro (panel del login en --blue-900) */
+  --on-dark-muted: #c9d4e0;  /* 7.61:1 */
+  --on-dark-subtle: #9fb3c8; /* 5.31:1 */
 
   --red-800: #7f2523;
   --red-700: #a8322f;      /* Incumple (6.64:1 con blanco) */
@@ -43,21 +53,21 @@
   --card-foreground: var(--ink-900);
   --popover: var(--white);
   --popover-foreground: var(--ink-900);
-  --primary: var(--teal-600);
-  --primary-hover: var(--teal-700);
+  --primary: var(--blue-600);
+  --primary-hover: var(--blue-700);
   --primary-foreground: var(--white);
   --secondary: var(--white);
   --secondary-foreground: var(--ink-900);
   --muted: var(--neutral-100);
   --muted-foreground: var(--neutral-700);
   --subtle-foreground: var(--neutral-600);
-  --accent: var(--teal-100);          /* hover y elemento activo de navegación */
-  --accent-foreground: var(--teal-800);
+  --accent: var(--blue-100);          /* hover y elemento activo de navegación */
+  --accent-foreground: var(--blue-900);
   --destructive: var(--red-700);      /* acciones destructivas (desactivar cuenta) */
   --destructive-foreground: var(--white);
   --border: var(--neutral-200);       /* divisores */
   --input: var(--neutral-500);        /* borde de inputs, selects, checkboxes */
-  --ring: var(--teal-600);            /* foco: 2px + offset 2px */
+  --ring: var(--blue-600);            /* foco: 2px + offset 2px */
 
   /* ---------- Dominio: resultado por MOTIVO (D-20) ---------- */
   --verdict-fail-bg: var(--red-700);       /* Incumple: sólido, máxima atención */
@@ -66,7 +76,7 @@
   --verdict-doubt-bg: var(--amber-100);    /* Dudoso */
   --verdict-doubt-fg: var(--amber-800);
   --verdict-doubt-border: var(--amber-600);
-  --verdict-pass-bg: var(--neutral-100);   /* Cumple: discreto a propósito (es lo normal) y distinto del teal de acción */
+  --verdict-pass-bg: var(--neutral-100);   /* Cumple: discreto a propósito (es lo normal) y distinto del azul de acción */
   --verdict-pass-fg: var(--neutral-800);
   --verdict-pass-border: var(--neutral-300);
 
@@ -77,34 +87,37 @@
 
   /* ---------- Dominio: serie por MODELO en gráficos de calidad de la IA (Cambio 15, D-57) ----------
      Color fijo por modelo (orden de models.toml). Contraste vs blanco / neutral-100 (WCAG 1.4.11, >= 3:1).
-     Nunca va solo: siempre acompaña al nombre de la corrida. */
-  --series-1: #2a78d6;  /* azul      4,42 / 4,04 */
-  --series-2: #c4501f;  /* óxido     4,65 / 4,26 */
-  --series-3: #0f8a5f;  /* verde     4,36 / 3,99 */
-  --series-4: #a86f00;  /* ocre      4,25 / 3,89 */
-  --series-5: #c2477a;  /* frambuesa 4,69 / 4,29 */
-  --series-6: #7a4fc4;  /* violeta   5,61 / 5,13 */
+     Nunca va solo: siempre acompaña al nombre de la corrida.
+     Cambio 21: series 1 y 3 pasan a la paleta Qubyt (azul y celeste oscuro); contrastes vs blanco / neutral-100 nuevo (#eef1f5). */
+  --series-1: #3a6491;  /* azul Qubyt          6,16 / 5,43 */
+  --series-2: #c4501f;  /* óxido               4,65 / 4,11 */
+  --series-3: #2a7d9a;  /* celeste oscuro Qubyt 4,67 / 4,12 */
+  --series-4: #a86f00;  /* ocre      4,25 / 3,75 */
+  --series-5: #c2477a;  /* frambuesa 4,69 / 4,14 */
+  --series-6: #7a4fc4;  /* violeta (lila del logo) 5,61 / 4,95 */
 
   /* ---------- Dominio: gráficos de Calidad del servicio (docs/ux/vistas-supervisor/09b §B.2, D-37) ----------
-     Magnitud «cuánto marca distinto» (una tonalidad, violeta). Cortes 5/10/15/25 %; desde 15 (= U) texto blanco. */
-  --seq-1: #efeaf8;
-  --seq-2: #d5c8ef;
-  --seq-3: #b09ae0;
-  --seq-4: #7656bf;
-  --seq-5: #5f3fa6;
-  /* Divergente «más o menos que el equipo» (ocre ↔ violeta, gris al centro). Cortes ±2 y ±5 pts. */
+     Magnitud «cuánto marca distinto» (una tonalidad, azul Qubyt; Cambio 21). Cortes 5/10/15/25 %; desde 15 (= U) texto blanco.
+     Tinta sobre seq-1..3: 12,66 / 9,93 / 6,75 · blanco sobre seq-4..5: 6,16 / 11,43. */
+  --seq-1: var(--blue-100);
+  --seq-2: var(--blue-300);
+  --seq-3: var(--slate-blue-400);
+  --seq-4: var(--blue-600);
+  --seq-5: var(--blue-900);
+  /* Divergente «más o menos que el equipo» (ocre ↔ azul Qubyt, gris al centro). Cortes ±2 y ±5 pts.
+     Blanco sobre pos-2 5,24 y neg-2 6,16 · tinta sobre pos-1 9,14 y neg-1 9,93. */
   --div-pos-2: #946200;
   --div-pos-1: #ecc979;
   --div-mid: var(--neutral-100);
-  --div-neg-1: #cfbdef;
-  --div-neg-2: #7656bf;
+  --div-neg-1: var(--blue-300);
+  --div-neg-2: var(--blue-600);
 
   /* ---------- Dominio: mosaico de acuerdo IA vs revisor (docs/ux/admin-prompt-metrics/02 §4) ---------- */
   --agree-bg: #0f7a55;            /* Coincide con el revisor · blanco encima 5,34:1 */
   --prompt-fn-bg: var(--red-700); /* IA Sí / Revisor No · blanco encima 6,64:1 */
   --prompt-fp-bg: #e8b931;        /* IA No / Revisor Sí · ink-900 encima 9:1 */
   --prompt-fp-border: #8a6200;    /* 5,49:1 vs blanco (1.4.11) */
-  --reviewer-bg: #2a6fc4;         /* Inconsistencia del revisor · con rayado 45° (blanco 25 %) */
+  --reviewer-bg: var(--blue-600); /* Inconsistencia del revisor · con rayado 45° (blanco 25 %) · blanco encima 6,16:1 (Cambio 21) */
   --undecided-bg: var(--neutral-300);
   --undecided-border: var(--neutral-500);
   /* Acuerdo en motivos (docs/ux/admin-prompt-metrics/15 §10): zoom del verde, sin rayado */

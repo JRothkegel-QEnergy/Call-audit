@@ -108,7 +108,7 @@ export function RenunciationReasonsDialog({
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Portal>
-        <RadixDialog.Overlay className="fixed inset-0 z-[80] bg-[rgb(13_15_18/0.45)]" />
+        <RadixDialog.Overlay className="fixed inset-0 z-[80] bg-[rgb(31_42_55/0.45)]" />
         <RadixDialog.Content
           className="fixed left-1/2 top-1/2 z-[81] grid max-h-[calc(100vh-32px)] w-[calc(100%-32px)] max-w-[560px] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-auto rounded-xl bg-card p-5 shadow-lg"
           onOpenAutoFocus={(e) => {

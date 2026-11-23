@@ -208,7 +208,7 @@ function FollowUpList({
             <Link href={`/admin/discrepancies/patterns/${p.id}`} className="font-medium">
               Criterio {p.criterionId} · {p.title}
             </Link>
-            <StatusBadge tone="teal">{statusLabel(p)}</StatusBadge>
+            <StatusBadge tone="blue">{statusLabel(p)}</StatusBadge>
           </div>
           <PatternBody p={{ ...p, explanation: "" }} />
           <div className="flex flex-wrap gap-2">{children(p)}</div>

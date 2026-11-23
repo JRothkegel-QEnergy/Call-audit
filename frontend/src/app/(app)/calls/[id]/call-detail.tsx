@@ -401,7 +401,7 @@ function CallWorkspace({
         />
         <span className="text-[13px] text-muted-foreground">Decisión del motor</span>
         <CallVerdictBadge verdict={data.engineVerdict} />
-        <StatusBadge tone={mode === "supervisor" ? "teal" : "neutral"} locked={mode === "readonly" && data.status === "in_review"}>
+        <StatusBadge tone={mode === "supervisor" ? "blue" : "neutral"} locked={mode === "readonly" && data.status === "in_review"}>
           {mode === "supervisor" && data.review ? `Por aprobar · ${data.review.auditorName}` : statusText}
         </StatusBadge>
         <Button variant="ghost" className="ml-auto xl:hidden" onClick={() => setSheetDrawer(true)}>

@@ -21,14 +21,14 @@ import { shortDate } from "@/lib/format";
 /** Magnitud «cuánto marca distinto»: tramos fijos (no relativos al máximo) para comparar fotos. */
 export function seqTone(pct: number) {
   const step = pct < 5 ? 1 : pct < 10 ? 2 : pct < 15 ? 3 : pct < 25 ? 4 : 5;
-  return { bg: `var(--seq-${step})`, fg: step >= 4 ? "#fff" : "var(--foreground)" };
+  return { bg: `var(--seq-${step})`, fg: step >= 4 ? "var(--white)" : "var(--foreground)" };
 }
 
 /** Divergente «más o menos que el equipo»: ±equal en gris, ±5 pts el tono fuerte. */
 export function divTone(pts: number, equal = 2) {
   if (Math.abs(pts) <= equal) return { bg: "var(--div-mid)", fg: "var(--foreground)" };
-  if (pts > 0) return pts > 5 ? { bg: "var(--div-pos-2)", fg: "#fff" } : { bg: "var(--div-pos-1)", fg: "var(--foreground)" };
-  return pts < -5 ? { bg: "var(--div-neg-2)", fg: "#fff" } : { bg: "var(--div-neg-1)", fg: "var(--foreground)" };
+  if (pts > 0) return pts > 5 ? { bg: "var(--div-pos-2)", fg: "var(--white)" } : { bg: "var(--div-pos-1)", fg: "var(--foreground)" };
+  return pts < -5 ? { bg: "var(--div-neg-2)", fg: "var(--white)" } : { bg: "var(--div-neg-1)", fg: "var(--foreground)" };
 }
 
 export const signed = (v: number, digits = 0) => {
@@ -371,7 +371,7 @@ export function Scatter({
                 cx={sx(p.x)}
                 cy={sy(p.y)}
                 r={5}
-                fill={p.low ? "#fff" : "var(--ink-900)"}
+                fill={p.low ? "var(--white)" : "var(--ink-900)"}
                 stroke="var(--ink-900)"
                 strokeWidth={2}
               />
@@ -554,7 +554,7 @@ export function DeviationStrip({
                   style={{
                     left: x(r.value),
                     borderColor: Math.abs(r.value) <= equal ? "var(--neutral-700)" : tone.bg,
-                    background: r.low ? "#fff" : Math.abs(r.value) <= equal ? "var(--neutral-700)" : tone.bg,
+                    background: r.low ? "var(--white)" : Math.abs(r.value) <= equal ? "var(--neutral-700)" : tone.bg,
                   }}
                 />
               </span>
@@ -576,7 +576,7 @@ export function Dumbbell({ ai, sheet, max = 100, width = 120 }: { ai: number; sh
       <line x1={6} x2={width - 6} y1={8} y2={8} stroke="var(--neutral-200)" />
       {sheet != null && <line x1={x(ai)} x2={x(sheet)} y1={8} y2={8} stroke="var(--neutral-300)" strokeWidth={2} />}
       <circle cx={x(ai)} cy={8} r={4.5} fill="var(--analysis-ai)" />
-      {sheet != null && <circle cx={x(sheet)} cy={8} r={4} fill="#fff" stroke="var(--analysis-sheet)" strokeWidth={2} />}
+      {sheet != null && <circle cx={x(sheet)} cy={8} r={4} fill="var(--white)" stroke="var(--analysis-sheet)" strokeWidth={2} />}
     </svg>
   );
 }
@@ -592,7 +592,7 @@ export function DumbbellLegend() {
       </span>
       <span className="inline-flex items-center gap-1.5">
         <svg width={12} height={12} aria-hidden>
-          <circle cx={6} cy={6} r={4} fill="#fff" stroke="var(--analysis-sheet)" strokeWidth={2} />
+          <circle cx={6} cy={6} r={4} fill="var(--white)" stroke="var(--analysis-sheet)" strokeWidth={2} />
         </svg>
         Según el auditor
       </span>
@@ -679,7 +679,7 @@ export function TrendChart({
                       cx={p[0]}
                       cy={p[1]}
                       r={4}
-                      fill={s.hollow || s.low?.[i] ? "#fff" : s.color}
+                      fill={s.hollow || s.low?.[i] ? "var(--white)" : s.color}
                       stroke={s.color}
                       strokeWidth={2}
                     />

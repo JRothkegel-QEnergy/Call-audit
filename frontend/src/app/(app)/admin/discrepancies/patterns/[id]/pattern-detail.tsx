@@ -31,7 +31,7 @@ function PatternSynthesis({ p }: { p: DiscrepancyPatternDetail }) {
       <CaseMix k={p.kindCounts} label={`Desacuerdos (${p.cases.length})`} />
       <p className="m-0 flex flex-wrap items-center gap-2 text-sm">
         <span className="text-muted-foreground">Revisión manual:</span>
-        <span aria-hidden className="flex h-3 w-40 overflow-hidden rounded-[2px] shadow-[inset_0_0_0_1px_var(--neutral-400,#a3a3a3)]">
+        <span aria-hidden className="flex h-3 w-40 overflow-hidden rounded-[2px] shadow-[inset_0_0_0_1px_var(--neutral-500)]">
           <span style={{ background: "var(--series-6)", width: `${(100 * sides.ai) / total}%` }} />
           <span style={{ background: "var(--series-5)", width: `${(100 * sides.excel) / total}%` }} />
         </span>

@@ -79,7 +79,7 @@ export default function CriteriaPage() {
                         <td
                           key={heat.agents[i].id}
                           className="text-center font-semibold tabular"
-                          style={{ background: `rgb(15 118 110 / ${(v / max) * 0.85})`, color: v / max > 0.55 ? "#fff" : "inherit" }}
+                          style={heatCellStyle(max ? v / max : 0)}
                         >
                           {v}
                         </td>
@@ -95,4 +95,36 @@ export default function CriteriaPage() {
       </AsyncView>
     </>
   );
+}
+
+/**
+ * Celda del heatmap: mezcla blanco → azul marino Qubyt (--blue-900, #133b64) y elige el color del texto
+ * por contraste WCAG (el que dé mayor razón entre tinta #1f2a37 y blanco), en vez de un umbral fijo.
+ * Contraste verificado en todo el rango: mínimo 4.6:1 (WCAG 1.4.3).
+ */
+const HEAT_FROM = [255, 255, 255];
+const HEAT_TO = [0x13, 0x3b, 0x64];
+const INK = [0x1f, 0x2a, 0x37];
+
+function luminance([r, g, b]: number[]) {
+  const lin = (c: number) => {
+    const s = c / 255;
+    return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+function contrast(a: number[], b: number[]) {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+function heatCellStyle(ratio: number): React.CSSProperties {
+  // Ningún tono intermedio logra 4.5:1 con tinta ni con blanco (el mejor es ~3.8:1), así que la rampa
+  // salta esa banda: mitad baja 0–0.5 (texto tinta, ≥ 4.6:1), mitad alta 0.7–0.95 (texto blanco, ≥ 4.6:1).
+  const r = Math.min(Math.max(ratio, 0), 1);
+  const t = r <= 0.5 ? r : 0.7 + ((r - 0.5) / 0.5) * 0.25;
+  const bg = HEAT_FROM.map((c, i) => Math.round(c + (HEAT_TO[i] - c) * t));
+  const fg = contrast(bg, HEAT_FROM) >= contrast(bg, INK) ? "var(--white)" : "var(--ink-900)";
+  return { background: `rgb(${bg.join(" ")})`, color: fg };
 }

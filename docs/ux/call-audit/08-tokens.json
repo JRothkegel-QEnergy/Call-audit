@@ -1,71 +1,106 @@
 {
-  "$description": "Call Audit design tokens v1.0 (2026-10-16). Formato W3C Design Tokens (DTCG). Fuente de verdad: 08-tokens.css.",
+  "$description": "Call Audit design tokens v1.1 (2026-11-23, Cambio 21: marca Qubyt). Formato W3C Design Tokens (DTCG). Fuente de verdad: 08-tokens.css.",
   "color": {
     "base": {
       "ink-900": {
         "$type": "color",
-        "$value": "#1b1f24"
+        "$value": "#1f2a37"
       },
       "ink-800": {
         "$type": "color",
-        "$value": "#23272d"
+        "$value": "#2a3645"
       },
       "neutral-800": {
         "$type": "color",
-        "$value": "#3a4048"
+        "$value": "#3a4656"
       },
       "neutral-700": {
         "$type": "color",
-        "$value": "#545b66"
+        "$value": "#5b6b7b"
       },
       "neutral-600": {
         "$type": "color",
-        "$value": "#6e7682",
+        "$value": "#66737f",
         "$description": "Solo sobre blanco"
       },
       "neutral-500": {
         "$type": "color",
-        "$value": "#8a929c"
+        "$value": "#7b8794"
       },
       "neutral-300": {
         "$type": "color",
-        "$value": "#d6dbe0"
+        "$value": "#c9cfd6"
       },
       "neutral-200": {
         "$type": "color",
-        "$value": "#e2e6ea"
+        "$value": "#d5dce4"
       },
       "neutral-100": {
         "$type": "color",
-        "$value": "#f3f5f7"
+        "$value": "#eef1f5"
       },
       "neutral-50": {
         "$type": "color",
-        "$value": "#f5f7f8"
+        "$value": "#f4f6f9"
       },
       "white": {
         "$type": "color",
         "$value": "#ffffff"
       },
-      "teal-800": {
+      "row-hover": {
         "$type": "color",
-        "$value": "#0b4843"
+        "$value": "#f7f9fb"
       },
-      "teal-700": {
+      "blue-900": {
         "$type": "color",
-        "$value": "#0b5953"
+        "$value": "#133b64",
+        "$description": "Azul marino Qubyt: panel del login, texto de acento"
       },
-      "teal-600": {
+      "blue-700": {
         "$type": "color",
-        "$value": "#0f766e"
+        "$value": "#2f5680"
       },
-      "teal-200": {
+      "blue-600": {
         "$type": "color",
-        "$value": "#c7e7e2"
+        "$value": "#3a6491",
+        "$description": "Azul Qubyt: acción y foco"
       },
-      "teal-100": {
+      "blue-300": {
         "$type": "color",
-        "$value": "#e7f4f2"
+        "$value": "#c9d7e6",
+        "$description": "Rellenos claros de gráficos"
+      },
+      "blue-200": {
+        "$type": "color",
+        "$value": "#d6e2ee"
+      },
+      "blue-100": {
+        "$type": "color",
+        "$value": "#eaf0f6"
+      },
+      "slate-blue-400": {
+        "$type": "color",
+        "$value": "#9fb3c8",
+        "$description": "Relleno de gráficos; 2.15:1 vs blanco, solo relleno"
+      },
+      "cyan-400": {
+        "$type": "color",
+        "$value": "#61b4d1",
+        "$description": "Solo decorativo o sobre blue-900 (2.34:1 sobre blanco)"
+      },
+      "selection": {
+        "$type": "color",
+        "$value": "#bee0ec"
+      },
+      "on-dark-muted": {
+        "$type": "color",
+        "$value": "#c9d4e0",
+        "$description": "Texto sobre blue-900 (7.61:1)"
+      },
+      "on-dark-subtle": {
+        "$type": "color",
+        "$value": "#9fb3c8",
+        "$description": "Texto sobre blue-900 (5.31:1)"
       },
       "red-800": {
         "$type": "color",
@@ -115,11 +150,11 @@
       },
       "primary": {
         "$type": "color",
-        "$value": "{color.base.teal-600}"
+        "$value": "{color.base.blue-600}"
       },
       "primary-hover": {
         "$type": "color",
-        "$value": "{color.base.teal-700}"
+        "$value": "{color.base.blue-700}"
       },
       "primary-foreground": {
         "$type": "color",
@@ -135,11 +170,11 @@
       },
       "accent": {
         "$type": "color",
-        "$value": "{color.base.teal-100}"
+        "$value": "{color.base.blue-100}"
       },
       "accent-foreground": {
         "$type": "color",
-        "$value": "{color.base.teal-800}"
+        "$value": "{color.base.blue-900}"
       },
       "destructive": {
         "$type": "color",
@@ -155,7 +190,7 @@
       },
       "ring": {
         "$type": "color",
-        "$value": "{color.base.teal-600}"
+        "$value": "{color.base.blue-600}"
       }
     },
     "verdict": {
@@ -221,11 +256,11 @@
       }
     },
     "series": {
-      "$description": "Color fijo por modelo en gráficos de calidad de la IA (Cambio 15, D-57). Siempre junto al nombre de la corrida.",
+      "$description": "Color fijo por modelo en gráficos de calidad de la IA (Cambio 15, D-57). Siempre junto al nombre de la corrida. Cambio 21: series 1 y 3 pasan a la paleta Qubyt.",
       "series-1": {
         "$type": "color",
-        "$value": "#2a78d6",
-        "$description": "azul"
+        "$value": "#3a6491",
+        "$description": "azul Qubyt"
       },
       "series-2": {
         "$type": "color",
@@ -234,8 +269,8 @@
       },
       "series-3": {
         "$type": "color",
-        "$value": "#0f8a5f",
-        "$description": "verde"
+        "$value": "#2a7d9a",
+        "$description": "celeste oscuro Qubyt"
       },
       "series-4": {
         "$type": "color",
@@ -250,7 +285,7 @@
       "series-6": {
         "$type": "color",
         "$value": "#7a4fc4",
-        "$description": "violeta"
+        "$description": "violeta (lila del logo)"
       }
     }
   },

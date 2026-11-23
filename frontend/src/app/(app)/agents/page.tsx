@@ -65,7 +65,7 @@ export default function AgentsPage() {
                       <td className="num">{pct(r.finalCompliancePct, 0)}</td>
                       <td>{r.topCriteria.join(" · ")}</td>
                       <td>{trend(r.trendPts)}</td>
-                      <td className="num">{r.pendingFollowUps ? <StatusBadge tone="teal">{r.pendingFollowUps}</StatusBadge> : "0"}</td>
+                      <td className="num">{r.pendingFollowUps ? <StatusBadge tone="blue">{r.pendingFollowUps}</StatusBadge> : "0"}</td>
                     </tr>
                   );
                 })}
