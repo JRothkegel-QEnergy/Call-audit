@@ -214,9 +214,9 @@ def invitation(
 ) -> Email:
     """Correo de invitación (Cambio 12 §3.1, rediseñado en el Cambio 22). `expires` ya viene en hora de Chile."""
     role_label = ROLE_LABEL.get(role, role)
-    title = "Te invitaron a Call Audit"
+    title = "Te invitaron a Qubyt"
     note_q, note_a = "¿No esperabas esta invitación?", "Ignora este correo: tu cuenta no se activará."
-    intro = f"{inviter} te invitó a Call Audit, la herramienta de auditoría de llamadas de {client}."
+    intro = f"{inviter} te invitó a Qubyt, la herramienta de auditoría de llamadas de {client}."
     text = _plain(
         title,
         f"Hola, {name}:",
@@ -229,7 +229,7 @@ def invitation(
         _row(
             _paragraphs(
                 f"Hola, {escape(name)}:",
-                f"{escape(inviter)} te invitó a Call Audit, la herramienta de auditoría de llamadas de "
+                f"{escape(inviter)} te invitó a Qubyt, la herramienta de auditoría de llamadas de "
                 f"{escape(client)}. Crea tu contraseña para activar tu cuenta.",
             ),
             "16px 40px 0",
@@ -246,7 +246,7 @@ def invitation(
         + _fallback(url, "El enlace sirve una sola vez. ")
         + _note(note_q, note_a)
     )
-    preheader = f"{inviter} te invitó a Call Audit. Crea tu contraseña para activar tu cuenta."
+    preheader = f"{inviter} te invitó a Qubyt. Crea tu contraseña para activar tu cuenta."
     html = _layout(title=title, preheader=preheader, body=body, settings=settings)
     return Email(to=to, subject=title, text=text, html=html)
 
