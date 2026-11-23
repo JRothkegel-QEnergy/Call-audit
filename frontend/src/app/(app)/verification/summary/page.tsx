@@ -2,20 +2,31 @@
 
 import { ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { Button } from "@/components/ui/button";
+import {
+  nextSort,
+  type SortDir,
+  SortableTh,
+} from "@/components/ui/sortable-th";
 import { AsyncView, LoadingState } from "@/components/ui/states";
 import { api } from "@/lib/api";
-import type { VerificationOverview } from "@/lib/api/admin-types";
+import type {
+  CriteriaStats,
+  CriterionStats,
+  VerificationOverview,
+} from "@/lib/api/admin-types";
 import { int } from "@/lib/format";
+import { useRubric } from "@/lib/rubric";
 import { useAsync } from "@/lib/use-async";
 import { scopeQuery, trayPath } from "@/lib/verification-scope";
 
-const EMPTY = "Todavía no hay llamadas para verificar. Te avisaremos cuando el admin las reparta.";
+const EMPTY =
+  "Todavía no hay llamadas para verificar. Te avisaremos cuando el admin las reparta.";
 
-/** «Resumen» del verificador (19-resumen-avance-y-orden-bandejas, X1-X3 A): el avance de la verificación de la corrida
- * completa, tuyo o del equipo, en cifras y una barra. El mosaico queda solo en la pestaña Verificación del admin. */
+/** «Resumen» del verificador (19-resumen-avance-y-orden-bandejas, X1-X3 A; 22-resumen-tarjetas-y-metricas-por-criterio):
+ * el avance de la corrida completa en tarjetas y una barra contenida, y Cumple / No cumple de Qubyt por criterio. */
 export default function VerificationSummaryPage() {
   return (
     <Suspense fallback={<LoadingState />}>
@@ -29,7 +40,9 @@ function SummaryView() {
   const assignee = params.get("asignadas") === "all" ? "all" : "me";
   const state = useAsync(async () => {
     const home = await api.getVerificationHome();
-    return home.version ? await api.getVerificationOverview(home.version, assignee) : null;
+    return home.version
+      ? await api.getVerificationOverview(home.version, assignee)
+      : null;
   }, [assignee]);
   return (
     <>
@@ -42,36 +55,53 @@ function SummaryView() {
         }
       />
       <AsyncView state={state} what="el resumen">
-        {(data) => (data == null ? <p className="empty-state">{EMPTY}</p> : <Progress data={data} assignee={assignee} />)}
+        {(data) =>
+          data == null ? (
+            <p className="empty-state">{EMPTY}</p>
+          ) : (
+            <Summary data={data} assignee={assignee} />
+          )
+        }
       </AsyncView>
     </>
   );
 }
 
-function Progress({ data, assignee }: { data: VerificationOverview; assignee: "me" | "all" }) {
+const pct = (k: number, n: number) => (n ? Math.round((100 * k) / n) : 0);
+
+function Summary({
+  data,
+  assignee,
+}: {
+  data: VerificationOverview;
+  assignee: "me" | "all";
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const p = data.progress ?? { total: 0, reviewed: 0, pending: 0 };
-  const share = p.total ? Math.round((100 * p.reviewed) / p.total) : 0;
   const mine = assignee === "me";
-  const setAssignee = (value: "me" | "all") => router.replace(value === "all" ? `${pathname}?asignadas=all` : pathname, { scroll: false });
-  const next = mine ? data.me?.nextCaseId : null;
-  const nextHref = (caseId: string) =>
-    `/admin/prompts/${encodeURIComponent(data.version)}/calls/${encodeURIComponent(caseId)}?segment=all${scopeQuery({
-      source: "full",
-      assignee: "me",
-      tray: "pending",
-    })}`;
+  const setAssignee = (value: "me" | "all") =>
+    router.replace(value === "all" ? `${pathname}?asignadas=all` : pathname, {
+      scroll: false,
+    });
 
   return (
-    <div className="grid gap-4">
+    <div className="grid max-w-5xl gap-6">
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-sm">Asignadas a:</span>
         <div className="seg" role="group" aria-label="Asignadas a">
-          <button type="button" aria-pressed={mine} onClick={() => setAssignee("me")}>
+          <button
+            type="button"
+            aria-pressed={mine}
+            onClick={() => setAssignee("me")}
+          >
             Mí
           </button>
-          <button type="button" aria-pressed={!mine} onClick={() => setAssignee("all")}>
+          <button
+            type="button"
+            aria-pressed={!mine}
+            onClick={() => setAssignee("all")}
+          >
             Todas
           </button>
         </div>
@@ -80,58 +110,312 @@ function Progress({ data, assignee }: { data: VerificationOverview; assignee: "m
       {mine && p.total === 0 ? (
         <p className="empty-state">{EMPTY}</p>
       ) : (
-        <section className="card grid gap-4" aria-labelledby="progress-h">
-          <h2 id="progress-h" className="m-0 text-sm font-semibold">
-            Avance de la verificación
-          </h2>
-          <dl className="m-0 grid grid-cols-3 gap-3">
-            <Figure label="Total" value={int(p.total)} />
-            <Figure label="Revisadas" value={int(p.reviewed)} note={`${share} % del total`} />
-            <Figure label="Por revisar" value={int(p.pending)} />
-          </dl>
-          {p.total > 0 && (
-            <div
-              role="img"
-              aria-label={`${int(p.reviewed)} de ${int(p.total)} llamadas revisadas`}
-              className="flex h-9 w-full overflow-hidden rounded-md border border-[var(--muted-foreground)] text-xs font-semibold"
-            >
-              {p.reviewed > 0 && (
-                <div className="flex items-center justify-center bg-primary px-2 text-primary-foreground" style={{ width: `${(100 * p.reviewed) / p.total}%` }}>
-                  <span className="truncate">Revisadas {int(p.reviewed)}</span>
-                </div>
-              )}
-              {p.pending > 0 && (
-                <div className="flex items-center justify-center bg-muted px-2 text-foreground" style={{ width: `${(100 * p.pending) / p.total}%` }}>
-                  <span className="truncate">Por revisar {int(p.pending)}</span>
-                </div>
-              )}
-            </div>
-          )}
-          {mine && data.me && data.me.assigned > 0 && data.me.pending === 0 ? (
-            <p className="m-0 font-semibold">¡Listo! Revisaste tus {int(data.me.assigned)} llamadas.</p>
-          ) : (
-            next && (
-              <div>
-                <Button variant="primary" onClick={() => router.push(nextHref(next))}>
-                  Seguir revisando <ChevronRight size={14} aria-hidden />
-                </Button>
-              </div>
-            )
-          )}
-          {mine && data.me && data.me.pending === 0 && data.me.assigned > 0 && (
-            <div>
-              <Button onClick={() => router.push(trayPath("reviewed"))}>Ver revisadas</Button>
-            </div>
-          )}
-        </section>
+        <>
+          <Calls data={data} mine={mine} />
+          <Criteria stats={data.criteria} />
+        </>
       )}
     </div>
   );
 }
 
-function Figure({ label, value, note }: { label: string; value: string; note?: string }) {
+function Calls({ data, mine }: { data: VerificationOverview; mine: boolean }) {
+  const router = useRouter();
+  const p = data.progress ?? { total: 0, reviewed: 0, pending: 0 };
+  const reviewedPct = pct(p.reviewed, p.total);
+  const pendingPct = p.total ? 100 - reviewedPct : 0;
+  const next = mine ? data.me?.nextCaseId : null;
+  const done = mine && data.me && data.me.assigned > 0 && data.me.pending === 0;
+  const nextHref = (caseId: string) =>
+    `/admin/prompts/${encodeURIComponent(data.version)}/calls/${encodeURIComponent(caseId)}?segment=all${scopeQuery(
+      {
+        source: "full",
+        assignee: "me",
+        tray: "pending",
+      },
+    )}`;
+
   return (
-    <div className="grid gap-0.5">
+    <section className="grid gap-3" aria-labelledby="calls-h">
+      <h2 id="calls-h" className="m-0 text-base font-semibold">
+        Llamadas
+      </h2>
+      <dl className="m-0 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <Kpi label="Total" value={int(p.total)} note="llamadas" />
+        <Kpi
+          label="Revisadas"
+          value={int(p.reviewed)}
+          note={`${reviewedPct} % del total`}
+        />
+        <Kpi
+          label="Por revisar"
+          value={int(p.pending)}
+          note={`${pendingPct} % del total`}
+        />
+      </dl>
+      {p.total > 0 && (
+        <div className="grid gap-2">
+          <div
+            role="img"
+            aria-label={`${int(p.reviewed)} de ${int(p.total)} llamadas revisadas (${reviewedPct} %)`}
+            className="flex h-2.5 w-full overflow-hidden rounded-full bg-muted"
+          >
+            <div
+              className="bg-primary"
+              style={{ width: `${(100 * p.reviewed) / p.total}%` }}
+            />
+          </div>
+          <ul
+            className="m-0 flex list-none flex-wrap gap-x-5 gap-y-1 p-0 text-sm"
+            aria-hidden
+          >
+            <li className="flex items-center gap-2">
+              <span className="inline-block size-2.5 rounded-full bg-primary" />
+              Revisadas {int(p.reviewed)} ({reviewedPct} %)
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="inline-block size-2.5 rounded-full border border-[var(--neutral-300)] bg-muted" />
+              Por revisar {int(p.pending)} ({pendingPct} %)
+            </li>
+          </ul>
+        </div>
+      )}
+      {done ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="m-0 font-semibold">
+            ¡Listo! Revisaste tus {int(data.me!.assigned)} llamadas.
+          </p>
+          <Button onClick={() => router.push(trayPath("reviewed"))}>
+            Ver revisadas
+          </Button>
+        </div>
+      ) : (
+        next && (
+          <div>
+            <Button
+              variant="primary"
+              onClick={() => router.push(nextHref(next))}
+            >
+              Seguir revisando <ChevronRight size={14} aria-hidden />
+            </Button>
+          </div>
+        )
+      )}
+    </section>
+  );
+}
+
+function Criteria({ stats }: { stats?: CriteriaStats }) {
+  if (!stats) return null;
+  return (
+    <>
+      <section className="grid gap-3" aria-labelledby="criteria-h">
+        <div className="grid gap-0.5">
+          <h2 id="criteria-h" className="m-0 text-base font-semibold">
+            Criterios evaluados por Qubyt
+          </h2>
+          {stats.evaluated > 0 && (
+            <p className="help m-0">
+              En las {int(stats.calls)} llamadas que evaluó Qubyt.
+            </p>
+          )}
+        </div>
+        {stats.evaluated === 0 ? (
+          <p className="empty-state">
+            Qubyt todavía no ha evaluado estas llamadas.
+          </p>
+        ) : (
+          <>
+            <dl className="m-0 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <Kpi
+                label="Criterios evaluados"
+                value={int(stats.evaluated)}
+                note="criterios"
+              />
+              <Kpi
+                label="Cumple"
+                value={`${pct(stats.pass, stats.evaluated)} %`}
+                note={`${int(stats.pass)} criterios`}
+              />
+              <Kpi
+                label="No cumple"
+                value={`${pct(stats.fail, stats.evaluated)} %`}
+                note={`${int(stats.fail)} criterios`}
+              />
+            </dl>
+            <p className="help m-0">
+              Lo que dijo Qubyt en cada criterio. No incluye los criterios en
+              que Qubyt quedó en duda.
+            </p>
+          </>
+        )}
+      </section>
+      {stats.evaluated > 0 && <ByCriterion rows={stats.byCriterion} />}
+    </>
+  );
+}
+
+type Col = "criterion" | "evaluated" | "pass" | "fail";
+const COL_LABEL: Record<Col, string> = {
+  criterion: "Criterio",
+  evaluated: "Evaluados",
+  pass: "Cumple",
+  fail: "No cumple",
+};
+
+function ByCriterion({ rows }: { rows: CriterionStats[] }) {
+  const rubric = useRubric();
+  const [sort, setSort] = useState<Col | null>(null);
+  const [dir, setDir] = useState<SortDir | null>(null);
+  const sorted = useMemo(() => {
+    const share = (r: CriterionStats, k: "pass" | "fail") =>
+      r.evaluated ? r[k] / r.evaluated : -1;
+    const value = (r: CriterionStats, col: Col) =>
+      col === "criterion"
+        ? r.criterionId
+        : col === "evaluated"
+          ? r.evaluated
+          : share(r, col);
+    const out = [...rows];
+    if (sort && dir) {
+      out.sort(
+        (a, b) =>
+          (value(a, sort) - value(b, sort)) * (dir === "asc" ? 1 : -1) ||
+          a.criterionId - b.criterionId,
+      );
+    } else {
+      // Por defecto: % No cumple de mayor a menor; los sin datos al final.
+      out.sort(
+        (a, b) =>
+          share(b, "fail") - share(a, "fail") || a.criterionId - b.criterionId,
+      );
+    }
+    return out;
+  }, [rows, sort, dir]);
+  const click = (col: Col) => {
+    const n = nextSort(sort, dir, col);
+    setSort(n.sort);
+    setDir(n.dir);
+  };
+  const th = (col: Col, className?: string) => (
+    <SortableTh
+      label={COL_LABEL[col]}
+      dir={sort === col ? dir : null}
+      onClick={() => click(col)}
+      className={className}
+    />
+  );
+  const subtitle =
+    sort && dir
+      ? `Ordenado por ${COL_LABEL[sort]}, ${dir === "asc" ? "ascendente" : "descendente"}.`
+      : "Ordenado por % No cumple, de mayor a menor.";
+
+  return (
+    <section className="grid gap-3" aria-labelledby="by-criterion-h">
+      <div className="grid gap-0.5">
+        <h2 id="by-criterion-h" className="m-0 text-base font-semibold">
+          Por criterio
+        </h2>
+        <p className="help m-0" aria-live="polite">
+          {subtitle}
+        </p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="tbl">
+          <caption className="sr-only">
+            Cumple y No cumple de Qubyt por criterio
+          </caption>
+          <thead>
+            <tr>
+              {th("criterion")}
+              {th("evaluated", "text-right")}
+              {th("pass", "text-right")}
+              {th("fail", "text-right")}
+              <th scope="col" className="hidden w-48 sm:table-cell">
+                <span className="sr-only">Proporción</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((r) => {
+              const name = rubric?.criteria[r.criterionId]?.name;
+              const none = r.evaluated === 0;
+              const dash = (
+                <span
+                  title="Qubyt no evaluó este criterio en estas llamadas."
+                  className="text-[var(--muted-foreground)]"
+                >
+                  —
+                </span>
+              );
+              return (
+                <tr key={r.criterionId}>
+                  <td className="max-w-[28rem]">
+                    <div
+                      className="flex items-center gap-2 overflow-hidden"
+                      title={name ? `C${r.criterionId} · ${name}` : undefined}
+                    >
+                      <span className="font-semibold tabular">
+                        C{r.criterionId}
+                      </span>
+                      {name && (
+                        <span className="hidden truncate sm:inline">
+                          {name}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="num text-right">{int(r.evaluated)}</td>
+                  <td className="num text-right">
+                    {none ? dash : <PctCell k={r.pass} n={r.evaluated} />}
+                  </td>
+                  <td className="num text-right">
+                    {none ? dash : <PctCell k={r.fail} n={r.evaluated} />}
+                  </td>
+                  <td className="hidden sm:table-cell" aria-hidden>
+                    {!none && (
+                      <div className="flex h-2 w-full overflow-hidden rounded-full">
+                        <div
+                          className="bg-[var(--neutral-300)]"
+                          style={{ width: `${(100 * r.pass) / r.evaluated}%` }}
+                        />
+                        <div
+                          className="bg-[var(--red-200)]"
+                          style={{ width: `${(100 * r.fail) / r.evaluated}%` }}
+                        />
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function PctCell({ k, n }: { k: number; n: number }) {
+  return (
+    <span>
+      {pct(k, n)} %{" "}
+      <span className="text-[var(--muted-foreground)]">({int(k)})</span>
+    </span>
+  );
+}
+
+function Kpi({
+  label,
+  value,
+  note,
+}: {
+  label: string;
+  value: string;
+  note?: string;
+}) {
+  return (
+    <div className="card grid content-start gap-0.5">
       <dt className="help m-0">{label}</dt>
       <dd className="m-0 text-3xl font-semibold tabular">{value}</dd>
       {note && <dd className="help m-0">{note}</dd>}

@@ -366,8 +366,26 @@ export interface VerificationOverview {
   agreement: Agreement | null;
   /** Avance del alcance «Asignadas a» para el gráfico del Resumen (19, X1-X2 A). */
   progress?: { total: number; reviewed: number; pending: number };
+  /** Cumple / No cumple según Qubyt por criterio en las llamadas del alcance (22, AA1-AA4). Sin los dudosos. */
+  criteria?: CriteriaStats;
   me: VerifierSummary | null;
   verifiers: { id: string; name: string }[];
+}
+
+export interface CriterionStats {
+  criterionId: number;
+  evaluated: number;
+  pass: number;
+  fail: number;
+}
+
+export interface CriteriaStats {
+  /** Llamadas que evaluó Qubyt (sin error). */
+  calls: number;
+  evaluated: number;
+  pass: number;
+  fail: number;
+  byCriterion: CriterionStats[];
 }
 
 export interface ProgressCell {

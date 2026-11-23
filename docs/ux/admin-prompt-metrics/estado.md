@@ -275,3 +275,17 @@
 | 2026-11-23 | Propuesta: Z1 columna literal + otros criterios por revisar en gris, mismo filtro en las dos listas; Z2 ✓ = Qubyt tenía razón, ✗ = Qubyt se equivocó, ? = ambiguo/falta información; Z3 «Revisado por» = evaluador de la planilla (columna `Revisor`); Z4 ahora solo la app, el prompt de capa 2 en su próxima versión; Z5 separar cubo y logotipo. Backend: filtro `fp` en criterio, filtros de veredicto en `segment_calls`/`case_comparison`, `evaluator` por llamada. Supuesto H-Z1; riesgos R-Z1 a R-Z3. Esperando Z1-Z5 | Diseñador |
 | 2026-11-23 | **Z1-Z5 aprobadas, todas A** (Johannes: «Sí, todas en A»). Aclaró además que «Veredicto revisor» es la columna «Planilla» con otro nombre | Johannes |
 | 2026-11-23 | Implementado sobre `develop` (con la marca del Cambio 21). Z5 resuelto con los logos nuevos de Qubyt sin deformar: login cubo 80×80 + logotipo 100×80; menú 106×44; colapsado 44×44. API: `rejected`, `ai_verdict`, `reviewer_verdict` y `evaluator`; URL del front `motivo`, `qubyt`, `revisor` | Coordinador |
+
+---
+
+## Resumen del verificador: tarjetas, barra contenida y métricas por criterio (pedido 2026-11-23)
+
+- **Estado:** AA1-AA5 **aprobadas** el 2026-11-23 (ver §0 de `22-resumen-tarjetas-y-metricas-por-criterio.md`). Listo para implementar.
+- **Origen (Johannes):** tarjetas para Total/Revisadas/Por revisar, gráfico menos desparramado, % aprobado/rechazado por criterio y totales (% aprobados, % no aprobados, total evaluados).
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-23 | Ya decidido: tarjetas KPI, gráfico contenido, métricas por criterio y totales. Cambio menor sobre `19` (un gate) | Johannes (vía coordinador) |
+| 2026-11-23 | Diagnóstico: sin ancho máximo (P-30), cifras sin contenedor (P-31), overview sin conteos por criterio. Propuesta: contenedor ~1040 px, 3+3 tarjetas KPI, barra de 10 px con leyenda, tabla por criterio con mini barra ordenada por % rechazado. AA1 aprobado = Qubyt tenía razón; AA2 evaluados = todos los criterios de capa 2 de llamadas revisadas (acuerdo sin marcar = aprobado); AA3 «Sin definir» cuenta como no aprobado; AA4 sigue `Mí · Todas`; AA5 tabla. Supuestos H-AA1 a H-AA3; riesgos R-AA1, R-AA2. Esperando AA1-AA5 | Diseñador |
+| 2026-11-23 | **Aprobado:** métricas = veredicto de Qubyt por criterio de capa 2 (`Cumple` / `No cumple`; sin «aprobado/rechazado»); evaluado = criterio que Qubyt evaluó en las llamadas del alcance (revisadas o no), `uncertain` excluido; sin «Sin definir» ni «pocos datos»; AA4 A (sigue `Mí · Todas`, sin respuesta → recomendada); AA5 A (tabla ordenada por % No cumple ↓) | Johannes (vía coordinador) |

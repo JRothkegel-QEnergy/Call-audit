@@ -298,6 +298,40 @@ def test_tray_sort_and_summary_progress(
     assert team["total"] == 3 and team["total"] == team["reviewed"] + team["pending"]
 
 
+def test_summary_counts_qubyt_verdicts_by_criterion(
+    client: TestClient,
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+    two: tuple[User, User],
+) -> None:
+    """22 (AA1-AA4): Cumple / No cumple de Qubyt por criterio, siguiendo «Asignadas a»; lo dudoso no cuenta."""
+    ids = seed_full(imported, admin)
+    ana, _ = two
+    with imported() as session, session.begin():
+        full = session.scalar(select(PromptEvaluation).where(PromptEvaluation.purpose == "full"))
+        results = [dict(r) for r in full.results]
+        results[0]["uncertainCriteria"] = [2]
+        full.results = results
+        for cid in ids[:2]:
+            session.add(VerificationAssignment(case_id=cid, user_id=ana.id, assigned_by_id=admin.id))
+    login(client, ana)
+    url = "/api/admin/prompts/9.8/verification"
+    mine = client.get(url, params={"assignee": "me"}).json()["criteria"]
+    team = client.get(url, params={"assignee": "all"}).json()["criteria"]
+    assert (mine["calls"], team["calls"]) == (2, 3)
+    for block in (mine, team):
+        assert block["evaluated"] == block["pass"] + block["fail"]
+        assert block["evaluated"] == sum(c["evaluated"] for c in block["byCriterion"])
+        assert all(c["evaluated"] == c["pass"] + c["fail"] for c in block["byCriterion"])
+    two_mine = next(c for c in mine["byCriterion"] if c["criterionId"] == 2)
+    # Llamada 0: el 2 dudoso (no cuenta); llamada 1: Qubyt rechaza por el 2.
+    assert two_mine == {"criterionId": 2, "evaluated": 1, "pass": 0, "fail": 1}
+    two_team = next(c for c in team["byCriterion"] if c["criterionId"] == 2)
+    assert two_team == {"criterionId": 2, "evaluated": 2, "pass": 1, "fail": 1}
+    other = next(c for c in mine["byCriterion"] if c["criterionId"] != 2)
+    assert other["evaluated"] == 2 and other["fail"] == 0
+
+
 def test_verifier_approves_or_rejects_agreeing_criteria(
     client: TestClient,
     admin: User,  # noqa: F811

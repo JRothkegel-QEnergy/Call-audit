@@ -594,6 +594,37 @@ def with_summaries(session: Session, evaluation: PromptEvaluation) -> dict[str, 
     return block
 
 
+def criteria_stats(evaluation: PromptEvaluation, case_ids: set[str] | None) -> dict[str, Any]:
+    """Cumple / No cumple según Qubyt por criterio de capa 2 en las llamadas del alcance (22-resumen-tarjetas-y-
+    metricas-por-criterio, AA1-AA3). Las llamadas con error no cuentan y los criterios dudosos de Qubyt tampoco: no
+    son parte de lo que se muestra."""
+    ids = golden_split.layer2_criteria()
+    pass_ = Counter[int]()
+    fail = Counter[int]()
+    calls = 0
+    for result in evaluation.results or []:
+        if result.get("error") or (case_ids is not None and result["caseId"] not in case_ids):
+            continue
+        calls += 1
+        fails = {int(x) for x in result.get("failCriteria") or []}
+        uncertain = {int(x) for x in result.get("uncertainCriteria") or []}
+        for cid in ids:
+            if cid in uncertain:
+                continue
+            (fail if cid in fails else pass_)[cid] += 1
+    by = [
+        {"criterionId": cid, "evaluated": pass_[cid] + fail[cid], "pass": pass_[cid], "fail": fail[cid]} for cid in ids
+    ]
+    total_pass, total_fail = sum(pass_.values()), sum(fail.values())
+    return {
+        "calls": calls,
+        "evaluated": total_pass + total_fail,
+        "pass": total_pass,
+        "fail": total_fail,
+        "byCriterion": by,
+    }
+
+
 def latest_quality(session: Session) -> dict[str, Any] | None:
     """La última prueba de versión terminada sobre validación, para la cabecera de Discrepancias › Resumen: las mismas
     cifras que su pestaña Prueba. None si no hay ninguna."""
