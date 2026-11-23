@@ -62,7 +62,6 @@ def send_invitation(session: Session, user: User, inviter: User, settings: Setti
         to=user.email,
         name=user.name,
         inviter=inviter.name,
-        client=settings.client_name,
         role=user.role,
         url=url,
         expires=expires_text(expires),
