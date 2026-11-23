@@ -7,6 +7,7 @@ nuevo y anula el anterior. El token nunca se escribe en logs.
 import hashlib
 import secrets
 from datetime import UTC, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from argon2 import PasswordHasher
 from sqlalchemy import select
@@ -18,6 +19,8 @@ from call_audit.persistence.models import AccessLog, User
 
 INVITE_TTL = timedelta(hours=72)
 MIN_PASSWORD = 12
+# Los correos muestran la hora de Chile, no la del servidor (en el EC2 es UTC). Cambio 22, D-106.
+CHILE = ZoneInfo("America/Santiago")
 hasher = PasswordHasher()
 
 
@@ -48,7 +51,8 @@ def issue_link(user: User, kind: str, settings: Settings) -> tuple[str, datetime
 
 
 def expires_text(value: datetime) -> str:
-    local = value.astimezone()
+    """Vencimiento en hora de Chile, p. ej. «26-11-2026 a las 14:30». Sin zona se toma como UTC."""
+    local = (value if value.tzinfo else value.replace(tzinfo=UTC)).astimezone(CHILE)
     return local.strftime("%d-%m-%Y a las %H:%M")
 
 
@@ -68,8 +72,11 @@ def send_invitation(session: Session, user: User, inviter: User, settings: Setti
 
 
 def send_reset(session: Session, user: User, settings: Settings) -> None:
-    url, _ = issue_link(user, "reset", settings)
-    mail.send(mail.password_reset(to=user.email, url=url, settings=settings), settings)
+    url, expires = issue_link(user, "reset", settings)
+    message = mail.password_reset(
+        to=user.email, name=user.name, url=url, expires=expires_text(expires), settings=settings
+    )
+    mail.send(message, settings)
 
 
 def invite(
