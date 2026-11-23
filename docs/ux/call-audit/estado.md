@@ -163,6 +163,12 @@
 | 2026-11-23 | D-100 · Rampa `teal-*` → `blue-*` (tono de StatusBadge `teal` → `blue`) | Johannes |
 | 2026-11-23 | D-101 · Copy del login: "Qubyt propone hallazgos sobre el 100 % de las llamadas." (solo el login) | Johannes |
 | 2026-11-23 | D-102 · Favicon con el símbolo Qubyt | Johannes |
+| 2026-11-23 | Cambio 22 (revisión rápida, `22-correos-transaccionales.md` + `22-correos-preview.html`): rediseño de los correos de restablecer contraseña e invitación con plantilla común (tarjeta 560 px, título, botón bulletproof, caja de vencimiento, enlace alternativo, aviso de seguridad, pie). **Aprobado e implementado** (2026-11-23, rama `feature/email-template`); supuestos H-157 a H-159; D-103 a D-107. Registro Legal omitido por instrucción de Johannes | Diseñador; pedido de Johannes |
+| 2026-11-23 | D-103 · Plantilla común para restablecer contraseña e invitación (tarjeta 560 px, título, botón bulletproof, caja de datos, enlace alternativo, aviso de seguridad, pie); se corrige la frase repetida de la invitación | Johannes |
+| 2026-11-23 | D-104 · El correo de restablecer muestra fecha y hora exactas de vencimiento, además de «72 horas» | Johannes |
+| 2026-11-23 | D-105 · Logo del correo: `frontend/public/brand/qubyt-logo-email.png` (178×88, 2×; fondo blanco redondeado de 6 px) para que no se pierda si el cliente invierte colores | Johannes |
+| 2026-11-23 | D-106 · Las fechas de los correos van en hora de Chile (`America/Santiago`), no en la del servidor | Johannes |
+| 2026-11-23 | D-107 · Pie sin casilla de soporte: «Call Audit · Qubico / Este correo es automático; las respuestas no se leen.» | Johannes (sin respuesta a Q5; se aplica la opción sin casilla) |
 
 ## Preguntas abiertas
 
@@ -171,7 +177,7 @@ Ninguna bloqueante.
 ## Pendientes no bloqueantes
 
 - Cambio 21: verificación visual en el navegador (login animado, sidebar, invitación, heatmap, Calidad de la IA, Calidad del servicio, mosaico de acuerdo). En Safari el webm con alfa no se reproduce; queda el poster estático.
-- Cambio 21: correo de invitación (`src/call_audit/notify/email.py`) sigue con logo Qubico y colores viejos; propuesta en `21-marca-qubyt.md` §8. No borrar `frontend/public/brand/qubico-logo.png` mientras el correo lo use.
+- Cambio 21: correo de invitación (`src/call_audit/notify/email.py`) sigue con logo Qubico y colores viejos; propuesta en `21-marca-qubyt.md` §8, absorbida por el Cambio 22. No borrar `frontend/public/brand/qubico-logo.png` mientras el correo lo use.
 - Cambio 21: decidir si se borran los PNG `qubico-*` de `frontend/src/assets/brand/` (ya no se importan). Reflejar D-101 en `06-ux-writing.md`.
 - H-34: validar `awaiting_approval` con `pipeline-architect`.
 - H-48: `not_applicable` en el contrato y en el prompt de la capa 2 vs D-20 (`pipeline-architect`, `rubric-engineer`).
