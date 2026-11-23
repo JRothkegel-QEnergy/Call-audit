@@ -84,7 +84,7 @@ def test_invitation_by_email_creates_password_once(client: TestClient, admin: Us
     }
     assert client.post("/api/admin/accounts/invite", json=body).status_code == 204
     assert client.post("/api/admin/accounts/invite", json=body).status_code == 409
-    assert mail.OUTBOX[-1].subject == "Te invitaron a Call Audit"
+    assert mail.OUTBOX[-1].subject == "Te invitaron a Qubyt"
     token = token_from_last_email()
 
     client.post("/api/auth/logout")
