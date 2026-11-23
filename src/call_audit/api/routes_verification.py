@@ -85,6 +85,10 @@ def verification_overview(version: str, session: DbSession, user: VerificationRe
     ev = verification_target(session, version, "full", user)
     ids = assignments.scope_ids(session, ev, user, assignee)
     block = verification.with_summaries(session, assignments.scoped(ev, ids))
+    # Avance del alcance para el gráfico del Resumen (19, X1-X2 A): las sin asignar cuentan como por revisar.
+    items = [it for it in assignments.all_items(session, ev) if ids is None or it["caseId"] in ids]
+    found = assignments.assignment_map(session, [it["caseId"] for it in items])
+    reviewed = sum(1 for it in items if assignments.is_reviewed(it, found.get(it["caseId"])))
     return {
         "version": ev.version,
         "evaluationId": ev.id,
@@ -92,6 +96,7 @@ def verification_overview(version: str, session: DbSession, user: VerificationRe
         "assignee": assignee or ("me" if user.role == assignments.VERIFIER else "all"),
         "n": len(ids) if ids is not None else len(ev.results or []),
         "agreement": block,
+        "progress": {"total": len(items), "reviewed": reviewed, "pending": len(items) - reviewed},
         "me": assignments.my_summary(session, ev, user) if user.role == assignments.VERIFIER else None,
         "verifiers": [{"id": u.id, "name": u.name} for u in assignments.verifiers(session)]
         if user.role != assignments.VERIFIER

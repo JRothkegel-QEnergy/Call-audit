@@ -228,3 +228,34 @@
 | 2026-11-20 | Se suma W6 (`18` §2.1): «discrepancia» tiene tres lecturas en el código (tipo por veredicto de la llamada = partes del mosaico + `reasonMatch` de `15`; lado del criterio fp/fn/duda; con/sin discrepancia). Recomendada A: select `Discrepancia:` con tipo de la llamada agrupado en 5 opciones con conteos (incluye «Sin discrepancias»), sin «Posible error del revisor» (R-V1), en Por revisar y Revisadas; backend `discrepancia=` + `discrepancyCounts` sin IA. Supuesto H-W3; riesgo R-W3. Esperando W1-W6 | Diseñador |
 | 2026-11-20 | **W1-W6 aprobadas, todas A** (Johannes: «Sí, todas en A») | Johannes |
 | 2026-11-20 | Implementado. Desvíos menores por la regla de identificadores en inglés: rutas `/verification` (Por revisar), `/verification/reviewed` y `/verification/summary`; parámetros de API `tray=pending\|reviewed` y `discrepancy=`; en la URL del front, `bandeja=pendientes\|revisadas` y `discrepancia=` | Coordinador |
+
+---
+
+## Resumen con avance y orden por columna en las bandejas (pedido 2026-11-23)
+
+- **Estado:** X1-X5 **aprobadas (todas A)** por Johannes el 2026-11-23 e implementadas el mismo día (`19-resumen-avance-y-orden-bandejas.md`). Sin desplegar.
+- **Origen:** Johannes: «En la vista resumen pongamos un grafico que sea Total, revisados, por revisar. Borra el grafico actual de acuerdo con el revisor. Tambien en la lista de por revisar y revisadas, agrega un sort por fecha, por cumple o no cumple de qubyt y de planilla. Esos sort deberian ser que apriete sobre el nombre de la columna y salga una flechita para arriba o para abajo si es ascendente o descendente.»
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-23 | Ya decidido: gráfico Total · Revisadas · Por revisar en el Resumen; se borra el mosaico del Resumen; orden por Fecha, Qubyt y Planilla en las dos bandejas, clic en el encabezado con flecha ↑/↓. Cambio menor sobre `18` (un gate). Base: `18` implementado (commit `f0aa2c6`, `develop`) | Johannes (vía coordinador) |
+| 2026-11-23 | Diagnóstico: el Resumen reutiliza `VerificationView` entero (también es la pestaña del admin); sin totales de avance para `Todas` en el overview del verificador; las bandejas ordenan en el cliente y `Siguiente` sigue el orden del servidor; hay patrón de encabezado ordenable en `discrepancy-evaluators.tsx`. Propuesta: X1 tres cifras + barra apilada; X2 el gráfico reemplaza la tarjeta y respeta `Mí · Todas`; X3 mosaico fuera solo en el Resumen del verificador; X4 ciclo ↑ → ↓ → defecto, Qubyt Cumple → Dudosa → No cumple, defecto aleatorio / `Revisada el` ↓, orden en la URL; X5 `Siguiente` sigue el orden elegido (backend en `verification.py`, sin tocar `assignments.py`). Supuestos H-X1, H-X2; riesgos R-X1, R-X2. Esperando X1-X5 | Diseñador |
+| 2026-11-23 | **X1-X5 aprobadas, todas A** (Johannes: «Sí, todas en A») | Johannes |
+| 2026-11-23 | Implementado. API con identificadores en inglés: `sort=date\|reviewed\|ai\|reviewer\|call` y `dir=asc\|desc` (en la URL del front, `orden=fecha\|revisada\|qubyt\|planilla\|llamada`); `progress` en el overview calculado en la ruta, sin tocar `assignments.py` | Coordinador |
+
+---
+
+## Ver y verificar criterios en acuerdo en la revisión del caso (pedido 2026-11-23)
+
+- **Estado:** Y1-Y5 **aprobadas (todas A)** por Johannes el 2026-11-23 e implementadas el mismo día (`20-verificar-criterios-en-acuerdo.md`). Sin desplegar.
+- **Origen:** Johannes: «En la revisión, si yo aprieto coinciden con la planilla, deberia poder apretar algo sobre cada criterio para ver el motivo por el que coincide y tambien deberia poder aprobar o rechazar.» Retoma O-V1 de `13`.
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-23 | Ya decidido: cada criterio en acuerdo se abre para ver por qué coincide y se puede aprobar o rechazar | Johannes (vía coordinador) |
+| 2026-11-23 | Diagnóstico: `case_comparison` ya envía veredicto, citas, comentario y sugerencias de los acuerdos (solo falta pintarlos); ~25-30 acuerdos por llamada, casi todos «ambos Cumple»; `DisagreementVerification` sin versión con `correct`; bug latente: un registro de desacuerdo de otra versión se rotula «Error de Qubyt/del revisor» en un acuerdo. P-24 / O-24 | Diseñador |
+| 2026-11-23 | Propuesta: Y1 misma tarjeta en acordeón, «Ambos No cumple» primero y abierto; Y2 Aprobar = ambos tienen razón, Rechazar = ambos se equivocaron; Y3 opcional (aprobado implícito); Y4 rechazo = Qubyt se equivocó + contador «Ambos se equivocaron»; Y5 un rechazo cierra la llamada sin desacuerdos, si no `Sin observaciones` como hoy. Decisión técnica: outcomes `both_right`/`both_wrong` en `DisagreementVerification`, sin migración. Supuestos H-Y1, H-Y2; riesgos R-Y1 a R-Y3. Esperando Y1-Y5 | Diseñador |
+| 2026-11-23 | **Y1-Y5 aprobadas, todas A** (Johannes: «Sí, todas en A») | Johannes |
+| 2026-11-23 | Implementado sin migración y sin tocar `assignments.py`: `call_status` cuenta los acuerdos rechazados, así que «revisada» sale sola | Coordinador |

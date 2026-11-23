@@ -102,6 +102,7 @@ def test_segment_lists_calls_and_verification_sums(
         "pending": 1,
         "ci95": None,
         "seenFirst": 0,
+        "bothWrong": 0,
     }
 
     put = client.put(

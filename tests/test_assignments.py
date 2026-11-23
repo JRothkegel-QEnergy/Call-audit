@@ -263,3 +263,108 @@ def test_read_call_ids_from_xlsx_and_txt(tmp_path) -> None:
     txt = tmp_path / "llamadas.txt"
     txt.write_text("187939\n\n191242\n187939\n", encoding="utf-8")
     assert read_call_ids(txt) == ["187939", "191242"]
+
+
+def test_tray_sort_and_summary_progress(
+    client: TestClient,
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+    two: tuple[User, User],
+) -> None:
+    """19 (X1-X5): orden por columna en la lista y en Anterior/Siguiente, y avance del Resumen."""
+    ids = seed_full(imported, admin)
+    ana, _ = two
+    with imported() as session, session.begin():
+        for cid in ids[:2]:
+            session.add(VerificationAssignment(case_id=cid, user_id=ana.id, assigned_by_id=admin.id))
+    login(client, ana)
+    url = "/api/admin/prompts/9.8/agreement/calls"
+    base = {"segment": "all", "source": "full", "assignee": "me", "tray": "pending"}
+
+    asc = client.get(url, params={**base, "sort": "ai", "dir": "asc"}).json()["items"]
+    assert [i["aiVerdict"] for i in asc] == ["compliant", "non_compliant"]
+    desc = client.get(url, params={**base, "sort": "ai", "dir": "desc"}).json()["items"]
+    assert [i["caseId"] for i in desc] == [ids[1], ids[0]]
+    # Anterior/Siguiente siguen el mismo orden que la lista.
+    case = client.get(
+        f"{url}/{ids[1]}", params={"segment": "all", "tray": "pending", "sort": "ai", "dir": "desc"}
+    ).json()
+    assert case["position"]["index"] == 1 and case["position"]["nextCaseId"] == ids[0]
+    assert client.get(url, params={**base, "sort": "bogus"}).status_code == 422
+
+    mine = client.get("/api/admin/prompts/9.8/verification", params={"assignee": "me"}).json()["progress"]
+    assert mine == {"total": 2, "reviewed": 0, "pending": 2}
+    team = client.get("/api/admin/prompts/9.8/verification", params={"assignee": "all"}).json()["progress"]
+    assert team["total"] == 3 and team["total"] == team["reviewed"] + team["pending"]
+
+
+def test_verifier_approves_or_rejects_agreeing_criteria(
+    client: TestClient,
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+    two: tuple[User, User],
+) -> None:
+    """20 (Y1-Y5): aprobar o rechazar un criterio en que Qubyt y la planilla coinciden."""
+    ids = seed_full(imported, admin)
+    ana, _ = two
+    with imported() as session, session.begin():
+        for cid in ids:
+            session.add(VerificationAssignment(case_id=cid, user_id=ana.id, assigned_by_id=admin.id))
+    login(client, ana)
+    put = {"version": "9.8", "source": "full"}
+    # Las salidas no se cruzan: en un desacuerdo no vale «los dos…», ni en un acuerdo «error de Qubyt».
+    assert client.put(f"/api/admin/verifications/{ids[0]}/14", json={**put, "outcome": "both_right"}).status_code == 400
+    assert client.put(f"/api/admin/verifications/{ids[2]}/14", json={**put, "outcome": "ai_error"}).status_code == 400
+
+    # Aprobar no cierra la llamada (sigue «Sin observaciones» pendiente).
+    ok = client.put(f"/api/admin/verifications/{ids[2]}/14", json={**put, "outcome": "both_right"})
+    assert ok.status_code == 200 and ok.json()["correct"] == "compliant"
+    pending = {"segment": "all", "source": "full", "assignee": "me", "tray": "pending"}
+    url = "/api/admin/prompts/9.8/agreement/calls"
+    assert ids[2] in {i["caseId"] for i in client.get(url, params=pending).json()["items"]}
+
+    # Rechazar: la llamada sin desacuerdos queda revisada como «Qubyt se equivocó».
+    bad = client.put(f"/api/admin/verifications/{ids[2]}/14", json={**put, "outcome": "both_wrong"})
+    assert bad.status_code == 200 and bad.json()["correct"] == "non_compliant"
+    reviewed = client.get(url, params={**pending, "tray": "reviewed"}).json()
+    row = next(i for i in reviewed["items"] if i["caseId"] == ids[2])
+    assert row["verification"] == "ai_wrong" and row["bothWrong"] == 1
+    case = client.get(f"{url}/{ids[2]}", params={"segment": "all"}).json()
+    crit = next(c for c in case["criteria"] if c["criterionId"] == 14)
+    assert crit["kind"] == "agree" and crit["verification"]["outcome"] == "both_wrong"
+
+    # Deshacer la devuelve a Por revisar.
+    assert client.delete(f"/api/admin/verifications/{ids[2]}/14").status_code == 204
+    assert ids[2] in {i["caseId"] for i in client.get(url, params=pending).json()["items"]}
+
+
+def test_old_disagreement_record_reads_as_agreement(
+    client: TestClient,
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+    two: tuple[User, User],
+) -> None:
+    """20: un registro hecho como desacuerdo en otra versión se rotula como acuerdo si ahora coinciden."""
+    from call_audit.persistence.models import DisagreementVerification
+
+    ids = seed_full(imported, admin)
+    ana, _ = two
+    with imported() as session, session.begin():
+        session.add(VerificationAssignment(case_id=ids[2], user_id=ana.id, assigned_by_id=admin.id))
+        session.add(
+            DisagreementVerification(
+                case_id=ids[2],
+                criterion_id=14,
+                outcome="ai_error",
+                correct="compliant",
+                reviewer_fail_at=False,
+                ai_verdict_at="non_compliant",
+                version_at="9.7",
+                decided_by_id=admin.id,
+            )
+        )
+    login(client, ana)
+    case = client.get(f"/api/admin/prompts/9.8/agreement/calls/{ids[2]}", params={"segment": "all"}).json()
+    crit = next(c for c in case["criteria"] if c["criterionId"] == 14)
+    assert crit["verification"]["outcome"] == "both_right"
+    assert case["verification"] == "none"

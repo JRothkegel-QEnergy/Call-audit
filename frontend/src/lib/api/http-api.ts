@@ -65,6 +65,8 @@ const scopeParams = (scope?: VerificationScope) =>
         assignee: scope.assignee ?? undefined,
         tray: scope.tray ?? undefined,
         discrepancy: scope.discrepancy ?? undefined,
+        sort: scope.sort ?? undefined,
+        dir: scope.sort ? (scope.dir ?? "asc") : undefined,
       }
     : {};
 

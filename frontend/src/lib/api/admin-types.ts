@@ -159,7 +159,14 @@ export interface DiscrepancyInsights {
 // --- Verificación caso a caso (docs/ux/admin-prompt-metrics/04-verificacion-propuesta.md §9) ---
 
 export type AgreementSegment = "promptFn" | "promptFp" | "reviewer" | "undecided" | "agree";
-export type VerificationOutcome = "ai_error" | "reviewer_error" | "ambiguous" | "missing_info";
+export type VerificationOutcome =
+  | "ai_error"
+  | "reviewer_error"
+  | "ambiguous"
+  | "missing_info"
+  /** Criterio en acuerdo (20-verificar-criterios-en-acuerdo, Y2 A): los dos tienen razón o los dos se equivocaron. */
+  | "both_right"
+  | "both_wrong";
 /** none: la llamada no tiene desacuerdos por criterio que verificar. */
 export type CallVerification = "pending" | "confirmed" | "ai_wrong" | "inconclusive" | "none";
 export type Verdict3 = "compliant" | "non_compliant" | "uncertain";
@@ -176,6 +183,8 @@ export interface VerificationSummary {
   ci95: [number, number] | null;
   /** Registros hechos con la explicación de la IA de análisis a la vista. */
   seenFirst: number;
+  /** Criterios en acuerdo marcados «los dos se equivocaron» (20, Y4 A). */
+  bothWrong?: number;
 }
 
 export interface SegmentDisagreement {
@@ -204,6 +213,8 @@ export interface SegmentCall {
   /** Bandejas del verificador (18): último registro de la llamada y su tipo de discrepancia. */
   lastReviewedAt?: string | null;
   discrepancy?: Discrepancy;
+  /** Criterios en acuerdo marcados «los dos se equivocaron» (20, Y4 A). */
+  bothWrong?: number;
 }
 
 export interface SegmentCalls {
@@ -228,6 +239,10 @@ export interface SegmentCalls {
 
 /** Bandeja del verificador (18, W1-W4): Por revisar o Revisadas. */
 export type Tray = "pending" | "reviewed";
+
+/** Orden por columna de las bandejas (19, X4 A). Sin orden, el de la bandeja. */
+export type TraySort = "date" | "reviewed" | "ai" | "reviewer" | "call";
+export type SortDirection = "asc" | "desc";
 
 /** Tipo de discrepancia de la llamada (18, W6 A). «Posible error del revisor» cae en el lado de su veredicto. */
 export type Discrepancy = "fn" | "fp" | "undecided" | "criteria" | "none";
@@ -282,6 +297,8 @@ export interface CaseComparison {
   reviewer: { verdict: "compliant" | "non_compliant"; comment: string | null; evaluator: string | null };
   findingsAvailable: boolean;
   verification: CallVerification;
+  /** Criterios en acuerdo marcados «los dos se equivocaron» (20, Y4 A). */
+  bothWrong?: number;
   criteria: CaseComparisonCriterion[];
   position: {
     index: number | null;
@@ -309,6 +326,9 @@ export interface VerificationScope {
   /** Bandeja de origen y filtro por discrepancia (18): Anterior/Siguiente recorren esa lista. */
   tray?: Tray | null;
   discrepancy?: Discrepancy | null;
+  /** Orden por columna (19, X5 A): Anterior/Siguiente recorren la bandeja en ese orden. */
+  sort?: TraySort | null;
+  dir?: SortDirection | null;
 }
 
 export interface VerifierSummary {
@@ -334,6 +354,8 @@ export interface VerificationOverview {
   assignee: string;
   n: number;
   agreement: Agreement | null;
+  /** Avance del alcance «Asignadas a» para el gráfico del Resumen (19, X1-X2 A). */
+  progress?: { total: number; reviewed: number; pending: number };
   me: VerifierSummary | null;
   verifiers: { id: string; name: string }[];
 }

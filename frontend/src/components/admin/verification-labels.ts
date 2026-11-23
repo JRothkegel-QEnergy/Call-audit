@@ -98,6 +98,8 @@ export const VERDICT_CLASS: Record<Verdict3, string> = { compliant: "vt vt-pass"
 export function outcomeLabel(outcome: VerificationOutcome, aiUndecided: boolean): string {
   if (outcome === "ai_error") return aiUndecided ? "El revisor tiene razón" : "Error de la IA";
   if (outcome === "reviewer_error") return aiUndecided ? "El revisor se equivocó" : "Error del revisor";
+  if (outcome === "both_right") return "Ambos tienen razón";
+  if (outcome === "both_wrong") return "Ambos se equivocaron";
   return outcome === "ambiguous" ? "Ambiguo" : "Falta información";
 }
 

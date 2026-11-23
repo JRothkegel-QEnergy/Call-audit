@@ -502,6 +502,8 @@ Segment = Literal[
 Source = Literal["test", "full"]
 Tray = Literal["pending", "reviewed"]
 Discrepancy = Literal["fn", "fp", "undecided", "criteria", "none"]
+Sort = Literal["date", "reviewed", "ai", "reviewer", "call"]
+Direction = Literal["asc", "desc"]
 
 
 def verification_target(session: Session, version: str, source: str, user: User) -> PromptEvaluation:
@@ -529,6 +531,8 @@ def agreement_calls(
     assignee: str | None = None,
     tray: Tray | None = None,
     discrepancy: Discrepancy | None = None,
+    sort: Sort | None = None,
+    dir: Direction | None = None,  # noqa: A002
 ):
     """Llamadas de una parte del mosaico (o de un lado, o de un motivo), en orden aleatorio fijo, con su verificación
     (04-verificacion-propuesta.md §9.1, 05-numeros-propuesta.md §7). Con `assignee`, solo las asignadas (13, V3).
@@ -558,6 +562,9 @@ def agreement_calls(
         if tray == "reviewed":
             rank = {cid: i for i, cid in enumerate(trayed["ids"])}
             data["items"].sort(key=lambda it: rank.get(it["caseId"], len(rank)))
+    # Orden por columna (19, X4 A): sobre el orden de la bandeja, que desempata.
+    data["items"] = verification.sort_items(data["items"], sort, dir, trayed["lastReviewedAt"] if trayed else {})
+    data["sort"], data["dir"] = sort, dir
     return data
 
 
@@ -573,6 +580,8 @@ def agreement_case(
     assignee: str | None = None,
     tray: Tray | None = None,
     discrepancy: Discrepancy | None = None,
+    sort: Sort | None = None,
+    dir: Direction | None = None,  # noqa: A002
 ):
     """Una llamada con lo que dijo la IA de esa versión frente a la planilla, motivo por motivo (§9.2), con a quién
     está asignada y si quien la mira puede registrar (13, V4). Con `tray`/`discrepancy`, Anterior/Siguiente recorren
@@ -613,10 +622,14 @@ def agreement_case(
         data["position"]["pending"] = sum(
             1 for i in listed["items"] if not assignments.is_reviewed(i, found.get(i["caseId"]))
         )
-        ordered = [i["caseId"] for i in listed["items"]]
+        in_order = listed["items"]
         if tray == "reviewed" and trayed is not None:
             rank = {cid: i for i, cid in enumerate(trayed["ids"])}
-            ordered.sort(key=lambda cid: rank.get(cid, -1))
+            in_order = sorted(in_order, key=lambda i: rank.get(i["caseId"], -1))
+        # Anterior/Siguiente recorren la bandeja en el orden que se ve (19, X5 A).
+        in_order = verification.sort_items(in_order, sort, dir, trayed["lastReviewedAt"] if trayed else {})
+        ordered = [i["caseId"] for i in in_order]
+        if (tray == "reviewed" and trayed is not None) or sort is not None:
             if case_id in ordered:
                 at = ordered.index(case_id)
                 data["position"].update(
@@ -640,7 +653,7 @@ def agreement_case(
 
 
 class VerificationIn(BaseModel):
-    outcome: Literal["ai_error", "reviewer_error", "ambiguous", "missing_info"]
+    outcome: Literal["ai_error", "reviewer_error", "ambiguous", "missing_info", "both_right", "both_wrong"]
     note: str | None = None
     version: str
     seenFirst: bool = False  # noqa: N815
@@ -678,6 +691,8 @@ def put_verification(
         )
     except LookupError as exc:
         raise HTTPException(404, str(exc)) from exc
+    except ValueError as exc:  # p. ej. «los dos se equivocaron» en un desacuerdo (20, Y2 A)
+        raise HTTPException(400, str(exc)) from exc
     session.commit()
     return verification.record_out(row, False)
 

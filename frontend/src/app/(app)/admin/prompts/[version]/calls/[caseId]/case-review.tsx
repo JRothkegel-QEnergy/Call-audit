@@ -39,7 +39,7 @@ import { mmss, shortDate, shortDateTime } from "@/lib/format";
 import { useSession } from "@/lib/session";
 import { loadRubric } from "@/lib/rubric";
 import { useAsync } from "@/lib/use-async";
-import { scopeQuery, trayPath } from "@/lib/verification-scope";
+import { scopeQuery, SORT_PARAM, trayPath } from "@/lib/verification-scope";
 
 /** Nivel 3 · Caso: lo que dijo la IA de la versión probada frente a la planilla, y el registro (§5.3). */
 export function CaseReviewView({
@@ -62,7 +62,7 @@ export function CaseReviewView({
       loadRubric(),
     ]);
     return { cmp, call, rubric };
-  }, [version, caseId, segment, criterion, scope.source, scope.assignee, scope.tray, scope.discrepancy]);
+  }, [version, caseId, segment, criterion, scope.source, scope.assignee, scope.tray, scope.discrepancy, scope.sort, scope.dir]);
   return (
     <AsyncView state={state} what="la llamada">
       {({ cmp, call, rubric }) => (
@@ -112,6 +112,10 @@ function CaseReview({
   const trayQuery = new URLSearchParams();
   if (motivo != null) trayQuery.set("motivo", String(motivo));
   if (scope.discrepancy) trayQuery.set("discrepancia", scope.discrepancy);
+  if (scope.sort) {
+    trayQuery.set("orden", SORT_PARAM[scope.sort]);
+    trayQuery.set("dir", scope.dir ?? "asc");
+  }
   const listHref = tray ? `${trayPath(tray)}${trayQuery.size ? `?${trayQuery}` : ""}` : `${base}${tail}`;
   const listLabel = tray === "pending" ? "Por revisar" : tray === "reviewed" ? "Revisadas" : null;
   const caseHref = (id: string) => `${base}/${encodeURIComponent(id)}${tail}`;
@@ -134,6 +138,8 @@ function CaseReview({
   const [sheetDrawer, setSheetDrawer] = useState(false);
   const [shortcuts, setShortcuts] = useState(true);
   const [busy, setBusy] = useState<number | null>(null);
+  // Criterio en acuerdo abierto: la ficha del seguro lo sigue (20, Y1 A).
+  const [agreeFocus, setAgreeFocus] = useState<number | null>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
   const headRef = useRef<HTMLHeadingElement>(null);
 
@@ -218,7 +224,11 @@ function CaseReview({
       const next = await fetchCmp();
       setCmp(next);
       const label = outcomeLabel(outcome, c.kind === "undecided");
-      toast(`Guardado: ${label} en el criterio ${c.criterionId}.`, {
+      const message =
+        outcome === "both_wrong"
+          ? `Registrado: Qubyt y la planilla se equivocaron. Lo correcto es ${c.reviewerFail ? "Cumple" : "No cumple"}.`
+          : `Guardado: ${label} en el criterio ${c.criterionId}.`;
+      toast(message, {
         action: {
           label: "Deshacer",
           onClick: () =>
@@ -278,7 +288,7 @@ function CaseReview({
 
   const p = cmp.position;
   // La sección de la ficha que importa sigue al criterio en foco (C3), como en la vista del auditor.
-  const focusId = toVerify[focus]?.criterionId ?? null;
+  const focusId = agreeFocus ?? toVerify[focus]?.criterionId ?? null;
   const relevantSection =
     focusId == null ? undefined : CUSTOMER_CRITERIA.has(focusId) ? "customer" : rubric.criteria[focusId]?.productSheetSection;
   return (
@@ -397,7 +407,13 @@ function CaseReview({
             </div>
             {toVerify.length === 0 &&
               (full && cmp.assignment?.assigneeId ? (
-                cmp.assignment.reviewedAt ? (
+                (cmp.bothWrong ?? 0) > 0 ? (
+                  // Un acuerdo rechazado deja la llamada revisada sin «Sin observaciones» (20, Y5 A).
+                  <p className="m-0">
+                    Revisada: registraste {cmp.bothWrong} {cmp.bothWrong === 1 ? "criterio" : "criterios"} en que los dos se
+                    equivocaron.
+                  </p>
+                ) : cmp.assignment.reviewedAt ? (
                   <p className="m-0 flex flex-wrap items-center gap-2">
                     <span>
                       Revisada sin observaciones por {cmp.assignment.reviewedBy ?? "—"} el {shortDateTime(cmp.assignment.reviewedAt)}.
@@ -432,7 +448,10 @@ function CaseReview({
                 canWrite={canWrite && c.verification?.canChange !== false}
                 busy={busy === c.criterionId}
                 revealed={revealed.has(c.criterionId)}
-                onFocus={() => setFocus(i)}
+                onFocus={() => {
+                  setFocus(i);
+                  setAgreeFocus(null); // la ficha vuelve a seguir al desacuerdo
+                }}
                 onReveal={() => setRevealed((r) => new Set(r).add(c.criterionId))}
                 onSave={(o, note) => void save(c, o, note)}
                 onListen={listen}
@@ -440,17 +459,50 @@ function CaseReview({
             ))}
           </section>
           {agreeing.length > 0 && (
-            <details className="card">
-              <summary className="cursor-pointer text-sm font-semibold">Coinciden con la planilla ({agreeing.length} criterios)</summary>
-              <ul className="m-0 mt-2 grid list-none gap-1 p-0 text-[13px]">
-                {agreeing.map((c) => (
-                  <li key={c.criterionId}>
-                    Criterio {c.criterionId} · {c.description} · IA <span className={VERDICT_CLASS[c.ai.verdict]}>{VERDICT[c.ai.verdict]}</span>
-                    {c.verification && <span className="help"> · verificado: {outcomeLabel(c.verification.outcome, false)}</span>}
-                  </li>
-                ))}
-              </ul>
-            </details>
+            <section className="card grid gap-2" aria-labelledby="agree-h">
+              <h2 id="agree-h" className="m-0 text-sm font-semibold">
+                Coinciden con la planilla ({agreeing.length} criterios) · opcional
+              </h2>
+              <p className="help m-0">
+                No es obligatorio revisarlos. Si crees que Qubyt y la planilla se equivocaron en alguno, ábrelo y márcalo con Rechazar.
+              </p>
+              {(
+                [
+                  ["Ambos No cumple", agreeing.filter((c) => c.reviewerFail), true],
+                  ["Ambos Cumple", agreeing.filter((c) => !c.reviewerFail), false],
+                ] as const
+              ).map(
+                ([title, group, open]) =>
+                  group.length > 0 && (
+                    <details key={title} open={open} className="grid gap-1">
+                      <summary className="cursor-pointer text-[13px] font-semibold">
+                        {title} ({group.length})
+                      </summary>
+                      <div className="mt-1 grid gap-1">
+                        {group.map((c) => (
+                          <AgreeCriterion
+                            key={c.criterionId}
+                            c={c}
+                            version={cmp.version}
+                            typification={call.typification}
+                            canWrite={canWrite && c.verification?.canChange !== false}
+                            busy={busy === c.criterionId}
+                            onOpen={() => setAgreeFocus(c.criterionId)}
+                            onSave={(o, note) => void save(c, o, note)}
+                            onUndo={() =>
+                              void (async () => {
+                                await api.deleteVerification(cmp.caseId, c.criterionId);
+                                await reload();
+                              })()
+                            }
+                            onListen={listen}
+                          />
+                        ))}
+                      </div>
+                    </details>
+                  ),
+              )}
+            </section>
           )}
         </div>
         <div className="hidden 2xl:block">
@@ -523,34 +575,7 @@ function CriterionCard({
         {filtered && <span className="chip ml-2 align-middle text-xs">Criterio filtrado</span>}
       </h3>
       <p className="help m-0">Criterio: {c.description}</p>
-      <p className="m-0">
-        IA v{version}: <span className={VERDICT_CLASS[c.ai.verdict]}>{VERDICT[c.ai.verdict]}</span>
-      </p>
-      {c.ai.evidence.length === 0 ? (
-        <p className="help m-0">La IA no dejó cita para este criterio.</p>
-      ) : (
-        c.ai.evidence.map((e, i) => (
-          <p key={i} className="quote m-0">
-            «{e.quote}»{" "}
-            {e.startMs != null && (
-              <button type="button" className="underline" onClick={() => onListen(e.quote, e.startMs)}>
-                Escuchar desde {mmss(e.startMs)}
-              </button>
-            )}
-          </p>
-        ))
-      )}
-      <SuggestedReasons reasons={c.ai.suggestedReasons} plainQuotes />
-      <RenunciationReasonsButton
-        criterionId={c.criterionId}
-        variant="text"
-        className="justify-self-start"
-        call={{ typification, verdict: c.ai.verdict, suggestedReasons: c.ai.suggestedReasons }}
-      />
-      {c.ai.comment && <p className="m-0">Comentario de la IA: «{c.ai.comment}»</p>}
-      <p className="m-0">
-        Planilla: <span className={c.reviewerFail ? "vt vt-fail" : "vt vt-pass"}>{c.reviewerFail ? "No cumple" : "Cumple"}</span>
-      </p>
+      <CriterionEvidence c={c} version={version} typification={typification} onListen={onListen} />
 
       {v?.stale && <p className="m-0 font-semibold">La planilla cambió después de esta verificación. Revísala de nuevo.</p>}
 
@@ -646,3 +671,161 @@ function CriterionCard({
     </article>
   );
 }
+
+/** Lo que dijo Qubyt y la planilla en un criterio: veredicto, citas, motivos sugeridos, comentario. Compartido por los
+ * desacuerdos y los acuerdos (20-verificar-criterios-en-acuerdo, Y1 A). */
+function CriterionEvidence({
+  c,
+  version,
+  typification,
+  onListen,
+}: {
+  c: CaseComparisonCriterion;
+  version: string;
+  typification: Typification | null | undefined;
+  onListen: (quote: string, startMs: number | null) => void;
+}) {
+  return (
+    <>
+      <p className="m-0">
+        Qubyt v{version}: <span className={VERDICT_CLASS[c.ai.verdict]}>{VERDICT[c.ai.verdict]}</span>
+      </p>
+      {c.ai.evidence.length === 0 ? (
+        <p className="help m-0">
+          {c.kind === "agree" && c.ai.verdict === "compliant"
+            ? "Qubyt no dejó cita: lo da por cumplido porque no lo encontró en la llamada."
+            : "Qubyt no dejó cita para este criterio."}
+        </p>
+      ) : (
+        c.ai.evidence.map((e, i) => (
+          <p key={i} className="quote m-0">
+            «{e.quote}»{" "}
+            {e.startMs != null && (
+              <button type="button" className="underline" onClick={() => onListen(e.quote, e.startMs)}>
+                Escuchar desde {mmss(e.startMs)}
+              </button>
+            )}
+          </p>
+        ))
+      )}
+      <SuggestedReasons reasons={c.ai.suggestedReasons} plainQuotes />
+      <RenunciationReasonsButton
+        criterionId={c.criterionId}
+        variant="text"
+        className="justify-self-start"
+        call={{ typification, verdict: c.ai.verdict, suggestedReasons: c.ai.suggestedReasons }}
+      />
+      {c.ai.comment && <p className="m-0">Comentario de Qubyt: «{c.ai.comment}»</p>}
+      <p className="m-0">
+        Planilla: <span className={c.reviewerFail ? "vt vt-fail" : "vt vt-pass"}>{c.reviewerFail ? "No cumple" : "Cumple"}</span>
+      </p>
+    </>
+  );
+}
+
+const AGREE_OUTCOMES: [VerificationOutcome, string][] = [
+  ["both_right", "Aprobar"],
+  ["both_wrong", "Rechazar"],
+];
+
+/** Un criterio en que Qubyt y la planilla coinciden, desplegable, con «¿Tienen razón los dos?» (20, Y1-Y2 A). */
+function AgreeCriterion({
+  c,
+  version,
+  typification,
+  canWrite,
+  busy,
+  onOpen,
+  onSave,
+  onUndo,
+  onListen,
+}: {
+  c: CaseComparisonCriterion;
+  version: string;
+  typification: Typification | null | undefined;
+  canWrite: boolean;
+  busy: boolean;
+  onOpen: () => void;
+  onSave: (outcome: VerificationOutcome, note: string | null) => void;
+  onUndo: () => void;
+  onListen: (quote: string, startMs: number | null) => void;
+}) {
+  const v = c.verification;
+  const current = v && !v.stale ? v.outcome : null;
+  const [noteOpen, setNoteOpen] = useState(!!v?.note);
+  const [note, setNote] = useState(v?.note ?? "");
+  const both = c.reviewerFail ? "No cumple" : "Cumple";
+  const state = current === "both_right" ? "Aprobado" : current === "both_wrong" ? "Rechazado: los dos se equivocaron" : null;
+  const groupLabel = `¿Tienen razón los dos? Criterio ${c.criterionId}`;
+  return (
+    <details
+      className="rounded-md border border-border text-[13px]"
+      onToggle={(e) => {
+        if ((e.currentTarget as HTMLDetailsElement).open) onOpen();
+      }}
+    >
+      <summary className="cursor-pointer px-3 py-2">
+        Criterio {c.criterionId} · {c.description} · Qubyt y planilla: <span className={c.reviewerFail ? "vt vt-fail" : "vt vt-pass"}>{both}</span>
+        {state && <b className={current === "both_wrong" ? "ml-1 text-[var(--danger,#b42318)]" : "ml-1"}> · {state}</b>}
+      </summary>
+      <div className="grid gap-1.5 border-t border-border p-3">
+        <CriterionEvidence c={c} version={version} typification={typification} onListen={onListen} />
+        {v?.stale && <p className="m-0 font-semibold">La planilla cambió después de este registro. Revísalo de nuevo.</p>}
+        {canWrite ? (
+          <>
+            <span id={`aq-${c.criterionId}`} className="font-semibold">
+              ¿Tienen razón los dos?
+            </span>
+            <div className="seg justify-self-start" role="radiogroup" aria-label={groupLabel}>
+              {AGREE_OUTCOMES.map(([o, label]) => (
+                <button key={o} type="button" role="radio" aria-checked={current === o} disabled={busy} onClick={() => onSave(o, note.trim() || null)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+            {current === "both_wrong" && (
+              <p className="m-0">
+                Registrado: Qubyt y la planilla se equivocaron. Lo correcto es {c.reviewerFail ? "Cumple" : "No cumple"}.{" "}
+                <button type="button" className="underline" disabled={busy} onClick={onUndo}>
+                  Deshacer
+                </button>
+              </p>
+            )}
+            {current === "both_right" && (
+              <button type="button" className="justify-self-start underline" disabled={busy} onClick={onUndo}>
+                Quitar aprobación
+              </button>
+            )}
+            {noteOpen ? (
+              <label className="grid gap-1">
+                Nota (opcional)
+                <textarea className="control min-h-[56px]" value={note} onChange={(e) => setNote(e.target.value)} />
+                {current && note.trim() !== (v?.note ?? "") && (
+                  <Button size="sm" variant="default" className="justify-self-start" onClick={() => onSave(current, note.trim() || null)}>
+                    Guardar nota
+                  </Button>
+                )}
+              </label>
+            ) : (
+              <button type="button" className="justify-self-start underline" onClick={() => setNoteOpen(true)}>
+                + Agregar nota
+              </button>
+            )}
+          </>
+        ) : (
+          <p className="m-0">{v ? <>Registrado por {v.by}: <b>{outcomeLabel(v.outcome, false)}</b>.{v.note ? ` Nota: «${v.note}»` : ""}</> : "Sin registro."}</p>
+        )}
+        {v && canWrite && (
+          <p className="help m-0">
+            Registrado por {v.by}
+            {v.at ? ` el ${shortDateTime(v.at)}` : ""}
+            {v.versionAt !== version
+              ? ` desde v${v.versionAt}: ${outcomeLabel(v.outcome, false)}`
+              : ""}
+          </p>
+        )}
+      </div>
+    </details>
+  );
+}
+
