@@ -209,19 +209,17 @@ def _plain(*blocks: str) -> str:
     return "\n\n".join(blocks) + f"\n\n—\nCall Audit · Qubico\n{FOOTER}\n"
 
 
-def invitation(
-    *, to: str, name: str, inviter: str, client: str, role: str, url: str, expires: str, settings: Settings
-) -> Email:
+def invitation(*, to: str, name: str, inviter: str, role: str, url: str, expires: str, settings: Settings) -> Email:
     """Correo de invitación (Cambio 12 §3.1, rediseñado en el Cambio 22). `expires` ya viene en hora de Chile."""
     role_label = ROLE_LABEL.get(role, role)
     title = "Te invitaron a Qubyt"
     note_q, note_a = "¿No esperabas esta invitación?", "Ignora este correo: tu cuenta no se activará."
-    intro = f"{inviter} te invitó a Qubyt, la herramienta de auditoría de llamadas de {client}."
+    intro = f"{inviter} te invitó a Qubyt, la herramienta de auditoría de llamadas."
     text = _plain(
         title,
         f"Hola, {name}:",
         f"{intro} Crea tu contraseña para activar tu cuenta:\n{url}",
-        f"Empresa: {client}\nRol: {role_label}\nTu usuario: {to}\nVence: {expires} (72 horas)",
+        f"Rol: {role_label}\nTu usuario: {to}\nVence: {expires} (72 horas)",
         "El enlace sirve una sola vez.",
         f"{note_q} {note_a}",
     )
@@ -229,14 +227,13 @@ def invitation(
         _row(
             _paragraphs(
                 f"Hola, {escape(name)}:",
-                f"{escape(inviter)} te invitó a Qubyt, la herramienta de auditoría de llamadas de "
-                f"{escape(client)}. Crea tu contraseña para activar tu cuenta.",
+                f"{escape(inviter)} te invitó a Qubyt, la herramienta de auditoría de llamadas. "
+                "Crea tu contraseña para activar tu cuenta.",
             ),
             "16px 40px 0",
         )
         + _box(
             [
-                ("Empresa", escape(client)),
                 ("Rol", escape(role_label)),
                 ("Tu usuario", escape(to)),
                 ("Vence", f'{escape(expires)} <span style="font-weight:normal;color:{MUTED}">(72 horas)</span>'),
