@@ -75,8 +75,12 @@ export const ROLE_LABEL: Record<Role, string> = {
   supervisor: "Supervisor",
   qubico_admin: "Administrador Qubico",
   qubico_viewer: "Lectura Qubico",
-  qubico_verifier: "Calibrador",
+  // 23 §7 (AE11): el rol se llama «Supervisor 2» en el admin; la propia persona se ve como «Supervisor» (ownRoleLabel).
+  qubico_verifier: "Supervisor 2",
 };
+
+/** Cómo se ve el rol ante la propia persona (perfil, invitación): el Supervisor 2 ve «Supervisor» (AE11). */
+export const ownRoleLabel = (role: Role) => (role === "qubico_verifier" ? "Supervisor" : ROLE_LABEL[role]);
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, ready } = useSession();

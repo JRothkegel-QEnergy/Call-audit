@@ -47,17 +47,19 @@ export function TrayView({ tray }: { tray: Tray }) {
   );
 }
 
-const TITLE: Record<Tray, string> = { pending: "Por calibrar", reviewed: "Calibradas" };
+// 23 §7 (AE12-AE13).
+const TITLE: Record<Tray, string> = { pending: "Llamadas por calibrar", reviewed: "Llamadas calibradas" };
 const DESCRIPTION: Record<Tray, string> = {
   pending: "Tus llamadas asignadas que faltan por calibrar. Están en un orden al azar fijo, el mismo para todos.",
-  reviewed: "Las llamadas que ya calibraste, la más reciente primero. Ábrelas para corregir tus registros.",
+  reviewed: "Listado de llamadas ya calibradas ordenadas desde la más reciente. Si desea corregir un registro, abra la llamada.",
 };
 
 const SORT_LABEL: Record<TraySort, string> = {
   call: "ID de llamada",
   date: "Fecha llamada",
   ai: "Veredicto Qubyt",
-  reviewer: "Veredicto revisor",
+  reviewer: "Veredicto Revisor",
+  final: "Veredicto final",
   reviewed: "Fecha de calibración",
 };
 
@@ -117,7 +119,7 @@ function ChipLegend() {
           {KIND[k].text}
         </span>
       ))}
-      <span>✗ = calibrado No cumple</span>
+      <span>✗ = No cumple confirmado</span>
     </p>
   );
 }
@@ -132,7 +134,7 @@ function CriteriaCell({ items, filtered }: { items: RejectedCriterion[]; filtere
   return (
     <span className="flex flex-wrap gap-1">
       {shown.map((c) => {
-        const status = c.calibration === "non_compliant" ? "calibrado No cumple" : "sin calibrar";
+        const status = c.calibration === "non_compliant" ? "No cumple confirmado" : "sin calibrar";
         return (
           <span
             key={c.criterionId}
@@ -243,10 +245,14 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
   const first = shown[0];
   return (
     <>
-      <div className="mb-3 flex flex-wrap items-center gap-2" role="search">
-        <CallSearch value={call ?? undefined} onChange={(v) => set("llamada", v)} />
-        <label className="flex items-center gap-1.5 text-sm">
-          Criterios rechazados:
+      {/* 23 §7 (AE19): cada filtro en su grupo, con la etiqueta arriba, para que se lean como distintos. */}
+      <div className="mb-2 flex flex-wrap items-end gap-x-6 gap-y-3" role="search">
+        <div className="grid gap-1 text-sm">
+          <span aria-hidden>ID de llamada</span>
+          <CallSearch value={call ?? undefined} onChange={(v) => set("llamada", v)} />
+        </div>
+        <label className="grid gap-1 text-sm">
+          Criterios rechazados
           <select className="control" value={motivo ?? ""} onChange={(e) => set("motivo", e.target.value || null)}>
             <option value="">Todos</option>
             {(data.rejectedCounts ?? []).map((c) => (
@@ -259,8 +265,8 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
             )}
           </select>
         </label>
-        <label className="flex items-center gap-1.5 text-sm">
-          Veredicto Qubyt:
+        <label className="grid gap-1 text-sm">
+          Veredicto Qubyt
           <select className="control" value={aiVerdict ?? ""} onChange={(e) => set("qubyt", e.target.value || null)}>
             <option value="">Todos · {calls(sum(ai))}</option>
             {AI_OPTIONS.filter(([k]) => k !== "uncertain" || (ai?.uncertain ?? 0) > 0 || aiVerdict === "uncertain").map(([k, label]) => (
@@ -270,8 +276,8 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
             ))}
           </select>
         </label>
-        <label className="flex items-center gap-1.5 text-sm">
-          Veredicto revisor:
+        <label className="grid gap-1 text-sm">
+          Veredicto Revisor
           <select className="control" value={reviewerVerdict ?? ""} onChange={(e) => set("revisor", e.target.value || null)}>
             <option value="">Todos · {calls(sum(reviewer))}</option>
             {REVIEWER_OPTIONS.map(([k, label]) => (
@@ -281,15 +287,17 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
             ))}
           </select>
         </label>
-        <span className="help" aria-live="polite">
-          {sortText(tray, sort, dir)}
-        </span>
         {tray === "pending" && first && (
           <Button variant="primary" className="ml-auto" onClick={() => router.push(caseHref(first.caseId))}>
             Seguir calibrando
           </Button>
         )}
       </div>
+
+      {/* 23 §7 (AE18): el orden, entre los filtros y la leyenda de los criterios rechazados. */}
+      <p className="help m-0 mb-2" aria-live="polite">
+        {sortText(tray, sort, dir)}
+      </p>
 
       {shown.length === 0 ? (
         call ? (
@@ -323,8 +331,9 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
                 {th("date")}
                 {th("ai")}
                 {th("reviewer")}
-                <th scope="col">Revisor</th>
+                <th scope="col">Nombre Revisor</th>
                 <th scope="col">Criterios rechazados</th>
+                {tray === "reviewed" && th("final")}
                 {tray === "pending" ? <th scope="col">Avance</th> : th("reviewed")}
               </tr>
             </thead>
@@ -355,6 +364,15 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
                   <td>
                     <CriteriaCell items={i.rejectedCriteria ?? []} filtered={motivo} />
                   </td>
+                  {tray === "reviewed" && (
+                    <td>
+                      {i.finalVerdict ? (
+                        <span className={VERDICT_CLASS[i.finalVerdict]}>{VERDICT[i.finalVerdict]}</span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                  )}
                   {tray === "pending" ? (
                     <td>{progressLabel(i)}</td>
                   ) : (

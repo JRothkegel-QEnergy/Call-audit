@@ -226,7 +226,8 @@ export const httpApi: ApiClient = {
   previewAssign: (version, input) =>
     post(`/api/admin/prompts/${encodeURIComponent(version)}/verification/assign`, { ...input, preview: true }),
   assign: (version, input) => post(`/api/admin/prompts/${encodeURIComponent(version)}/verification/assign`, input),
-  setAssignee: (caseId, userId) => request("PUT", `/api/admin/assignments/${encodeURIComponent(caseId)}`, { userId }),
+  setAssignee: (caseId, userIds) => request("PUT", `/api/admin/assignments/${encodeURIComponent(caseId)}`, { userIds }),
+  deleteAccount: (accountId) => request("DELETE", `/api/admin/accounts/${encodeURIComponent(accountId)}`),
   setReviewed: (caseId, reviewed) => request("PUT", `/api/admin/assignments/${encodeURIComponent(caseId)}/reviewed`, { reviewed }),
   getFullRun: (version) => get(`/api/admin/prompts/${encodeURIComponent(version)}/full-run`),
   startFullRun: (version) => post(`/api/admin/prompts/${encodeURIComponent(version)}/full-run`),

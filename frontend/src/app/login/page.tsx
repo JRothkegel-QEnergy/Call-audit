@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatedBrandLogo } from "@/components/brand/logo";
@@ -56,9 +55,14 @@ export default function LoginPage() {
           <AnimatedBrandLogo height={80} />
         </div>
         <div>
-          <h2 className="m-0 max-w-[420px] text-[28px] font-semibold leading-[34px]">Auditoría de llamadas</h2>
+          {/* 23 §7 (AE20). */}
+          <h2 className="m-0 max-w-[420px] text-[28px] font-semibold leading-[34px]">Auditoría inteligente de llamadas</h2>
           <p className="max-w-[420px] text-on-dark-muted">
-            Qubyt propone hallazgos sobre el 100 % de las llamadas. Las personas revisan y deciden.
+            Cada llamada, revisada.
+            <br />
+            Cada hallazgo, trazable.
+            <br />
+            Cada decisión, humana.
           </p>
         </div>
         {!isRealMode && <p className="help text-on-dark-subtle">Demo con datos sintéticos</p>}
@@ -134,10 +138,6 @@ export default function LoginPage() {
               </div>
             </>
           )}
-          <div className="help">
-            <Link href="/privacy">Privacidad</Link> · <Link href="/privacy#terminos">Términos de uso</Link> ·{" "}
-            <Link href="/privacy#cookies">Cookies</Link>
-          </div>
         </form>
       </section>
     </div>

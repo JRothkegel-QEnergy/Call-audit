@@ -28,6 +28,7 @@ const STATUS: Record<Status, [string, "blue" | "neutral" | "ink"]> = {
 const ERRORS: Record<string, string> = {
   self: "No puedes desactivar tu propia cuenta.",
   last_admin: "Debe quedar al menos un Administrador Qubico activo.",
+  not_found: "Esta cuenta ya no existe.",
   never_activated: "Esta cuenta nunca se activó: reenvía la invitación en vez de reactivarla.",
   duplicate_email: "Ya existe una cuenta con este correo.",
 };
@@ -48,6 +49,8 @@ export default function AdminAccountsPage() {
   const [query, setQuery] = useState("");
   const [inviteOpen, setInviteOpen] = useState(false);
   const [confirm, setConfirm] = useState<UserAccount | null>(null);
+  const [toDelete, setToDelete] = useState<UserAccount | null>(null);
+  const activeAdmins = (accounts.data ?? []).filter((a) => a.role === "qubico_admin" && a.status === "active").length;
   const reload = () => void accounts.reload({ silent: true });
 
   const rows = useMemo(
@@ -68,6 +71,17 @@ export default function AdminAccountsPage() {
       reload();
     } catch (e) {
       toast(errorText(e, "No pudimos actualizar la cuenta. Intenta de nuevo."));
+    }
+  };
+
+  // 23 §7 (AE24): baja lógica; el correo queda libre para invitar de nuevo con otro rol.
+  const remove = async (a: UserAccount) => {
+    try {
+      await api.deleteAccount(a.id);
+      toast(`Eliminamos la cuenta de ${a.name}. Ya puedes invitar ${a.email} de nuevo.`);
+      reload();
+    } catch (e) {
+      toast(errorText(e, "No pudimos eliminar la cuenta. Intenta de nuevo."));
     }
   };
 
@@ -197,6 +211,23 @@ export default function AdminAccountsPage() {
                                   {pending ? "Revocar invitación" : "Desactivar"}
                                 </Button>
                               ))}
+                            {(() => {
+                              const lastAdmin = a.role === "qubico_admin" && a.status === "active" && activeAdmins <= 1;
+                              const why = self ? "No puedes eliminar tu propia cuenta." : lastAdmin ? ERRORS.last_admin : undefined;
+                              return (
+                                <span title={why}>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-destructive"
+                                    disabled={!!why}
+                                    onClick={() => setToDelete(a)}
+                                  >
+                                    Eliminar
+                                  </Button>
+                                </span>
+                              );
+                            })()}
                           </span>
                         </td>
                       </tr>
@@ -208,7 +239,7 @@ export default function AdminAccountsPage() {
           )
         }
       </AsyncView>
-      <p className="help mt-2">Para cambiar el rol de alguien, desactiva su cuenta e invítalo de nuevo con el rol correcto. Cada acción queda en el Registro de actividad.</p>
+      <p className="help mt-2">Para cambiar el rol de alguien, elimina su cuenta e invítalo de nuevo con el mismo correo y el rol correcto. Cada acción queda en el Registro de actividad.</p>
 
       <Dialog
         open={!!confirm}
@@ -235,6 +266,34 @@ export default function AdminAccountsPage() {
               Desactivar cuenta
             </Button>
             <Button onClick={() => setConfirm(null)}>Cancelar</Button>
+          </>
+        }
+      />
+      <Dialog
+        open={!!toDelete}
+        onOpenChange={(o) => !o && setToDelete(null)}
+        title={`¿Eliminar a ${toDelete?.name ?? ""}?`}
+        description={
+          <p className="m-0">
+            Su historial (calibraciones, revisiones, registro de actividad) se conserva con su nombre. Sus llamadas
+            pendientes vuelven a Sin asignar. Podrás crear otra cuenta con el mismo correo.
+          </p>
+        }
+        footer={
+          <>
+            <Button autoFocus onClick={() => setToDelete(null)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                const a = toDelete!;
+                setToDelete(null);
+                void remove(a);
+              }}
+            >
+              Eliminar cuenta
+            </Button>
           </>
         }
       />

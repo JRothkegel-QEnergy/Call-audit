@@ -69,6 +69,8 @@ export function AnimatedBrandLogo({ height = 40 }: { height?: number }) {
           width={height}
           height={height}
           autoPlay
+          // 23 §7 (AE21): en loop continuo; con «reducir movimiento» queda el póster fijo.
+          loop
           muted
           playsInline
           preload="auto"

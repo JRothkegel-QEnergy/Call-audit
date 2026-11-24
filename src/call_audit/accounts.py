@@ -109,7 +109,7 @@ def invite(
 
 def link_state(user: User | None) -> str:
     """valid | expired | used | revoked, para la pantalla /invite/[token]."""
-    if user is None or user.status == "deactivated":
+    if user is None or user.status in ("deactivated", "deleted"):
         return "revoked"
     if user.invite_used_at is not None:
         return "used"

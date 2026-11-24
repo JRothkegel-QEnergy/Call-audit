@@ -258,7 +258,10 @@ export interface ApiClient extends AnalysisApi {
   getVerificationProgress(version: string): Promise<VerificationProgress>;
   previewAssign(version: string, input: AssignInput): Promise<AssignPlan>;
   assign(version: string, input: AssignInput): Promise<AssignPlan>;
-  setAssignee(caseId: string, userId: string | null): Promise<void>;
+  /** Deja la llamada con exactamente estos Supervisores 2 (vacío = «Sin asignar»; AE22 A). */
+  setAssignee(caseId: string, userIds: string[]): Promise<void>;
+  /** «Eliminar cuenta» (AE24): baja lógica, el correo queda libre. */
+  deleteAccount(accountId: string): Promise<void>;
   setReviewed(caseId: string, reviewed: boolean): Promise<CaseAssignment>;
   getFullRun(version: string): Promise<FullRunStatus>;
   startFullRun(version: string): Promise<FullRun>;

@@ -141,7 +141,8 @@ def account_out(user: User) -> dict:
 
 @router.get("/admin/accounts")
 def list_accounts(session: DbSession, _: Admin):
-    return [account_out(u) for u in session.scalars(select(User).order_by(User.role, User.name))]
+    users = session.scalars(select(User).where(User.status != "deleted").order_by(User.role, User.name))
+    return [account_out(u) for u in users]
 
 
 class InviteIn(BaseModel):
@@ -205,6 +206,34 @@ def set_status(account_id: str, body: StatusIn, session: DbSession, user: Admin)
     target.status = body.status
     accounts.log(
         session, user, "account_reactivated" if body.status == "active" else "account_deactivated", target.email
+    )
+    session.commit()
+
+
+@router.delete("/admin/accounts/{account_id}", status_code=204)
+def delete_account(account_id: str, session: DbSession, user: Admin) -> None:
+    """«Eliminar cuenta» (23 §7, AE24): baja lógica. El historial (calibraciones, revisiones, actividad) queda con su
+    nombre; el correo se libera para crear otra cuenta, sus sesiones dejan de valer y sus llamadas pendientes vuelven a
+    «Sin asignar» (o quedan con quien las comparte)."""
+    target = get_account(session, account_id)
+    if target.status == "deleted":
+        raise HTTPException(404, "not_found")
+    if target.id == user.id:
+        raise HTTPException(409, "self")
+    if target.role == "qubico_admin" and target.status == "active":
+        admins = session.scalar(
+            select(func.count()).select_from(User).where(User.role == "qubico_admin", User.status == "active")
+        )
+        if (admins or 0) <= 1:
+            raise HTTPException(409, "last_admin")
+    email = target.email
+    released = assignments.release_pending(session, target.id) if target.role == assignments.VERIFIER else 0
+    target.status = "deleted"
+    target.email = f"deleted-{target.id}@deleted.invalid"
+    target.password_hash = None
+    target.invite_token_hash = None
+    accounts.log(
+        session, user, "account_deleted", email, f"{released} llamadas pendientes liberadas" if released else ""
     )
     session.commit()
 
@@ -502,7 +531,7 @@ Segment = Literal[
 Source = Literal["test", "full"]
 Tray = Literal["pending", "reviewed"]
 Discrepancy = Literal["fn", "fp", "undecided", "criteria", "none"]
-Sort = Literal["date", "reviewed", "ai", "reviewer", "call"]
+Sort = Literal["date", "reviewed", "ai", "reviewer", "final", "call"]
 Direction = Literal["asc", "desc"]
 AiVerdict = Literal["compliant", "non_compliant", "uncertain"]
 SheetVerdict = Literal["compliant", "non_compliant"]
@@ -559,9 +588,10 @@ def agreement_calls(
     except LookupError as exc:
         raise HTTPException(404, str(exc)) from exc
     found = assignments.assignment_map(session, [i["caseId"] for i in data["items"]])
+    names = assignments.names_of(session) if found else {}
     for it in data["items"]:
         a = found.get(it["caseId"])
-        it["assigneeName"] = a.user.name if a and a.user else None
+        it["assigneeName"] = ", ".join(names.get(u, "—") for u in assignments.assignees(a)) or None
         it["reviewedAt"] = a.reviewed_at.isoformat() if a and a.reviewed_at else None
         if trayed is not None:
             it["lastReviewedAt"] = trayed["lastReviewedAt"].get(it["caseId"])
@@ -668,7 +698,7 @@ def agreement_case(
         if v is not None:
             rec = verification.records_for(session, [case_id]).get((case_id, c["criterionId"]))
             v["canChange"] = data["canRecord"] and assignments.can_change_record(
-                user, rec.decided_by_id if rec else None
+                user, rec.decided_by_id if rec else None, assignments.assignees(row)
             )
     return data
 
@@ -695,7 +725,8 @@ def check_can_record(
         raise HTTPException(403, "not_assigned")
     # Un registro de otra versión no cuenta en la calibración de esta: se puede calibrar de nuevo encima.
     rec = verification.records_for(session, [case_id], version).get((case_id, criterion_id))
-    if rec is not None and not assignments.can_change_record(user, rec.decided_by_id):
+    team = assignments.assignees(assignments.assignment_map(session, [case_id]).get(case_id))
+    if rec is not None and not assignments.can_change_record(user, rec.decided_by_id, team):
         raise HTTPException(403, "not_owner")
 
 

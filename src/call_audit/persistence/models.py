@@ -35,7 +35,7 @@ class User(Base):
     )  # auditor | supervisor | qubico_admin | qubico_viewer | qubico_verifier
     permissions: Mapped[list[Any]] = mapped_column(default=list)
     password_hash: Mapped[str | None] = mapped_column(String(200))
-    status: Mapped[str] = mapped_column(String(20), default="active")  # invited | active | deactivated
+    status: Mapped[str] = mapped_column(String(20), default="active")  # invited | active | deactivated | deleted
     created_at: Mapped[datetime] = mapped_column(default=now)
     created_by_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
     last_login_at: Mapped[datetime | None] = mapped_column()
@@ -350,6 +350,8 @@ class VerificationAssignment(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
     case_id: Mapped[str] = mapped_column(ForeignKey("cases.id"), unique=True)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    # Supervisores 2 con quienes se comparte la llamada (23 §7, AE22 A): calibran juntos, un registro por criterio.
+    co_user_ids: Mapped[list[Any]] = mapped_column(default=list)
     assigned_by_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     assigned_at: Mapped[datetime] = mapped_column(default=now)
     reviewed_by_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
