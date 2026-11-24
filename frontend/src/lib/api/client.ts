@@ -50,7 +50,8 @@ import type {
   VerificationOutcome,
   VerificationRecord,
   CaseAssignment,
-  DistributionPlan,
+  AssignInput,
+  AssignPlan,
   FullRun,
   FullRunStatus,
   VerificationOverview,
@@ -255,9 +256,8 @@ export interface ApiClient extends AnalysisApi {
   getVerificationHome(): Promise<{ version: string | null; me?: VerifierSummary | null }>;
   getVerificationOverview(version: string, assignee?: string | null): Promise<VerificationOverview>;
   getVerificationProgress(version: string): Promise<VerificationProgress>;
-  previewDistribution(version: string, userIds: string[]): Promise<DistributionPlan>;
-  distribute(version: string, userIds: string[]): Promise<DistributionPlan>;
-  movePending(version: string, fromUserId: string, toUserIds: string[]): Promise<{ moved: number }>;
+  previewAssign(version: string, input: AssignInput): Promise<AssignPlan>;
+  assign(version: string, input: AssignInput): Promise<AssignPlan>;
   setAssignee(caseId: string, userId: string | null): Promise<void>;
   setReviewed(caseId: string, reviewed: boolean): Promise<CaseAssignment>;
   getFullRun(version: string): Promise<FullRunStatus>;

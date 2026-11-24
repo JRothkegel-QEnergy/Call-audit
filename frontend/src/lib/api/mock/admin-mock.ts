@@ -52,9 +52,8 @@ type AdminApi = Pick<
   | "getVerificationHome"
   | "getVerificationOverview"
   | "getVerificationProgress"
-  | "previewDistribution"
-  | "distribute"
-  | "movePending"
+  | "previewAssign"
+  | "assign"
   | "setAssignee"
   | "setReviewed"
   | "getFullRun"
@@ -539,9 +538,8 @@ export const adminMock: AdminApi = {
   getVerificationHome: () => wait(() => ({ version: null })),
   getVerificationOverview: () => Promise.reject(new ApiError("not_available")),
   getVerificationProgress: () => Promise.reject(new ApiError("not_available")),
-  previewDistribution: () => Promise.reject(new ApiError("not_available")),
-  distribute: () => Promise.reject(new ApiError("not_available")),
-  movePending: () => Promise.reject(new ApiError("not_available")),
+  previewAssign: () => Promise.reject(new ApiError("not_available")),
+  assign: () => Promise.reject(new ApiError("not_available")),
   setAssignee: () => Promise.reject(new ApiError("not_available")),
   setReviewed: () => Promise.reject(new ApiError("not_available")),
   getFullRun: () => Promise.reject(new ApiError("not_available")),

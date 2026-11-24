@@ -24,7 +24,7 @@ import { AsyncView } from "@/components/ui/states";
 import { api } from "@/lib/api";
 import type {
   AgreementSegment,
-  DistributionPlan,
+  AssignPlan,
   FullRunStatus,
   ProgressBlock,
   VerificationOverview,
@@ -446,8 +446,8 @@ function Verifiers({
   const state = useAsync(() => api.getVerificationProgress(version), [version]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [split, setSplit] = useState(false);
-  const [distributeOpen, setDistributeOpen] = useState(false);
-  const [moveFrom, setMoveFrom] = useState<string | null>(null);
+  // Diálogo «Asignar llamadas» (24): null = cerrado; «unassigned» o el id del calibrador de origen.
+  const [assignFrom, setAssignFrom] = useState<string | null>(null);
   const refresh = () => {
     void state.reload({ silent: true });
     onChanged();
@@ -477,9 +477,9 @@ function Verifiers({
           <Button
             size="sm"
             variant="primary"
-            onClick={() => setDistributeOpen(true)}
+            onClick={() => setAssignFrom("unassigned")}
           >
-            Repartir llamadas
+            Asignar llamadas
           </Button>
         )}
       </div>
@@ -498,29 +498,16 @@ function Verifiers({
               split={split}
               expanded={expanded}
               onToggle={toggle}
-              onMove={canWrite ? setMoveFrom : null}
+              onMove={canWrite ? setAssignFrom : null}
             />
-            {canWrite && (
-              <>
-                {distributeOpen && (
-                  <DistributeDialog
-                    version={version}
-                    open={distributeOpen}
-                    onOpenChange={setDistributeOpen}
-                    people={p.people.filter((x) => x.active)}
-                    unassigned={p.unassigned.pending}
-                    onDone={refresh}
-                  />
-                )}
-                <MoveDialog
-                  key={moveFrom ?? "none"}
-                  version={version}
-                  from={p.people.find((x) => x.id === moveFrom) ?? null}
-                  people={p.people.filter((x) => x.active && x.id !== moveFrom)}
-                  onClose={() => setMoveFrom(null)}
-                  onDone={refresh}
-                />
-              </>
+            {canWrite && assignFrom && (
+              <AssignDialog
+                version={version}
+                initialSource={assignFrom}
+                p={p}
+                onClose={() => setAssignFrom(null)}
+                onDone={refresh}
+              />
             )}
           </>
         )}
@@ -637,7 +624,7 @@ function ProgressTable({
           <td>
             {movable && b.pending > 0 && (
               <Button size="sm" variant="ghost" onClick={() => onMove(id)}>
-                Pasar pendientes a…
+                Reasignar…
               </Button>
             )}
           </td>
@@ -692,97 +679,177 @@ function ProgressTable({
   );
 }
 
-function DistributeDialog({
+/** «Asignar llamadas» (24-asignar-cantidad-a-calibrador, AD1-AD4 A): desde lo sin asignar o las pendientes de un
+ * calibrador, a uno o varios calibradores (o de vuelta a «Sin asignar»), con cantidad por persona. Reemplaza «Repartir
+ * llamadas» y «Pasar pendientes a…». */
+function AssignDialog({
   version,
-  open,
-  onOpenChange,
-  people,
-  unassigned,
+  initialSource,
+  p,
+  onClose,
   onDone,
 }: {
   version: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  people: { id: string; name: string }[];
-  unassigned: number;
+  initialSource: string;
+  p: VerificationProgress;
+  onClose: () => void;
   onDone: () => void;
 }) {
-  // Casillas sin marcar de entrada (V5 A). El diálogo se monta al abrirse, así parte limpio cada vez.
-  const [chosen, setChosen] = useState<string[]>([]);
-  const [plan, setPlan] = useState<DistributionPlan | null>(null);
+  const [source, setSource] = useState(initialSource);
+  // Destinos marcados y su cantidad (texto del campo; vacío = parejo). La clave "" es «Sin asignar».
+  const [chosen, setChosen] = useState<Record<string, string>>({});
+  // Vista previa y error de servidor, cada uno con la combinación (origen + destinos) a la que corresponde: si cambió,
+  // no valen.
+  const [preview, setPreview] = useState<{ key: string; plan: AssignPlan | null; error: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
   const latest = useRef(0);
-  const toggle = (id: string) => {
-    const next = chosen.includes(id)
-      ? chosen.filter((x) => x !== id)
-      : [...chosen, id];
-    setChosen(next);
-    setPlan(null);
-    if (next.length === 0) return;
+  const sourceRef = useRef<HTMLSelectElement>(null);
+  useEffect(() => sourceRef.current?.focus(), []);
+
+  const giver = p.people.find((x) => x.id === source) ?? null;
+  const available = source === "unassigned" ? p.unassigned.pending : (giver?.pending ?? 0);
+  const people = p.people.filter((x) => x.active && x.id !== source);
+  const ids = Object.keys(chosen);
+  const bad = ids.some((k) => chosen[k].trim() !== "" && !(Number.isInteger(Number(chosen[k])) && Number(chosen[k]) >= 1));
+  const input = {
+    source,
+    to: ids.map((k) => ({ userId: k === "" ? null : k, count: chosen[k].trim() === "" ? null : Number(chosen[k]) })),
+  };
+  const key = JSON.stringify(input);
+  const current = preview?.key === key ? preview : null;
+  const plan = current?.plan ?? null;
+  const tooMany = (e: unknown) =>
+    e instanceof ApiError && e.message === "too_many" ? `Quedan ${int(Number(e.errors[0] ?? available))} llamadas disponibles.` : null;
+  const error = bad ? "Ingresa un número mayor que 0." : (current?.error ?? null);
+
+  // Vista previa al cambiar algo, con un respiro para no pedirla en cada tecla.
+  useEffect(() => {
+    if (ids.length === 0 || bad) return;
     const request = ++latest.current;
-    api
-      .previewDistribution(version, next)
-      .then((p) => request === latest.current && setPlan(p))
-      .catch(() => request === latest.current && setPlan(null));
+    const t = setTimeout(() => {
+      api
+        .previewAssign(version, input)
+        .then((r) => request === latest.current && setPreview({ key, plan: r, error: null }))
+        .catch((e: unknown) => {
+          if (request !== latest.current) return;
+          setPreview({ key, plan: null, error: tooMany(e) ?? "No pudimos calcular la vista previa. Reintenta." });
+        });
+    }, 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [version, key]);
+
+  const toggle = (id: string) =>
+    setChosen((c) => {
+      const n = { ...c };
+      if (id in n) delete n[id];
+      else n[id] = "";
+      return n;
+    });
+  const changeSource = (value: string) => {
+    setSource(value);
+    setChosen({});
   };
   const go = async () => {
+    if (!plan || plan.calls === 0 || error) return;
     setBusy(true);
     try {
-      const done = await api.distribute(version, chosen);
-      toast(`Repartidas ${int(done.calls)} llamadas.`);
-      onOpenChange(false);
+      const done = await api.assign(version, input);
+      toast(giver ? `Reasignadas ${int(done.calls)} llamadas de ${giver.name}.` : `Asignadas ${int(done.calls)} llamadas.`);
+      onClose();
       onDone();
-    } catch {
-      toast.error("No se pudo repartir. Intenta de nuevo.");
+    } catch (e) {
+      setPreview({ key, plan: null, error: tooMany(e) ?? "No se pudo asignar. Reintenta." });
     } finally {
       setBusy(false);
     }
   };
+  const target = (id: string, name: string, help: string | null) => (
+    <div key={id || "unassigned"} className="flex flex-wrap items-center gap-2">
+      <label className="flex min-w-[220px] items-center gap-2">
+        <input type="checkbox" checked={id in chosen} onChange={() => toggle(id)} />
+        {name}
+        {help && <span className="help">{help}</span>}
+      </label>
+      {id in chosen && (
+        <>
+          <input
+            type="number"
+            min={1}
+            inputMode="numeric"
+            className="control w-24"
+            placeholder="Parejo"
+            aria-label={`Llamadas para ${name}`}
+            aria-invalid={!!error || undefined}
+            value={chosen[id]}
+            onChange={(e) => setChosen((c) => ({ ...c, [id]: e.target.value }))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                void go();
+              }
+            }}
+          />
+          {ids.length === 1 && available > 0 && (
+            <button type="button" className="underline" onClick={() => setChosen({ [id]: String(available) })}>
+              Todas ({int(available)})
+            </button>
+          )}
+        </>
+      )}
+    </div>
+  );
+  const sources = [
+    { value: "unassigned", label: `Sin asignar (${int(p.unassigned.pending)})` },
+    ...p.people.filter((x) => x.pending > 0).map((x) => ({ value: x.id, label: `Pendientes de ${x.name} (${int(x.pending)})` })),
+  ];
   return (
     <Dialog
-      open={open}
-      onOpenChange={onOpenChange}
+      open
+      onOpenChange={(o) => !o && onClose()}
       width={640}
-      title="Repartir llamadas"
-      description={
-        <p className="m-0">
-          Se reparten solo las llamadas sin asignar y pendientes (
-          {int(unassigned)}), parejas por parte del mosaico y por set. Lo ya
-          asignado no se mueve.
-        </p>
-      }
+      title="Asignar llamadas"
+      description={<p className="m-0">Se mueven solo llamadas pendientes. Lo ya calibrado no cambia de dueño.</p>}
       footer={
         <>
-          <Button variant="default" onClick={() => onOpenChange(false)}>
+          <Button variant="default" onClick={onClose}>
             Cancelar
           </Button>
-          <Button
-            variant="primary"
-            disabled={!plan || plan.calls === 0 || busy}
-            onClick={() => void go()}
-          >
-            Repartir {plan ? int(plan.calls) : ""} llamadas
+          <Button variant="primary" disabled={!plan || plan.calls === 0 || !!error || busy} onClick={() => void go()}>
+            Asignar {plan ? int(plan.calls) : ""} llamadas
           </Button>
         </>
       }
     >
-      <fieldset className="m-0 grid gap-1 border-0 p-0">
-        <legend className="mb-1 text-[13px] font-medium">Calibradores</legend>
-        {people.length === 0 && (
-          <p className="help m-0">No hay cuentas Calibrador activas.</p>
-        )}
-        {people.map((x) => (
-          <label key={x.id} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={chosen.includes(x.id)}
-              onChange={() => toggle(x.id)}
-            />
-            {x.name}
-          </label>
-        ))}
-      </fieldset>
-      {plan && plan.calls > 0 && (
+      <label className="grid gap-1 text-[13px] font-medium">
+        Desde
+        <select ref={sourceRef} className="control" value={source} onChange={(e) => changeSource(e.target.value)}>
+          {sources.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      {available === 0 ? (
+        <p className="help m-0">{giver ? `${giver.name} no tiene pendientes.` : "No quedan llamadas sin asignar."}</p>
+      ) : (
+        <fieldset className="m-0 grid gap-1.5 border-0 p-0">
+          <legend className="mb-1 text-[13px] font-medium">A quién</legend>
+          {giver && target("", "Sin asignar (devolver)", null)}
+          {people.length === 0 && (
+            <p className="help m-0">{giver ? "No hay otros calibradores activos." : "No hay cuentas Calibrador activas."}</p>
+          )}
+          {people.map((x) => target(x.id, x.name, `Tiene ${int(x.pending)} pendientes`))}
+          <p className="help m-0">Vacío = se reparte parejo lo que quede.</p>
+          {error && (
+            <p className="m-0 text-[var(--red-800)]" role="alert">
+              {error}
+            </p>
+          )}
+        </fieldset>
+      )}
+      {plan && plan.calls > 0 && !error && (
         <div className="overflow-x-auto">
           <table className="tbl">
             <thead>
@@ -800,7 +867,7 @@ function DistributeDialog({
             </thead>
             <tbody>
               {plan.people.map((x) => (
-                <tr key={x.id}>
+                <tr key={x.id ?? "unassigned"}>
                   <th scope="row" className="font-normal">
                     {x.name}
                   </th>
@@ -816,85 +883,6 @@ function DistributeDialog({
           </table>
         </div>
       )}
-      {plan && plan.calls === 0 && (
-        <p className="help m-0">No quedan llamadas sin asignar.</p>
-      )}
-    </Dialog>
-  );
-}
-
-function MoveDialog({
-  version,
-  from,
-  people,
-  onClose,
-  onDone,
-}: {
-  version: string;
-  from: { id: string; name: string; pending: number } | null;
-  people: { id: string; name: string }[];
-  onClose: () => void;
-  onDone: () => void;
-}) {
-  const [chosen, setChosen] = useState<string[]>([]);
-  const [busy, setBusy] = useState(false);
-  if (!from) return null;
-  const go = async () => {
-    setBusy(true);
-    try {
-      const { moved } = await api.movePending(version, from.id, chosen);
-      toast(`Pasadas ${int(moved)} llamadas pendientes de ${from.name}.`);
-      onClose();
-      onDone();
-    } catch {
-      toast.error("No se pudieron pasar las llamadas.");
-    } finally {
-      setBusy(false);
-    }
-  };
-  return (
-    <Dialog
-      open
-      onOpenChange={(o) => !o && onClose()}
-      title={`Pasar las ${int(from.pending)} pendientes de ${from.name}`}
-      description={
-        <p className="m-0">
-          Se reparten entre las personas que elijas. Lo que ya revisó se queda
-          con su nombre.
-        </p>
-      }
-      footer={
-        <>
-          <Button variant="default" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            disabled={chosen.length === 0 || busy}
-            onClick={() => void go()}
-          >
-            Pasar {int(from.pending)} llamadas
-          </Button>
-        </>
-      }
-    >
-      <fieldset className="m-0 grid gap-1 border-0 p-0">
-        <legend className="mb-1 text-[13px] font-medium">A quién</legend>
-        {people.map((x) => (
-          <label key={x.id} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={chosen.includes(x.id)}
-              onChange={() =>
-                setChosen((c) =>
-                  c.includes(x.id) ? c.filter((y) => y !== x.id) : [...c, x.id],
-                )
-              }
-            />
-            {x.name}
-          </label>
-        ))}
-      </fieldset>
     </Dialog>
   );
 }

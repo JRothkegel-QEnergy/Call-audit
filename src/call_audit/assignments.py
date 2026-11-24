@@ -240,6 +240,131 @@ def move_pending(
     return len(mine)
 
 
+UNASSIGNED = "unassigned"
+
+
+class TooMany(ValueError):
+    """Se pidieron más llamadas de las disponibles (24, AD4 A)."""
+
+    def __init__(self, available: int) -> None:
+        super().__init__("too_many")
+        self.available = available
+
+
+def interleaved(items: list[dict]) -> list[dict]:
+    """Orden en que se toman las llamadas al asignar una cantidad (24, AD3 A): cualquier tramo inicial queda en
+    proporción entre los grupos segmento × set. Dentro de cada grupo se respeta el orden aleatorio fijo."""
+    strata: dict[tuple[str, str | None], list[dict]] = defaultdict(list)
+    for it in sorted(items, key=lambda it: it["order"]):
+        strata[(it["segment"], it.get("split"))].append(it)
+    keyed = []
+    for key, group in strata.items():
+        rank = SEGMENTS.index(key[0]) if key[0] in SEGMENTS else 99
+        for i, it in enumerate(group):
+            keyed.append(((i + 0.5) / len(group), rank, key[1] or "", i, it))
+    keyed.sort(key=lambda k: k[:4])
+    return [k[4] for k in keyed]
+
+
+def assign(
+    session: Session,
+    evaluation: PromptEvaluation,
+    source: str,
+    targets: list[tuple[str | None, int | None]],
+    actor: User,
+    apply: bool,
+) -> dict[str, Any]:
+    """«Asignar llamadas» (24-asignar-cantidad-a-calibrador, AD1-AD4 A). `source`: «unassigned» (lo sin asignar y sin
+    calibrar) o el id de un calibrador (sus pendientes, también las empezadas; lo calibrado no cambia de dueño).
+    `targets`: (calibrador o None = «Sin asignar», cantidad o None = parejo lo que quede). La cantidad se suma a lo que
+    ya tiene. Si se piden más de las disponibles, `TooMany`."""
+    people = {u.id: u for u in verifiers(session)}
+    items = all_items(session, evaluation)
+    found = assignment_map(session, [it["caseId"] for it in items])
+    if source == UNASSIGNED:
+        pool = [it for it in items if it["caseId"] not in found and not is_reviewed(it, None)]
+    elif (giver := session.get(User, source)) is not None and giver.role == VERIFIER:
+        # También desde una cuenta desactivada: sus pendientes se pueden pasar a otros.
+        pool = [
+            it
+            for it in items
+            if (a := found.get(it["caseId"])) is not None and a.user_id == source and not is_reviewed(it, a)
+        ]
+    else:
+        raise ValueError("bad_source")
+    seen: set[str | None] = set()
+    clean: list[tuple[str | None, int | None]] = []
+    for uid, count in targets:
+        if uid == source:
+            continue  # un destino igual al origen se ignora
+        if uid in seen or (uid is not None and uid not in people) or (uid is None and source == UNASSIGNED):
+            raise ValueError("bad_target")
+        if count is not None and count < 1:
+            raise ValueError("bad_count")
+        seen.add(uid)
+        clean.append((uid, count))
+    if not clean:
+        raise ValueError("no_verifiers")
+    fixed = sum(c for _, c in clean if c is not None)
+    if fixed > len(pool):
+        raise TooMany(len(pool))
+    free = [uid for uid, c in clean if c is None]
+    rest = len(pool) - fixed
+    quota = {uid: c for uid, c in clean if c is not None}
+    for i, uid in enumerate(free):
+        quota[uid] = rest // len(free) + (1 if i < rest % len(free) else 0)
+    # Cada llamada, en el orden intercalado, va a quien lleva menos de su cupo (en proporción): así el lote de cada
+    # uno también queda repartido entre los grupos.
+    given: Counter[str | None] = Counter()
+    picks: dict[str, str | None] = {}
+    order = [uid for uid, _ in clean]
+    for it in interleaved(pool):
+        open_ = [uid for uid in order if given[uid] < quota[uid]]
+        if not open_:
+            break
+        uid = min(open_, key=lambda u: (given[u] / quota[u], order.index(u)))
+        picks[it["caseId"]] = uid
+        given[uid] += 1
+    segment_of = {it["caseId"]: it["segment"] for it in items}
+    by: dict[str | None, Counter[str]] = {uid: Counter() for uid in order}
+    for cid, uid in picks.items():
+        by[uid][segment_of[cid]] += 1
+    result = {
+        "available": len(pool),
+        "calls": len(picks),
+        "people": [
+            {
+                "id": uid,
+                "name": people[uid].name if uid is not None else "Sin asignar",
+                "calls": sum(c.values()),
+                "bySegment": dict(c),
+            }
+            for uid, c in by.items()
+        ],
+    }
+    if not apply:
+        return result
+    for cid, uid in picks.items():
+        row = found.get(cid)
+        if uid is None:
+            if row is not None:
+                session.delete(row)
+        elif row is None:
+            session.add(VerificationAssignment(case_id=cid, user_id=uid, assigned_by_id=actor.id))
+        else:
+            row.user_id, row.assigned_by_id, row.assigned_at = uid, actor.id, now()
+    origin = "Sin asignar" if source == UNASSIGNED else giver.name
+    accounts.log(
+        session,
+        actor,
+        "verification_assigned_bulk",
+        f"v{evaluation.version} · desde {origin}",
+        " · ".join(f"{p['name']} {p['calls']}" for p in result["people"]),
+    )
+    session.flush()
+    return result
+
+
 def set_assignee(session: Session, case_id: str, user_id: str | None, actor: User) -> None:
     case = session.get(Case, case_id)
     if case is None:
