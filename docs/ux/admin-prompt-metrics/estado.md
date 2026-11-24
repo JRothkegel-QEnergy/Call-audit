@@ -289,3 +289,19 @@
 | 2026-11-23 | Ya decidido: tarjetas KPI, gráfico contenido, métricas por criterio y totales. Cambio menor sobre `19` (un gate) | Johannes (vía coordinador) |
 | 2026-11-23 | Diagnóstico: sin ancho máximo (P-30), cifras sin contenedor (P-31), overview sin conteos por criterio. Propuesta: contenedor ~1040 px, 3+3 tarjetas KPI, barra de 10 px con leyenda, tabla por criterio con mini barra ordenada por % rechazado. AA1 aprobado = Qubyt tenía razón; AA2 evaluados = todos los criterios de capa 2 de llamadas revisadas (acuerdo sin marcar = aprobado); AA3 «Sin definir» cuenta como no aprobado; AA4 sigue `Mí · Todas`; AA5 tabla. Supuestos H-AA1 a H-AA3; riesgos R-AA1, R-AA2. Esperando AA1-AA5 | Diseñador |
 | 2026-11-23 | **Aprobado:** métricas = veredicto de Qubyt por criterio de capa 2 (`Cumple` / `No cumple`; sin «aprobado/rechazado»); evaluado = criterio que Qubyt evaluó en las llamadas del alcance (revisadas o no), `uncertain` excluido; sin «Sin definir» ni «pocos datos»; AA4 A (sigue `Mí · Todas`, sin respuesta → recomendada); AA5 A (tabla ordenada por % No cumple ↓) | Johannes (vía coordinador) |
+
+---
+
+## Módulo de calibración: de verificador a calibrador (pedido 2026-11-24)
+
+- **Estado:** AB1-AB5 **aprobadas** el 2026-11-24 (§0 y §5 de `23-modulo-de-calibracion.md`). Listo para implementar. Base: `18`-`22` implementados (`develop`, `15b814e`).
+- **Origen (Johannes, textual):** ver `23` (encabezado). Resumen: «Módulo de calibración», usuarios calibradores con leyenda; sin la empresa; listas Por calibrar / Calibradas; columna «Criterios rechazados» con azul (Qubyt), amarillo (revisor), verde (los dos); ✗ al rechazar y sacar al aprobar; Avance «Por calibrar»; columna con el nombre del revisor; en el caso sin «Asignada a: ti», «Veredicto revisor» y «Revisor: <nombre>»; tarjetas con «Veredicto de calibración» Cumple / No cumple (No cumple rojo pastel), se queda la nota; en los acuerdos, Cumple / No cumple.
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-24 | Ya decidido lo listado en `23` §1. Cambio menor sobre `18`-`22` (un gate) | Johannes (vía coordinador) |
+| 2026-11-24 | Diagnóstico: la empresa es la línea «Empresa: …» de `AdminHeader`; «Revisor» (evaluador de la planilla) hoy solo en Revisadas; el veredicto de calibración se traduce a los `outcome` actuales sin migración (= revisor → `ai_error`/`both_right`; ≠ → `reviewer_error`/`both_wrong`); los acuerdos en que los dos rechazan no llegan a la lista (backend nuevo en `segment_calls`). Propuesta: AB1 «Módulo de calibración» en el menú + leyenda; AB2 renombrar todo lo visible sin cambiar rutas ni rol interno; AB3 azul/amarillo/verde + gris para Qubyt en duda; AB4 ✗ si No cumple, fuera si Cumple; AB5 se conservan los Ambiguo/Falta información viejos. Supuestos H-AB1, H-AB2; riesgos R-AB1 a R-AB3. Esperando AB1-AB5 | Diseñador |
+| 2026-11-24 | **Aprobado:** AB1 «Módulo de calibración» en el menú, sin leyenda aún; AB2 A; AB3 azul/amarillo/verde pastel con leyenda de colores, sin «Qubyt en duda» (`undecided` con revisor No cumple → amarillo; con revisor Cumple → fuera de la columna); AB4 A; AB5 `ambiguous`/`missing_info` se leen como No cumple, sin migración (Johannes: «AB1: no pongas leyenta aún. AB2: A. AB3: No pongas eso de qubyt en duda, no queremos dar la sensación de que qubyt se equivoca. AB4: A. AB5: Si dice ambiguo o falta información, ponlo como no cumple.») | Johannes (vía coordinador) |
+| 2026-11-24 | Decisión del diseñador: el `undecided` con revisor Cumple sigue obligatorio y cuenta en el Avance; en el caso se muestra sin línea de Qubyt (R-AB4). Especificación en `23` §5 | Diseñador |
+| 2026-11-24 | Implementado en `feature/modulo-calibracion`. Ajuste aprobado: la llamada sigue en Por calibrar hasta calibrar todos sus criterios (un «Qubyt se equivocó» ya no la cierra) | Johannes / Coordinador |

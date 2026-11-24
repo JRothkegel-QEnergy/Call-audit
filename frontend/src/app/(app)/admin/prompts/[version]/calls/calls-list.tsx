@@ -119,7 +119,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
         href={full ? verificationHref(version, scope.assignee) : `/admin/prompts/${encodeURIComponent(version)}?tab=test`}
         className="btn btn-ghost btn-sm mb-2"
       >
-        <ChevronLeft size={14} aria-hidden /> {full ? "Volver a Verificación" : `Volver a v${version}`}
+        <ChevronLeft size={14} aria-hidden /> {full ? "Volver a Calibración" : `Volver a v${version}`}
       </Link>
       <AdminHeader
         title={`${listTitle(segment, motivo, { vs: data.vs, sample: data.sample })} · v${version}`}
@@ -130,7 +130,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
 
       <section className="card mb-4 grid gap-2" aria-labelledby="verif-h">
         <h2 id="verif-h" className="m-0 flex items-center gap-2 text-sm font-semibold">
-          {swatch && <Swatch part={swatch} />} Verificación
+          {swatch && <Swatch part={swatch} />} Calibración
           <MetricHelp title="Cómo se verifica">
             Las llamadas aparecen en un orden al azar, el mismo para todos, para que una revisión a medias no quede cargada hacia un tipo
             de llamada. El margen dice entre qué valores estaría la tasa si se revisaran muchas llamadas como estas, con 95 % de
@@ -146,13 +146,13 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
               aria-valuemin={0}
               aria-valuemax={s.calls}
               aria-valuenow={s.reviewed}
-              aria-label="Llamadas revisadas"
+              aria-label="Llamadas calibradas"
               className="h-2 w-full max-w-md overflow-hidden rounded-full bg-muted"
             >
               <div className="h-full bg-primary" style={{ width: `${(100 * s.reviewed) / s.calls}%` }} />
             </div>
             <p className="m-0 text-sm tabular">
-              {s.reviewed} de {s.calls} revisadas · Confirmadas {s.confirmed} · La IA se equivocó {s.aiWrong} · No concluyentes{" "}
+              {s.reviewed} de {s.calls} calibradas · Confirmadas {s.confirmed} · La IA se equivocó {s.aiWrong} · No concluyentes{" "}
               {s.inconclusive} · Pendientes {s.pending}
             </p>
             {line && <p className="m-0 text-sm font-semibold">{line}</p>}
@@ -243,7 +243,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
                 {segment === "changed" && <th scope="col">Cambio</th>}
                 <th scope="col">Criterios en desacuerdo</th>
                 {full && !mine && <th scope="col">Asignada a</th>}
-                <th scope="col">Verificación</th>
+                <th scope="col">Calibración</th>
               </tr>
             </thead>
             <tbody>
@@ -287,7 +287,7 @@ function CallsList({ version, data }: { version: string; data: SegmentCalls }) {
                   </td>
                   {full && !mine && <td>{i.assigneeName ?? <span className="help">Sin asignar</span>}</td>}
                   <td>
-                    {full && i.verification === "none" ? (i.reviewedAt ? "Sin observaciones" : "Por revisar") : CALL_STATUS[i.verification]}
+                    {full && i.verification === "none" ? (i.reviewedAt ? "Sin observaciones" : "Por calibrar") : CALL_STATUS[i.verification]}
                   </td>
                 </tr>
               ))}

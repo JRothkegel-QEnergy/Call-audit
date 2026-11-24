@@ -309,3 +309,57 @@ def test_reason_match_splits_agree_and_its_lists() -> None:
     assert [r["caseId"] for r in rows if matches(r, "agreeNone")] == ["z"]
     assert [r["caseId"] for r in rows if matches(r, "agreeNone", 6)] == ["z"]
     assert not any(matches(r, "agreeSame", 6) for r in rows)
+
+
+def test_calibration_verdict_and_rejected_chips(
+    client: TestClient,
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+) -> None:
+    """23-modulo-de-calibracion: el veredicto de calibración se guarda como el correcto del criterio con el `outcome`
+    derivado; los chips de «Criterios rechazados» llevan su calibración y los
+    «Ambiguo» viejos se leen como No cumple."""
+    ids = seed_tested_version(imported, admin)
+    login(client, admin)
+    url = "/api/admin/verifications"
+    # Llamada 1, criterio 2: Qubyt No cumple, revisor Cumple. Calibrar No cumple = el revisor se equivocó.
+    put = client.put(f"{url}/{ids[1]}/2", json={"verdict": "non_compliant", "version": "9.8"}).json()
+    assert put["outcome"] == "reviewer_error" and put["calibration"] == "non_compliant"
+    # Llamada 2, criterio 3: los dos Cumple. Calibrar No cumple = los dos se equivocaron → chip gris.
+    put = client.put(f"{url}/{ids[2]}/3", json={"verdict": "non_compliant", "version": "9.8"}).json()
+    assert put["outcome"] == "both_wrong"
+    # Llamada 0, criterio 14: registro viejo «Ambiguo» → se lee como No cumple (AB5).
+    client.put(f"{url}/{ids[0]}/14", json={"outcome": "ambiguous", "version": "9.8"})
+    assert client.put(f"{url}/{ids[0]}/14", json={"version": "9.8"}).status_code == 400
+
+    items = client.get("/api/admin/prompts/9.8/agreement/calls", params={"segment": "all"}).json()["items"]
+    chips = {i["caseId"]: i["rejectedCriteria"] for i in items}
+    assert chips[ids[0]] == [{"criterionId": 14, "kind": "reviewer", "calibration": "non_compliant"}]
+    assert chips[ids[1]] == [{"criterionId": 2, "kind": "qubyt", "calibration": "non_compliant"}]
+    assert chips[ids[2]] == [{"criterionId": 3, "kind": "calibrated", "calibration": "non_compliant"}]
+
+    case = client.get(f"/api/admin/prompts/9.8/agreement/calls/{ids[0]}").json()
+    fourteen = next(c for c in case["criteria"] if c["criterionId"] == 14)
+    assert fourteen["verification"]["calibration"] == "non_compliant"
+
+    # Calibrar Cumple el acuerdo lo deja como «los dos tienen razón» y el chip sale.
+    client.put(f"{url}/{ids[2]}/3", json={"verdict": "compliant", "version": "9.8"})
+    items = client.get("/api/admin/prompts/9.8/agreement/calls", params={"segment": "all"}).json()["items"]
+    assert next(i for i in items if i["caseId"] == ids[2])["rejectedCriteria"] == []
+
+
+def test_rejected_chips_by_who_rejects() -> None:
+    row = {
+        "caseId": "c",
+        "result": {"externalFails": [4, 5]},
+        "items": [
+            {"criterionId": 2, "kind": "fp"},
+            {"criterionId": 4, "kind": "agree"},
+            {"criterionId": 5, "kind": "undecided"},
+            {"criterionId": 6, "kind": "undecided"},
+            {"criterionId": 7, "kind": "agree"},
+        ],
+    }
+    kinds = [(c["criterionId"], c["kind"]) for c in verification.rejected_chips(row, {})]
+    # El 6 (Qubyt sin veredicto, revisor Cumple) y el 7 (los dos Cumple, sin calibrar) no salen.
+    assert kinds == [(2, "qubyt"), (4, "both"), (5, "reviewer")]

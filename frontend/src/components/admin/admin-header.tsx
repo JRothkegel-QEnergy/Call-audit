@@ -8,7 +8,8 @@ export function AdminHeader({ title, description, actions }: { title: string; de
   const { user } = useSession();
   return (
     <>
-      <p className="help m-0 mb-1">Empresa: {user?.clientName}</p>
+      {/* 23-modulo-de-calibracion: el calibrador no ve la empresa. */}
+      {user?.role !== "qubico_verifier" && <p className="help m-0 mb-1">Empresa: {user?.clientName}</p>}
       {/* La cuenta de lectura (G13) no ve las acciones del encabezado: todas cambian algo. */}
       <PageHeader title={title} description={description} actions={user?.role === "qubico_viewer" ? undefined : actions} />
     </>

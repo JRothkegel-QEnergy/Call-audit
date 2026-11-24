@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
-from call_audit import prompt_evaluation
+from call_audit import assignments, prompt_evaluation
 from call_audit.persistence.models import PromptEvaluation, User, VerificationAssignment
 from tests.conftest import PASSWORD, login
 from tests.test_admin import admin  # noqa: F401
@@ -404,13 +404,13 @@ def test_old_disagreement_record_reads_as_agreement(
     assert case["verification"] == "none"
 
 
-def test_tray_filters_by_qubyt_rejected_criterion_and_verdicts(
+def test_tray_filters_by_rejected_criterion_and_verdicts(
     client: TestClient,
     admin: User,  # noqa: F811
     imported: sessionmaker[Session],
     two: tuple[User, User],
 ) -> None:
-    """21 (Z1 A): filtro por criterio rechazado por Qubyt (solo Qubyt No cumple y planilla Cumple), por veredicto de
+    """21 (Z1 A) y 23 (AB3): filtro por criterio rechazado (por Qubyt, por el revisor o por los dos), por veredicto de
     Qubyt y del revisor, con conteos, y Anterior/Siguiente con los mismos filtros."""
     ids = seed_full(imported, admin)
     ana, _ = two
@@ -422,14 +422,20 @@ def test_tray_filters_by_qubyt_rejected_criterion_and_verdicts(
     base = {"segment": "all", "source": "full", "assignee": "me", "tray": "pending"}
 
     data = client.get(url, params=base).json()
-    # El 14 lo rechaza solo la planilla (no cuenta); el 2 lo rechaza Qubyt y la planilla lo aprueba.
-    assert data["rejectedCounts"] == [{"criterionId": 2, "calls": 1, "pending": 1}]
+    # El 14 lo rechaza solo el revisor (amarillo); el 2 lo rechaza Qubyt y el revisor lo aprueba (azul).
+    assert data["rejectedCounts"] == [
+        {"criterionId": 2, "calls": 1, "pending": 1},
+        {"criterionId": 14, "calls": 1, "pending": 1},
+    ]
     assert data["verdictCounts"]["ai"] == {"compliant": 2, "non_compliant": 1, "uncertain": 0}
     assert data["verdictCounts"]["reviewer"] == {"compliant": 2, "non_compliant": 1}
     assert "evaluator" in data["items"][0]
 
     assert [i["caseId"] for i in client.get(url, params={**base, "rejected": 2}).json()["items"]] == [ids[1]]
-    assert client.get(url, params={**base, "rejected": 14}).json()["items"] == []
+    assert [i["caseId"] for i in client.get(url, params={**base, "rejected": 14}).json()["items"]] == [ids[0]]
+    chips = {i["caseId"]: i["rejectedCriteria"] for i in data["items"]}
+    assert chips[ids[1]] == [{"criterionId": 2, "kind": "qubyt", "calibration": None}]
+    assert chips[ids[0]] == [{"criterionId": 14, "kind": "reviewer", "calibration": None}]
     only = client.get(url, params={**base, "ai_verdict": "compliant", "reviewer_verdict": "non_compliant"}).json()
     assert [i["caseId"] for i in only["items"]] == [ids[0]]
     # Cada conteo se calcula sin su propio filtro.
@@ -437,3 +443,14 @@ def test_tray_filters_by_qubyt_rejected_criterion_and_verdicts(
 
     case = client.get(f"{url}/{ids[1]}", params={"segment": "all", "tray": "pending", "rejected": 2}).json()
     assert case["position"]["total"] == 1 and case["position"]["index"] == 1
+
+
+def test_call_stays_to_calibrate_until_every_criterion_is_calibrated() -> None:
+    """Pedido 2026-11-24: un «Qubyt se equivocó» ya no cierra la llamada; sigue en Por calibrar hasta calibrar todo."""
+    half = {"disagreements": [{"outcome": "ai_error"}, {"outcome": None}], "verification": "ai_wrong"}
+    full = {"disagreements": [{"outcome": "ai_error"}, {"outcome": "reviewer_error"}], "verification": "ai_wrong"}
+    assert not assignments.is_reviewed(half, None)
+    assert assignments.is_reviewed(full, None)
+    # Sin criterios por calibrar: «Sin observaciones» o un acuerdo calibrado al revés.
+    assert not assignments.is_reviewed({"disagreements": [], "verification": "none"}, None)
+    assert assignments.is_reviewed({"disagreements": [], "verification": "ai_wrong", "bothWrong": 1}, None)

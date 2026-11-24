@@ -5,14 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import {
-  CAUSE,
-  listTitle,
-  OUTCOMES,
-  VERDICT,
-  VERDICT_CLASS,
-  outcomeLabel,
-} from "@/components/admin/verification-labels";
+import { CALIBRATION, CAUSE, listTitle, VERDICT, VERDICT_CLASS } from "@/components/admin/verification-labels";
 import { AudioPlayer } from "@/components/call/audio-player";
 import { RenunciationReasonsButton } from "@/components/call/renunciation-reasons";
 import { SuggestedReasons } from "@/components/call/suggested-reasons";
@@ -22,16 +15,9 @@ import { Transcript } from "@/components/call/transcript";
 import { useAudio } from "@/components/call/use-audio";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/dialog";
-import { MetricHelp } from "@/components/ui/metric-help";
 import { AsyncView } from "@/components/ui/states";
 import { api, isRealMode } from "@/lib/api";
-import type {
-  CallList,
-  CaseComparison,
-  CaseComparisonCriterion,
-  VerificationOutcome,
-  VerificationScope,
-} from "@/lib/api/admin-types";
+import type { Calibration, CallList, CaseComparison, CaseComparisonCriterion, VerificationScope } from "@/lib/api/admin-types";
 import type { CaseDetail, Evidence, Finding, Rubric, Typification } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { mmss, personName, shortDate, shortDateTime } from "@/lib/format";
@@ -80,6 +66,10 @@ function useIsAdmin() {
 let sheetOpenMemory = true;
 
 const TO_VERIFY = new Set(["fn", "fp", "undecided"]);
+const CALIBRATIONS: Calibration[] = ["compliant", "non_compliant"];
+/** Calibración vigente del criterio (23): sin registro o con el revisor cambiado, null. */
+const calibrationOf = (c: CaseComparisonCriterion): Calibration | null =>
+  c.verification && !c.verification.stale ? (c.verification.calibration ?? null) : null;
 const isTyping = (t: EventTarget | null) => {
   const el = t as HTMLElement | null;
   return !!el && (["input", "textarea", "select"].includes(el.tagName.toLowerCase()) || el.isContentEditable);
@@ -123,20 +113,18 @@ function CaseReview({
     trayQuery.set("dir", scope.dir ?? "asc");
   }
   const listHref = tray ? `${trayPath(tray)}${trayQuery.size ? `?${trayQuery}` : ""}` : `${base}${tail}`;
-  const listLabel = tray === "pending" ? "Por revisar" : tray === "reviewed" ? "Revisadas" : null;
+  const listLabel = tray === "pending" ? "Por calibrar" : tray === "reviewed" ? "Calibradas" : null;
   const caseHref = (id: string) => `${base}/${encodeURIComponent(id)}${tail}`;
 
   const toVerify = cmp.criteria.filter((c) => TO_VERIFY.has(c.kind));
   const agreeing = cmp.criteria.filter((c) => !TO_VERIFY.has(c.kind));
-  // Estado de revisión (21): el mismo lenguaje que la columna Avance de Por revisar.
+  // Estado de calibración (21, 23): el mismo lenguaje que la columna Avance de Por calibrar.
   const toRecord = cmp.criteria.filter((c) => TO_VERIFY.has(c.kind)).length;
   const recorded = cmp.criteria.filter((c) => TO_VERIFY.has(c.kind) && c.verification && !c.verification.stale).length;
-  const reviewed =
-    (toRecord > 0 && recorded === toRecord) ||
-    !!cmp.assignment?.reviewedAt ||
-    (cmp.bothWrong ?? 0) > 0 ||
-    (toRecord === 0 && cmp.verification !== "none" && cmp.verification !== "pending");
-  const reviewState = reviewed ? "Revisada" : recorded > 0 ? `${recorded} de ${toRecord} criterios revisados` : "Por revisar";
+  // Calibrada solo con todos los criterios calibrados (pedido 2026-11-24); sin criterios por calibrar, con «Sin
+  // observaciones» o algún acuerdo calibrado al revés. La misma regla que `assignments.is_reviewed`.
+  const reviewed = toRecord > 0 ? recorded === toRecord : !!cmp.assignment?.reviewedAt || (cmp.bothWrong ?? 0) > 0;
+  const reviewState = reviewed ? "Calibrada" : recorded > 0 ? `${recorded} de ${toRecord} criterios calibrados` : "Por calibrar";
   // Foco inicial: el criterio de la lista si sigue sin registrar (16-lista-verificador-por-motivo, L3 A); si no, el primero
   // sin registrar.
   const [focus, setFocus] = useState(() => {
@@ -224,13 +212,13 @@ function CaseReview({
     }
   };
 
-  const save = async (c: CaseComparisonCriterion, outcome: VerificationOutcome, note: string | null) => {
+  const save = async (c: CaseComparisonCriterion, verdict: Calibration, note: string | null) => {
     if (!canWrite) return;
     const before = c.verification && !c.verification.stale ? c.verification : null;
     setBusy(c.criterionId);
     try {
       await api.saveVerification(cmp.caseId, c.criterionId, {
-        outcome,
+        verdict,
         note,
         version,
         seenFirst: revealed.has(c.criterionId),
@@ -238,19 +226,14 @@ function CaseReview({
       });
       const next = await fetchCmp();
       setCmp(next);
-      const label = outcomeLabel(outcome, c.kind === "undecided");
-      const message =
-        outcome === "both_wrong"
-          ? `Registrado: Qubyt y la planilla se equivocaron. Lo correcto es ${c.reviewerFail ? "Cumple" : "No cumple"}.`
-          : `Guardado: ${label} en el criterio ${c.criterionId}.`;
-      toast(message, {
+      toast(`Calibrado: C${c.criterionId} · ${CALIBRATION[verdict]}.`, {
         action: {
           label: "Deshacer",
           onClick: () =>
             void (async () => {
               if (before)
                 await api.saveVerification(cmp.caseId, c.criterionId, {
-                  outcome: before.outcome,
+                  ...(before.calibration ? { verdict: before.calibration } : { outcome: before.outcome }),
                   note: before.note,
                   version,
                   seenFirst: before.seenFirst,
@@ -286,9 +269,9 @@ function CaseReview({
       if (!shortcuts || isTyping(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
       if (document.querySelector("[role=dialog]")) return;
       const c = toVerify[focus];
-      if (canWrite && c && c.verification?.canChange !== false && ["1", "2", "3", "4"].includes(e.key)) {
+      if (canWrite && c && c.verification?.canChange !== false && ["1", "2"].includes(e.key)) {
         e.preventDefault();
-        void save(c, OUTCOMES[Number(e.key) - 1], c.verification?.note ?? null);
+        void save(c, CALIBRATIONS[Number(e.key) - 1], c.verification?.note ?? null);
       } else if (e.key === "j" || e.key === "J") setFocus((f) => Math.min(toVerify.length - 1, f + 1));
       else if (e.key === "k" || e.key === "K") setFocus((f) => Math.max(0, f - 1));
       else if (e.key === "n" || e.key === "N") goNext();
@@ -335,7 +318,8 @@ function CaseReview({
         <TypificationLine t={call.typification} className="m-0 block" />
         {/* La versión que corrió Qubyt solo la ve el admin (21). */}
         {isAdmin && <p className="help m-0">v{cmp.version} ({full ? "corrida completa" : "prueba de validación"})</p>}
-        {full && cmp.assignment && (
+        {/* 23: el calibrador no ve «Asignada a: ti»; el admin conserva el selector para reasignar. */}
+        {full && cmp.assignment && !isVerifier && (
           <p className="m-0 flex flex-wrap items-center gap-2">
             {isAdmin && cmp.verifiers ? (
               <label className="flex items-center gap-1.5">
@@ -359,22 +343,22 @@ function CaseReview({
             Qubyt{isAdmin ? ` v${cmp.version}` : ""}: <span className={VERDICT_CLASS[cmp.aiVerdict]}>{VERDICT[cmp.aiVerdict]}</span>
           </span>
           <span>
-            Planilla: <span className={VERDICT_CLASS[cmp.reviewer.verdict]}>{VERDICT[cmp.reviewer.verdict]}</span>
+            Veredicto revisor: <span className={VERDICT_CLASS[cmp.reviewer.verdict]}>{VERDICT[cmp.reviewer.verdict]}</span>
           </span>
-          {cmp.reviewer.evaluator && <span>Evaluador de la planilla: {personName(cmp.reviewer.evaluator)}</span>}
+          {cmp.reviewer.evaluator && <span>Revisor: {personName(cmp.reviewer.evaluator)}</span>}
         </p>
         <p className="m-0">
-          {cmp.reviewer.comment ? <>Comentario de la planilla: «{cmp.reviewer.comment}»</> : <span className="help">La planilla no trae comentario.</span>}
+          {cmp.reviewer.comment ? <>Comentario del revisor: «{cmp.reviewer.comment}»</> : <span className="help">El revisor no dejó comentario.</span>}
         </p>
         <p className="m-0" aria-live="polite">
-          Estado de revisión de la llamada: <b>{reviewState}</b>
+          Estado de calibración de la llamada: <b>{reviewState}</b>
         </p>
       </section>
 
       {full && !canWrite && isVerifier && (
         <div className="banner mb-2.5" role="status">
           {cmp.assignment?.assigneeName
-            ? `Esta llamada está asignada a ${cmp.assignment.assigneeName}. Puedes verla, pero no registrar.`
+            ? `Esta llamada está asignada a ${cmp.assignment.assigneeName}. Puedes verla, pero no calibrar.`
             : "Esta llamada no está asignada a ti."}
         </div>
       )}
@@ -414,25 +398,25 @@ function CaseReview({
           <section className="card grid gap-3" aria-labelledby="verify-h">
             <div className="flex flex-wrap items-center gap-2">
               <h2 id="verify-h" className="m-0 flex-1 text-sm font-semibold">
-                Por verificar ({toVerify.length})
+                Por calibrar ({toVerify.length})
               </h2>
               <label className="help flex items-center gap-1.5">
                 <input type="checkbox" checked={shortcuts} onChange={(e) => setShortcuts(e.target.checked)} />
-                Atajos (1-4, J/K, N)
+                Atajos (1-2, J/K, N)
               </label>
             </div>
             {toVerify.length === 0 &&
               (full && cmp.assignment?.assigneeId ? (
                 (cmp.bothWrong ?? 0) > 0 ? (
-                  // Un acuerdo rechazado deja la llamada revisada sin «Sin observaciones» (20, Y5 A).
+                  // Un acuerdo calibrado al revés deja la llamada calibrada sin «Sin observaciones» (20, Y5 A).
                   <p className="m-0">
-                    Revisada: registraste {cmp.bothWrong} {cmp.bothWrong === 1 ? "criterio" : "criterios"} en que los dos se
-                    equivocaron.
+                    Calibrada: corregiste {cmp.bothWrong} {cmp.bothWrong === 1 ? "criterio" : "criterios"} en que Qubyt y el
+                    revisor coincidían.
                   </p>
                 ) : cmp.assignment.reviewedAt ? (
                   <p className="m-0 flex flex-wrap items-center gap-2">
                     <span>
-                      Revisada sin observaciones por {cmp.assignment.reviewedBy ?? "—"} el {shortDateTime(cmp.assignment.reviewedAt)}.
+                      Calibrada sin observaciones por {cmp.assignment.reviewedBy ?? "—"} el {shortDateTime(cmp.assignment.reviewedAt)}.
                     </span>
                     {canWrite && (isAdmin || cmp.assignment.mine) && (
                       <Button size="sm" variant="ghost" disabled={reviewBusy} onClick={() => void markReviewed(false)}>
@@ -442,7 +426,7 @@ function CaseReview({
                   </p>
                 ) : (
                   <>
-                    <p className="help m-0">La IA y la planilla coinciden en todos los criterios. Si estás de acuerdo, márcala sin observaciones.</p>
+                    <p className="help m-0">Qubyt y el revisor coinciden en todos los criterios. Si estás de acuerdo, márcala sin observaciones.</p>
                     {canWrite && (
                       <Button variant="primary" className="justify-self-start" disabled={reviewBusy} onClick={() => void markReviewed(true)}>
                         Sin observaciones
@@ -451,7 +435,7 @@ function CaseReview({
                   </>
                 )
               ) : (
-                <p className="help m-0">Esta llamada no tiene criterios en desacuerdo con la planilla.</p>
+                <p className="help m-0">Esta llamada no tiene criterios en desacuerdo con el revisor.</p>
               ))}
             {toVerify.map((c, i) => (
               <CriterionCard
@@ -477,11 +461,9 @@ function CaseReview({
           {agreeing.length > 0 && (
             <section className="card grid gap-2" aria-labelledby="agree-h">
               <h2 id="agree-h" className="m-0 text-sm font-semibold">
-                Coinciden con la planilla ({agreeing.length} criterios) · opcional
+                Coinciden con el revisor ({agreeing.length} criterios) · opcional
               </h2>
-              <p className="help m-0">
-                No es obligatorio revisarlos. Si crees que Qubyt y la planilla se equivocaron en alguno, ábrelo y márcalo con Rechazar.
-              </p>
+              <p className="help m-0">No es obligatorio calibrarlos. Si crees que Qubyt y el revisor se equivocaron en alguno, ábrelo y calíbralo.</p>
               {(
                 [
                   ["Ambos No cumple", agreeing.filter((c) => c.reviewerFail), true],
@@ -544,6 +526,89 @@ function CaseReview({
   );
 }
 
+/** Botones Cumple / No cumple del veredicto de calibración (23): No cumple marcado en rojo pastel. */
+function CalibrationButtons({
+  criterionId,
+  current,
+  busy,
+  shortcuts,
+  onSave,
+}: {
+  criterionId: number;
+  current: Calibration | null;
+  busy: boolean;
+  shortcuts?: boolean;
+  onSave: (verdict: Calibration) => void;
+}) {
+  return (
+    <>
+      <span id={`q-${criterionId}`} className="font-semibold">
+        Veredicto de calibración
+      </span>
+      <div className="seg justify-self-start" role="radiogroup" aria-label={`Veredicto de calibración. Criterio ${criterionId}`}>
+        {CALIBRATIONS.map((o, i) => (
+          <button
+            key={o}
+            type="button"
+            role="radio"
+            className={o === "non_compliant" ? "seg-fail" : undefined}
+            aria-checked={current === o}
+            disabled={busy}
+            onClick={() => onSave(o)}
+          >
+            {shortcuts && (
+              <span className="kbd mr-1" aria-hidden>
+                {i + 1}
+              </span>
+            )}
+            {CALIBRATION[o]}
+          </button>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function NoteField({
+  initial,
+  current,
+  onSave,
+}: {
+  initial: string | null | undefined;
+  current: Calibration | null;
+  onSave: (verdict: Calibration, note: string | null) => void;
+}) {
+  const [open, setOpen] = useState(!!initial);
+  const [note, setNote] = useState(initial ?? "");
+  return open ? (
+    <label className="grid gap-1">
+      Nota (opcional)
+      <textarea className="control min-h-[56px]" value={note} onChange={(e) => setNote(e.target.value)} />
+      {current && note.trim() !== (initial ?? "") && (
+        <Button size="sm" variant="default" className="justify-self-start" onClick={() => onSave(current, note.trim() || null)}>
+          Guardar nota
+        </Button>
+      )}
+    </label>
+  ) : (
+    <button type="button" className="justify-self-start underline" onClick={() => setOpen(true)}>
+      + Agregar nota
+    </button>
+  );
+}
+
+/** «Calibrado por {by} el {fecha}», con la versión solo para el admin. */
+function CalibratedBy({ v, version }: { v: NonNullable<CaseComparisonCriterion["verification"]>; version: string }) {
+  const admin = useIsAdmin();
+  return (
+    <>
+      Calibrado por {v.by}
+      {v.at ? ` el ${shortDateTime(v.at)}` : ""}
+      {v.versionAt !== version ? (admin ? ` desde v${v.versionAt}` : " en una calibración anterior") : ""}
+    </>
+  );
+}
+
 function CriterionCard({
   c,
   version,
@@ -569,17 +634,12 @@ function CriterionCard({
   revealed: boolean;
   onFocus: () => void;
   onReveal: () => void;
-  onSave: (outcome: VerificationOutcome, note: string | null) => void;
+  onSave: (verdict: Calibration, note: string | null) => void;
   onListen: (quote: string, startMs: number | null) => void;
 }) {
-  const admin = useIsAdmin();
   const v = c.verification;
-  const current = v && !v.stale ? v.outcome : null;
-  const undecided = c.kind === "undecided";
-  const [noteOpen, setNoteOpen] = useState(!!v?.note);
-  const [note, setNote] = useState(v?.note ?? "");
+  const current = calibrationOf(c);
   const showExplanation = revealed || current != null;
-  const groupLabel = `¿Quién tenía razón? Criterio ${c.criterionId}`;
   return (
     <article
       className={cn("grid gap-1.5 rounded-md border border-border p-3 text-[13px]", focused && "border-primary shadow-[inset_3px_0_0_var(--primary)]")}
@@ -588,76 +648,32 @@ function CriterionCard({
     >
       <h3 className="m-0 text-sm font-semibold">
         Criterio {c.criterionId}
-        {c.blue && <span className="help font-normal"> · posible error del revisor</span>}
         {filtered && <span className="chip ml-2 align-middle text-xs">Criterio filtrado</span>}
       </h3>
       <p className="help m-0">Criterio: {c.description}</p>
       <CriterionEvidence c={c} version={version} typification={typification} onListen={onListen} />
 
-      {v?.stale && <p className="m-0 font-semibold">La planilla cambió después de esta verificación. Revísala de nuevo.</p>}
+      {v?.stale && <p className="m-0 font-semibold">El revisor cambió su veredicto después de esta calibración. Calíbralo de nuevo.</p>}
 
       {canWrite ? (
         <>
-          <div className="flex items-center gap-1.5">
-            <span id={`q-${c.criterionId}`} className="font-semibold">
-              ¿Quién tenía razón?
-            </span>
-            <MetricHelp title="Salidas">
-              Ambiguo: la pauta admite las dos lecturas.
-              <br />
-              Falta información: con la llamada no se puede decidir (por ejemplo, el dato está en SAP y no en la grabación).
-            </MetricHelp>
-          </div>
-          <div className="seg grid grid-cols-2 [&>button]:justify-start [&>button:nth-child(-n+2)]:border-b [&>button:nth-child(-n+2)]:border-b-[var(--input)] [&>button:nth-child(2n)]:border-r-0" role="radiogroup" aria-label={groupLabel}>
-            {OUTCOMES.map((o, i) => (
-              <button
-                key={o}
-                type="button"
-                role="radio"
-                aria-checked={current === o}
-                disabled={busy}
-                onClick={() => onSave(o, note.trim() || null)}
-              >
-                <span className="kbd mr-1" aria-hidden>
-                  {i + 1}
-                </span>
-                {outcomeLabel(o, undecided)}
-              </button>
-            ))}
-          </div>
-          {noteOpen ? (
-            <label className="grid gap-1">
-              Nota (opcional)
-              <textarea className="control min-h-[56px]" value={note} onChange={(e) => setNote(e.target.value)} />
-              {current && note.trim() !== (v?.note ?? "") && (
-                <Button size="sm" variant="default" className="justify-self-start" onClick={() => onSave(current, note.trim() || null)}>
-                  Guardar nota
-                </Button>
-              )}
-            </label>
-          ) : (
-            <button type="button" className="justify-self-start underline" onClick={() => setNoteOpen(true)}>
-              + Agregar nota
-            </button>
-          )}
+          <CalibrationButtons criterionId={c.criterionId} current={current} busy={busy} shortcuts onSave={(o) => onSave(o, v?.note ?? null)} />
+          <NoteField initial={v?.note} current={current} onSave={onSave} />
         </>
       ) : (
         <p className="m-0">
-          {v ? (
+          {v && current ? (
             <>
-              Verificado por {v.by}
-              {v.at ? ` el ${shortDateTime(v.at)}` : ""}: <b>{outcomeLabel(v.outcome, undecided)}</b>.{v.note ? ` Nota: «${v.note}»` : ""}
+              <CalibratedBy v={v} version={version} />: <b>{CALIBRATION[current]}</b>.{v.note ? ` Nota: «${v.note}»` : ""}
             </>
           ) : (
-            "Sin verificar."
+            "Sin calibrar."
           )}
         </p>
       )}
       {v && canWrite && (
         <p className="help m-0">
-          Registrado por {v.by}
-          {v.at ? ` el ${shortDateTime(v.at)}` : ""}
-          {v.versionAt !== version ? (admin ? ` desde v${v.versionAt}` : " en una revisión anterior") : ""}
+          <CalibratedBy v={v} version={version} />
           {v.seenFirst ? " · con la explicación a la vista" : ""}
         </p>
       )}
@@ -669,28 +685,23 @@ function CriterionCard({
               Según Qubyt: <b>{c.analysis.title}</b>. {c.analysis.explanation} <span className="help">Causa: {CAUSE[c.analysis.cause] ?? c.analysis.cause}</span>
             </p>
           ) : (
-            <p className="help m-0">La IA de análisis no agrupó este desacuerdo en un patrón.</p>
+            <p className="help m-0">Qubyt no agrupó este desacuerdo en un patrón.</p>
           )
         ) : (
           <p className="help m-0">
-            Explicación de Qubyt: se muestra al registrar, para no influir en tu decisión.{" "}
-            {canWrite ? (
-              <button type="button" className="underline" onClick={onReveal}>
-                Mostrar explicación ahora
-              </button>
-            ) : (
-              <button type="button" className="underline" onClick={onReveal}>
-                Mostrar explicación
-              </button>
-            )}
+            Explicación de Qubyt: se muestra al calibrar, para no influir en tu decisión.{" "}
+            <button type="button" className="underline" onClick={onReveal}>
+              {canWrite ? "Mostrar explicación ahora" : "Mostrar explicación"}
+            </button>
           </p>
         ))}
     </article>
   );
 }
 
-/** Lo que dijo Qubyt y la planilla en un criterio: veredicto, citas, motivos sugeridos, comentario. Compartido por los
- * desacuerdos y los acuerdos (20-verificar-criterios-en-acuerdo, Y1 A). */
+/** Lo que dijo Qubyt y el revisor en un criterio: veredicto, citas, motivos sugeridos, comentario. Compartido por los
+ * desacuerdos y los acuerdos (20-verificar-criterios-en-acuerdo, Y1 A). Si Qubyt no dio veredicto, no se muestra
+ * línea de Qubyt (23, AB3). */
 function CriterionEvidence({
   c,
   version,
@@ -703,17 +714,22 @@ function CriterionEvidence({
   onListen: (quote: string, startMs: number | null) => void;
 }) {
   const admin = useIsAdmin();
+  const undecided = c.kind === "undecided";
   return (
     <>
-      <p className="m-0">
-        Qubyt{admin ? ` v${version}` : ""}: <span className={VERDICT_CLASS[c.ai.verdict]}>{VERDICT[c.ai.verdict]}</span>
-      </p>
-      {c.ai.evidence.length === 0 ? (
-        <p className="help m-0">
-          {c.kind === "agree" && c.ai.verdict === "compliant"
-            ? "Qubyt no dejó cita: lo da por cumplido porque no lo encontró en la llamada."
-            : "Qubyt no dejó cita para este criterio."}
+      {!undecided && (
+        <p className="m-0">
+          Qubyt{admin ? ` v${version}` : ""}: <span className={VERDICT_CLASS[c.ai.verdict]}>{VERDICT[c.ai.verdict]}</span>
         </p>
+      )}
+      {c.ai.evidence.length === 0 ? (
+        !undecided && (
+          <p className="help m-0">
+            {c.kind === "agree" && c.ai.verdict === "compliant"
+              ? "Qubyt no dejó cita: lo da por cumplido porque no lo encontró en la llamada."
+              : "Qubyt no dejó cita para este criterio."}
+          </p>
+        )
       ) : (
         c.ai.evidence.map((e, i) => (
           <p key={i} className="quote m-0">
@@ -735,18 +751,13 @@ function CriterionEvidence({
       />
       {c.ai.comment && <p className="m-0">Comentario de Qubyt: «{c.ai.comment}»</p>}
       <p className="m-0">
-        Planilla: <span className={c.reviewerFail ? "vt vt-fail" : "vt vt-pass"}>{c.reviewerFail ? "No cumple" : "Cumple"}</span>
+        Veredicto revisor: <span className={c.reviewerFail ? "vt vt-fail" : "vt vt-pass"}>{c.reviewerFail ? "No cumple" : "Cumple"}</span>
       </p>
     </>
   );
 }
 
-const AGREE_OUTCOMES: [VerificationOutcome, string][] = [
-  ["both_right", "Aprobar"],
-  ["both_wrong", "Rechazar"],
-];
-
-/** Un criterio en que Qubyt y la planilla coinciden, desplegable, con «¿Tienen razón los dos?» (20, Y1-Y2 A). */
+/** Un criterio en que Qubyt y el revisor coinciden, desplegable, con su veredicto de calibración (20 Y1 A, 23). */
 function AgreeCriterion({
   c,
   version,
@@ -764,18 +775,13 @@ function AgreeCriterion({
   canWrite: boolean;
   busy: boolean;
   onOpen: () => void;
-  onSave: (outcome: VerificationOutcome, note: string | null) => void;
+  onSave: (verdict: Calibration, note: string | null) => void;
   onUndo: () => void;
   onListen: (quote: string, startMs: number | null) => void;
 }) {
-  const admin = useIsAdmin();
   const v = c.verification;
-  const current = v && !v.stale ? v.outcome : null;
-  const [noteOpen, setNoteOpen] = useState(!!v?.note);
-  const [note, setNote] = useState(v?.note ?? "");
+  const current = calibrationOf(c);
   const both = c.reviewerFail ? "No cumple" : "Cumple";
-  const state = current === "both_right" ? "Aprobado" : current === "both_wrong" ? "Rechazado: los dos se equivocaron" : null;
-  const groupLabel = `¿Tienen razón los dos? Criterio ${c.criterionId}`;
   return (
     <details
       className="rounded-md border border-border text-[13px]"
@@ -784,67 +790,39 @@ function AgreeCriterion({
       }}
     >
       <summary className="cursor-pointer px-3 py-2">
-        Criterio {c.criterionId} · {c.description} · Qubyt y planilla: <span className={c.reviewerFail ? "vt vt-fail" : "vt vt-pass"}>{both}</span>
-        {state && <b className={current === "both_wrong" ? "ml-1 text-[var(--red-700)]" : "ml-1"}> · {state}</b>}
+        Criterio {c.criterionId} · {c.description} · Qubyt y revisor: <span className={c.reviewerFail ? "vt vt-fail" : "vt vt-pass"}>{both}</span>
+        {current && <b className={current === "non_compliant" ? "ml-1 text-[var(--red-800)]" : "ml-1"}> · Calibrado: {CALIBRATION[current]}</b>}
       </summary>
       <div className="grid gap-1.5 border-t border-border p-3">
         <CriterionEvidence c={c} version={version} typification={typification} onListen={onListen} />
-        {v?.stale && <p className="m-0 font-semibold">La planilla cambió después de este registro. Revísalo de nuevo.</p>}
+        {v?.stale && <p className="m-0 font-semibold">El revisor cambió su veredicto después de esta calibración. Calíbralo de nuevo.</p>}
         {canWrite ? (
           <>
-            <span id={`aq-${c.criterionId}`} className="font-semibold">
-              ¿Tienen razón los dos?
-            </span>
-            <div className="seg justify-self-start" role="radiogroup" aria-label={groupLabel}>
-              {AGREE_OUTCOMES.map(([o, label]) => (
-                <button key={o} type="button" role="radio" aria-checked={current === o} disabled={busy} onClick={() => onSave(o, note.trim() || null)}>
-                  {label}
-                </button>
-              ))}
-            </div>
-            {current === "both_wrong" && (
-              <p className="m-0">
-                Registrado: Qubyt y la planilla se equivocaron. Lo correcto es {c.reviewerFail ? "Cumple" : "No cumple"}.{" "}
-                <button type="button" className="underline" disabled={busy} onClick={onUndo}>
-                  Deshacer
-                </button>
-              </p>
-            )}
-            {current === "both_right" && (
+            <CalibrationButtons criterionId={c.criterionId} current={current} busy={busy} onSave={(o) => onSave(o, v?.note ?? null)} />
+            {current && (
               <button type="button" className="justify-self-start underline" disabled={busy} onClick={onUndo}>
-                Quitar aprobación
+                Quitar calibración
               </button>
             )}
-            {noteOpen ? (
-              <label className="grid gap-1">
-                Nota (opcional)
-                <textarea className="control min-h-[56px]" value={note} onChange={(e) => setNote(e.target.value)} />
-                {current && note.trim() !== (v?.note ?? "") && (
-                  <Button size="sm" variant="default" className="justify-self-start" onClick={() => onSave(current, note.trim() || null)}>
-                    Guardar nota
-                  </Button>
-                )}
-              </label>
-            ) : (
-              <button type="button" className="justify-self-start underline" onClick={() => setNoteOpen(true)}>
-                + Agregar nota
-              </button>
-            )}
+            <NoteField initial={v?.note} current={current} onSave={onSave} />
           </>
         ) : (
-          <p className="m-0">{v ? <>Registrado por {v.by}: <b>{outcomeLabel(v.outcome, false)}</b>.{v.note ? ` Nota: «${v.note}»` : ""}</> : "Sin registro."}</p>
+          <p className="m-0">
+            {v && current ? (
+              <>
+                <CalibratedBy v={v} version={version} />: <b>{CALIBRATION[current]}</b>.{v.note ? ` Nota: «${v.note}»` : ""}
+              </>
+            ) : (
+              "Sin calibrar."
+            )}
+          </p>
         )}
         {v && canWrite && (
           <p className="help m-0">
-            Registrado por {v.by}
-            {v.at ? ` el ${shortDateTime(v.at)}` : ""}
-            {v.versionAt !== version
-              ? `${admin ? ` desde v${v.versionAt}` : " en una revisión anterior"}: ${outcomeLabel(v.outcome, false)}`
-              : ""}
+            <CalibratedBy v={v} version={version} />
           </p>
         )}
       </div>
     </details>
   );
 }
-

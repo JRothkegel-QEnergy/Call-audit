@@ -162,7 +162,7 @@ export function AiQualityView({ data, onRefresh }: { data: AiQuality; onRefresh?
               {main.isCurrent
                 ? "La vigente se mide con sus corridas de hoy, sin lista de llamadas ni análisis de causa."
                 : main.source === "full_run"
-                  ? "Corrida completa: aquí se mide solo en sus llamadas de validación, igual que las pruebas. Su lista completa está en Verificación."
+                  ? "Corrida completa: aquí se mide solo en sus llamadas de validación, igual que las pruebas. Su lista completa está en Calibración."
                   : "Hay una prueba más nueva de esta versión: la lista de llamadas abre esa."}
             </p>
           ) : null

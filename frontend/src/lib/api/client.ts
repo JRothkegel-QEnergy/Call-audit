@@ -240,7 +240,15 @@ export interface ApiClient extends AnalysisApi {
   saveVerification(
     caseId: string,
     criterionId: number,
-    input: { outcome: VerificationOutcome; note?: string | null; version: string; seenFirst: boolean; source?: VerificationSource },
+    input: {
+      /** Veredicto de calibración (23); el backend deriva el `outcome`. */
+      verdict?: "compliant" | "non_compliant";
+      outcome?: VerificationOutcome;
+      note?: string | null;
+      version: string;
+      seenFirst: boolean;
+      source?: VerificationSource;
+    },
   ): Promise<VerificationRecord>;
   deleteVerification(caseId: string, criterionId: number): Promise<void>;
   /** Verificación con verificadores (docs/ux/admin-prompt-metrics/13-rol-verificador-asignacion.md). */

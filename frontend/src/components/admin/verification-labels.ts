@@ -1,5 +1,8 @@
 /** Textos de la verificación caso a caso (docs/ux/admin-prompt-metrics/04-verificacion-propuesta.md §6). */
 
+/** Veredicto de calibración de un criterio (23-modulo-de-calibracion): el correcto, Cumple o No cumple. */
+export const CALIBRATION = { compliant: "Cumple", non_compliant: "No cumple" } as const;
+
 import type { AgreeList, AgreementSegment, CallList, ReasonMatch, CallVerification, Verdict3, VerificationOutcome, VerificationSummary } from "@/lib/api/admin-types";
 
 export const SEGMENTS: AgreementSegment[] = ["promptFn", "promptFp", "reviewer", "undecided", "agree"];

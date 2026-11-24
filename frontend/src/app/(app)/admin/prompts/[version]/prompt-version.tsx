@@ -154,7 +154,7 @@ export function PromptVersionView({ version }: { version: string }) {
                 ))}
                 {/* La corrida completa y los verificadores viven en su propia pantalla (13-rol-verificador). */}
                 <Link href={`/admin/prompts/${encodeURIComponent(meta.version)}/verification`} className="tab no-underline">
-                  Verificación
+                  Calibración
                 </Link>
               </div>
 

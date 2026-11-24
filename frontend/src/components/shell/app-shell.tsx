@@ -76,7 +76,7 @@ export const ROLE_LABEL: Record<Role, string> = {
   supervisor: "Supervisor",
   qubico_admin: "Administrador Qubico",
   qubico_viewer: "Lectura Qubico",
-  qubico_verifier: "Verificador",
+  qubico_verifier: "Calibrador",
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {

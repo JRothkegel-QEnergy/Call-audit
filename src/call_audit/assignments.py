@@ -76,10 +76,13 @@ def scoped(evaluation: PromptEvaluation, ids: set[str] | None) -> Any:
 
 
 def is_reviewed(item: dict, assignment: VerificationAssignment | None) -> bool:
-    """`item` es una fila de verification.segment_items."""
-    if item["verification"] == "none":
-        return assignment is not None and assignment.reviewed_at is not None
-    return item["verification"] != "pending"
+    """¿Calibrada? `item` es una fila de verification.segment_items. Con criterios por calibrar, cuando todos tienen
+    registro vigente (pedido 2026-11-24: un «Qubyt se equivocó» ya no la cierra sola); sin ellos, cuando se marcó «Sin
+    observaciones» o se calibró al revés algún criterio en acuerdo (20, Y5 A)."""
+    outcomes = [d["outcome"] for d in item["disagreements"]]
+    if outcomes:
+        return None not in outcomes
+    return item.get("bothWrong", 0) > 0 or (assignment is not None and assignment.reviewed_at is not None)
 
 
 def discrepancy_of(item: dict) -> str:

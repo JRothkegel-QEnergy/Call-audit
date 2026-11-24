@@ -65,7 +65,7 @@ ROLE_LABEL = {
     "supervisor": "Supervisor",
     "qubico_admin": "Administrador Qubico",
     "qubico_viewer": "Lectura Qubico",
-    "qubico_verifier": "Verificador",
+    "qubico_verifier": "Calibrador",
 }
 
 # Plantilla común (Cambio 22, docs/ux/call-audit/22-correos-transaccionales.md): tablas y estilos inline para Gmail

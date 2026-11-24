@@ -13,7 +13,7 @@ import { api } from "@/lib/api";
 import type {
   SegmentCall,
   SegmentCalls,
-  SegmentDisagreement,
+  RejectedCriterion,
   SortDirection,
   Tray,
   TraySort,
@@ -25,9 +25,9 @@ import { useAsync } from "@/lib/use-async";
 import { dirFromParam, scopeQuery, SORT_PARAM, sortFromParam, trayPath, verdictFromParam } from "@/lib/verification-scope";
 
 /**
- * Bandejas del verificador (docs/ux/admin-prompt-metrics/18-verificador-bandeja-y-revisadas.md, ajustadas en
- * 21-ajustes-vista-verificador.md): «Por revisar» (sus llamadas asignadas que faltan, en el orden aleatorio fijo) y
- * «Revisadas» (lo ya revisado, la más reciente primero). Las dos resuelven la versión con la última corrida completa.
+ * Bandejas del calibrador (docs/ux/admin-prompt-metrics/18, ajustadas en 21 y 23-modulo-de-calibracion): «Por calibrar»
+ * (sus llamadas asignadas que faltan, en el orden aleatorio fijo) y «Calibradas» (lo ya calibrado, la más reciente
+ * primero). Las dos resuelven la versión con la última corrida completa.
  */
 export function TrayView({ tray }: { tray: Tray }) {
   const home = useAsync(() => api.getVerificationHome(), []);
@@ -47,10 +47,10 @@ export function TrayView({ tray }: { tray: Tray }) {
   );
 }
 
-const TITLE: Record<Tray, string> = { pending: "Por revisar", reviewed: "Revisadas" };
+const TITLE: Record<Tray, string> = { pending: "Por calibrar", reviewed: "Calibradas" };
 const DESCRIPTION: Record<Tray, string> = {
-  pending: "Tus llamadas asignadas que faltan por revisar. Están en un orden al azar fijo, el mismo para todos.",
-  reviewed: "Las llamadas que ya revisaste, la más reciente primero. Ábrelas para corregir tus registros.",
+  pending: "Tus llamadas asignadas que faltan por calibrar. Están en un orden al azar fijo, el mismo para todos.",
+  reviewed: "Las llamadas que ya calibraste, la más reciente primero. Ábrelas para corregir tus registros.",
 };
 
 const SORT_LABEL: Record<TraySort, string> = {
@@ -58,7 +58,7 @@ const SORT_LABEL: Record<TraySort, string> = {
   date: "Fecha llamada",
   ai: "Veredicto Qubyt",
   reviewer: "Veredicto revisor",
-  reviewed: "Fecha de revisión",
+  reviewed: "Fecha de calibración",
 };
 
 // Nombre de la columna dentro de una frase: primera letra en minúscula («veredicto Qubyt»).
@@ -71,12 +71,12 @@ const sortText = (tray: Tray, sort: TraySort | null, dir: SortDirection | null) 
     ? `Ordenado por ${sortName(sort)}, ${dirName(dir)}`
     : tray === "pending"
       ? "Orden aleatorio fijo"
-      : "Ordenado por fecha de revisión, descendente";
+      : "Ordenado por fecha de calibración, descendente";
 
 function TrayHeader({ tray, actions, sort = null, dir = null }: { tray: Tray; actions?: React.ReactNode; sort?: TraySort | null; dir?: SortDirection | null }) {
   const description =
     tray === "pending" && sort
-      ? `Tus llamadas asignadas que faltan por revisar, ordenadas por ${sortName(sort)}, ${dirName(dir)}.`
+      ? `Tus llamadas asignadas que faltan por calibrar, ordenadas por ${sortName(sort)}, ${dirName(dir)}.`
       : DESCRIPTION[tray];
   return <AdminHeader title={TITLE[tray]} description={description} actions={actions} />;
 }
@@ -91,46 +91,59 @@ const REVIEWER_OPTIONS: ["compliant" | "non_compliant", string][] = [
   ["non_compliant", "No cumple"],
 ];
 
-/** Avance de una llamada pendiente (21): «Por revisar» o «{k} de {t} criterios». */
+/** Avance de una llamada pendiente (21, 23): «Por calibrar» o «{k} de {t} criterios». */
 function progressLabel(i: SegmentCall) {
   const total = i.disagreements.length;
   const done = i.disagreements.filter((d) => d.outcome).length;
-  return done === 0 ? "Por revisar" : `${done} de ${total} criterios`;
+  return done === 0 ? "Por calibrar" : `${done} de ${total} criterios`;
 }
 
-/** Marca de un criterio ya registrado (21, Z2 A): ✓ Qubyt tenía razón · ✗ Qubyt se equivocó · ? ambiguo o falta info. */
-function mark(d: SegmentDisagreement): { sign: string; text: string } | null {
-  if (!d.outcome) return null;
-  if (d.outcome === "reviewer_error") return { sign: "✓", text: "Qubyt tenía razón" };
-  if (d.outcome === "ai_error") return { sign: "✗", text: "Qubyt se equivocó" };
-  return { sign: "?", text: "ambiguo o falta información" };
-}
-
-const KIND_TEXT: Record<SegmentDisagreement["kind"], string> = {
-  fp: "Lo rechaza Qubyt",
-  fn: "Lo rechaza el revisor",
-  undecided: "Qubyt en duda",
+/** Quién rechaza el criterio (23-modulo-de-calibracion, AB3): color y texto. Nunca «Qubyt en duda». */
+const KIND: Record<RejectedCriterion["kind"], { chip: string; text: string }> = {
+  qubyt: { chip: "chip-blue", text: "Lo rechaza Qubyt" },
+  reviewer: { chip: "chip-yellow", text: "Lo rechaza el revisor" },
+  both: { chip: "chip-green", text: "Lo rechazan los dos" },
+  calibrated: { chip: "chip-muted", text: "Rechazado en la calibración" },
 };
+const KIND_ORDER: RejectedCriterion["kind"][] = ["qubyt", "reviewer", "both", "calibrated"];
 
-/** Criterios de la llamada (21, Z1 A): primero los que rechaza Qubyt (rojo); después, en gris, los demás por revisar. */
-function CriteriaCell({ items, filtered }: { items: SegmentDisagreement[]; filtered: number | null }) {
-  const ordered = [...items.filter((d) => d.kind === "fp"), ...items.filter((d) => d.kind !== "fp")];
-  if (ordered.length === 0) return <span className="help">—</span>;
+/** Leyenda de colores sobre la tabla (23, AB3). */
+function ChipLegend() {
+  return (
+    <p className="help m-0 mb-2 flex flex-wrap items-center gap-3 text-xs">
+      {(["qubyt", "reviewer", "both"] as const).map((k) => (
+        <span key={k} className="flex items-center gap-1.5">
+          <span aria-hidden className={cn("chip-dot", KIND[k].chip)} />
+          {KIND[k].text}
+        </span>
+      ))}
+      <span>✗ = calibrado No cumple</span>
+    </p>
+  );
+}
+
+/** Criterios rechazados de la llamada (23, AB3-AB4): azul, amarillo, verde y gris en ese orden. Calibrado Cumple → sale
+ * de la lista; calibrado No cumple → ✗. */
+function CriteriaCell({ items, filtered }: { items: RejectedCriterion[]; filtered: number | null }) {
+  const shown = items
+    .filter((c) => c.calibration !== "compliant")
+    .sort((a, b) => KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind));
+  if (shown.length === 0) return <span className="help">—</span>;
   return (
     <span className="flex flex-wrap gap-1">
-      {ordered.map((d) => {
-        const m = mark(d);
+      {shown.map((c) => {
+        const status = c.calibration === "non_compliant" ? "calibrado No cumple" : "sin calibrar";
         return (
           <span
-            key={d.criterionId}
-            className={cn("chip", d.kind === "fp" ? "chip-fail" : "chip-muted", d.criterionId === filtered && "font-bold ring-2 ring-[var(--ring)]")}
-            title={`${KIND_TEXT[d.kind]}${m ? ` · ${m.text}` : " · sin revisar"}`}
+            key={c.criterionId}
+            className={cn("chip", KIND[c.kind].chip, c.criterionId === filtered && "font-bold ring-2 ring-[var(--ring)]")}
+            title={`${KIND[c.kind].text} · ${status}`}
           >
-            C{d.criterionId}
-            {m && <span aria-hidden> {m.sign}</span>}
+            C{c.criterionId}
+            {c.calibration === "non_compliant" && <span aria-hidden> ✗</span>}
             <span className="sr-only">
               {" "}
-              {KIND_TEXT[d.kind].toLowerCase()}, {m ? m.text : "sin revisar"}
+              {KIND[c.kind].text.charAt(0).toLowerCase() + KIND[c.kind].text.slice(1)}, {status}
             </span>
           </span>
         );
@@ -153,7 +166,7 @@ function TrayList({ tray, version, me }: { tray: Tray; version: string; me: Veri
   );
   const actions = (
     <span className="help tabular" aria-live="polite">
-      {int(me.pending)} pendientes · {int(me.reviewedToday)} revisadas hoy
+      {int(me.pending)} pendientes · {int(me.reviewedToday)} calibradas hoy
     </span>
   );
   return (
@@ -214,15 +227,15 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
   const sum = (r?: Record<string, number>) => (r ? Object.values(r).reduce((a, b) => a + b, 0) : items.length);
   const calls = (n: number) => `${int(n)} ${n === 1 ? "llamada" : "llamadas"}`;
 
-  // Bandeja vacía sin filtros: todo hecho (Por revisar) o nada aún (Revisadas).
+  // Bandeja vacía sin filtros: todo hecho (Por calibrar) o nada aún (Calibradas).
   if (items.length === 0 && !filtered) {
     return tray === "pending" ? (
-      <EmptyState title={`¡Listo! Revisaste tus ${int(me.assigned)} llamadas.`} body="Si el admin te asigna más, aparecerán aquí.">
-        <Button onClick={() => router.push(trayPath("reviewed"))}>Ver revisadas</Button>
+      <EmptyState title={`¡Listo! Calibraste tus ${int(me.assigned)} llamadas.`} body="Si el admin te asigna más, aparecerán aquí.">
+        <Button onClick={() => router.push(trayPath("reviewed"))}>Ver calibradas</Button>
       </EmptyState>
     ) : (
-      <EmptyState title="Aún no has revisado llamadas.">
-        <Button onClick={() => router.push(trayPath("pending"))}>Ir a Por revisar</Button>
+      <EmptyState title="Aún no has calibrado llamadas.">
+        <Button onClick={() => router.push(trayPath("pending"))}>Ir a Por calibrar</Button>
       </EmptyState>
     );
   }
@@ -233,7 +246,7 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
       <div className="mb-3 flex flex-wrap items-center gap-2" role="search">
         <CallSearch value={call ?? undefined} onChange={(v) => set("llamada", v)} />
         <label className="flex items-center gap-1.5 text-sm">
-          Criterios rechazados por Qubyt:
+          Criterios rechazados:
           <select className="control" value={motivo ?? ""} onChange={(e) => set("motivo", e.target.value || null)}>
             <option value="">Todos</option>
             {(data.rejectedCounts ?? []).map((c) => (
@@ -273,7 +286,7 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
         </span>
         {tray === "pending" && first && (
           <Button variant="primary" className="ml-auto" onClick={() => router.push(caseHref(first.caseId))}>
-            Seguir revisando
+            Seguir calibrando
           </Button>
         )}
       </div>
@@ -285,9 +298,9 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
             {tray === "pending" && (
               <>
                 {" "}
-                Puede que ya esté revisada.{" "}
+                Puede que ya esté calibrada.{" "}
                 <Link className="underline" href={`${trayPath("reviewed")}?llamada=${encodeURIComponent(call)}`}>
-                  Buscar en Revisadas
+                  Buscar en Calibradas
                 </Link>
               </>
             )}
@@ -302,6 +315,7 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
         )
       ) : (
         <div className="overflow-x-auto">
+          <ChipLegend />
           <table className="tbl">
             <thead>
               <tr>
@@ -309,15 +323,9 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
                 {th("date")}
                 {th("ai")}
                 {th("reviewer")}
-                <th scope="col">Criterios rechazados por Qubyt</th>
-                {tray === "pending" ? (
-                  <th scope="col">Avance</th>
-                ) : (
-                  <>
-                    <th scope="col">Revisor</th>
-                    {th("reviewed")}
-                  </>
-                )}
+                <th scope="col">Revisor</th>
+                <th scope="col">Criterios rechazados</th>
+                {tray === "pending" ? <th scope="col">Avance</th> : th("reviewed")}
               </tr>
             </thead>
             <tbody>
@@ -343,16 +351,14 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
                   <td>
                     <span className={VERDICT_CLASS[i.reviewerVerdict]}>{VERDICT[i.reviewerVerdict]}</span>
                   </td>
+                  <td>{personName(i.evaluator) || "—"}</td>
                   <td>
-                    <CriteriaCell items={i.disagreements} filtered={motivo} />
+                    <CriteriaCell items={i.rejectedCriteria ?? []} filtered={motivo} />
                   </td>
                   {tray === "pending" ? (
                     <td>{progressLabel(i)}</td>
                   ) : (
-                    <>
-                      <td>{personName(i.evaluator) || "—"}</td>
-                      <td>{i.lastReviewedAt ? shortDateTime(i.lastReviewedAt) : "—"}</td>
-                    </>
+                    <td>{i.lastReviewedAt ? shortDateTime(i.lastReviewedAt) : "—"}</td>
                   )}
                 </tr>
               ))}

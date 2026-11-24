@@ -674,7 +674,12 @@ def agreement_case(
 
 
 class VerificationIn(BaseModel):
-    outcome: Literal["ai_error", "reviewer_error", "ambiguous", "missing_info", "both_right", "both_wrong"]
+    # Veredicto de calibración (23-modulo-de-calibracion): el correcto del criterio; el `outcome` se deriva. El
+    # `outcome` directo queda por compatibilidad.
+    verdict: Literal["compliant", "non_compliant"] | None = None
+    outcome: Literal["ai_error", "reviewer_error", "ambiguous", "missing_info", "both_right", "both_wrong"] | None = (
+        None
+    )
     note: str | None = None
     version: str
     seenFirst: bool = False  # noqa: N815
@@ -709,13 +714,15 @@ def put_verification(
             body.outcome,
             body.note,
             body.seenFirst,
+            body.verdict,
         )
     except LookupError as exc:
         raise HTTPException(404, str(exc)) from exc
     except ValueError as exc:  # p. ej. «los dos se equivocaron» en un desacuerdo (20, Y2 A)
         raise HTTPException(400, str(exc)) from exc
     session.commit()
-    return verification.record_out(row, False)
+    reviewer = verification.FAIL if row.reviewer_fail_at else verification.PASS
+    return verification.record_out(row, False, reviewer=reviewer)
 
 
 @router.delete("/admin/verifications/{case_id}/{criterion_id}", status_code=204)
