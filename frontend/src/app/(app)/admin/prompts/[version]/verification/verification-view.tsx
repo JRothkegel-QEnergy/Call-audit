@@ -32,7 +32,7 @@ import type {
   VerificationScope,
 } from "@/lib/api/admin-types";
 import { ApiError } from "@/lib/api/admin-types";
-import { shortDateTime } from "@/lib/format";
+import { personName, shortDateTime } from "@/lib/format";
 import { useSession } from "@/lib/session";
 import { useAsync } from "@/lib/use-async";
 import { scopeQuery, trayPath } from "@/lib/verification-scope";
@@ -134,6 +134,8 @@ function AssigneeFilter({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  // El nombre del calibrador en vez de «Mí» (22, AE6).
+  const myName = personName(useSession().user?.name) || "Mí";
   const go = (value: string) =>
     router.replace(`${pathname}?asignadas=${encodeURIComponent(value)}`, {
       scroll: false,
@@ -145,7 +147,7 @@ function AssigneeFilter({
         <div className="seg" role="group" aria-label="Asignadas a">
           {(
             [
-              ["me", "Mí"],
+              ["me", myName],
               ["all", "Todas"],
             ] as const
           ).map(([k, label]) => (

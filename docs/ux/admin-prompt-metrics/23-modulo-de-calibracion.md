@@ -207,3 +207,7 @@ calibrador ya nunca ve la explicación, así que el dato sigue siendo verdadero.
 
 **AE5 (mismo gate, vista Resumen; detalle en `22`).** Pedido (Johannes, textual): «finalmente en la vista resumen, la columna evaluados cámbiala por total y ponla al final.» Columnas: Criterio · Cumple ·
 No cumple · [barra] · Total (derecha, ordenable). Mismo dato que «Evaluados» (AA2).
+
+**AE6 (mismo gate; detalle en `22`).** Pedido (Johannes, textual): «aquí agrega el nombre del calibrador en vez de poner Mí» «Asignadas a: [<nombre> | Todas]» con
+`personName` del usuario logueado (fallback «Mí»), en el Resumen y, por coherencia, en la lista del calibrador
+(`verification-view.tsx`, `isVerifier`).
