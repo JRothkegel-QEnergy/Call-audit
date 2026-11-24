@@ -686,12 +686,15 @@ class VerificationIn(BaseModel):
     source: Source = "test"
 
 
-def check_can_record(session: Session, user: User, case_id: str, criterion_id: int, full: bool) -> None:
+def check_can_record(
+    session: Session, user: User, case_id: str, criterion_id: int, full: bool, version: str | None = None
+) -> None:
     if user.role == "qubico_admin":
         return
     if not full or not assignments.can_record(session, user, case_id):
         raise HTTPException(403, "not_assigned")
-    rec = verification.records_for(session, [case_id]).get((case_id, criterion_id))
+    # Un registro de otra versión no cuenta en la calibración de esta: se puede calibrar de nuevo encima.
+    rec = verification.records_for(session, [case_id], version).get((case_id, criterion_id))
     if rec is not None and not assignments.can_change_record(user, rec.decided_by_id):
         raise HTTPException(403, "not_owner")
 
@@ -703,7 +706,7 @@ def put_verification(
     """Registra quién tenía razón en un desacuerdo (§9.3). El admin en cualquier llamada; el verificador solo en las
     suyas y sin pisar registros de otros (13, V4 y V9). La cuenta de lectura recibe 403."""
     full = body.source == "full" or user.role == assignments.VERIFIER
-    check_can_record(session, user, case_id, criterion_id, full)
+    check_can_record(session, user, case_id, criterion_id, full, body.version if full else None)
     try:
         row = verification.record(
             session,
