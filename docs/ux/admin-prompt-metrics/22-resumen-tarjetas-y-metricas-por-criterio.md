@@ -232,3 +232,11 @@ revisión). «Evaluado» = criterio contado en una llamada revisada. «Sin defin
 | 2026-11-23 | Ya decidido: tarjetas para Total/Revisadas/Por revisar, gráfico no desparramado, métricas por criterio y totales de criterios. Cambio menor sobre `19` (un gate) | Johannes (vía coordinador) |
 | 2026-11-23 | Diagnóstico P-30/P-31 (sin ancho máximo, cifras sin contenedor); overview sin conteos por criterio. Propuesta AA1-AA5 todas A. Esperando aprobación | Diseñador |
 | 2026-11-23 | **Aprobado (ver §0):** métricas = veredicto de Qubyt por criterio (`Cumple` / `No cumple`, sin «aprobado/rechazado»); evaluado = criterio que Qubyt evaluó en las llamadas del alcance, `uncertain` excluido; sin «Sin definir» ni «pocos datos»; AA4 A (sigue `Mí · Todas`, sin respuesta → recomendada); AA5 A (tabla, `No cumple` ↓) | Johannes (vía coordinador) |
+
+
+## Cambio menor AE5: «Evaluados» → «Total», al final (2026-11-24)
+
+Pedido (Johannes, textual): «finalmente en la vista resumen, la columna evaluados cámbiala por total y ponla al final.» Tabla por criterio de `verification/summary/page.tsx`: `Criterio` · `Cumple` ·
+`No cumple` · [barra de proporción, sin rótulo, `aria-hidden`, oculta en móvil] · `Total` (alineada a la derecha,
+sigue ordenable). Total va después de la barra, literal «al final»; en móvil, sin la barra, igual queda última. Mismo
+dato que «Evaluados» (definición AA2 aprobada sin cambios). Registrado también en `23` §6 y `estado.md`.

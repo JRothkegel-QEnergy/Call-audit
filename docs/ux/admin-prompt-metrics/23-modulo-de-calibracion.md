@@ -197,3 +197,13 @@ Implementación: `CriterionEvidence` recibe el nombre ya formateado (`personName
 ancho angosto la parte del revisor baja a la segunda línea sin cortar la etiqueta de su badge (envolver cada par en un
 `<span>` con `whitespace-nowrap` en la etiqueta). Riesgo menor R-AE1: un nombre muy largo empuja el par a otra línea;
 aceptable.
+
+**AE4 (mismo gate). Pedido (Johannes, textual):** «Necesito también que borres la parte de la explicación de qubyt, no
+se debería mostrar eso.» Se quita de `CriterionCard` el bloque «Según Qubyt: <título>. <explicación> Causa: …» / «Qubyt
+no agrupó este desacuerdo en un patrón», el aviso «Explicación de Qubyt: se muestra al calibrar… Mostrar explicación
+ahora» y el sufijo «· con la explicación a la vista» de «Calibrado por». `seenFirst` se guarda siempre `false`: el
+calibrador ya nunca ve la explicación, así que el dato sigue siendo verdadero. Sin conflicto con decisiones previas
+(refuerza AB3: nada que sugiera que Qubyt se equivoca).
+
+**AE5 (mismo gate, vista Resumen; detalle en `22`).** Pedido (Johannes, textual): «finalmente en la vista resumen, la columna evaluados cámbiala por total y ponla al final.» Columnas: Criterio · Cumple ·
+No cumple · [barra] · Total (derecha, ordenable). Mismo dato que «Evaluados» (AA2).

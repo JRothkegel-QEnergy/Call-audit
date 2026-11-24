@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { CALIBRATION, CAUSE, listTitle, VERDICT, VERDICT_CLASS } from "@/components/admin/verification-labels";
+import { CALIBRATION, listTitle, VERDICT, VERDICT_CLASS } from "@/components/admin/verification-labels";
 import { AudioPlayer } from "@/components/call/audio-player";
 import { RenunciationReasonsButton } from "@/components/call/renunciation-reasons";
 import { SuggestedReasons } from "@/components/call/suggested-reasons";
@@ -133,7 +133,6 @@ function CaseReview({
     const listed = toVerify.findIndex((c) => c.criterionId === motivo && unrecorded(c));
     return listed >= 0 ? listed : Math.max(0, toVerify.findIndex(unrecorded));
   });
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
   const [sheetOpen, setSheetOpenState] = useState(sheetOpenMemory);
   const setSheetOpen = (open: boolean) => {
     sheetOpenMemory = open;
@@ -222,7 +221,7 @@ function CaseReview({
         verdict,
         note,
         version,
-        seenFirst: revealed.has(c.criterionId),
+        seenFirst: false, // la explicación de Qubyt ya no se muestra al calibrador
         source,
       });
       const next = await fetchCmp();
@@ -449,12 +448,10 @@ function CaseReview({
                 filtered={c.criterionId === motivo}
                 canWrite={canWrite && c.verification?.canChange !== false}
                 busy={busy === c.criterionId}
-                revealed={revealed.has(c.criterionId)}
                 onFocus={() => {
                   setFocus(i);
                   setAgreeFocus(null); // la ficha vuelve a seguir al desacuerdo
                 }}
-                onReveal={() => setRevealed((r) => new Set(r).add(c.criterionId))}
                 onSave={(o, note) => void save(c, o, note)}
                 onListen={listen}
               />
@@ -619,9 +616,7 @@ function CriterionCard({
   filtered,
   canWrite,
   busy,
-  revealed,
   onFocus,
-  onReveal,
   onSave,
   onListen,
   typification,
@@ -636,15 +631,12 @@ function CriterionCard({
   filtered: boolean;
   canWrite: boolean;
   busy: boolean;
-  revealed: boolean;
   onFocus: () => void;
-  onReveal: () => void;
   onSave: (verdict: Calibration, note: string | null) => void;
   onListen: (quote: string, startMs: number | null) => void;
 }) {
   const v = c.verification;
   const current = calibrationOf(c);
-  const showExplanation = revealed || current != null;
   return (
     <article
       className={cn("grid gap-1.5 rounded-md border border-border p-3 text-[13px]", focused && "border-primary shadow-[inset_3px_0_0_var(--primary)]")}
@@ -679,27 +671,8 @@ function CriterionCard({
       {v && canWrite && (
         <p className="help m-0">
           <CalibratedBy v={v} version={version} />
-          {v.seenFirst ? " · con la explicación a la vista" : ""}
         </p>
       )}
-
-      {TO_VERIFY.has(c.kind) &&
-        (showExplanation ? (
-          c.analysis ? (
-            <p className="m-0 rounded bg-muted p-2">
-              Según Qubyt: <b>{c.analysis.title}</b>. {c.analysis.explanation} <span className="help">Causa: {CAUSE[c.analysis.cause] ?? c.analysis.cause}</span>
-            </p>
-          ) : (
-            <p className="help m-0">Qubyt no agrupó este desacuerdo en un patrón.</p>
-          )
-        ) : (
-          <p className="help m-0">
-            Explicación de Qubyt: se muestra al calibrar, para no influir en tu decisión.{" "}
-            <button type="button" className="underline" onClick={onReveal}>
-              {canWrite ? "Mostrar explicación ahora" : "Mostrar explicación"}
-            </button>
-          </p>
-        ))}
     </article>
   );
 }
