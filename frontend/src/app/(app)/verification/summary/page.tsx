@@ -258,7 +258,7 @@ function Criteria({ stats }: { stats?: CriteriaStats }) {
 type Col = "criterion" | "evaluated" | "pass" | "fail";
 const COL_LABEL: Record<Col, string> = {
   criterion: "Criterio",
-  evaluated: "Evaluados",
+  evaluated: "Total",
   pass: "Cumple",
   fail: "No cumple",
 };
@@ -328,12 +328,12 @@ function ByCriterion({ rows }: { rows: CriterionStats[] }) {
           <thead>
             <tr>
               {th("criterion")}
-              {th("evaluated", "text-right")}
               {th("pass", "text-right")}
               {th("fail", "text-right")}
               <th scope="col" className="hidden w-48 sm:table-cell">
                 <span className="sr-only">Proporción</span>
               </th>
+              {th("evaluated", "text-right")}
             </tr>
           </thead>
           <tbody>
@@ -365,7 +365,6 @@ function ByCriterion({ rows }: { rows: CriterionStats[] }) {
                       )}
                     </div>
                   </td>
-                  <td className="num text-right">{int(r.evaluated)}</td>
                   <td className="num text-right">
                     {none ? dash : <PctCell k={r.pass} n={r.evaluated} />}
                   </td>
@@ -386,6 +385,7 @@ function ByCriterion({ rows }: { rows: CriterionStats[] }) {
                       </div>
                     )}
                   </td>
+                  <td className="num text-right">{int(r.evaluated)}</td>
                 </tr>
               );
             })}
