@@ -714,7 +714,14 @@ function AssignDialog({
 
   const giver = p.people.find((x) => x.id === source) ?? null;
   // Al compartir desde una persona, van todas sus llamadas (también las calibradas) y ella las conserva.
-  const available = source === "unassigned" ? p.unassigned.pending : share ? (giver?.assigned ?? 0) : (giver?.pending ?? 0);
+  const available =
+    source === "all"
+      ? p.total.assigned
+      : source === "unassigned"
+        ? p.unassigned.pending
+        : share
+          ? (giver?.assigned ?? 0)
+          : (giver?.pending ?? 0);
   const people = p.people.filter((x) => x.active && x.id !== source);
   const ids = Object.keys(chosen);
   const bad = ids.some((k) => chosen[k].trim() !== "" && !(Number.isInteger(Number(chosen[k])) && Number(chosen[k]) >= 1));
@@ -814,6 +821,7 @@ function AssignDialog({
     </div>
   );
   const sources = [
+    ...(share ? [{ value: "all", label: `Todas las llamadas (${int(p.total.assigned)})` }] : []),
     { value: "unassigned", label: `Sin asignar (${int(p.unassigned.pending)})` },
     ...(share
       ? p.people.filter((x) => x.assigned > 0).map((x) => ({ value: x.id, label: `Llamadas de ${x.name} (${int(x.assigned)})` }))
@@ -860,6 +868,8 @@ function AssignDialog({
           onChange={(e) => {
             setShare(e.target.checked);
             setChosen({});
+            // AE22b: al compartir parte en «Todas las llamadas»; «Todas» no existe fuera de este modo.
+            setSource(e.target.checked ? "all" : "unassigned");
           }}
         />
         Las mismas llamadas para todos (calibran juntos)
@@ -883,6 +893,11 @@ function AssignDialog({
             </p>
           )}
         </fieldset>
+      )}
+      {share && plan && plan.calls > 0 && !error && (
+        <p className="help m-0">
+          {int(plan.calls - (plan.reviewed ?? 0))} por calibrar · {int(plan.reviewed ?? 0)} ya calibradas
+        </p>
       )}
       {plan && plan.calls > 0 && !error && (
         <div className="overflow-x-auto">

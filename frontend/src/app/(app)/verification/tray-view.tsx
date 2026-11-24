@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CallSearch } from "@/components/call-search";
+import { typificationLabel } from "@/components/call/typification";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { VERDICT, VERDICT_CLASS } from "@/components/admin/verification-labels";
 import { Button } from "@/components/ui/button";
@@ -189,6 +190,8 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
   const aiVerdict = verdictFromParam(params.get("qubyt"));
   const reviewerVerdict = verdictFromParam(params.get("revisor")) as "compliant" | "non_compliant" | null;
   const call = params.get("llamada");
+  // 23 §7 (AE26): filtro por revisor de la planilla, con la clave tal como viene ("" = sin revisor).
+  const evaluator = params.get("nombre_revisor");
   const sort = sortFromParam(params.get("orden"));
   const dir = sort ? (dirFromParam(params.get("dir")) ?? "asc") : null;
   const set = (key: string, value: string | null) => {
@@ -221,8 +224,14 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
 
   const { items } = data;
   // El orden lo da el servidor (bandeja + columna), el mismo que siguen Anterior/Siguiente (19, X5 A).
-  const shown = items.filter((i) => !call || i.callId.startsWith(call));
-  const filtered = motivo != null || aiVerdict != null || reviewerVerdict != null || !!call;
+  const shown = items.filter(
+    (i) => (!call || i.callId.startsWith(call)) && (evaluator == null || (i.evaluator ?? "") === evaluator),
+  );
+  const filtered = motivo != null || aiVerdict != null || reviewerVerdict != null || !!call || evaluator != null;
+  const evaluators = [...items.reduce((m, i) => m.set(i.evaluator ?? "", (m.get(i.evaluator ?? "") ?? 0) + 1), new Map<string, number>())]
+    .filter(([k]) => k !== "")
+    .sort(([a], [b]) => (personName(a) || a).localeCompare(personName(b) || b, "es"));
+  const noEvaluator = items.filter((i) => !i.evaluator).length;
   const clear = () => router.replace(pathname, { scroll: false });
   const ai = data.verdictCounts?.ai;
   const reviewer = data.verdictCounts?.reviewer;
@@ -287,6 +296,22 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
             ))}
           </select>
         </label>
+        <label className="grid gap-1 text-sm">
+          Nombre Revisor
+          <select
+            className="control"
+            value={evaluator ?? "__all"}
+            onChange={(e) => set("nombre_revisor", e.target.value === "__all" ? null : e.target.value)}
+          >
+            <option value="__all">Todos · {calls(items.length)}</option>
+            {evaluators.map(([k, n]) => (
+              <option key={k} value={k}>
+                {personName(k) || k} · {int(n)}
+              </option>
+            ))}
+            {(noEvaluator > 0 || evaluator === "") && <option value="">Sin revisor · {int(noEvaluator)}</option>}
+          </select>
+        </label>
         {tray === "pending" && first && (
           <Button variant="primary" className="ml-auto" onClick={() => router.push(caseHref(first.caseId))}>
             Seguir calibrando
@@ -329,6 +354,7 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
               <tr>
                 {th("call")}
                 {th("date")}
+                <th scope="col">Tipo de llamada</th>
                 {th("ai")}
                 {th("reviewer")}
                 <th scope="col">Nombre Revisor</th>
@@ -354,6 +380,10 @@ function TrayTable({ tray, version, data, me }: { tray: Tray; version: string; d
                     </Link>
                   </td>
                   <td>{i.callDate ? shortDate(i.callDate) : "—"}</td>
+                  {/* 23 §7 (AE25): la tipificación del ejecutivo, en una línea. */}
+                  <td className="max-w-[220px] truncate" title={typificationLabel(i.typification)}>
+                    {typificationLabel(i.typification, { short: true })}
+                  </td>
                   <td>
                     <span className={VERDICT_CLASS[i.aiVerdict]}>{VERDICT[i.aiVerdict]}</span>
                   </td>

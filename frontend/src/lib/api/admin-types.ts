@@ -444,6 +444,8 @@ export interface AssignPlan {
   /** Llamadas que había en el origen. */
   available: number;
   calls: number;
+  /** Al compartir (AE22b): cuántas de las que se comparten ya están calibradas. */
+  reviewed?: number;
   people: { id: string | null; name: string; calls: number; bySegment: Record<string, number> }[];
 }
 

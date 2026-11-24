@@ -269,6 +269,7 @@ def move_pending(
 
 
 UNASSIGNED = "unassigned"
+ALL = "all"  # solo al compartir: todas las llamadas de la corrida, tengan o no dueño (AE22)
 
 
 class TooMany(ValueError):
@@ -314,7 +315,12 @@ def assign(
     people = {u.id: u for u in verifiers(session)}
     items = all_items(session, evaluation)
     found = assignment_map(session, [it["caseId"] for it in items])
-    if source == UNASSIGNED:
+    if source == ALL:
+        if not share:
+            raise ValueError("bad_source")
+        pool = list(items)
+        giver = None
+    elif source == UNASSIGNED:
         pool = [it for it in items if it["caseId"] not in found and not is_reviewed(it, None)]
     elif (giver := session.get(User, source)) is not None and giver.role == VERIFIER:
         # También desde una cuenta desactivada: sus pendientes se pueden pasar a otros.
@@ -427,9 +433,11 @@ def share_calls(
     chosen = set(picks)
     by_segment = Counter(it["segment"] for it in items if it["caseId"] in chosen)
     ids = [uid for uid, _ in targets if uid is not None]
+    done = sum(1 for it in items if it["caseId"] in chosen and is_reviewed(it, found.get(it["caseId"])))
     result = {
         "available": len(pool),
         "calls": len(picks),
+        "reviewed": done,  # de las que se comparten, las ya calibradas (AE22b)
         "people": [
             {"id": uid, "name": people[uid].name, "calls": len(picks), "bySegment": dict(by_segment)} for uid in ids
         ],
@@ -445,7 +453,9 @@ def share_calls(
         else:
             set_assignees(row, [*assignees(row), *ids])
             row.assigned_by_id, row.assigned_at = actor.id, now()
-    origin = "Sin asignar" if source == UNASSIGNED else (people[source].name if source in people else source)
+    origin = {UNASSIGNED: "Sin asignar", ALL: "todas"}.get(source) or (
+        people[source].name if source in people else source
+    )
     accounts.log(
         session,
         actor,
