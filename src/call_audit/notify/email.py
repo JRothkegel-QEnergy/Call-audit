@@ -65,7 +65,8 @@ ROLE_LABEL = {
     "supervisor": "Supervisor",
     "qubico_admin": "Administrador Qubico",
     "qubico_viewer": "Lectura Qubico",
-    "qubico_verifier": "Calibrador",
+    # 23 §7 (AE11): el Supervisor 2 se ve a sí mismo como «Supervisor».
+    "qubico_verifier": "Supervisor",
 }
 
 # Plantilla común (Cambio 22, docs/ux/call-audit/22-correos-transaccionales.md): tablas y estilos inline para Gmail
