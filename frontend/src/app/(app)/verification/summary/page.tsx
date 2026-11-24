@@ -38,7 +38,8 @@ export default function VerificationSummaryPage() {
 
 function SummaryView() {
   const params = useSearchParams();
-  const assignee = params.get("asignadas") === "all" ? "all" : "me";
+  // «me», «all» o el id de un compañero con llamadas compartidas (23 §7, AE22 A).
+  const assignee = params.get("asignadas") || "me";
   const state = useAsync(async () => {
     const home = await api.getVerificationHome();
     return home.version
@@ -52,7 +53,9 @@ function SummaryView() {
         description={
           assignee === "all"
             ? "El avance del equipo en la calibración de la corrida completa."
-            : "Tu avance en la calibración de la corrida completa."
+            : assignee === "me"
+              ? "Tu avance en la calibración de la corrida completa."
+              : "El avance de tu compañero en las llamadas que comparten."
         }
       />
       <AsyncView state={state} what="el resumen">
@@ -75,7 +78,7 @@ function Summary({
   assignee,
 }: {
   data: VerificationOverview;
-  assignee: "me" | "all";
+  assignee: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -83,30 +86,26 @@ function Summary({
   const mine = assignee === "me";
   // El nombre del calibrador en vez de «Mí» (22, AE6).
   const myName = personName(useSession().user?.name) || "Mí";
-  const setAssignee = (value: "me" | "all") =>
-    router.replace(value === "all" ? `${pathname}?asignadas=all` : pathname, {
+  const setAssignee = (value: string) =>
+    router.replace(value === "me" ? pathname : `${pathname}?asignadas=${encodeURIComponent(value)}`, {
       scroll: false,
     });
+  const options: [string, string][] = [
+    ["me", myName],
+    ...data.verifiers.map((v): [string, string] => [v.id, personName(v.name) || v.name]),
+    ["all", "Todas"],
+  ];
 
   return (
     <div className="grid max-w-5xl gap-6">
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-sm">Asignadas a:</span>
         <div className="seg" role="group" aria-label="Asignadas a">
-          <button
-            type="button"
-            aria-pressed={mine}
-            onClick={() => setAssignee("me")}
-          >
-            {myName}
-          </button>
-          <button
-            type="button"
-            aria-pressed={!mine}
-            onClick={() => setAssignee("all")}
-          >
-            Todas
-          </button>
+          {options.map(([k, label]) => (
+            <button key={k} type="button" aria-pressed={assignee === k} onClick={() => setAssignee(k)}>
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 

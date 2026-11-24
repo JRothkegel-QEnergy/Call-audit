@@ -184,7 +184,7 @@ def reopen(case_id: str, body: ReopenIn, session: DbSession, user: Supervisor) -
 
 @router.get("/auditors/accounts")
 def auditor_accounts(session: DbSession, _: Supervisor):
-    users = session.scalars(select(User).where(User.role == "auditor").order_by(User.name))
+    users = session.scalars(select(User).where(User.role == "auditor", User.status != "deleted").order_by(User.name))
     return [
         {"id": u.id, "name": u.name, "email": u.email, "status": u.status, "loginMethod": "password"} for u in users
     ]

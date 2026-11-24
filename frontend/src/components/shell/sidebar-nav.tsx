@@ -30,7 +30,7 @@ import { DemoDialog } from "@/components/dialogs/demo-dialog";
 import type { User } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { useSession } from "@/lib/session";
-import { ROLE_LABEL } from "./app-shell";
+import { ownRoleLabel } from "./app-shell";
 import { useNavCounts } from "./nav-counts";
 import { isRealMode } from "@/lib/api";
 
@@ -130,7 +130,7 @@ export function SidebarNav({
     .map((p) => p[0])
     .join("")
     .slice(0, 2);
-  const roleLabel = user.role === "auditor" ? "Auditora" : ROLE_LABEL[user.role];
+  const roleLabel = user.role === "auditor" ? "Auditora" : ownRoleLabel(user.role);
 
   const rowClass = cn(
     "relative flex h-9 w-full items-center gap-2.5 rounded-md border-0 bg-transparent px-2.5 text-left font-medium text-neutral-800 no-underline hover:bg-muted",

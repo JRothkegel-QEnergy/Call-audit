@@ -55,6 +55,7 @@ type AdminApi = Pick<
   | "previewAssign"
   | "assign"
   | "setAssignee"
+  | "deleteAccount"
   | "setReviewed"
   | "getFullRun"
   | "startFullRun"
@@ -541,6 +542,7 @@ export const adminMock: AdminApi = {
   previewAssign: () => Promise.reject(new ApiError("not_available")),
   assign: () => Promise.reject(new ApiError("not_available")),
   setAssignee: () => Promise.reject(new ApiError("not_available")),
+  deleteAccount: () => Promise.reject(new ApiError("not_available")),
   setReviewed: () => Promise.reject(new ApiError("not_available")),
   getFullRun: () => Promise.reject(new ApiError("not_available")),
   startFullRun: () => Promise.reject(new ApiError("not_available")),

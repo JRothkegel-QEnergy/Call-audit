@@ -266,3 +266,7 @@ Pedido (Johannes, textual): «Abajo del logo de qubyt poner -> "Auditoria inteli
   cambiando desde el reproductor. Nota: quitar atajos de una tecla también cumple WCAG 2.1.4.
 
 Registrado también en `23` §6 y `estado.md`.
+
+## Cambio menor AE11-AE23 (2026-11-24)
+
+Detalle en `23` §7. Toca esta vista: AE11 (rótulos «Supervisor 2»/«Supervisor»), AE22 (selector «Asignadas a» con compañeros que comparten llamadas, si se aprueba A).

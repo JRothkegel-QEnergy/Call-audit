@@ -219,6 +219,8 @@ export interface SegmentCall {
   evaluator?: string | null;
   /** Columna «Criterios rechazados» (23-modulo-de-calibracion, AB3-AB4). */
   rejectedCriteria?: RejectedCriterion[];
+  /** Resultado de la calibración de la llamada (23 §7, AE15). */
+  finalVerdict?: "compliant" | "non_compliant";
 }
 
 /** Calibración de un criterio (23): el veredicto correcto; null = sin calibrar. */
@@ -260,7 +262,7 @@ export interface SegmentCalls {
 export type Tray = "pending" | "reviewed";
 
 /** Orden por columna de las bandejas (19, X4 A). Sin orden, el de la bandeja. */
-export type TraySort = "date" | "reviewed" | "ai" | "reviewer" | "call";
+export type TraySort = "date" | "reviewed" | "ai" | "reviewer" | "final" | "call";
 export type SortDirection = "asc" | "desc";
 
 /** Tipo de discrepancia de la llamada (18, W6 A). «Posible error del revisor» cae en el lado de su veredicto. */
@@ -366,6 +368,8 @@ export interface VerifierSummary {
 
 export interface CaseAssignment {
   assigneeId: string | null;
+  /** Todos los Supervisores 2 de la llamada (AE22 A). */
+  assigneeIds?: string[];
   assigneeName: string | null;
   mine: boolean;
   reviewedAt: string | null;
@@ -432,6 +436,8 @@ export interface DistributionPlan {
 export interface AssignInput {
   source: string;
   to: { userId: string | null; count: number | null }[];
+  /** Las mismas llamadas para todos los destinos (23 §7, AE22 A). */
+  share?: boolean;
 }
 
 export interface AssignPlan {

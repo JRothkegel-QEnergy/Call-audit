@@ -100,9 +100,15 @@ def verification_overview(version: str, session: DbSession, user: VerificationRe
         # Cumple / No cumple según Qubyt por criterio, en las mismas llamadas del avance (22, AA1-AA4).
         "criteria": verification.criteria_stats(ev, {it["caseId"] for it in items}),
         "me": assignments.my_summary(session, ev, user) if user.role == assignments.VERIFIER else None,
-        "verifiers": [{"id": u.id, "name": u.name} for u in assignments.verifiers(session)]
-        if user.role != assignments.VERIFIER
-        else [],
+        # Al Supervisor 2, sus compañeros de llamadas compartidas (AE22 A).
+        "verifiers": [
+            {"id": u.id, "name": u.name}
+            for u in (
+                assignments.verifiers(session)
+                if user.role != assignments.VERIFIER
+                else assignments.companions(session, user)
+            )
+        ],
     }
 
 
@@ -163,6 +169,7 @@ class AssignIn(BaseModel):
     source: str  # «unassigned» o el id de un calibrador
     to: list[AssignTargetIn]
     preview: bool = False
+    share: bool = False  # las mismas llamadas para todos los destinos (23 §7, AE22 A)
 
 
 @router.post("/admin/prompts/{version}/verification/assign")
@@ -172,7 +179,13 @@ def assign(version: str, body: AssignIn, session: DbSession, user: Admin):
     target = verification_target(session, version, "full", user)
     try:
         plan = assignments.assign(
-            session, target, body.source, [(t.userId, t.count) for t in body.to], user, apply=not body.preview
+            session,
+            target,
+            body.source,
+            [(t.userId, t.count) for t in body.to],
+            user,
+            apply=not body.preview,
+            share=body.share,
         )
     except assignments.TooMany as exc:
         raise HTTPException(
@@ -187,12 +200,14 @@ def assign(version: str, body: AssignIn, session: DbSession, user: Admin):
 
 class AssigneeIn(BaseModel):
     userId: str | None = None  # noqa: N815
+    userIds: list[str] | None = None  # noqa: N815  varios Supervisores 2 (AE22 A); tiene prioridad sobre userId
 
 
 @router.put("/admin/assignments/{case_id}", status_code=204)
 def set_assignee(case_id: str, body: AssigneeIn, session: DbSession, user: Admin) -> None:
     try:
-        assignments.set_assignee(session, case_id, body.userId, user)
+        ids = body.userIds if body.userIds is not None else ([body.userId] if body.userId else [])
+        assignments.set_assignee(session, case_id, ids, user)
     except LookupError as exc:
         raise HTTPException(404, str(exc)) from exc
     session.commit()

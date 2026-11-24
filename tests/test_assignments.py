@@ -542,3 +542,76 @@ def test_full_run_counts_only_its_own_version_records(
         f"/api/admin/verifications/{ids[1]}/2", json={"verdict": "compliant", "version": "9.8", "source": "full"}
     )
     assert put.status_code == 200 and put.json()["versionAt"] == "9.8"
+
+
+def test_shared_calls_are_calibrated_together(
+    client: TestClient,
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+    two: tuple[User, User],
+) -> None:
+    """23 §7 (AE22 A): las mismas llamadas a dos Supervisores 2, que las calibran juntos y ven el avance del otro."""
+    ids = seed_full(imported, admin)
+    ana, beto = two
+    login(client, admin)
+    url = "/api/admin/prompts/9.8/verification/assign"
+    both = [{"userId": ana.id, "count": 2}, {"userId": beto.id}]
+    preview = client.post(url, json={"source": "unassigned", "to": both, "share": True, "preview": True}).json()
+    assert [p["calls"] for p in preview["people"]] == [2, 2]
+    assert client.post(url, json={"source": "unassigned", "to": both, "share": True}).status_code == 200
+    with imported() as session:
+        rows = session.scalars(select(VerificationAssignment)).all()
+    assert len(rows) == 2 and all(assignments.assignees(r) == [ana.id, beto.id] for r in rows)
+    progress = client.get("/api/admin/prompts/9.8/verification/progress").json()
+    assert {p["name"]: p["assigned"] for p in progress["people"]} == {"Ana": 2, "Beto": 2}
+    assert progress["total"]["assigned"] == len(ids)
+
+    # La llamada con desacuerdo en C14, compartida a mano; Beto corrige lo que calibró Ana y ve su avance.
+    shared = ids[0]
+    assert client.put(f"/api/admin/assignments/{shared}", json={"userIds": [ana.id, beto.id]}).status_code == 204
+    login(client, ana)
+    put = {"outcome": "reviewer_error", "version": "9.8", "source": "full"}
+    assert client.put(f"/api/admin/verifications/{shared}/14", json=put).status_code == 200
+    login(client, beto)
+    case = client.get(f"/api/admin/prompts/9.8/agreement/calls/{shared}").json()
+    assert case["canRecord"] is True and case["assignment"]["assigneeName"] == "Ana, Beto"
+    assert client.get("/api/admin/prompts/9.8/verification", params={"assignee": ana.id}).json()["n"] >= 2
+    assert client.delete(f"/api/admin/verifications/{shared}/14").status_code == 204
+
+    # El admin deja una llamada solo con Beto.
+    login(client, admin)
+    assert client.put(f"/api/admin/assignments/{shared}", json={"userIds": [beto.id]}).status_code == 204
+    with imported() as session:
+        row = session.scalar(select(VerificationAssignment).where(VerificationAssignment.case_id == shared))
+        assert assignments.assignees(row) == [beto.id]
+
+
+def test_delete_account_frees_email_and_releases_pending(
+    client: TestClient,
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+    two: tuple[User, User],
+) -> None:
+    """AE24: baja lógica; el correo queda libre, no entra más y sus pendientes vuelven a «Sin asignar» o quedan con
+    quien las comparte."""
+    ids = seed_full(imported, admin)
+    ana, beto = two
+    with imported() as session, session.begin():
+        session.add(
+            VerificationAssignment(case_id=ids[0], user_id=ana.id, co_user_ids=[beto.id], assigned_by_id=admin.id)
+        )
+        session.add(VerificationAssignment(case_id=ids[1], user_id=ana.id, assigned_by_id=admin.id))
+    login(client, admin)
+    assert client.delete(f"/api/admin/accounts/{admin.id}").status_code == 409  # a sí mismo, no
+    assert client.delete(f"/api/admin/accounts/{ana.id}").status_code == 204
+    assert all(a["id"] != ana.id for a in client.get("/api/admin/accounts").json())
+    with imported() as session:
+        rows = {a.case_id: assignments.assignees(a) for a in session.scalars(select(VerificationAssignment))}
+        gone = session.get(User, ana.id)
+        assert gone.status == "deleted" and gone.email != "ana@qubico-ejemplo.cl"
+    assert rows == {ids[0]: [beto.id]}
+    invite = {"name": "Ana", "email": "ana@qubico-ejemplo.cl", "role": "supervisor"}
+    assert client.post("/api/admin/accounts/invite", json=invite).status_code == 204
+    assert (
+        client.post("/api/auth/login", json={"email": "ana@qubico-ejemplo.cl", "password": PASSWORD}).status_code == 401
+    )

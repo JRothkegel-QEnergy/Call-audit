@@ -32,7 +32,7 @@ OUTCOMES = ("ai_error", "reviewer_error", "ambiguous", "missing_info")
 # los dos se equivocaron (lo correcto era lo contrario).
 OUTCOMES_AGREE = ("both_right", "both_wrong")
 # Orden por columna de las bandejas (19-resumen-avance-y-orden-bandejas, X4-X5 A).
-SORTS = ("date", "reviewed", "ai", "reviewer", "call")
+SORTS = ("date", "reviewed", "ai", "reviewer", "final", "call")
 VERDICT_RANK = {"compliant": 0, "uncertain": 1, "non_compliant": 2}
 SEGMENTS = ("promptFn", "promptFp", "reviewer", "undecided", "agree")
 TO_VERIFY = ("fn", "fp", "undecided")
@@ -183,6 +183,13 @@ def rejected_chips(row: dict, records: dict) -> list[dict]:
     return out
 
 
+def final_verdict(chips: list[dict]) -> str:
+    """Veredicto final de la llamada tras la calibración (23 §7, AE15): No cumple si algún criterio quedó No cumple (el
+    registro del calibrador o, sin registro, el rechazo coincidente de Qubyt y el revisor); si no, Cumple."""
+    failed = any(c["calibration"] == FAIL or (c["calibration"] is None and c["kind"] == "both") for c in chips)
+    return FAIL if failed else "compliant"
+
+
 def call_status(outcomes: list[str | None], both_wrong: int = 0) -> str:
     """§4.3: none (sin desacuerdos), ai_wrong, pending, confirmed, inconclusive. Un criterio en acuerdo rechazado
     (`both_wrong`, 20 Y4 A) cuenta como error de Qubyt y deja la llamada revisada aunque no tenga desacuerdos (Y5 A)."""
@@ -291,6 +298,8 @@ def sort_items(items: list[dict], sort: str | None, direction: str | None, last:
             return VERDICT_RANK.get(it["aiVerdict"], 9)
         if sort == "reviewer":
             return VERDICT_RANK.get(it["reviewerVerdict"], 9)
+        if sort == "final":
+            return VERDICT_RANK.get(it.get("finalVerdict") or "", 9)
         return it["callId"]
 
     return sorted(items, key=key, reverse=direction == "desc")
@@ -336,7 +345,8 @@ def segment_items(rows: list[dict], records: dict, segment: str, criterion: int 
                     {"criterionId": d["criterionId"], "kind": d["kind"], "blue": d["blue"], "outcome": d["outcome"]}
                     for d in found
                 ],
-                "rejectedCriteria": rejected_chips(row, records),
+                "rejectedCriteria": (chips := rejected_chips(row, records)),
+                "finalVerdict": final_verdict(chips),
                 "verification": call_status([d["outcome"] for d in found], rejected_agreements(row, records)),
                 "bothWrong": rejected_agreements(row, records),
                 "segment": row["segment"],

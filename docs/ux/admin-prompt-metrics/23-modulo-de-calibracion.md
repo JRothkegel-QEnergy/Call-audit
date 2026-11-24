@@ -225,3 +225,35 @@ No cumple · [barra] · Total (derecha, ordenable). Mismo dato que «Evaluados»
   `welcome-card` (cola del auditor) se elimina: su único contenido eran atajos. Se mantienen Enter en filas enfocadas y
   flechas en tablist/segmented (teclado nativo, WCAG 2.1.1). La velocidad del audio queda en 1,5x por defecto y se sigue
   cambiando desde el reproductor. Nota: quitar atajos de una tecla también cumple WCAG 2.1.4.
+
+## 7. Cambio menor AE11-AE23: Supervisor 2, títulos, Veredicto final, login y calibración compartida (2026-11-24)
+
+Pedido de Johannes (2026-11-24), recibido vía coordinador en 13 puntos; se registra cada punto con su ID.
+
+| ID | Punto | Resuelto (diseñador) |
+|---|---|---|
+| AE11 | Rol «Supervisor 2» | Clave interna `qubico_verifier` sin migración. El admin ve «Supervisor 2» (Cuentas, selector de rol, textos de asignación: «Calibradores» → «Supervisores 2», «Calibrador» → «Supervisor 2»). El propio usuario ve «Supervisor» en su perfil del menú. Riesgo R-AE2: en el admin conviven «Supervisor» (rol `supervisor`) y «Supervisor 2»; se distinguen siempre por el «2» en toda vista del admin. |
+| AE12 | Títulos | h1 «Llamadas por calibrar» / «Llamadas calibradas». El menú queda «Por calibrar» / «Calibradas». |
+| AE13 | Leyenda de Calibradas | «Listado de llamadas ya calibradas ordenadas desde la más reciente. Si desea corregir un registro, abra la llamada.» |
+| AE14 | Leyenda de la ✗ | «No cumple confirmado» en las dos tablas. |
+| AE15 | Columna «Veredicto final» en Calibradas | Cumple / No cumple. No cumple si algún criterio comparado queda No cumple tras la calibración: registro del calibrador; si no hay registro (acuerdo sin calibrar), el veredicto coincidente Qubyt = revisor. `ambiguous`/`missing_info` viejos = No cumple (AB5). Si no, Cumple. Badge igual a los otros veredictos (rojo pastel / verde pastel, con texto). Ordenable y filtrable como los otros veredictos. |
+| AE16 | «Veredicto revisor» → «Veredicto Revisor» | En toda la app (columnas, filtros, cabecera del caso). |
+| AE17 | Columna «Revisor» → «Nombre Revisor» | En Por calibrar y Calibradas. El fallback de AE2 en las tarjetas («Revisor: <badge>») no cambia. |
+| AE18 | Nota de orden | «Ordenado por fecha de calibración, descendente» / «Orden aleatorio fijo» pasa a quedar entre la leyenda de criterios rechazados y el filtro de ID de llamada. |
+| AE19 | Separación de filtros | Cada filtro en su propio grupo (etiqueta arriba + control), `gap-x-6 gap-y-3`, con wrap; sin bordes nuevos. |
+| AE20 | Acuerdos en la vista de llamada | «· opcional» → «· Calibración opcional». |
+| AE21 | Login | Logo animado en loop continuo, suave; con `prefers-reduced-motion: reduce` queda quieto (WCAG 2.3.3/2.2.2, riesgo menor R-AE3: no hay botón de pausa). Se quitan los links Privacidad / Términos de uso / Cookies. «Auditoría inteligente de llamadas» (igual que AE7). Frase en tres líneas: «Cada llamada, revisada.» / «Cada hallazgo, trazable.» / «Cada decisión, humana.» |
+| AE22 | Asignar las mismas llamadas a más de un Supervisor 2 | **Abierta: pregunta a Johannes.** Recomendación A (calibración compartida): un solo registro por criterio, cualquiera de los asignados puede calibrar o corregir el del otro, se muestra «Calibrado por <nombre>», y la llamada queda calibrada para todos al completarse. Admin: el diálogo «Asignar llamadas» admite varios destinatarios («Compartir con»); la columna de asignados muestra los nombres juntos. El Resumen del Supervisor 2 suma al selector de AE6 una opción por cada compañero con llamadas compartidas, para ver su avance. |
+| AE23 | Dejar en 0 las calibraciones de la v3.1 en producción | Sin UI; tarea de datos del coordinador. |
+
+**AE22 cerrada (2026-11-24):** Johannes no respondió y el coordinador sigue con lo recomendado. Queda A, calibración compartida: un registro por criterio, editable por cualquiera de los asignados, con «Calibrado por <nombre>». El selector «Asignadas a» agrega una opción por cada compañero. «Asignar llamadas» acepta varios destinatarios. Queda como supuesto H-AE1, a validar con Johannes.
+
+**AE24 (2026-11-24).** Pedido (Johannes, textual): «dame la opción de borrar usuarios en admin para poder después crearlos de nuevo con otro rol». Aprobado así:
+- **Acción:** «Eliminar» por fila en Cuentas, con un diálogo de confirmación.
+- **Título del diálogo:** «¿Eliminar a <nombre>?».
+- **Texto:** «Su historial (calibraciones, revisiones, registro de actividad) se conserva con su nombre. Sus llamadas pendientes vuelven a Sin asignar. Podrás crear otra cuenta con el mismo correo.».
+- **Botones:** «Eliminar cuenta», en rojo pastel, y «Cancelar», con el foco inicial en Cancelar.
+- **Técnico:** soft delete (status `deleted`). El correo queda libre y la cuenta sale de la lista y de los selectores. Sus sesiones activas se cierran.
+- **Asignaciones:** solo se quitan las pendientes. Si una llamada estaba compartida (AE22), sigue con el otro asignado; si no, vuelve a Sin asignar. Lo ya calibrado no cambia.
+- **Límites:** el admin no puede eliminarse a sí mismo, ni eliminar al último admin. En esos casos la acción aparece deshabilitada, con un tooltip que explica por qué.
+- **Bitácora:** se registra la eliminación.

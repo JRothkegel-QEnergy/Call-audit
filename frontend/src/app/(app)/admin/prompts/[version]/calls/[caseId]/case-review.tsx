@@ -202,11 +202,11 @@ function CaseReview({
       setReviewBusy(false);
     }
   };
-  const reassign = async (userId: string | null) => {
+  const reassign = async (userIds: string[]) => {
     try {
-      await api.setAssignee(cmp.caseId, userId);
+      await api.setAssignee(cmp.caseId, userIds);
       await reload();
-      toast(userId ? "Llamada reasignada." : "Llamada sin asignar.");
+      toast(userIds.length ? "Llamada reasignada." : "Llamada sin asignar.");
     } catch {
       toast.error("No se pudo reasignar la llamada.");
     }
@@ -320,30 +320,42 @@ function CaseReview({
         {isAdmin && <p className="help m-0">v{cmp.version} ({full ? "corrida completa" : "prueba de validación"})</p>}
         {/* 23: el calibrador no ve «Asignada a: ti»; el admin conserva el selector para reasignar. */}
         {full && cmp.assignment && !isVerifier && (
-          <p className="m-0 flex flex-wrap items-center gap-2">
+          <div className="m-0 flex flex-wrap items-center gap-x-3 gap-y-1">
             {isAdmin && cmp.verifiers ? (
-              <label className="flex items-center gap-1.5">
-                Asignada a:
-                <select className="control" value={cmp.assignment.assigneeId ?? ""} onChange={(e) => void reassign(e.target.value || null)}>
-                  <option value="">Sin asignar</option>
-                  {cmp.verifiers.map((v) => (
-                    <option key={v.id} value={v.id}>
+              // AE22 A: una llamada puede tener varios Supervisores 2, que la calibran juntos.
+              <fieldset className="m-0 flex flex-wrap items-center gap-x-3 gap-y-1 border-0 p-0">
+                <legend className="float-left mr-1.5 p-0">Asignada a:</legend>
+                {cmp.verifiers.map((v) => {
+                  const ids = cmp.assignment?.assigneeIds ?? (cmp.assignment?.assigneeId ? [cmp.assignment.assigneeId] : []);
+                  const on = ids.includes(v.id);
+                  return (
+                    <label key={v.id} className="flex items-center gap-1">
+                      <input
+                        type="checkbox"
+                        checked={on}
+                        onChange={() => void reassign(on ? ids.filter((x) => x !== v.id) : [...ids, v.id])}
+                      />
                       {v.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                    </label>
+                  );
+                })}
+                {!cmp.assignment.assigneeId && <span className="help">Sin asignar</span>}
+              </fieldset>
             ) : (
               <span>Asignada a: {cmp.assignment.mine ? "ti" : (cmp.assignment.assigneeName ?? "nadie")}</span>
             )}
-          </p>
+          </div>
+        )}
+        {/* AE22 A: en una llamada compartida, el Supervisor 2 ve con quién la calibra. */}
+        {full && isVerifier && (cmp.assignment?.assigneeIds?.length ?? 0) > 1 && (
+          <p className="m-0">Calibran juntos: {cmp.assignment?.assigneeName}</p>
         )}
         <p className="m-0 flex flex-wrap items-center gap-x-4 gap-y-1">
           <span>
             Qubyt{isAdmin ? ` v${cmp.version}` : ""}: <span className={VERDICT_CLASS[cmp.aiVerdict]}>{VERDICT[cmp.aiVerdict]}</span>
           </span>
           <span>
-            Veredicto revisor: <span className={VERDICT_CLASS[cmp.reviewer.verdict]}>{VERDICT[cmp.reviewer.verdict]}</span>
+            Veredicto Revisor: <span className={VERDICT_CLASS[cmp.reviewer.verdict]}>{VERDICT[cmp.reviewer.verdict]}</span>
           </span>
           {cmp.reviewer.evaluator && <span>Revisor: {personName(cmp.reviewer.evaluator)}</span>}
         </p>
@@ -456,7 +468,7 @@ function CaseReview({
           {agreeing.length > 0 && (
             <section className="card grid gap-2" aria-labelledby="agree-h">
               <h2 id="agree-h" className="m-0 text-sm font-semibold">
-                Coinciden con el revisor ({agreeing.length} criterios) · opcional
+                Coinciden con el revisor ({agreeing.length} criterios) · Calibración opcional
               </h2>
               <p className="help m-0">No es obligatorio calibrarlos. Si crees que Qubyt y el revisor se equivocaron en alguno, ábrelo y calíbralo.</p>
               {(

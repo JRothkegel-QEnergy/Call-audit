@@ -148,8 +148,10 @@ function AssigneeFilter({
           {(
             [
               ["me", myName],
+              // Compañeros con llamadas compartidas (23 §7, AE22 A).
+              ...data.verifiers.map((v): [string, string] => [v.id, personName(v.name) || v.name]),
               ["all", "Todas"],
-            ] as const
+            ] as [string, string][]
           ).map(([k, label]) => (
             <button
               key={k}
@@ -465,7 +467,7 @@ function Verifiers({
     <section className="card grid gap-3" aria-labelledby="verifiers-h">
       <div className="flex flex-wrap items-center gap-2">
         <h2 id="verifiers-h" className="m-0 flex-1 text-sm font-semibold">
-          Calibradores
+          Supervisores 2
         </h2>
         <label className="help flex items-center gap-1.5">
           <input
@@ -490,8 +492,8 @@ function Verifiers({
           <>
             {p.people.length === 0 && (
               <p className="help m-0">
-                Aún no hay cuentas con rol Calibrador. Créalas en Cuentas con
-                el rol «Calibrador».
+                Aún no hay cuentas con rol Supervisor 2. Créalas en Cuentas con
+                el rol «Supervisor 2».
               </p>
             )}
             <ProgressTable
@@ -640,7 +642,7 @@ function ProgressTable({
       <table className="tbl">
         <thead>
           <tr>
-            <th scope="col">Calibrador</th>
+            <th scope="col">Supervisor 2</th>
             <th scope="col" className="num">
               Asignadas
             </th>
@@ -700,6 +702,8 @@ function AssignDialog({
   const [source, setSource] = useState(initialSource);
   // Destinos marcados y su cantidad (texto del campo; vacío = parejo). La clave "" es «Sin asignar».
   const [chosen, setChosen] = useState<Record<string, string>>({});
+  // AE22 A: las mismas llamadas para todos los marcados, que las calibran juntos.
+  const [share, setShare] = useState(false);
   // Vista previa y error de servidor, cada uno con la combinación (origen + destinos) a la que corresponde: si cambió,
   // no valen.
   const [preview, setPreview] = useState<{ key: string; plan: AssignPlan | null; error: string | null } | null>(null);
@@ -709,13 +713,15 @@ function AssignDialog({
   useEffect(() => sourceRef.current?.focus(), []);
 
   const giver = p.people.find((x) => x.id === source) ?? null;
-  const available = source === "unassigned" ? p.unassigned.pending : (giver?.pending ?? 0);
+  // Al compartir desde una persona, van todas sus llamadas (también las calibradas) y ella las conserva.
+  const available = source === "unassigned" ? p.unassigned.pending : share ? (giver?.assigned ?? 0) : (giver?.pending ?? 0);
   const people = p.people.filter((x) => x.active && x.id !== source);
   const ids = Object.keys(chosen);
   const bad = ids.some((k) => chosen[k].trim() !== "" && !(Number.isInteger(Number(chosen[k])) && Number(chosen[k]) >= 1));
   const input = {
     source,
     to: ids.map((k) => ({ userId: k === "" ? null : k, count: chosen[k].trim() === "" ? null : Number(chosen[k]) })),
+    share,
   };
   const key = JSON.stringify(input);
   const current = preview?.key === key ? preview : null;
@@ -757,7 +763,13 @@ function AssignDialog({
     setBusy(true);
     try {
       const done = await api.assign(version, input);
-      toast(giver ? `Reasignadas ${int(done.calls)} llamadas de ${giver.name}.` : `Asignadas ${int(done.calls)} llamadas.`);
+      toast(
+        share
+          ? `Compartidas ${int(done.calls)} llamadas.`
+          : giver
+            ? `Reasignadas ${int(done.calls)} llamadas de ${giver.name}.`
+            : `Asignadas ${int(done.calls)} llamadas.`,
+      );
       onClose();
       onDone();
     } catch (e) {
@@ -773,7 +785,7 @@ function AssignDialog({
         {name}
         {help && <span className="help">{help}</span>}
       </label>
-      {id in chosen && (
+      {id in chosen && (!share || id === ids[0]) && (
         <>
           <input
             type="number"
@@ -803,7 +815,9 @@ function AssignDialog({
   );
   const sources = [
     { value: "unassigned", label: `Sin asignar (${int(p.unassigned.pending)})` },
-    ...p.people.filter((x) => x.pending > 0).map((x) => ({ value: x.id, label: `Pendientes de ${x.name} (${int(x.pending)})` })),
+    ...(share
+      ? p.people.filter((x) => x.assigned > 0).map((x) => ({ value: x.id, label: `Llamadas de ${x.name} (${int(x.assigned)})` }))
+      : p.people.filter((x) => x.pending > 0).map((x) => ({ value: x.id, label: `Pendientes de ${x.name} (${int(x.pending)})` }))),
   ];
   return (
     <Dialog
@@ -811,14 +825,20 @@ function AssignDialog({
       onOpenChange={(o) => !o && onClose()}
       width={640}
       title="Asignar llamadas"
-      description={<p className="m-0">Se mueven solo llamadas pendientes. Lo ya calibrado no cambia de dueño.</p>}
+      description={
+        <p className="m-0">
+          {share
+            ? "Las mismas llamadas quedan para todos los marcados, que las calibran juntos y ven el avance del otro."
+            : "Se mueven solo llamadas pendientes. Lo ya calibrado no cambia de dueño."}
+        </p>
+      }
       footer={
         <>
           <Button variant="default" onClick={onClose}>
             Cancelar
           </Button>
           <Button variant="primary" disabled={!plan || plan.calls === 0 || !!error || busy} onClick={() => void go()}>
-            Asignar {plan ? int(plan.calls) : ""} llamadas
+            {share ? "Compartir" : "Asignar"} {plan ? int(plan.calls) : ""} llamadas
           </Button>
         </>
       }
@@ -833,17 +853,30 @@ function AssignDialog({
           ))}
         </select>
       </label>
+      <label className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={share}
+          onChange={(e) => {
+            setShare(e.target.checked);
+            setChosen({});
+          }}
+        />
+        Las mismas llamadas para todos (calibran juntos)
+      </label>
       {available === 0 ? (
         <p className="help m-0">{giver ? `${giver.name} no tiene pendientes.` : "No quedan llamadas sin asignar."}</p>
       ) : (
         <fieldset className="m-0 grid gap-1.5 border-0 p-0">
           <legend className="mb-1 text-[13px] font-medium">A quién</legend>
-          {giver && target("", "Sin asignar (devolver)", null)}
+          {giver && !share && target("", "Sin asignar (devolver)", null)}
           {people.length === 0 && (
-            <p className="help m-0">{giver ? "No hay otros calibradores activos." : "No hay cuentas Calibrador activas."}</p>
+            <p className="help m-0">{giver ? "No hay otros Supervisores 2 activos." : "No hay cuentas Supervisor 2 activas."}</p>
           )}
           {people.map((x) => target(x.id, x.name, `Tiene ${int(x.pending)} pendientes`))}
-          <p className="help m-0">Vacío = se reparte parejo lo que quede.</p>
+          <p className="help m-0">
+            {share ? "Cantidad en el primero marcado; vacío = todas." : "Vacío = se reparte parejo lo que quede."}
+          </p>
           {error && (
             <p className="m-0 text-[var(--red-800)]" role="alert">
               {error}
@@ -856,7 +889,7 @@ function AssignDialog({
           <table className="tbl">
             <thead>
               <tr>
-                <th scope="col">Calibrador</th>
+                <th scope="col">Supervisor 2</th>
                 <th scope="col" className="num">
                   Llamadas
                 </th>

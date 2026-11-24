@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BrandLogo } from "@/components/brand/logo";
-import { ROLE_LABEL, homeFor } from "@/components/shell/app-shell";
+import { homeFor, ownRoleLabel } from "@/components/shell/app-shell";
 import { Button } from "@/components/ui/button";
 import { AsyncView } from "@/components/ui/states";
 import { api } from "@/lib/api";
@@ -93,7 +93,7 @@ function ActivateForm({ token, info }: { token: string; info: InviteInfo }) {
       ) : (
         <>
           <p className="m-0">
-            {info.invitedBy ?? "Qubico"} te invitó a Call Audit como {info.role ? ROLE_LABEL[info.role] : "usuario"}. Crea tu contraseña para
+            {info.invitedBy ?? "Qubico"} te invitó a Call Audit como {info.role ? ownRoleLabel(info.role) : "usuario"}. Crea tu contraseña para
             activar tu cuenta.
           </p>
           <label className="field">

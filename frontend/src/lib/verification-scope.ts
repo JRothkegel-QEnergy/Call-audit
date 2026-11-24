@@ -10,6 +10,7 @@ export const SORT_PARAM: Record<TraySort, string> = {
   reviewed: "revisada",
   ai: "qubyt",
   reviewer: "planilla",
+  final: "final",
   call: "llamada",
 };
 
