@@ -23,7 +23,7 @@ import { useAsync } from "@/lib/use-async";
 import { scopeQuery, trayPath } from "@/lib/verification-scope";
 
 const EMPTY =
-  "Todavía no hay llamadas para verificar. Te avisaremos cuando el admin las reparta.";
+  "Todavía no hay llamadas para calibrar. Te avisaremos cuando el admin las reparta.";
 
 /** «Resumen» del verificador (19-resumen-avance-y-orden-bandejas, X1-X3 A; 22-resumen-tarjetas-y-metricas-por-criterio):
  * el avance de la corrida completa en tarjetas y una barra contenida, y Cumple / No cumple de Qubyt por criterio. */
@@ -50,8 +50,8 @@ function SummaryView() {
         title="Resumen"
         description={
           assignee === "all"
-            ? "El avance del equipo en la verificación de la corrida completa."
-            : "Tu avance en la verificación de la corrida completa."
+            ? "El avance del equipo en la calibración de la corrida completa."
+            : "Tu avance en la calibración de la corrida completa."
         }
       />
       <AsyncView state={state} what="el resumen">
@@ -143,12 +143,12 @@ function Calls({ data, mine }: { data: VerificationOverview; mine: boolean }) {
       <dl className="m-0 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Kpi label="Total" value={int(p.total)} note="llamadas" />
         <Kpi
-          label="Revisadas"
+          label="Calibradas"
           value={int(p.reviewed)}
           note={`${reviewedPct} % del total`}
         />
         <Kpi
-          label="Por revisar"
+          label="Por calibrar"
           value={int(p.pending)}
           note={`${pendingPct} % del total`}
         />
@@ -157,7 +157,7 @@ function Calls({ data, mine }: { data: VerificationOverview; mine: boolean }) {
         <div className="grid gap-2">
           <div
             role="img"
-            aria-label={`${int(p.reviewed)} de ${int(p.total)} llamadas revisadas (${reviewedPct} %)`}
+            aria-label={`${int(p.reviewed)} de ${int(p.total)} llamadas calibradas (${reviewedPct} %)`}
             className="flex h-2.5 w-full overflow-hidden rounded-full bg-muted"
           >
             <div
@@ -171,11 +171,11 @@ function Calls({ data, mine }: { data: VerificationOverview; mine: boolean }) {
           >
             <li className="flex items-center gap-2">
               <span className="inline-block size-2.5 rounded-full bg-primary" />
-              Revisadas {int(p.reviewed)} ({reviewedPct} %)
+              Calibradas {int(p.reviewed)} ({reviewedPct} %)
             </li>
             <li className="flex items-center gap-2">
               <span className="inline-block size-2.5 rounded-full border border-[var(--neutral-300)] bg-muted" />
-              Por revisar {int(p.pending)} ({pendingPct} %)
+              Por calibrar {int(p.pending)} ({pendingPct} %)
             </li>
           </ul>
         </div>
@@ -183,10 +183,10 @@ function Calls({ data, mine }: { data: VerificationOverview; mine: boolean }) {
       {done ? (
         <div className="flex flex-wrap items-center gap-3">
           <p className="m-0 font-semibold">
-            ¡Listo! Revisaste tus {int(data.me!.assigned)} llamadas.
+            ¡Listo! Calibraste tus {int(data.me!.assigned)} llamadas.
           </p>
           <Button onClick={() => router.push(trayPath("reviewed"))}>
-            Ver revisadas
+            Ver calibradas
           </Button>
         </div>
       ) : (
@@ -196,7 +196,7 @@ function Calls({ data, mine }: { data: VerificationOverview; mine: boolean }) {
               variant="primary"
               onClick={() => router.push(nextHref(next))}
             >
-              Seguir revisando <ChevronRight size={14} aria-hidden />
+              Seguir calibrando <ChevronRight size={14} aria-hidden />
             </Button>
           </div>
         )

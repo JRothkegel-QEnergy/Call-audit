@@ -172,13 +172,13 @@ export function VerificationLine({ version, a, scope }: { version: string; a: Ag
   if (v.pending === 0)
     return (
       <p className="m-0 text-[13px]">
-        <b>Verificación completa:</b> {int(v.confirmed)} de {int(v.calls)} llamadas confirmadas como error del revisor (
+        <b>Calibración completa:</b> {int(v.confirmed)} de {int(v.calls)} llamadas confirmadas como error del revisor (
         {pct0(v.confirmed / v.reviewed)} %). <Link href={href}>Ver llamadas ›</Link>
       </p>
     );
   return (
     <p className="m-0 text-[13px]">
-      <b>Verificación del posible error del revisor:</b> {int(v.confirmed)} confirmadas de {int(v.reviewed)} revisadas (
+      <b>Calibración del posible error del revisor:</b> {int(v.confirmed)} confirmadas de {int(v.reviewed)} revisadas (
       {pct0(v.confirmed / v.reviewed)} %{v.ci95 ? `, margen ${pct0(v.ci95[0])}-${pct0(v.ci95[1])} %` : ""}) ·{" "}
       <Link href={href}>Ver llamadas ›</Link>
     </p>

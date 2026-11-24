@@ -2,12 +2,12 @@
 
 Uso:
     uv run python -m call_audit.admin create-user --email E --name N --role ROLE [--model-io]
-    (ROLE: auditor, supervisor, qubico_admin, qubico_viewer (solo lectura) o qubico_verifier (verificador))
+    (ROLE: auditor, supervisor, qubico_admin, qubico_viewer (solo lectura) o qubico_verifier (calibrador))
     uv run python -m call_audit.admin set-password --email E
     uv run python -m call_audit.admin grant --email E --permission view_model_io|manage_catalog [--revoke]
     uv run python -m call_audit.admin distribute --version V --calls ARCHIVO --verifiers E1,E2,... --by E [--apply]
 
-`distribute` reparte entre verificadores solo las llamadas de ARCHIVO (un .xlsx con la columna «Llamada», p. ej. el
+`distribute` reparte entre calibradores solo las llamadas de ARCHIVO (un .xlsx con la columna «Llamada», p. ej. el
 de divergencias, o un .txt con un id de llamada por línea), estratificado como «Repartir llamadas» y sin mover lo ya
 asignado. Sin --apply solo muestra cuántas le tocan a cada uno.
 
@@ -84,7 +84,7 @@ def distribute(args) -> None:
         for email in emails:
             user = session.scalar(select(User).where(User.email == email))
             if user is None or user.role != assignments.VERIFIER or user.status != "active":
-                raise SystemExit(f"{email} no es una cuenta verificador activa.")
+                raise SystemExit(f"{email} no es una cuenta calibrador activa.")
             people.append(user)
         evaluation = prompt_evaluation.latest_full(session, args.version)
         if evaluation is None:
@@ -127,10 +127,10 @@ def main() -> None:
     grant.add_argument("--email", required=True)
     grant.add_argument("--permission", choices=PERMISSIONS, required=True)
     grant.add_argument("--revoke", action="store_true")
-    dist = sub.add_parser("distribute", help="repartir entre verificadores las llamadas de un archivo")
+    dist = sub.add_parser("distribute", help="repartir entre calibradores las llamadas de un archivo")
     dist.add_argument("--version", required=True, help="versión del prompt con corrida completa, p. ej. 3.0")
     dist.add_argument("--calls", required=True, help=".xlsx con columna «Llamada» o .txt con un id por línea")
-    dist.add_argument("--verifiers", required=True, help="correos de los verificadores, separados por coma")
+    dist.add_argument("--verifiers", required=True, help="correos de los calibradores, separados por coma")
     dist.add_argument("--by", required=True, help="correo del admin que reparte (queda en la bitácora)")
     dist.add_argument("--apply", action="store_true", help="guardar el reparto (sin esto, solo vista previa)")
     args = parser.parse_args()

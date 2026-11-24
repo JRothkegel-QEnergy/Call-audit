@@ -217,6 +217,19 @@ export interface SegmentCall {
   bothWrong?: number;
   /** Evaluador de la planilla, tal como viene (p. ej. «valeria.salinas»); se muestra con `personName` (21, Z3 A). */
   evaluator?: string | null;
+  /** Columna «Criterios rechazados» (23-modulo-de-calibracion, AB3-AB4). */
+  rejectedCriteria?: RejectedCriterion[];
+}
+
+/** Calibración de un criterio (23): el veredicto correcto; null = sin calibrar. */
+export type Calibration = "compliant" | "non_compliant";
+
+/** Quién rechaza el criterio (23, AB3): `qubyt` azul, `reviewer` amarillo, `both` verde, `calibrated` gris (los dos lo
+ * aprobaban y la calibración dijo No cumple). */
+export interface RejectedCriterion {
+  criterionId: number;
+  kind: "qubyt" | "reviewer" | "both" | "calibrated";
+  calibration: Calibration | null;
 }
 
 export interface SegmentCalls {
@@ -261,6 +274,8 @@ export interface CriterionCount {
 
 export interface VerificationRecord {
   outcome: VerificationOutcome;
+  /** Veredicto de calibración vigente (23); los «Ambiguo» / «Falta información» viejos llegan como No cumple (AB5). */
+  calibration?: Calibration | null;
   correct: "compliant" | "non_compliant" | null;
   note: string | null;
   by: string;

@@ -92,8 +92,8 @@ export function VerificationView({ version }: { version: string }) {
         </Link>
       )}
       <AdminHeader
-        title={`Verificación · v${version}`}
-        description="Cada llamada de la corrida completa, revisada por una persona: quién tenía razón en cada criterio en que la IA y la planilla no coinciden."
+        title={`Calibración · v${version}`}
+        description="Cada llamada de la corrida completa, calibrada por una persona: el veredicto correcto de cada criterio en que Qubyt y el revisor no coinciden."
       />
       {isAdmin && (
         <FullRunPanel
@@ -218,7 +218,7 @@ function Overview({
                 ¡Listo! Completaste tus {int(data.me.assigned)} llamadas.
               </p>
               <Button className="ml-auto" onClick={() => router.push(trayPath("reviewed"))}>
-                Ver revisadas
+                Ver calibradas
               </Button>
             </>
           ) : (
@@ -232,7 +232,7 @@ function Overview({
                 aria-valuemin={0}
                 aria-valuemax={data.me.assigned}
                 aria-valuenow={data.me.assigned - data.me.pending}
-                aria-label="Llamadas revisadas"
+                aria-label="Llamadas calibradas"
                 className="h-2 w-40 overflow-hidden rounded-full bg-muted"
               >
                 <div
@@ -244,7 +244,7 @@ function Overview({
               </div>
               <span className="ml-auto flex flex-wrap gap-2">
                 <Button onClick={() => router.push(trayPath("pending"))}>
-                  Ir a Por revisar
+                  Ir a Por calibrar
                 </Button>
                 {data.me.nextCaseId && (
                   <Button
@@ -463,7 +463,7 @@ function Verifiers({
     <section className="card grid gap-3" aria-labelledby="verifiers-h">
       <div className="flex flex-wrap items-center gap-2">
         <h2 id="verifiers-h" className="m-0 flex-1 text-sm font-semibold">
-          Verificadores
+          Calibradores
         </h2>
         <label className="help flex items-center gap-1.5">
           <input
@@ -488,8 +488,8 @@ function Verifiers({
           <>
             {p.people.length === 0 && (
               <p className="help m-0">
-                Aún no hay cuentas con rol Verificador. Créalas en Cuentas con
-                el rol «Verificador».
+                Aún no hay cuentas con rol Calibrador. Créalas en Cuentas con
+                el rol «Calibrador».
               </p>
             )}
             <ProgressTable
@@ -542,7 +542,7 @@ function Bar({
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={pct}
-        aria-label="Revisadas"
+        aria-label="Calibradas"
         className="inline-block h-2 w-24 overflow-hidden rounded-full bg-muted"
       >
         <span
@@ -651,12 +651,12 @@ function ProgressTable({
       <table className="tbl">
         <thead>
           <tr>
-            <th scope="col">Verificador</th>
+            <th scope="col">Calibrador</th>
             <th scope="col" className="num">
               Asignadas
             </th>
             <th scope="col" className="num">
-              Revisadas
+              Calibradas
             </th>
             <th scope="col" className="num">
               Pendientes
@@ -767,9 +767,9 @@ function DistributeDialog({
       }
     >
       <fieldset className="m-0 grid gap-1 border-0 p-0">
-        <legend className="mb-1 text-[13px] font-medium">Verificadores</legend>
+        <legend className="mb-1 text-[13px] font-medium">Calibradores</legend>
         {people.length === 0 && (
-          <p className="help m-0">No hay cuentas Verificador activas.</p>
+          <p className="help m-0">No hay cuentas Calibrador activas.</p>
         )}
         {people.map((x) => (
           <label key={x.id} className="flex items-center gap-2">
@@ -787,7 +787,7 @@ function DistributeDialog({
           <table className="tbl">
             <thead>
               <tr>
-                <th scope="col">Verificador</th>
+                <th scope="col">Calibrador</th>
                 <th scope="col" className="num">
                   Llamadas
                 </th>

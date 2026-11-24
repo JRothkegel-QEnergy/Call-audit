@@ -141,6 +141,36 @@ def effective(record: DisagreementVerification | None, reviewer: str, agree: boo
     return ("ai_error" if record.correct == reviewer else "reviewer_error"), False
 
 
+def calibration_of(record: DisagreementVerification | None, reviewer: str) -> str | None:
+    """Veredicto de calibración vigente del criterio (23-modulo-de-calibracion): `compliant` / `non_compliant`, o None
+    si no hay registro o quedó viejo. Los registros antiguos «Ambiguo» / «Falta información» se leen como No cumple
+    (AB5)."""
+    if record is None or record.reviewer_fail_at != (reviewer == FAIL):
+        return None
+    if record.correct is not None:
+        return record.correct
+    return FAIL if record.outcome in ("ambiguous", "missing_info") else correct_for(record.outcome, reviewer)
+
+
+def rejected_chips(row: dict, records: dict) -> list[dict]:
+    """Chips de la columna «Criterios rechazados» (23, AB3-AB4): `qubyt` (solo Qubyt rechaza, azul), `reviewer` (solo el
+    revisor, amarillo; incluye los que Qubyt dejó sin veredicto y el revisor rechaza), `both` (los dos, verde) y
+    `calibrated` (los dos aprobaban y la calibración dijo No cumple, gris). Cada uno con su `calibration`."""
+    out = []
+    for item in row["items"]:
+        cid = item["criterionId"]
+        reviewer = reviewer_value(row["result"], cid)
+        calibration = calibration_of(records.get((row["caseId"], cid)), reviewer)
+        kind = {"fp": "qubyt", "fn": "reviewer"}.get(item["kind"])
+        if item["kind"] == "undecided" and reviewer == FAIL:
+            kind = "reviewer"
+        elif item["kind"] == "agree":
+            kind = "both" if reviewer == FAIL else ("calibrated" if calibration == FAIL else None)
+        if kind is not None:
+            out.append({"criterionId": cid, "kind": kind, "calibration": calibration})
+    return out
+
+
 def call_status(outcomes: list[str | None], both_wrong: int = 0) -> str:
     """§4.3: none (sin desacuerdos), ai_wrong, pending, confirmed, inconclusive. Un criterio en acuerdo rechazado
     (`both_wrong`, 20 Y4 A) cuenta como error de Qubyt y deja la llamada revisada aunque no tenga desacuerdos (Y5 A)."""
@@ -182,6 +212,12 @@ def row_status(row: dict, records: dict) -> str:
     return call_status([d["outcome"] for d in disagreements(row, records)], rejected_agreements(row, records))
 
 
+def has_uncalibrated(row: dict, records: dict) -> bool:
+    """¿Le queda algún criterio por calibrar (desacuerdo o Qubyt sin veredicto, sin registro vigente)? Una llamada sigue
+    «Por calibrar» hasta calibrarlos todos, aunque un registro ya diga que Qubyt se equivocó (pedido 2026-11-24)."""
+    return any(d["outcome"] is None for d in disagreements(row, records))
+
+
 def tray_facets(
     session: Session,
     evaluation: PromptEvaluation,
@@ -189,16 +225,16 @@ def tray_facets(
     ai_verdict: str | None,
     reviewer_verdict: str | None,
 ) -> tuple[set[str], dict[str, Any]]:
-    """Filtros de las bandejas del verificador (21-ajustes-vista-verificador, Z1 A): criterio rechazado por Qubyt
-    (solo los que Qubyt rechaza y la planilla aprueba, `kind == "fp"`), veredicto de Qubyt y veredicto del revisor.
+    """Filtros de las bandejas del calibrador (21 Z1 A, 23 AB3): criterio rechazado (por Qubyt, por el revisor o por los
+    dos: los chips de `rejected_chips`), veredicto de Qubyt y veredicto del revisor.
 
     Devuelve las llamadas que pasan los tres filtros y los conteos de cada uno, calculados sin ese mismo filtro."""
     rows, _ = evaluation_rows(session, evaluation)
     records = records_for(session, [r["caseId"] for r in rows])
-    status = {r["caseId"]: row_status(r, records) for r in rows}
+    open_ = {r["caseId"]: has_uncalibrated(r, records) for r in rows}
 
     def rejected_by_ai(row: dict) -> set[int]:
-        return {i["criterionId"] for i in row["items"] if i["kind"] == "fp"}
+        return {c["criterionId"] for c in rejected_chips(row, records)}
 
     def keep(row: dict, skip: str) -> bool:
         return (
@@ -212,7 +248,7 @@ def tray_facets(
     for row in (r for r in rows if keep(r, "rejected")):
         for cid in rejected_by_ai(row):
             calls[cid] += 1
-            pending[cid] += status[row["caseId"]] == "pending"
+            pending[cid] += open_[row["caseId"]]
     ai = Counter(r["result"]["verdict"] for r in rows if keep(r, "ai"))
     reviewer = Counter(r["result"]["external"] for r in rows if keep(r, "reviewer"))
     facets = {
@@ -288,6 +324,7 @@ def segment_items(rows: list[dict], records: dict, segment: str, criterion: int 
                     {"criterionId": d["criterionId"], "kind": d["kind"], "blue": d["blue"], "outcome": d["outcome"]}
                     for d in found
                 ],
+                "rejectedCriteria": rejected_chips(row, records),
                 "verification": call_status([d["outcome"] for d in found], rejected_agreements(row, records)),
                 "bothWrong": rejected_agreements(row, records),
                 "segment": row["segment"],
@@ -400,10 +437,13 @@ def analysis_for(patterns: list[DiscrepancyPattern], criterion_id: int, call_id:
     return None
 
 
-def record_out(record: DisagreementVerification, stale: bool, outcome: str | None = None) -> dict[str, Any]:
+def record_out(
+    record: DisagreementVerification, stale: bool, outcome: str | None = None, reviewer: str | None = None
+) -> dict[str, Any]:
     """`outcome`: la salida vigente en esta versión (un registro de otra versión se traduce, ver `effective`)."""
     return {
         "outcome": outcome or record.outcome,
+        "calibration": calibration_of(record, reviewer) if reviewer is not None else record.correct,
         "correct": record.correct,
         "note": record.note,
         "by": record.decided_by.name if record.decided_by else "",
@@ -425,10 +465,9 @@ def case_comparison(
     listed = segment in LISTS or criterion is not None
     same = [r for r in rows if matches(r, segment, criterion)] if listed else [row]
     records = records_for(session, [r["caseId"] for r in same] + [case_id])
-    statuses = [row_status(r, records) for r in same]
     ids = [r["caseId"] for r in same]
     index = ids.index(case_id) if case_id in ids else -1
-    pending = [cid for cid, st in zip(ids, statuses, strict=True) if st == "pending"]
+    pending = [r["caseId"] for r in same if has_uncalibrated(r, records)]
     after = [cid for cid in ids[index + 1 :] if cid in pending] if index >= 0 else []
     before = [cid for cid in ids[:index] if cid in pending] if index >= 0 else []
     following = (after or before or [None])[0]
@@ -468,7 +507,7 @@ def case_comparison(
                 },
                 "reviewerFail": reviewer == FAIL,
                 "analysis": analysis_for(patterns, cid, row["callId"]) if item["kind"] in TO_VERIFY else None,
-                "verification": record_out(record, stale, current) if record is not None else None,
+                "verification": record_out(record, stale, current, reviewer) if record is not None else None,
             }
         )
     meta = case.call_metadata or {}
@@ -512,11 +551,18 @@ def record(
     actor: User,
     case_id: str,
     criterion_id: int,
-    outcome: str,
+    outcome: str | None,
     note: str | None,
     seen_first: bool,
+    verdict: str | None = None,
 ) -> DisagreementVerification:
-    if outcome not in (*OUTCOMES, *OUTCOMES_AGREE):
+    """`verdict` (veredicto de calibración, 23): el veredicto correcto del criterio; si viene, el `outcome` se deriva
+    (§2: igual al revisor → `ai_error` / `both_right`; distinto → `reviewer_error` / `both_wrong`)."""
+    if verdict is not None and verdict not in (PASS, FAIL):
+        raise ValueError("bad_verdict")
+    if outcome is None and verdict is None:
+        raise ValueError("bad_outcome")
+    if verdict is None and outcome not in (*OUTCOMES, *OUTCOMES_AGREE):
         raise ValueError("bad_outcome")
     result = next((r for r in evaluation.results or [] if r["caseId"] == case_id), None)
     if result is None or result.get("externalFails") is None or result.get("error"):
@@ -531,6 +577,10 @@ def record(
     )
     # En un acuerdo solo valen «los dos tienen razón / se equivocaron»; en un desacuerdo, las salidas de siempre.
     agree = ai != "uncertain" and ai == reviewer
+    if verdict is not None:
+        same = verdict == reviewer
+        outcome = ("both_right" if same else "both_wrong") if agree else ("ai_error" if same else "reviewer_error")
+    assert outcome is not None
     if (outcome in OUTCOMES_AGREE) != agree:
         raise ValueError("bad_outcome")
     row = session.scalar(

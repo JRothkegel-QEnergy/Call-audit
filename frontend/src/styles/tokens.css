@@ -46,6 +46,11 @@
   --amber-200: #f7e3b5;
   --amber-100: #fdf5e4;
 
+  /* Verde pastel: chips «lo rechazan los dos» del módulo de calibración (23, AB3). */
+  --green-800: #23573a;    /* 7.9:1 sobre green-100 */
+  --green-200: #cfe6d7;
+  --green-100: #ecf6ef;
+
   /* ---------- Semánticos (shadcn/ui) ---------- */
   --background: var(--neutral-50);
   --foreground: var(--ink-900);

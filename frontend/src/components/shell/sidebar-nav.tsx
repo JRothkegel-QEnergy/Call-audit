@@ -71,14 +71,14 @@ export function SidebarNav({
       ? [
           // 18-verificador-bandeja-y-revisadas (W1 A): como el auditor, la bandeja es el inicio.
           {
-            label: "Por revisar",
+            label: "Por calibrar",
             href: "/verification",
             icon: ListChecks,
             count: counts.verifierPending,
             exact: true,
             match: ["/admin/prompts/"],
           },
-          { label: "Revisadas", href: "/verification/reviewed", icon: History },
+          { label: "Calibradas", href: "/verification/reviewed", icon: History },
           { label: "Resumen", href: "/verification/summary", icon: BarChart3 },
         ]
       : user.role === "qubico_viewer"
@@ -155,6 +155,10 @@ export function SidebarNav({
         )}
       </div>
 
+      {/* 23-modulo-de-calibracion (AB1): título de sección sobre las vistas del calibrador. */}
+      {user.role === "qubico_verifier" && !collapsed && (
+        <p className="m-0 px-2.5 pb-1 pt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Módulo de calibración</p>
+      )}
       {items.map((it) => {
         const active = isActive(it);
         const Icon = it.icon;
