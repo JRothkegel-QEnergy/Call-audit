@@ -6,7 +6,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { CallSearch } from "@/components/call-search";
 import { EmployeeCombobox } from "@/components/employee-combobox";
-import { WelcomeCard } from "@/components/welcome-card";
 import { useNavCounts } from "@/components/shell/nav-counts";
 import { CallVerdictBadge, StatusBadge } from "@/components/ui/badges";
 import { Button } from "@/components/ui/button";
@@ -98,7 +97,6 @@ export function QueueView() {
         }
       />
 
-      {!readOnly && <WelcomeCard />}
       <div className="mb-3 flex flex-wrap items-center gap-2" role="search">
         <EmployeeCombobox
           onSelect={(a) => {

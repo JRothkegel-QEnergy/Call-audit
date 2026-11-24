@@ -12,6 +12,7 @@ import { CAUSE, PROPOSAL, analysisUniverse, statusLabel } from "@/lib/discrepanc
 import { resolveMotive, type SetParams } from "@/lib/discrepancy-url";
 import { int } from "@/lib/format";
 import { usePreferences } from "@/lib/preferences";
+import { SHORTCUTS_ENABLED } from "@/lib/shortcuts";
 
 const CARDS_PER_PAGE = 10;
 const OBSERVATIONS_PER_PAGE = 20;
@@ -222,7 +223,7 @@ function Review({
     const onKey = (e: KeyboardEvent) => {
       const s = keys.current;
       const tag = (e.target as HTMLElement | null)?.tagName?.toLowerCase() ?? "";
-      if (!s.single || ["input", "textarea", "select"].includes(tag)) return;
+      if (!SHORTCUTS_ENABLED || !s.single || ["input", "textarea", "select"].includes(tag)) return;
       if (s.dialog || s.bulk || document.querySelector("[role=dialog]")) return;
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       const key = e.key.toLowerCase();

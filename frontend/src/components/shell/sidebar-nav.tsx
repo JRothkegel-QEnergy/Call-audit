@@ -3,6 +3,8 @@
 import {
   Activity,
   BarChart3,
+  ClipboardCheck,
+  ClipboardList,
   Cpu,
   FileCode2,
   LineChart,
@@ -12,15 +14,12 @@ import {
   GitCompareArrows,
   History,
   Inbox,
-  Keyboard,
   FileSpreadsheet,
   LayoutDashboard,
   List,
   LogOut,
   PanelLeft,
   ScanSearch,
-  Settings,
-  ListChecks,
   SquareCheckBig,
 } from "lucide-react";
 import Link from "next/link";
@@ -52,13 +51,11 @@ export function SidebarNav({
   collapsed,
   canToggle,
   onToggle,
-  onShortcuts,
 }: {
   user: User;
   collapsed: boolean;
   canToggle: boolean;
   onToggle: () => void;
-  onShortcuts: () => void;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -73,12 +70,13 @@ export function SidebarNav({
           {
             label: "Por calibrar",
             href: "/verification",
-            icon: ListChecks,
+            // 22, AE8: el mismo portapapeles sin y con check (pendiente / hecho).
+            icon: ClipboardList,
             count: counts.verifierPending,
             exact: true,
             match: ["/admin/prompts/"],
           },
-          { label: "Calibradas", href: "/verification/reviewed", icon: History },
+          { label: "Calibradas", href: "/verification/reviewed", icon: ClipboardCheck },
           { label: "Resumen", href: "/verification/summary", icon: BarChart3 },
         ]
       : user.role === "qubico_viewer"
@@ -150,7 +148,7 @@ export function SidebarNav({
         ) : (
           <span className="grid gap-1.5">
             <BrandLogo height={44} />
-            <small className="block text-xs text-muted-foreground">Auditoría de llamadas</small>
+            <small className="block text-xs text-muted-foreground">Auditoría inteligente de llamadas</small>
           </span>
         )}
       </div>
@@ -192,14 +190,6 @@ export function SidebarNav({
             {!collapsed && <span>{collapsed ? "Expandir" : "Colapsar"} menú</span>}
           </button>
         )}
-        <button type="button" className={rowClass} onClick={onShortcuts} title="Atajos de teclado">
-          <Keyboard size={18} aria-hidden />
-          {!collapsed && <span>Atajos de teclado</span>}
-        </button>
-        <Link href="/settings" className={rowClass} title="Preferencias">
-          <Settings size={18} aria-hidden />
-          {!collapsed && <span>Preferencias</span>}
-        </Link>
         {!isRealMode && (
           <button type="button" className={rowClass} onClick={() => setDemoOpen(true)} title="Opciones de la demo">
             <FlaskConical size={18} aria-hidden />
