@@ -240,3 +240,11 @@ Pedido (Johannes, textual): «finalmente en la vista resumen, la columna evaluad
 `No cumple` · [barra de proporción, sin rótulo, `aria-hidden`, oculta en móvil] · `Total` (alineada a la derecha,
 sigue ordenable). Total va después de la barra, literal «al final»; en móvil, sin la barra, igual queda última. Mismo
 dato que «Evaluados» (definición AA2 aprobada sin cambios). Registrado también en `23` §6 y `estado.md`.
+
+## Cambio menor AE6: nombre del calibrador en vez de «Mí» (2026-11-24)
+
+Pedido (Johannes, textual, sobre el Resumen del calibrador): «aquí agrega el nombre del calibrador en vez de poner Mí» Selector «Asignadas a: [<nombre> | Todas]» con el
+nombre del usuario logueado formateado con `personName` (p. ej. «Verificador 1»); sin nombre, cae a «Mí». Por
+coherencia se aplica igual al selector equivalente de la lista del calibrador (`verification-view.tsx`, rama
+`isVerifier`): es la misma persona y el mismo filtro, y no debe cambiar de rótulo entre pantallas. Sin cambios de
+comportamiento ni de URL (AA4 sigue). Registrado también en `23` §6 y `estado.md`.

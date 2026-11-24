@@ -17,8 +17,9 @@ import type {
   CriterionStats,
   VerificationOverview,
 } from "@/lib/api/admin-types";
-import { int } from "@/lib/format";
+import { int, personName } from "@/lib/format";
 import { useRubric } from "@/lib/rubric";
+import { useSession } from "@/lib/session";
 import { useAsync } from "@/lib/use-async";
 import { scopeQuery, trayPath } from "@/lib/verification-scope";
 
@@ -80,6 +81,8 @@ function Summary({
   const pathname = usePathname();
   const p = data.progress ?? { total: 0, reviewed: 0, pending: 0 };
   const mine = assignee === "me";
+  // El nombre del calibrador en vez de «Mí» (22, AE6).
+  const myName = personName(useSession().user?.name) || "Mí";
   const setAssignee = (value: "me" | "all") =>
     router.replace(value === "all" ? `${pathname}?asignadas=all` : pathname, {
       scroll: false,
@@ -95,7 +98,7 @@ function Summary({
             aria-pressed={mine}
             onClick={() => setAssignee("me")}
           >
-            Mí
+            {myName}
           </button>
           <button
             type="button"
