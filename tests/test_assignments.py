@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from call_audit import assignments, prompt_evaluation
-from call_audit.persistence.models import PromptEvaluation, User, VerificationAssignment
+from call_audit.persistence.models import DisagreementVerification, PromptEvaluation, User, VerificationAssignment
 from tests.conftest import PASSWORD, login
 from tests.test_admin import admin  # noqa: F401
 from tests.test_verification import seed_tested_version
@@ -380,7 +380,8 @@ def test_old_disagreement_record_reads_as_agreement(
     imported: sessionmaker[Session],
     two: tuple[User, User],
 ) -> None:
-    """20: un registro hecho como desacuerdo en otra versión se rotula como acuerdo si ahora coinciden."""
+    """20: un registro hecho como desacuerdo en otra versión se rotula como acuerdo si ahora coinciden (en las pruebas
+    del admin). En la calibración de 9.8 no cuenta: es de otra versión (pedido 2026-11-24)."""
     from call_audit.persistence.models import DisagreementVerification
 
     ids = seed_full(imported, admin)
@@ -399,11 +400,14 @@ def test_old_disagreement_record_reads_as_agreement(
                 decided_by_id=admin.id,
             )
         )
-    login(client, ana)
+    login(client, admin)
     case = client.get(f"/api/admin/prompts/9.8/agreement/calls/{ids[2]}", params={"segment": "all"}).json()
     crit = next(c for c in case["criteria"] if c["criterionId"] == 14)
     assert crit["verification"]["outcome"] == "both_right"
     assert case["verification"] == "none"
+    login(client, ana)
+    case = client.get(f"/api/admin/prompts/9.8/agreement/calls/{ids[2]}", params={"segment": "all"}).json()
+    assert next(c for c in case["criteria"] if c["criterionId"] == 14)["verification"] is None
 
 
 def test_tray_filters_by_rejected_criterion_and_verdicts(
@@ -500,3 +504,41 @@ def test_interleaved_keeps_any_prefix_proportional() -> None:
     items += [{"caseId": f"a{i}", "segment": "agree", "order": 10 + i} for i in range(3)]
     first = [it["segment"] for it in assignments.interleaved(items)[:3]]
     assert first.count("promptFn") == 2 and first.count("agree") == 1
+
+
+def test_full_run_counts_only_its_own_version_records(
+    client: TestClient,
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+    two: tuple[User, User],
+) -> None:
+    """Pedido 2026-11-24 («Solo esta versión»): en la calibración de una versión, lo calibrado en otra no cuenta y se
+    puede calibrar de nuevo encima, aunque lo haya hecho otra persona."""
+    ids = seed_full(imported, admin)
+    ana, beto = two
+    with imported() as session, session.begin():
+        session.add(VerificationAssignment(case_id=ids[1], user_id=ana.id, assigned_by_id=admin.id))
+        # Calibrado por Beto en una versión anterior (9.7): Qubyt rechaza el 2 y el revisor lo aprueba.
+        session.add(
+            DisagreementVerification(
+                case_id=ids[1],
+                criterion_id=2,
+                outcome="reviewer_error",
+                correct="non_compliant",
+                reviewer_fail_at=False,
+                ai_verdict_at="non_compliant",
+                version_at="9.7",
+                decided_by_id=beto.id,
+            )
+        )
+    login(client, ana)
+    tray = client.get(
+        "/api/admin/prompts/9.8/agreement/calls",
+        params={"segment": "all", "source": "full", "assignee": "me", "tray": "pending"},
+    ).json()
+    assert [i["caseId"] for i in tray["items"]] == [ids[1]]  # sigue por calibrar en 9.8
+    assert tray["items"][0]["rejectedCriteria"][0]["calibration"] is None
+    put = client.put(
+        f"/api/admin/verifications/{ids[1]}/2", json={"verdict": "compliant", "version": "9.8", "source": "full"}
+    )
+    assert put.status_code == 200 and put.json()["versionAt"] == "9.8"

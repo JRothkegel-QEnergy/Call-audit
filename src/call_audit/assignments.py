@@ -71,6 +71,7 @@ def scoped(evaluation: PromptEvaluation, ids: set[str] | None) -> Any:
         version=evaluation.version,
         model=evaluation.model,
         status=evaluation.status,
+        purpose=evaluation.purpose,
         results=[r for r in evaluation.results or [] if r["caseId"] in ids],
     )
 
@@ -127,7 +128,7 @@ def tray(
     Devuelve los ids en el orden de la bandeja (revisadas: la más reciente primero), los conteos por tipo de
     discrepancia (sobre la bandeja y el criterio, sin el filtro de discrepancia) y la fecha del último registro."""
     rows, _ = verification.evaluation_rows(session, scoped(evaluation, ids))
-    records = verification.records_for(session, [r["caseId"] for r in rows])
+    records = verification.records_for(session, [r["caseId"] for r in rows], verification.own_version(evaluation))
     items = verification.segment_items(rows, records, "all")
     found = assignment_map(session, [it["caseId"] for it in items])
     last = last_reviewed(records, found)
@@ -151,7 +152,7 @@ def tray(
 
 def all_items(session: Session, evaluation: PromptEvaluation) -> list[dict]:
     rows, _ = verification.evaluation_rows(session, evaluation)
-    records = verification.records_for(session, [r["caseId"] for r in rows])
+    records = verification.records_for(session, [r["caseId"] for r in rows], verification.own_version(evaluation))
     items = verification.segment_items(rows, records, "all")
     splits = {r["caseId"]: r.get("split") for r in evaluation.results or []}
     for it in items:
@@ -443,7 +444,7 @@ def progress(session: Session, evaluation: PromptEvaluation) -> dict[str, Any]:
             people[a.user_id] = a.user
     last: dict[str, Any] = {}
     case_owner = {cid: a.user_id for cid, a in found.items()}
-    for rec in verification.records_for(session, list(case_owner)).values():
+    for rec in verification.records_for(session, list(case_owner), verification.own_version(evaluation)).values():
         uid = case_owner.get(rec.case_id)
         if uid and rec.decided_by_id == uid and (last.get(uid) is None or rec.decided_at > last[uid]):
             last[uid] = rec.decided_at
@@ -499,7 +500,9 @@ def my_summary(session: Session, evaluation: PromptEvaluation, user: User) -> di
     pending = [it for it in mine if not is_reviewed(it, found[it["caseId"]])]
     pending.sort(key=lambda it: it["order"])
     done = {it["caseId"] for it in mine} - {it["caseId"] for it in pending}
-    last = last_reviewed(verification.records_for(session, list(done)), {c: found[c] for c in done})
+    last = last_reviewed(
+        verification.records_for(session, list(done), verification.own_version(evaluation)), {c: found[c] for c in done}
+    )
     today = datetime.now(CHILE).date()
     return {
         "assigned": len(mine),

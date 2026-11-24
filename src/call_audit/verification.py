@@ -118,11 +118,23 @@ def evaluation_rows(session: Session, evaluation: PromptEvaluation) -> tuple[lis
     return rows, patterns
 
 
-def records_for(session: Session, case_ids: list[str]) -> dict[tuple[str, int], DisagreementVerification]:
+def records_for(
+    session: Session, case_ids: list[str], version: str | None = None
+) -> dict[tuple[str, int], DisagreementVerification]:
+    """Registros de calibración de las llamadas. Con `version`, solo los hechos en esa versión (ver `own_version`)."""
     if not case_ids:
         return {}
-    found = session.scalars(select(DisagreementVerification).where(DisagreementVerification.case_id.in_(case_ids)))
-    return {(v.case_id, v.criterion_id): v for v in found}
+    query = select(DisagreementVerification).where(DisagreementVerification.case_id.in_(case_ids))
+    if version is not None:
+        query = query.where(DisagreementVerification.version_at == version)
+    return {(v.case_id, v.criterion_id): v for v in session.scalars(query)}
+
+
+def own_version(evaluation: Any) -> str | None:
+    """En la corrida completa (la calibración) cada versión parte de cero: solo cuentan los registros hechos en ella
+    (pedido 2026-11-24, «Solo esta versión»). En las pruebas del admin se siguen reutilizando los de otras versiones
+    (H-15)."""
+    return evaluation.version if getattr(evaluation, "purpose", None) == "full" else None
 
 
 def effective(record: DisagreementVerification | None, reviewer: str, agree: bool = False) -> tuple[str | None, bool]:
@@ -230,7 +242,7 @@ def tray_facets(
 
     Devuelve las llamadas que pasan los tres filtros y los conteos de cada uno, calculados sin ese mismo filtro."""
     rows, _ = evaluation_rows(session, evaluation)
-    records = records_for(session, [r["caseId"] for r in rows])
+    records = records_for(session, [r["caseId"] for r in rows], own_version(evaluation))
     open_ = {r["caseId"]: has_uncalibrated(r, records) for r in rows}
 
     def rejected_by_ai(row: dict) -> set[int]:
@@ -337,7 +349,7 @@ def segment_items(rows: list[dict], records: dict, segment: str, criterion: int 
 def summaries(session: Session, evaluation: PromptEvaluation) -> dict[str, Any]:
     """La suma de cada parte, para la línea bajo el mosaico (§6.1)."""
     rows, _ = evaluation_rows(session, evaluation)
-    records = records_for(session, [r["caseId"] for r in rows])
+    records = records_for(session, [r["caseId"] for r in rows], own_version(evaluation))
     return {s: summarize(s, segment_items(rows, records, s), records) for s in SEGMENTS}
 
 
@@ -376,7 +388,7 @@ def segment_calls(
     if sample:
         # Muestra fija: las primeras `sample` en el orden aleatorio de la lista (mismo orden para todos).
         selected = selected[:sample]
-    records = records_for(session, [r["caseId"] for r in selected])
+    records = records_for(session, [r["caseId"] for r in selected], own_version(evaluation))
     if segment == "changed" or sample:
         items = segment_items(selected, records, "all", None)
     else:
@@ -464,7 +476,7 @@ def case_comparison(
         raise LookupError("not_in_test")
     listed = segment in LISTS or criterion is not None
     same = [r for r in rows if matches(r, segment, criterion)] if listed else [row]
-    records = records_for(session, [r["caseId"] for r in same] + [case_id])
+    records = records_for(session, [r["caseId"] for r in same] + [case_id], own_version(evaluation))
     ids = [r["caseId"] for r in same]
     index = ids.index(case_id) if case_id in ids else -1
     pending = [r["caseId"] for r in same if has_uncalibrated(r, records)]
