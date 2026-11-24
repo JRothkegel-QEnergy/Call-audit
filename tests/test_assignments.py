@@ -615,3 +615,26 @@ def test_delete_account_frees_email_and_releases_pending(
     assert (
         client.post("/api/auth/login", json={"email": "ana@qubico-ejemplo.cl", "password": PASSWORD}).status_code == 401
     )
+
+
+def test_share_all_calls_keeps_current_assignees(
+    client: TestClient,
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+    two: tuple[User, User],
+) -> None:
+    """AE22b: «Todas las llamadas» al compartir suma a los marcados en cada llamada; nadie pierde las suyas."""
+    ids = seed_full(imported, admin)
+    ana, beto = two
+    with imported() as session, session.begin():
+        session.add(VerificationAssignment(case_id=ids[0], user_id=ana.id, assigned_by_id=admin.id))
+    login(client, admin)
+    url = "/api/admin/prompts/9.8/verification/assign"
+    to = [{"userId": ana.id}, {"userId": beto.id}]
+    assert client.post(url, json={"source": "all", "to": to}).status_code == 422  # solo al compartir
+    done = client.post(url, json={"source": "all", "to": to, "share": True}).json()
+    assert done["calls"] == len(ids)
+    with imported() as session:
+        rows = {a.case_id: assignments.assignees(a) for a in session.scalars(select(VerificationAssignment))}
+    assert set(rows) == set(ids) and all(set(v) == {ana.id, beto.id} for v in rows.values())
+    assert rows[ids[0]][0] == ana.id

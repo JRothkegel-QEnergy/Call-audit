@@ -257,3 +257,24 @@ Pedido de Johannes (2026-11-24), recibido vía coordinador en 13 puntos; se regi
 - **Asignaciones:** solo se quitan las pendientes. Si una llamada estaba compartida (AE22), sigue con el otro asignado; si no, vuelve a Sin asignar. Lo ya calibrado no cambia.
 - **Límites:** el admin no puede eliminarse a sí mismo, ni eliminar al último admin. En esos casos la acción aparece deshabilitada, con un tooltip que explica por qué.
 - **Bitácora:** se registra la eliminación.
+
+**AE22b (2026-11-24).** Pedido (Johannes, textual): «¿cómo asigno a los 3 las 1100 llamadas?».
+- **Selector «Desde»:** con «Las mismas llamadas para todos» marcada, suma como primera opción «Todas las llamadas (N)», elegida por defecto.
+- **Asignación:** se suma a los marcados y se conservan los asignados que ya tenía la llamada, así que nadie pierde llamadas.
+- **Calibradas:** se incluyen. Es una excepción consciente a AD «solo pendientes», válida solo en este modo. Las calibradas aparecen en la lista Calibradas de cada persona.
+- **Cantidad:** opcional; vacía significa todas.
+- **Botón:** «Compartir {n} llamadas», con n = la cantidad efectiva.
+- **Resumen previo bajo el botón:** «{p} por calibrar · {c} ya calibradas».
+
+**AE25 (2026-11-24).** Pedido (Johannes): columna «Tipo de llamada» en «Llamadas por calibrar» y «Llamadas calibradas».
+- **Posición:** después de «Fecha llamada».
+- **Contenido:** la tipificación del ejecutivo en texto corto, la misma de `TypificationLine`. Si no hay, «—».
+- **Orden y filtro:** no se ordena ni se filtra.
+- **Ancho:** máximo ~220 px, con corte en una línea (`truncate`). El texto completo va en `title`, así que la tabla no se ensancha.
+
+**AE26 (2026-11-24).** Pedido (Johannes, textual): «agregar también filtro de revisor». Se interpreta como un filtro por la columna «Nombre Revisor».
+- **Control:** grupo «Nombre Revisor» con un select. Primera opción «Todos · {n} llamadas»; luego cada nombre (`personName`) con su conteo, en orden alfabético. Al final, «Sin revisor · {n}» si hay llamadas sin evaluador.
+- **Posición:** después de «Veredicto Revisor».
+- **URL:** `?nombre_revisor=` guarda la clave del evaluador tal como viene en los datos, no el nombre formateado.
+- **Dónde se aplica:** en el cliente, si la bandeja carga todas sus filas; si está paginada, en el servidor.
+- **Quitar filtros:** lo incluye.
