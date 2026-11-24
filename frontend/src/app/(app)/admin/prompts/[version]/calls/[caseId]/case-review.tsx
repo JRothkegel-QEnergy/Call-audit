@@ -124,7 +124,8 @@ function CaseReview({
   // Calibrada solo con todos los criterios calibrados (pedido 2026-11-24); sin criterios por calibrar, con «Sin
   // observaciones» o algún acuerdo calibrado al revés. La misma regla que `assignments.is_reviewed`.
   const reviewed = toRecord > 0 ? recorded === toRecord : !!cmp.assignment?.reviewedAt || (cmp.bothWrong ?? 0) > 0;
-  const reviewState = reviewed ? "Calibrada" : recorded > 0 ? `${recorded} de ${toRecord} criterios calibrados` : "Por calibrar";
+  const reviewerName = cmp.reviewer.evaluator ? personName(cmp.reviewer.evaluator) : null;
+  const reviewState = reviewed ? "Calibrada" :recorded > 0 ? `${recorded} de ${toRecord} criterios calibrados` : "Por calibrar";
   // Foco inicial: el criterio de la lista si sigue sin registrar (16-lista-verificador-por-motivo, L3 A); si no, el primero
   // sin registrar.
   const [focus, setFocus] = useState(() => {
@@ -440,6 +441,7 @@ function CaseReview({
             {toVerify.map((c, i) => (
               <CriterionCard
                 typification={call.typification}
+                reviewerName={reviewerName}
                 key={c.criterionId}
                 c={c}
                 version={cmp.version}
@@ -483,6 +485,7 @@ function CaseReview({
                             c={c}
                             version={cmp.version}
                             typification={call.typification}
+                            reviewerName={reviewerName}
                             canWrite={canWrite && c.verification?.canChange !== false}
                             busy={busy === c.criterionId}
                             onOpen={() => setAgreeFocus(c.criterionId)}
@@ -622,9 +625,11 @@ function CriterionCard({
   onSave,
   onListen,
   typification,
+  reviewerName,
 }: {
   c: CaseComparisonCriterion;
   typification: Typification | null | undefined;
+  reviewerName: string | null;
   version: string;
   focused: boolean;
   /** Es el criterio con que se filtró la lista (16-lista-verificador-por-motivo, L3 A). */
@@ -651,7 +656,7 @@ function CriterionCard({
         {filtered && <span className="chip ml-2 align-middle text-xs">Criterio filtrado</span>}
       </h3>
       <p className="help m-0">Criterio: {c.description}</p>
-      <CriterionEvidence c={c} version={version} typification={typification} onListen={onListen} />
+      <CriterionEvidence c={c} version={version} typification={typification} reviewerName={reviewerName} onListen={onListen} />
 
       {v?.stale && <p className="m-0 font-semibold">El revisor cambió su veredicto después de esta calibración. Calíbralo de nuevo.</p>}
 
@@ -706,22 +711,31 @@ function CriterionEvidence({
   c,
   version,
   typification,
+  reviewerName,
   onListen,
 }: {
   c: CaseComparisonCriterion;
   version: string;
   typification: Typification | null | undefined;
+  /** Nombre del revisor ya formateado; sin él se rotula «Revisor» (23, AE2). */
+  reviewerName: string | null;
   onListen: (quote: string, startMs: number | null) => void;
 }) {
   const admin = useIsAdmin();
   const undecided = c.kind === "undecided";
   return (
     <>
-      {!undecided && (
-        <p className="m-0">
-          Qubyt{admin ? ` v${version}` : ""}: <span className={VERDICT_CLASS[c.ai.verdict]}>{VERDICT[c.ai.verdict]}</span>
-        </p>
-      )}
+      {/* Qubyt y revisor en la misma línea (23, AE1-AE3). */}
+      <p className="m-0 flex flex-wrap items-center gap-x-4 gap-y-1">
+        {!undecided && (
+          <span>
+            Qubyt{admin ? ` v${version}` : ""}: <span className={VERDICT_CLASS[c.ai.verdict]}>{VERDICT[c.ai.verdict]}</span>
+          </span>
+        )}
+        <span>
+          {reviewerName ?? "Revisor"}: <span className={c.reviewerFail ? "vt vt-fail" : "vt vt-pass"}>{c.reviewerFail ? "No cumple" : "Cumple"}</span>
+        </span>
+      </p>
       {c.ai.evidence.length === 0 ? (
         !undecided && (
           <p className="help m-0">
@@ -750,9 +764,6 @@ function CriterionEvidence({
         call={{ typification, verdict: c.ai.verdict, suggestedReasons: c.ai.suggestedReasons }}
       />
       {c.ai.comment && <p className="m-0">Comentario de Qubyt: «{c.ai.comment}»</p>}
-      <p className="m-0">
-        Veredicto revisor: <span className={c.reviewerFail ? "vt vt-fail" : "vt vt-pass"}>{c.reviewerFail ? "No cumple" : "Cumple"}</span>
-      </p>
     </>
   );
 }
@@ -768,10 +779,12 @@ function AgreeCriterion({
   onSave,
   onUndo,
   onListen,
+  reviewerName,
 }: {
   c: CaseComparisonCriterion;
   version: string;
   typification: Typification | null | undefined;
+  reviewerName: string | null;
   canWrite: boolean;
   busy: boolean;
   onOpen: () => void;
@@ -794,7 +807,7 @@ function AgreeCriterion({
         {current && <b className={current === "non_compliant" ? "ml-1 text-[var(--red-800)]" : "ml-1"}> · Calibrado: {CALIBRATION[current]}</b>}
       </summary>
       <div className="grid gap-1.5 border-t border-border p-3">
-        <CriterionEvidence c={c} version={version} typification={typification} onListen={onListen} />
+        <CriterionEvidence c={c} version={version} typification={typification} reviewerName={reviewerName} onListen={onListen} />
         {v?.stale && <p className="m-0 font-semibold">El revisor cambió su veredicto después de esta calibración. Calíbralo de nuevo.</p>}
         {canWrite ? (
           <>

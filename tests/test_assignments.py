@@ -1,5 +1,7 @@
 """Rol verificador y asignación de llamadas (docs/ux/admin-prompt-metrics/13). Sintético."""
 
+from collections import Counter
+
 import pytest
 from argon2 import PasswordHasher
 from fastapi.testclient import TestClient
@@ -454,3 +456,47 @@ def test_call_stays_to_calibrate_until_every_criterion_is_calibrated() -> None:
     # Sin criterios por calibrar: «Sin observaciones» o un acuerdo calibrado al revés.
     assert not assignments.is_reviewed({"disagreements": [], "verification": "none"}, None)
     assert assignments.is_reviewed({"disagreements": [], "verification": "ai_wrong", "bothWrong": 1}, None)
+
+
+def test_assign_counts_reassign_and_release(
+    client: TestClient,
+    admin: User,  # noqa: F811
+    imported: sessionmaker[Session],
+    two: tuple[User, User],
+) -> None:
+    """24 (AD1-AD4 A): cantidad por calibrador desde lo sin asignar, tope con aviso, pasar parte de las pendientes de
+    uno a otro y devolverlas a «Sin asignar»."""
+    seed_full(imported, admin)
+    ana, beto = two
+    login(client, admin)
+    url = "/api/admin/prompts/9.8/verification/assign"
+
+    def run(source: str, to: list[dict], preview: bool = False):
+        return client.post(url, json={"source": source, "to": to, "preview": preview})
+
+    too = run("unassigned", [{"userId": ana.id, "count": 4}], preview=True)
+    assert too.status_code == 422 and too.json()["detail"]["available"] == 3
+
+    preview = run("unassigned", [{"userId": ana.id, "count": 2}, {"userId": beto.id}], preview=True).json()
+    assert preview["available"] == 3 and [p["calls"] for p in preview["people"]] == [2, 1]
+    with imported() as session:
+        assert session.scalars(select(VerificationAssignment)).all() == []  # la vista previa no guarda
+
+    run("unassigned", [{"userId": ana.id, "count": 2}, {"userId": beto.id}])
+    with imported() as session:
+        mine = Counter(a.user_id for a in session.scalars(select(VerificationAssignment)))
+    assert mine == {ana.id: 2, beto.id: 1}
+
+    # Una de Ana pasa a Beto; la otra vuelve a «Sin asignar».
+    assert run(ana.id, [{"userId": beto.id, "count": 1}, {"userId": None}]).json()["calls"] == 2
+    with imported() as session:
+        mine = Counter(a.user_id for a in session.scalars(select(VerificationAssignment)))
+    assert mine == {beto.id: 2}
+    assert run("unassigned", [{"userId": None}]).status_code == 422  # lo sin asignar no vuelve a «Sin asignar»
+
+
+def test_interleaved_keeps_any_prefix_proportional() -> None:
+    items = [{"caseId": f"f{i}", "segment": "promptFn", "order": i} for i in range(6)]
+    items += [{"caseId": f"a{i}", "segment": "agree", "order": 10 + i} for i in range(3)]
+    first = [it["segment"] for it in assignments.interleaved(items)[:3]]
+    assert first.count("promptFn") == 2 and first.count("agree") == 1

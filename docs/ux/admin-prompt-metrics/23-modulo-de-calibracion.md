@@ -172,3 +172,28 @@ calibración Cumple/No cumple, mismo vocabulario en listas y caso).
 ### Fuera de alcance
 Rutas `/verification…`, rol `qubico_verifier`, tablas y parámetros de URL/API existentes; leyenda de las listas (AB1);
 migración de registros viejos (AB5).
+
+## 6. Cambio menor: veredictos de Qubyt y del revisor en la misma línea (2026-11-24)
+
+**Pedido (Johannes, textual):** «en la vista del calibrador, en las tarjetas de los criterios pon el resultado del
+veredicto de qubyt y el del revisor a la misma altura y en vez de decir Veredicto revisor, que salga el nombre del
+revisor y si cumple o no cumple.»
+
+Revisión rápida (un gate, sin reabrir fases): toca solo `CriterionEvidence` en `case-review.tsx`, compartido por los
+desacuerdos (`CriterionCard`) y los acuerdos (`AgreeCriterion`).
+
+| Decisión | Resuelto |
+|---|---|
+| AE1 Disposición | Una sola línea al inicio de la tarjeta, `flex flex-wrap items-center gap-x-4 gap-y-1` (mismo patrón que la cabecera de la llamada): `Qubyt: <badge>` · `<Nombre del revisor>: <badge Cumple/No cumple>`. Se elimina la línea «Veredicto revisor» del final. Citas, motivos sugeridos y comentario de Qubyt quedan debajo, sin cambios. El admin sigue viendo `Qubyt v{n}`. |
+| AE2 Sin nombre | Si la llamada no tiene evaluador: `Revisor: <badge>` (mismo término que la cabecera; no «Veredicto revisor»). |
+| AE3 Qubyt sin veredicto (`undecided`) | La línea muestra solo la parte del revisor (sigue AB3/R-AB4: nada que sugiera Qubyt en duda). |
+
+Alcance: la cabecera de la llamada se mantiene como está (`Veredicto revisor: …` · `Revisor: <nombre>`), porque ahí
+queda establecido quién es la persona; el pedido es solo para las tarjetas de criterio.
+
+Implementación: `CriterionEvidence` recibe el nombre ya formateado (`personName(cmp.reviewer.evaluator)` o `null`) desde
+`CriterionCard` y `AgreeCriterion`. Badge del revisor sin cambios (`vt vt-fail` / `vt vt-pass`, textos «No cumple» /
+«Cumple»). Accesibilidad: el texto del nombre y el del veredicto siguen siendo texto (no solo color); con `wrap`, en
+ancho angosto la parte del revisor baja a la segunda línea sin cortar la etiqueta de su badge (envolver cada par en un
+`<span>` con `whitespace-nowrap` en la etiqueta). Riesgo menor R-AE1: un nombre muy largo empuja el par a otra línea;
+aceptable.

@@ -223,11 +223,9 @@ export const httpApi: ApiClient = {
   getVerificationOverview: (version, assignee) =>
     get(`/api/admin/prompts/${encodeURIComponent(version)}/verification${query({ assignee: assignee ?? undefined })}`),
   getVerificationProgress: (version) => get(`/api/admin/prompts/${encodeURIComponent(version)}/verification/progress`),
-  previewDistribution: (version, userIds) =>
-    post(`/api/admin/prompts/${encodeURIComponent(version)}/verification/distribute/preview`, { userIds }),
-  distribute: (version, userIds) => post(`/api/admin/prompts/${encodeURIComponent(version)}/verification/distribute`, { userIds }),
-  movePending: (version, fromUserId, toUserIds) =>
-    post(`/api/admin/prompts/${encodeURIComponent(version)}/verification/move`, { fromUserId, toUserIds }),
+  previewAssign: (version, input) =>
+    post(`/api/admin/prompts/${encodeURIComponent(version)}/verification/assign`, { ...input, preview: true }),
+  assign: (version, input) => post(`/api/admin/prompts/${encodeURIComponent(version)}/verification/assign`, input),
   setAssignee: (caseId, userId) => request("PUT", `/api/admin/assignments/${encodeURIComponent(caseId)}`, { userId }),
   setReviewed: (caseId, reviewed) => request("PUT", `/api/admin/assignments/${encodeURIComponent(caseId)}/reviewed`, { reviewed }),
   getFullRun: (version) => get(`/api/admin/prompts/${encodeURIComponent(version)}/full-run`),

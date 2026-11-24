@@ -154,6 +154,37 @@ def move_pending(version: str, body: MoveIn, session: DbSession, user: Admin):
     return {"moved": moved}
 
 
+class AssignTargetIn(BaseModel):
+    userId: str | None = None  # noqa: N815  None = «Sin asignar»
+    count: int | None = None  # None = parejo lo que quede
+
+
+class AssignIn(BaseModel):
+    source: str  # «unassigned» o el id de un calibrador
+    to: list[AssignTargetIn]
+    preview: bool = False
+
+
+@router.post("/admin/prompts/{version}/verification/assign")
+def assign(version: str, body: AssignIn, session: DbSession, user: Admin):
+    """«Asignar llamadas» (24, AD1-AD4 A): desde lo sin asignar o las pendientes de un calibrador, a uno o varios
+    calibradores (o de vuelta a «Sin asignar»), con cantidad por persona. Con `preview`, solo calcula."""
+    target = verification_target(session, version, "full", user)
+    try:
+        plan = assignments.assign(
+            session, target, body.source, [(t.userId, t.count) for t in body.to], user, apply=not body.preview
+        )
+    except assignments.TooMany as exc:
+        raise HTTPException(
+            422, {"code": "too_many", "errors": [str(exc.available)], "available": exc.available}
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    if not body.preview:
+        session.commit()
+    return plan
+
+
 class AssigneeIn(BaseModel):
     userId: str | None = None  # noqa: N815
 

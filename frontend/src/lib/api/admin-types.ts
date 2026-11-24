@@ -427,6 +427,20 @@ export interface DistributionPlan {
   people: { id: string; name: string; calls: number; bySegment: Record<string, number> }[];
 }
 
+/** «Asignar llamadas» (24-asignar-cantidad-a-calibrador): origen «unassigned» o un calibrador; destino un calibrador o
+ * null («Sin asignar»), con cantidad o null (parejo lo que quede). */
+export interface AssignInput {
+  source: string;
+  to: { userId: string | null; count: number | null }[];
+}
+
+export interface AssignPlan {
+  /** Llamadas que había en el origen. */
+  available: number;
+  calls: number;
+  people: { id: string | null; name: string; calls: number; bySegment: Record<string, number> }[];
+}
+
 export interface FullRun {
   id: string;
   status: "queued" | "running" | "done" | "failed" | "stopped";

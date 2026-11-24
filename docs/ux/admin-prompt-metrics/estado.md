@@ -305,3 +305,33 @@
 | 2026-11-24 | **Aprobado:** AB1 «Módulo de calibración» en el menú, sin leyenda aún; AB2 A; AB3 azul/amarillo/verde pastel con leyenda de colores, sin «Qubyt en duda» (`undecided` con revisor No cumple → amarillo; con revisor Cumple → fuera de la columna); AB4 A; AB5 `ambiguous`/`missing_info` se leen como No cumple, sin migración (Johannes: «AB1: no pongas leyenta aún. AB2: A. AB3: No pongas eso de qubyt en duda, no queremos dar la sensación de que qubyt se equivoca. AB4: A. AB5: Si dice ambiguo o falta información, ponlo como no cumple.») | Johannes (vía coordinador) |
 | 2026-11-24 | Decisión del diseñador: el `undecided` con revisor Cumple sigue obligatorio y cuenta en el Avance; en el caso se muestra sin línea de Qubyt (R-AB4). Especificación en `23` §5 | Diseñador |
 | 2026-11-24 | Implementado en `feature/modulo-calibracion`. Ajuste aprobado: la llamada sigue en Por calibrar hasta calibrar todos sus criterios (un «Qubyt se equivocó» ya no la cierra) | Johannes / Coordinador |
+
+---
+
+## Asignar una cantidad de llamadas a un calibrador (pedido 2026-11-24)
+
+- **Estado:** AD1-AD4 **aprobadas** (todas A) el 2026-11-24. Especificación en `24` §6. Listo para implementar. Base: `23` en `develop` (`d9136eb`), rama `feature/asignar-cantidad-calibrador`.
+- **Origen (Johannes, textual):** «voy a necesitar que desde administrador pueda asignar a un calibrador la cantidad de casos que quiera.»
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-24 | Cambio menor sobre `13`/`23` (un gate) | Johannes (vía coordinador) |
+| 2026-11-24 | Diagnóstico: `plan()` reparte todo lo sin asignar, sin tope por persona (P-AC1); los estratos se recorren en secuencia, así que «las N primeras» serían casi todas `promptFn` → hace falta corte proporcional por segmento × set (P-AC2); no hay devolución parcial a Sin asignar (P-AC3). Propuesta: AC1 campo por calibrador en «Repartir llamadas»; AC2 proporcional en orden fijo; AC3 validar y bloquear; AC4 «Devolver pendientes…» solo sin empezar. Supuesto H-AC1 (cantidad = adicional); riesgos R-AC1, R-AC2. Esperando AC1-AC4 | Diseñador |
+| 2026-11-24 | AC1-AC4 no aprobadas. Aclaración (Johannes, textual): «la idea es que pueda asignar todas las llamadas a alguien si quiero, o repartirlas en varios o volver a asignar a otra persona llamadas ya asignadas.» | Johannes (vía coordinador) |
+| 2026-11-24 | Reformulado: hoy U1 ya existe (repartir con un solo calibrador), U2 sin cantidad, U3 solo «todas las pendientes» o de a una desde el caso. Propuesta: un solo diálogo «Asignar llamadas» (Desde → A quién → cuántas) que reemplaza Repartir y Pasar pendientes; endpoint `/verification/assign`. Esperando AD1-AD4 | Diseñador |
+| 2026-11-24 | **AD1-AD4 aprobadas, todas A** (Johannes: «Sí, todas en A»): un diálogo «Asignar llamadas» que reemplaza Repartir y Pasar pendientes; solo pendientes; cantidad o todas, proporcional por segmento × set; bloquear si pide más. H-AD1 confirmado (la cantidad se suma) | Johannes (vía coordinador) |
+| 2026-11-24 | Especificación de implementación en `24` §6 (endpoint `/verification/assign`, `plan_assign`/`assign`, bitácora `verification_assigned_bulk`, `AssignDialog` con textos y estados) | Diseñador |
+
+---
+
+## Veredictos de Qubyt y del revisor en la misma línea en las tarjetas de criterio (pedido 2026-11-24)
+
+- **Estado:** cambio menor (un gate) sobre `23`; especificado en `23` §6. Sin preguntas abiertas: listo para implementar. Sin código aún.
+- **Origen (Johannes, textual):** «en la vista del calibrador, en las tarjetas de los criterios pon el resultado del veredicto de qubyt y el del revisor a la misma altura y en vez de decir Veredicto revisor, que salga el nombre del revisor y si cumple o no cumple.»
+- **Legal:** omitido por instrucción de Johannes.
+
+| Fecha | Decisión | Origen |
+|---|---|---|
+| 2026-11-24 | Ya decidido: veredictos a la misma altura; el nombre del revisor reemplaza «Veredicto revisor» en las tarjetas de criterio | Johannes (vía coordinador) |
+| 2026-11-24 | Resuelto por el diseñador sobre la propuesta del coordinador: AE1 una línea `Qubyt: <badge>` · `<Nombre>: <badge>` al inicio de la tarjeta, se borra la línea final; AE2 sin evaluador → `Revisor: <badge>`; AE3 `undecided` → solo la parte del revisor. La cabecera de la llamada no cambia. Riesgo R-AE1 (nombre largo hace wrap) | Diseñador |
