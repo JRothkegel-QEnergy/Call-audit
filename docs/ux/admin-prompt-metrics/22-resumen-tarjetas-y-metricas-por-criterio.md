@@ -248,3 +248,21 @@ nombre del usuario logueado formateado con `personName` (p. ej. «Verificador 1�
 coherencia se aplica igual al selector equivalente de la lista del calibrador (`verification-view.tsx`, rama
 `isVerifier`): es la misma persona y el mismo filtro, y no debe cambiar de rótulo entre pantallas. Sin cambios de
 comportamiento ni de URL (AA4 sigue). Registrado también en `23` §6 y `estado.md`.
+
+## Cambio menor AE7-AE10: navbar, íconos, título del ranking y sin atajos (2026-11-24)
+
+Pedido (Johannes, textual): «Abajo del logo de qubyt poner -> "Auditoria inteligente de llamadas" en el navbar. Cambiar iconos del navbar por iconos que hagan más sentido con por calibrar, y calibradas. (quizás invertir los iconos) renombrar tabla de la página resumen que se llama "Por criterio" a "Ranking de criterios según tasa de no cumplimiento" Borrar los atajos de teclado y las preferencias. Deshabilitar los atajos para todas las vistas.»
+
+- **AE7** `components/shell/sidebar-nav.tsx`: subtítulo bajo el logo «Auditoría inteligente de llamadas» (con tilde), todos los roles.
+- **AE8** íconos lucide del calibrador: Por calibrar = `ClipboardList` (por hacer), Calibradas = `ClipboardCheck` (hecho). Mismo
+  objeto con y sin check: el par se lee como estado de una misma tarea, más claro que `ListChecks`. Resumen sigue `BarChart3`.
+- **AE9** `verification/summary/page.tsx`: título de la tabla «Ranking de criterios según tasa de no cumplimiento». Se borra
+  el subtítulo «Ordenado por % No cumple, de mayor a menor» (redundante); el orden sigue indicado en la cabecera con `aria-sort`.
+- **AE10** fuera «Atajos de teclado» y «Preferencias» del menú (todos los roles), la página `/settings`, el diálogo de atajos y
+  el «?» global. Se desactivan todos los atajos de teclado (calibrador, detalle de llamada incl. flechas ←/→ del audio,
+  patrones) con `SHORTCUTS_ENABLED=false` (reversible); se ocultan los `<Kbd>` y el checkbox «atajos» del caso. La
+  `welcome-card` (cola del auditor) se elimina: su único contenido eran atajos. Se mantienen Enter en filas enfocadas y
+  flechas en tablist/segmented (teclado nativo, WCAG 2.1.1). La velocidad del audio queda en 1,5x por defecto y se sigue
+  cambiando desde el reproductor. Nota: quitar atajos de una tecla también cumple WCAG 2.1.4.
+
+Registrado también en `23` §6 y `estado.md`.

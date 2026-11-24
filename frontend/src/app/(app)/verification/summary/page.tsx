@@ -308,21 +308,13 @@ function ByCriterion({ rows }: { rows: CriterionStats[] }) {
       className={className}
     />
   );
-  const subtitle =
-    sort && dir
-      ? `Ordenado por ${COL_LABEL[sort]}, ${dir === "asc" ? "ascendente" : "descendente"}.`
-      : "Ordenado por % No cumple, de mayor a menor.";
 
   return (
     <section className="grid gap-3" aria-labelledby="by-criterion-h">
-      <div className="grid gap-0.5">
-        <h2 id="by-criterion-h" className="m-0 text-base font-semibold">
-          Por criterio
-        </h2>
-        <p className="help m-0" aria-live="polite">
-          {subtitle}
-        </p>
-      </div>
+      {/* 22, AE9: el título ya dice el orden; sin subtítulo (aria-sort queda en la cabecera). */}
+      <h2 id="by-criterion-h" className="m-0 text-base font-semibold">
+        Ranking de criterios según tasa de no cumplimiento
+      </h2>
       <div className="overflow-x-auto">
         <table className="tbl">
           <caption className="sr-only">

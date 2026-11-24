@@ -2,7 +2,6 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ShortcutsDialog } from "@/components/dialogs/shortcuts-dialog";
 import { LoadingState } from "@/components/ui/states";
 import type { Role } from "@/lib/api/types";
 import { useSession } from "@/lib/session";
@@ -14,7 +13,7 @@ import { SidebarNav } from "./sidebar-nav";
  * Rutas permitidas por rol (prefijos). El backend también valida el rol en cada endpoint.
  * El admin no ve dashboards de ejecutivos ni aprueba revisiones (H-60); comparte Discrepancias y Seguros.
  */
-const COMMON = ["/calls/", "/settings"];
+const COMMON = ["/calls/"];
 const ALLOWED: Record<Role, string[]> = {
   auditor: ["/queue", "/my-reviews", ...COMMON],
   supervisor: [
@@ -31,7 +30,7 @@ const ALLOWED: Record<Role, string[]> = {
   qubico_admin: ["/admin", "/analysis", "/discrepancies", "/catalog", ...COMMON],
   qubico_viewer: ["/admin", "/analysis", ...COMMON],
   // Verificador (13-rol-verificador): solo la verificación; las rutas de la versión se filtran abajo.
-  qubico_verifier: ["/verification", "/settings"],
+  qubico_verifier: ["/verification"],
 };
 
 /** El verificador entra a la pestaña Verificación de una versión, a sus listas y a la revisión del caso, nada más. */
@@ -84,7 +83,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
   const forbidden =
     !!user &&
@@ -99,20 +97,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     else if (forbidden) router.replace(homeFor(user.role));
     else if (redirectTo) router.replace(redirectTo);
   }, [ready, user, forbidden, redirectTo, router]);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement | null)?.tagName?.toLowerCase();
-      if (tag && ["input", "textarea", "select"].includes(tag)) return;
-      if (document.querySelector("[role=dialog]")) return;
-      if (e.key === "?") {
-        e.preventDefault();
-        setShortcutsOpen(true);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
 
   if (!ready || !user || forbidden || redirectTo) {
     return (
@@ -137,13 +121,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           collapsed={isCollapsed}
           canToggle={!isDetail}
           onToggle={() => setCollapsed((c) => !c)}
-          onShortcuts={() => setShortcutsOpen(true)}
         />
         <main id="main" className="min-w-0 px-7 pb-10 pt-6">
           {children}
         </main>
       </div>
-      <ShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
     </NavCountsProvider>
   );
 }

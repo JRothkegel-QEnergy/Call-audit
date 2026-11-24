@@ -34,6 +34,7 @@ import { isAdminRole } from "@/lib/api/types";
 import type { CallVerdict, CaseDetail, Note, Rubric } from "@/lib/api/types";
 import { durationText, shortDateTime } from "@/lib/format";
 import { usePreferences } from "@/lib/preferences";
+import { SHORTCUTS_ENABLED } from "@/lib/shortcuts";
 import { loadRubric } from "@/lib/rubric";
 import { useSession } from "@/lib/session";
 import { AnalysisBanner } from "@/components/admin/quality-banner";
@@ -315,13 +316,14 @@ function CallWorkspace({
     }
   };
 
-  // ---- Atajos (05 §2; desactivables en Preferencias, WCAG 2.1.4) ----
+  // ---- Atajos (05 §2): desactivados en todas las vistas (22, AE10; lib/shortcuts) ----
   const stateRef = useRef({ focusId, order, work, data, mode, pending, editing, dialog, sheetDrawer, modelOpen, noteOpenFor });
   useEffect(() => {
     stateRef.current = { focusId, order, work, data, mode, pending, editing, dialog, sheetDrawer, modelOpen, noteOpenFor };
   });
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (!SHORTCUTS_ENABLED) return;
       const s = stateRef.current;
       const tag = (e.target as HTMLElement | null)?.tagName?.toLowerCase() ?? "";
       if (["input", "textarea", "select"].includes(tag)) return;

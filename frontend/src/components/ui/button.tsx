@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import { cn } from "@/lib/cn";
+import { SHORTCUTS_ENABLED } from "@/lib/shortcuts";
 
 type Variant = "default" | "primary" | "ghost" | "destructive";
 type Size = "sm" | "default" | "lg";
@@ -39,6 +40,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   );
 });
 
+/** Indicador de tecla. Sin atajos (22, AE10) no se muestra. */
 export function Kbd({ children }: { children: React.ReactNode }) {
+  if (!SHORTCUTS_ENABLED) return null;
   return <span className="kbd">{children}</span>;
 }

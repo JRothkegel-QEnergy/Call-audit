@@ -22,6 +22,7 @@ import type { CaseDetail, Evidence, Finding, Rubric, Typification } from "@/lib/
 import { cn } from "@/lib/cn";
 import { mmss, personName, shortDate, shortDateTime } from "@/lib/format";
 import { useSession } from "@/lib/session";
+import { SHORTCUTS_ENABLED } from "@/lib/shortcuts";
 import { loadRubric } from "@/lib/rubric";
 import { useAsync } from "@/lib/use-async";
 import { scopeQuery, SORT_PARAM, trayPath } from "@/lib/verification-scope";
@@ -139,7 +140,6 @@ function CaseReview({
     setSheetOpenState(open);
   };
   const [sheetDrawer, setSheetDrawer] = useState(false);
-  const [shortcuts, setShortcuts] = useState(true);
   const [busy, setBusy] = useState<number | null>(null);
   // Criterio en acuerdo abierto: la ficha del seguro lo sigue (20, Y1 A).
   const [agreeFocus, setAgreeFocus] = useState<number | null>(null);
@@ -266,7 +266,7 @@ function CaseReview({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (!shortcuts || isTyping(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (!SHORTCUTS_ENABLED || isTyping(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
       if (document.querySelector("[role=dialog]")) return;
       const c = toVerify[focus];
       if (canWrite && c && c.verification?.canChange !== false && ["1", "2"].includes(e.key)) {
@@ -400,10 +400,6 @@ function CaseReview({
               <h2 id="verify-h" className="m-0 flex-1 text-sm font-semibold">
                 Por calibrar ({toVerify.length})
               </h2>
-              <label className="help flex items-center gap-1.5">
-                <input type="checkbox" checked={shortcuts} onChange={(e) => setShortcuts(e.target.checked)} />
-                Atajos (1-2, J/K, N)
-              </label>
             </div>
             {toVerify.length === 0 &&
               (full && cmp.assignment?.assigneeId ? (
@@ -654,7 +650,7 @@ function CriterionCard({
 
       {canWrite ? (
         <>
-          <CalibrationButtons criterionId={c.criterionId} current={current} busy={busy} shortcuts onSave={(o) => onSave(o, v?.note ?? null)} />
+          <CalibrationButtons criterionId={c.criterionId} current={current} busy={busy} shortcuts={SHORTCUTS_ENABLED} onSave={(o) => onSave(o, v?.note ?? null)} />
           <NoteField initial={v?.note} current={current} onSave={onSave} />
         </>
       ) : (
